@@ -28,10 +28,12 @@ class TypeORMEntityGenerator {
     const columns = table.columns.map(col => this.generateColumnDefinition(col)).join('\n  ');
     const relations = table.relations.map(rel => this.generateRelationDefinition(rel)).join('\n  ');
 
-    return `import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn } from 'typeorm';
+    return `import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn, CreateDateColumn, UpdateDateColumn } from 'typeorm';
+import 'reflect-metadata';
+import { ApiProperty } from '@nestjs/swagger';
 
 @Entity('${table.tableName}')
-export class ${this.toPascalCase(table.tableName)} {
+export class ${this.toPascalCase(table.tableName)}Entity {
   ${columns}
   ${relations}
 }`;
@@ -39,19 +41,28 @@ export class ${this.toPascalCase(table.tableName)} {
 
   private generateColumnDefinition(column: Column): string {
     const options: string[] = [];
+    const typeOptions: string[] = [];
 
-    if (column.isNullable) options.push('nullable: true');
+    if (column.isNullable) typeOptions.push('nullable: true');
     if (column.columnDefault) options.push(`default: "${column.columnDefault.replace(/"/g, '\\"')}"`);
     if (column.characterMaximumLength) options.push(`length: ${column.characterMaximumLength}`);
 
-    return `@Column({ type: '${this.mapDataType(column.dataType)}', ${options.join(', ')} })
+    const columnDecorator = column.columnName === 'id'
+      ? '@PrimaryGeneratedColumn()'
+      : `@Column({ type: '${this.mapDataType(column.dataType)}', ${options.join(', ')} })`;
+
+    const apiPropertyDecorator = `@ApiProperty({ description: "${column.columnComment || ''}", ${typeOptions.join(', ')} })`;
+
+    return `${columnDecorator}
+  ${apiPropertyDecorator}
   ${column.columnName}: ${this.mapType(column.dataType)};`;
   }
 
   private generateRelationDefinition(relation: Relation): string {
-    return `@ManyToOne(() => ${this.toPascalCase(relation.foreignTableName)})
+    return `@ManyToOne(() => ${this.toPascalCase(relation.foreignTableName)}Entity)
   @JoinColumn({ name: '${relation.columnName}' })
-  ${relation.columnName}: ${this.toPascalCase(relation.foreignTableName)};`;
+  @ApiProperty({ description: "Relacionamento com ${relation.foreignTableName}." })
+  ${relation.columnName}: ${this.toPascalCase(relation.foreignTableName)}Entity;`;
   }
 
   private mapDataType(dataType: string): string {
