@@ -4,8 +4,8 @@ import { config as dotenvConfig } from 'dotenv';
 import { Client } from 'pg';
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
+import { Table, Column, Relation } from './interfaces'; // Import the interfaces
 
-// Load environment variables from .env file
 dotenvConfig();
 
 // Debugging section to check environment variables
@@ -81,9 +81,9 @@ async function getSchemaInfo() {
     const tablesResult = await client.query(tablesQuery);
     const tables = tablesResult.rows.map(row => row.table_name);
 
-    for (const table of tables) {
-      console.log(`\nTabela: ${table}`);
+    const schemaInfo: Table[] = [];
 
+    for (const tableName of tables) {
       const columnsQuery = `
         SELECT 
           c.column_name, 
@@ -101,11 +101,16 @@ async function getSchemaInfo() {
         WHERE 
           c.table_schema = 'public' AND c.table_name = $1
       `;
-      const columnsResult = await client.query(columnsQuery, [table]);
+      const columnsResult = await client.query(columnsQuery, [tableName]);
 
-      columnsResult.rows.forEach(column => {
-        console.log(`  Coluna: ${column.column_name}, Tipo: ${column.data_type}, Tamanho: ${column.character_maximum_length || 'N/A'}, Obrigatório: ${column.is_nullable === 'NO' ? 'Sim' : 'Não'}, Valor Padrão: ${column.column_default || 'N/A'}, Comentário: ${column.column_comment || 'N/A'}`);
-      });
+      const columns: Column[] = columnsResult.rows.map((column: any) => ({
+        columnName: column.column_name,
+        dataType: column.data_type,
+        characterMaximumLength: column.character_maximum_length,
+        isNullable: column.is_nullable === 'YES',
+        columnDefault: column.column_default,
+        columnComment: column.column_comment,
+      }));
 
       const relationsQuery = `
         SELECT
@@ -121,16 +126,34 @@ async function getSchemaInfo() {
           ON ccu.constraint_name = tc.constraint_name
         WHERE tc.constraint_type = 'FOREIGN KEY' AND tc.table_name=$1;
       `;
-      const relationsResult = await client.query(relationsQuery, [table]);
+      const relationsResult = await client.query(relationsQuery, [tableName]);
 
-      relationsResult.rows.forEach(relation => {
-        console.log(`  Relação: ${relation.column_name} -> ${relation.foreign_table_name}(${relation.foreign_column_name})`);
-      });
+      const relations: Relation[] = relationsResult.rows.map((relation: any) => ({
+        columnName: relation.column_name,
+        foreignTableName: relation.foreign_table_name,
+        foreignColumnName: relation.foreign_column_name,
+      }));
+
+      schemaInfo.push({ tableName, columns, relations });
     }
+
+    printSchemaInfo(schemaInfo);
   } catch (err) {
     console.error('Erro ao acessar o banco de dados:', err);
   } finally {
     await client.end();
+  }
+}
+
+function printSchemaInfo(schemaInfo: Table[]) {
+  for (const table of schemaInfo) {
+    console.log(`\nTabela: ${table.tableName}`);
+    for (const column of table.columns) {
+      console.log(`  Coluna: ${column.columnName}, Tipo: ${column.dataType}, Tamanho: ${column.characterMaximumLength || 'N/A'}, Obrigatório: ${column.isNullable ? 'Não' : 'Sim'}, Valor Padrão: ${column.columnDefault || 'N/A'}, Comentário: ${column.columnComment || 'N/A'}`);
+    }
+    for (const relation of table.relations) {
+      console.log(`  Relação: ${relation.columnName} -> ${relation.foreignTableName}(${relation.foreignColumnName})`);
+    }
   }
 }
 
