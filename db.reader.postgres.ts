@@ -32,7 +32,7 @@ class TypeORMEntityGenerator {
 import 'reflect-metadata';
 
 @Entity('${table.tableName}')
-export class ${this.toPascalCase(table.tableName)} {
+export class ${this.toPascalCase(table.tableName)}Entity {
   ${columns}
   ${relations}
 }`;
@@ -50,9 +50,9 @@ export class ${this.toPascalCase(table.tableName)} {
   }
 
   private generateRelationDefinition(relation: Relation): string {
-    return `@ManyToOne(() => ${this.toPascalCase(relation.foreignTableName)})
+    return `@ManyToOne(() => ${this.toPascalCase(relation.foreignTableName)}Entity)
   @JoinColumn({ name: '${relation.columnName}' })
-  ${relation.columnName}: ${this.toPascalCase(relation.foreignTableName)};`;
+  ${relation.columnName}: ${this.toPascalCase(relation.foreignTableName)}Entity;`;
   }
 
   private mapDataType(dataType: string): string {
