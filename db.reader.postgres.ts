@@ -1,8 +1,12 @@
 #!/usr/bin/env node
 
-require('dotenv').config();
-const { Client } = require('pg');
-const yargs = require('yargs');
+import { config as dotenvConfig } from 'dotenv';
+import { Client } from 'pg';
+import yargs from 'yargs';
+import { hideBin } from 'yargs/helpers';
+
+// Load environment variables from .env file
+dotenvConfig();
 
 // Debugging section to check environment variables
 console.log("Environment Variables:");
@@ -10,9 +14,9 @@ console.log(`DB_HOST: ${process.env.DB_HOST}`);
 console.log(`DB_PORT: ${process.env.DB_PORT}`);
 console.log(`DB_NAME: ${process.env.DB_NAME}`);
 console.log(`DB_USER: ${process.env.DB_USER}`);
-// console.log(`DB_PASSWORD: ${process.env.DB_PASSWORD}`);
+console.log(`DB_PASSWORD: ${process.env.DB_PASSWORD}`);
 
-const argv = yargs
+const argv = yargs(hideBin(process.argv))
   .option('host', {
     alias: 'h',
     description: 'Host do banco de dados',
@@ -40,25 +44,31 @@ const argv = yargs
   })
   .help()
   .alias('help', 'h')
-  .argv;
+  .argv as {
+    host?: string;
+    port?: number;
+    database?: string;
+    user?: string;
+    password?: string;
+  };
 
-const config = {
+const dbConfig = {
   host: argv.host || process.env.DB_HOST,
-  port: argv.port || process.env.DB_PORT,
+  port: argv.port || parseInt(process.env.DB_PORT || '5432', 10),
   database: argv.database || process.env.DB_NAME,
   user: argv.user || process.env.DB_USER,
   password: argv.password || process.env.DB_PASSWORD
 };
 
 console.log("Using the following database configuration:");
-console.log(`Host: ${config.host}`);
-console.log(`Port: ${config.port}`);
-console.log(`Database: ${config.database}`);
-console.log(`User: ${config.user}`);
-// console.log(`Password: ${config.password}`);
+console.log(`Host: ${dbConfig.host}`);
+console.log(`Port: ${dbConfig.port}`);
+console.log(`Database: ${dbConfig.database}`);
+console.log(`User: ${dbConfig.user}`);
+console.log(`Password: ${dbConfig.password}`);
 
 async function getSchemaInfo() {
-  const client = new Client(config);
+  const client = new Client(dbConfig);
 
   await client.connect();
 

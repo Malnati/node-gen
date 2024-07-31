@@ -1,0 +1,1 @@
+npx ts-node db.reader.postgres.ts
