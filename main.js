@@ -39,6 +39,13 @@ const argv = yargs
   .alias('help', 'h')
   .argv;
 
+console.log("Using the following database configuration:");
+console.log(`Host: ${argv.host}`);
+console.log(`Port: ${argv.port}`);
+console.log(`Database: ${argv.database}`);
+console.log(`User: ${argv.user}`);
+console.log(`Password: ${argv.password}`);
+
 async function getSchemaInfo() {
   const client = new Client({
     host: argv.host,
