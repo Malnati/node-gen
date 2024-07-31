@@ -16,52 +16,49 @@ const argv = yargs
   .option('host', {
     alias: 'h',
     description: 'Host do banco de dados',
-    type: 'string',
-    default: process.env.DB_HOST || 'localhost'
+    type: 'string'
   })
   .option('port', {
     alias: 'p',
     description: 'Porta do banco de dados',
-    type: 'number',
-    default: process.env.DB_PORT ? parseInt(process.env.DB_PORT) : 5432
+    type: 'number'
   })
   .option('database', {
     alias: 'd',
     description: 'Nome do banco de dados',
-    type: 'string',
-    default: process.env.DB_NAME
+    type: 'string'
   })
   .option('user', {
     alias: 'u',
     description: 'Usuário do banco de dados',
-    type: 'string',
-    default: process.env.DB_USER || 'postgres'
+    type: 'string'
   })
   .option('password', {
     alias: 'pw',
     description: 'Senha do banco de dados',
-    type: 'string',
-    default: process.env.DB_PASSWORD
+    type: 'string'
   })
   .help()
   .alias('help', 'h')
   .argv;
 
+const config = {
+  host: argv.host || process.env.DB_HOST,
+  port: argv.port || process.env.DB_PORT,
+  database: argv.database || process.env.DB_NAME,
+  user: argv.user || process.env.DB_USER,
+  password: argv.password || process.env.DB_PASSWORD
+};
+
 console.log("Using the following database configuration:");
-console.log(`Host: ${argv.host}`);
-console.log(`Port: ${argv.port}`);
-console.log(`Database: ${argv.database}`);
-console.log(`User: ${argv.user}`);
-console.log(`Password: ${argv.password}`);
+console.log(`Host: ${config.host}`);
+console.log(`Port: ${config.port}`);
+console.log(`Database: ${config.database}`);
+console.log(`User: ${config.user}`);
+console.log(`Password: ${config.password}`);
 
 async function getSchemaInfo() {
-  const client = new Client({
-    host: argv.host,
-    port: argv.port,
-    database: argv.database,
-    user: argv.user,
-    password: argv.password
-  });
+  const client = new Client(config);
 
   await client.connect();
 
