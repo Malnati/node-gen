@@ -76,14 +76,20 @@ async function getSchemaInfo() {
 
       const columnsQuery = `
         SELECT 
-          column_name, 
-          data_type, 
-          character_maximum_length, 
-          is_nullable, 
-          column_default,
-          col_description(format('%s.%s', table_name, column_name)::regclass, ordinal_position) AS column_comment
-        FROM information_schema.columns
-        WHERE table_schema = 'public' AND table_name = $1
+          c.column_name, 
+          c.data_type, 
+          c.character_maximum_length, 
+          c.is_nullable, 
+          c.column_default,
+          pgd.description AS column_comment
+        FROM 
+          information_schema.columns c
+        LEFT JOIN 
+          pg_catalog.pg_statio_all_tables as st on c.table_schema = st.schemaname and c.table_name = st.relname
+        LEFT JOIN 
+          pg_catalog.pg_description pgd on pgd.objoid = st.relid and pgd.objsubid = c.ordinal_position
+        WHERE 
+          c.table_schema = 'public' AND c.table_name = $1
       `;
       const columnsResult = await client.query(columnsQuery, [table]);
 
