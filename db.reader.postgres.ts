@@ -4,7 +4,9 @@ import { config as dotenvConfig } from 'dotenv';
 import { Client } from 'pg';
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
-import { Table, Column, Relation } from './interfaces'; // Import the interfaces
+import { Table, Column, Relation } from './interfaces';
+import * as fs from 'fs';
+import * as path from 'path';
 
 dotenvConfig();
 
@@ -137,12 +139,25 @@ async function getSchemaInfo() {
       schemaInfo.push({ tableName, columns, relations });
     }
 
-    printSchemaInfo(schemaInfo);
+    saveSchemaInfoToFile(schemaInfo);
   } catch (err) {
     console.error('Erro ao acessar o banco de dados:', err);
   } finally {
     await client.end();
   }
+}
+
+function saveSchemaInfoToFile(schemaInfo: Table[]) {
+  const buildDir = path.join(__dirname, 'build');
+
+  if (!fs.existsSync(buildDir)) {
+    fs.mkdirSync(buildDir);
+  }
+
+  const filePath = path.join(buildDir, 'db.reader.postgres.json');
+  fs.writeFileSync(filePath, JSON.stringify(schemaInfo, null, 2));
+
+  console.log(`Schema information has been saved to ${filePath}`);
 }
 
 function printSchemaInfo(schemaInfo: Table[]) {
