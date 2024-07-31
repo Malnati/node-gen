@@ -15,7 +15,7 @@ const argv = yargs
     alias: 'p',
     description: 'Porta do banco de dados',
     type: 'number',
-    default: process.env.DB_PORT || 5432
+    default: process.env.DB_PORT ? parseInt(process.env.DB_PORT) : 5432
   })
   .option('database', {
     alias: 'd',
