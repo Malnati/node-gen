@@ -45,8 +45,8 @@ ${persistDto}`;
     if (['id', 'created_at', 'updated_at', 'deleted_at'].includes(column.columnName)) {
       return false;
     }
-    if (column.columnName.endsWith('_id') && !column.columnName.endsWith('_eid')) {
-      return false;
+    if (column.columnName.endsWith('_id') && column.columnName !== 'external_id') {
+        return false;
     }
     return true;
   }
