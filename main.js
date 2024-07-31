@@ -75,14 +75,20 @@ async function getSchemaInfo() {
       console.log(`\nTabela: ${table}`);
 
       const columnsQuery = `
-        SELECT column_name, data_type, character_maximum_length
+        SELECT 
+          column_name, 
+          data_type, 
+          character_maximum_length, 
+          is_nullable, 
+          column_default,
+          col_description(format('%s.%s', table_name, column_name)::regclass, ordinal_position) AS column_comment
         FROM information_schema.columns
         WHERE table_schema = 'public' AND table_name = $1
       `;
       const columnsResult = await client.query(columnsQuery, [table]);
 
       columnsResult.rows.forEach(column => {
-        console.log(`  Coluna: ${column.column_name}, Tipo: ${column.data_type}, Tamanho: ${column.character_maximum_length || 'N/A'}`);
+        console.log(`  Coluna: ${column.column_name}, Tipo: ${column.data_type}, Tamanho: ${column.character_maximum_length || 'N/A'}, Obrigatório: ${column.is_nullable === 'NO' ? 'Sim' : 'Não'}, Valor Padrão: ${column.column_default || 'N/A'}, Comentário: ${column.column_comment || 'N/A'}`);
       });
 
       const relationsQuery = `
