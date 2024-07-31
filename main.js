@@ -4,6 +4,14 @@ require('dotenv').config();
 const { Client } = require('pg');
 const yargs = require('yargs');
 
+// Debugging section to check environment variables
+console.log("Environment Variables:");
+console.log(`DB_HOST: ${process.env.DB_HOST}`);
+console.log(`DB_PORT: ${process.env.DB_PORT}`);
+console.log(`DB_NAME: ${process.env.DB_NAME}`);
+console.log(`DB_USER: ${process.env.DB_USER}`);
+console.log(`DB_PASSWORD: ${process.env.DB_PASSWORD}`);
+
 const argv = yargs
   .option('host', {
     alias: 'h',
