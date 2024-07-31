@@ -12,7 +12,7 @@ class TypeORMEntityGenerator {
 
   generateEntities(outputDir: string) {
     if (!fs.existsSync(outputDir)) {
-      fs.mkdirSync(outputDir);
+      fs.mkdirSync(outputDir, { recursive: true }); // Adiciona { recursive: true } para garantir que os diretórios sejam criados recursivamente
     }
 
     this.schema.forEach(table => {
