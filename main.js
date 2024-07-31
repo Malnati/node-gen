@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 
+require('dotenv').config();
 const { Client } = require('pg');
 const yargs = require('yargs');
 
@@ -8,31 +9,31 @@ const argv = yargs
     alias: 'h',
     description: 'Host do banco de dados',
     type: 'string',
-    default: 'localhost'
+    default: process.env.DB_HOST || 'localhost'
   })
   .option('port', {
     alias: 'p',
     description: 'Porta do banco de dados',
     type: 'number',
-    default: 5432
+    default: process.env.DB_PORT || 5432
   })
   .option('database', {
     alias: 'd',
     description: 'Nome do banco de dados',
     type: 'string',
-    demandOption: true
+    default: process.env.DB_NAME
   })
   .option('user', {
     alias: 'u',
     description: 'Usuário do banco de dados',
     type: 'string',
-    default: 'postgres'
+    default: process.env.DB_USER || 'postgres'
   })
   .option('password', {
     alias: 'pw',
     description: 'Senha do banco de dados',
     type: 'string',
-    demandOption: true
+    default: process.env.DB_PASSWORD
   })
   .help()
   .alias('help', 'h')
