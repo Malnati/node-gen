@@ -32,13 +32,23 @@ class InterfaceGenerator {
   }
 
   private generateInterfaceContent(entityName: string, columns: Column[]): string {
-    const filteredColumns = columns.filter(col => !['id', 'created_at', 'updated_at', 'deleted_at'].includes(col.columnName));
+    const filteredColumns = columns.filter(col => this.shouldIncludeColumn(col));
     const queryDto = this.generateQueryDto(entityName, filteredColumns);
     const persistDto = this.generatePersistDto(entityName, filteredColumns);
 
     return `${queryDto}
 
 ${persistDto}`;
+  }
+
+  private shouldIncludeColumn(column: Column): boolean {
+    if (['id', 'created_at', 'updated_at', 'deleted_at'].includes(column.columnName)) {
+      return false;
+    }
+    if (column.columnName.endsWith('_id') && !column.columnName.endsWith('_eid')) {
+      return false;
+    }
+    return true;
   }
 
   private generateQueryDto(entityName: string, columns: Column[]): string {
