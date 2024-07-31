@@ -17,24 +17,25 @@ class ServiceGenerator {
 
     this.schema.forEach(table => {
       const entityName = this.toPascalCase(table.tableName);
-      const subDir = path.join(outputDir, table.tableName);
+      const dirName = this.removePrefix(table.tableName);
+      const subDir = path.join(outputDir, dirName);
       if (!fs.existsSync(subDir)) {
         fs.mkdirSync(subDir, { recursive: true });
       }
 
-      const serviceContent = this.generateServiceContent(entityName);
-      const filePath = path.join(subDir, `${table.tableName}.service.ts`);
+      const serviceContent = this.generateServiceContent(entityName, dirName);
+      const filePath = path.join(subDir, `${dirName}.service.ts`);
       fs.writeFileSync(filePath, serviceContent);
     });
 
     console.log(`Services have been generated in ${outputDir}`);
   }
 
-  private generateServiceContent(entityName: string): string {
+  private generateServiceContent(entityName: string, dirName: string): string {
     return `import { Injectable, Logger, NotFoundException } from "@nestjs/common";
 import { DataSourceService, cacheDuration } from "../config/datasource.service";
 import { ${entityName}Entity } from "../entities/${entityName}.entity";
-import { ${entityName}QueryDTO, ${entityName}PersistDTO } from "./${entityName.toLowerCase()}.dto";
+import { ${entityName}QueryDTO, ${entityName}PersistDTO } from "./${dirName}.dto";
 
 @Injectable()
 export class ${entityName}Service {
@@ -173,6 +174,10 @@ export class ${entityName}Service {
       str = str.substring(3);  // Remove the 'tb_' prefix
     }
     return str.replace(/_./g, match => match.charAt(1).toUpperCase()).replace(/^./, match => match.toUpperCase());
+  }
+
+  private removePrefix(str: string): string {
+    return str.startsWith('tb_') ? str.substring(3) : str;
   }
 }
 
