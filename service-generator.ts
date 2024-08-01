@@ -1,6 +1,6 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import { Table } from './interfaces';
+import { Table, Relation } from './interfaces';
 
 class ServiceGenerator {
   private schema: Table[];
@@ -23,7 +23,7 @@ class ServiceGenerator {
         fs.mkdirSync(subDir, { recursive: true });
       }
 
-      const serviceContent = this.generateServiceContent(entityName, kebabCaseName);
+      const serviceContent = this.generateServiceContent(entityName, kebabCaseName, table.relations);
       const filePath = path.join(subDir, `${kebabCaseName}.service.ts`);
       fs.writeFileSync(filePath, serviceContent);
     });
@@ -31,11 +31,15 @@ class ServiceGenerator {
     console.log(`Services have been generated in ${outputDir}`);
   }
 
-  private generateServiceContent(entityName: string, kebabCaseName: string): string {
+  private generateServiceContent(entityName: string, kebabCaseName: string, relations: Relation[]): string {
+    const imports = relations.map(rel => this.generateImportForRelation(rel)).join('\n');
+    const relationCheckAndAssignment = relations.map(rel => this.generateRelationCheckAndAssignment(rel, entityName)).join('\n\n    ');
+
     return `import { Injectable, Logger, NotFoundException } from "@nestjs/common";
-import { DataSourceService, cacheDuration } from "../config/datasource.service";
+import { DataSourceService } from "../config/datasource.service";
 import { ${entityName}Entity } from "../entities/${entityName}.entity";
 import { ${entityName}QueryDTO, ${entityName}PersistDTO } from "./${kebabCaseName}.dto";
+${imports}
 
 @Injectable()
 export class ${entityName}Service {
@@ -49,23 +53,13 @@ export class ${entityName}Service {
     newEntity.label = dto.label;
     newEntity.url = dto.url;
 
-    const optin = await this.dataSourceService
-      .getDataSource()
-      .getRepository(OptinEntity)
-      .findOne({ where: { externalId: dto.optinEid } });
-
-    if (!optin) {
-      throw new NotFoundException("Opt-in não encontrado");
-    }
-
-    newEntity.optin = optin;
+    ${relationCheckAndAssignment}
 
     const savedEntity = await this.dataSourceService
       .getDataSource()
       .getRepository(${entityName}Entity)
       .save(newEntity);
 
-    await this.dataSourceService.getDataSource().queryResultCache?.remove(["${entityName.toLowerCase()}_cache"]);
     return this.toDTO(savedEntity);
   }
 
@@ -75,11 +69,7 @@ export class ${entityName}Service {
       .getDataSource()
       .getRepository(${entityName}Entity)
       .findOne({
-        where: { externalId },
-        cache: {
-          id: \`${entityName.toLowerCase()}_cache_\${externalId}\`,
-          milliseconds: cacheDuration
-        }
+        where: { externalId }
       });
 
     if (!entity) {
@@ -94,13 +84,8 @@ export class ${entityName}Service {
     const entities = await this.dataSourceService
       .getDataSource()
       .getRepository(${entityName}Entity)
-      .find({
-        cache: {
-          id: "${entityName.toLowerCase()}_cache",
-          milliseconds: cacheDuration 
-        }
-      });
-    return entities.map((entity) => this.toDTO(entity));
+      .find();
+    return entities.map((entity: ${entityName}Entity) => this.toDTO(entity));
   }
 
   async updateByExternalId(externalId: string, dto: ${entityName}PersistDTO): Promise<${entityName}QueryDTO> {
@@ -117,23 +102,13 @@ export class ${entityName}Service {
     entity.label = dto.label;
     entity.url = dto.url;
 
-    const optin = await this.dataSourceService
-      .getDataSource()
-      .getRepository(OptinEntity)
-      .findOne({ where: { externalId: dto.optinEid } });
-
-    if (!optin) {
-      throw new NotFoundException("Opt-in não encontrado");
-    }
-
-    entity.optin = optin;
+    ${relationCheckAndAssignment.replace(/newEntity/g, 'entity')}
 
     const updatedEntity = await this.dataSourceService
       .getDataSource()
       .getRepository(${entityName}Entity)
       .save(entity);
 
-    await this.dataSourceService.getDataSource().queryResultCache?.remove(["${entityName.toLowerCase()}_cache"]);
     return this.toDTO(updatedEntity);
   }
 
@@ -153,8 +128,6 @@ export class ${entityName}Service {
       .getDataSource()
       .getRepository(${entityName}Entity)
       .save(entity);
-
-    await this.dataSourceService.getDataSource().queryResultCache?.remove(["${entityName.toLowerCase()}_cache"]);
   }
 
   private toDTO(entity: ${entityName}Entity): ${entityName}QueryDTO {
@@ -162,11 +135,58 @@ export class ${entityName}Service {
     const dto = new ${entityName}QueryDTO();
     dto.label = entity.label;
     dto.url = entity.url;
-    dto.optinEid = entity.optin.externalId;
+    ${this.generateRelationMapping(relations)}
     dto.externalId = entity.externalId;
     return dto;
   }
-}`;
+}
+
+${this.generateRelationFunctions(relations)}
+`;
+  }
+
+  private generateImportForRelation(relation: Relation): string {
+    const relatedEntityName = this.toPascalCase(relation.foreignTableName);
+    return `import { ${relatedEntityName}Entity } from "../entities/${relatedEntityName}.entity";`;
+  }
+
+  private generateRelationCheckAndAssignment(relation: Relation, entityName: string): string {
+    const relatedEntityName = this.toPascalCase(relation.foreignTableName);
+    const relationName = this.toCamelCase(relation.columnName);
+    return `const ${relationName} = await this.dataSourceService
+      .getDataSource()
+      .getRepository(${relatedEntityName}Entity)
+      .findOne({ where: { externalId: dto.${relationName}Eid } });
+
+    if (!${relationName}) {
+      throw new NotFoundException("${relatedEntityName} não encontrado");
+    }
+
+    newEntity.${relationName} = ${relationName};`;
+  }
+
+  private generateRelationMapping(relations: Relation[]): string {
+    return relations.map(rel => {
+      const relationName = this.toCamelCase(rel.columnName);
+      return `dto.${relationName}Eid = entity.${relationName}.externalId;`;
+    }).join('\n    ');
+  }
+
+  private generateRelationFunctions(relations: Relation[]): string {
+    return relations.map(rel => {
+      const relationName = this.toCamelCase(rel.columnName);
+      return `private async find${relationName.charAt(0).toUpperCase() + relationName.slice(1)}ByExternalId(externalId: string): Promise<${this.toPascalCase(rel.foreignTableName)}Entity> {
+    const entity = await this.dataSourceService
+      .getDataSource()
+      .getRepository(${this.toPascalCase(rel.foreignTableName)}Entity)
+      .findOne({ where: { externalId } });
+
+    if (!entity) {
+      throw new NotFoundException("${this.toPascalCase(rel.foreignTableName)} não encontrado");
+    }
+    return entity;
+  }`;
+    }).join('\n\n  ');
   }
 
   private toPascalCase(str: string): string {
@@ -174,6 +194,13 @@ export class ${entityName}Service {
       str = str.substring(3);  // Remove the 'tb_' prefix
     }
     return str.replace(/_./g, match => match.charAt(1).toUpperCase()).replace(/^./, match => match.toUpperCase());
+  }
+
+  private toCamelCase(str: string): string {
+    if (str.startsWith('tb_')) {
+      str = str.substring(3);  // Remove the 'tb_' prefix
+    }
+    return str.replace(/_./g, match => match.charAt(1).toUpperCase()).replace(/^./, match => match.toLowerCase());
   }
 
   private toKebabCase(str: string): string {
