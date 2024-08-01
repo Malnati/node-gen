@@ -140,8 +140,6 @@ export class ${entityName}Service {
     return dto;
   }
 }
-
-${this.generateRelationFunctions(relations)}
 `;
   }
 
@@ -170,23 +168,6 @@ ${this.generateRelationFunctions(relations)}
       const relationName = this.toCamelCase(rel.columnName);
       return `dto.${relationName}Eid = entity.${relationName}.externalId;`;
     }).join('\n    ');
-  }
-
-  private generateRelationFunctions(relations: Relation[]): string {
-    return relations.map(rel => {
-      const relationName = this.toCamelCase(rel.columnName);
-      return `private async find${relationName.charAt(0).toUpperCase() + relationName.slice(1)}ByExternalId(externalId: string): Promise<${this.toPascalCase(rel.foreignTableName)}Entity> {
-    const entity = await this.dataSourceService
-      .getDataSource()
-      .getRepository(${this.toPascalCase(rel.foreignTableName)}Entity)
-      .findOne({ where: { externalId } });
-
-    if (!entity) {
-      throw new NotFoundException("${this.toPascalCase(rel.foreignTableName)} não encontrado");
-    }
-    return entity;
-  }`;
-    }).join('\n\n  ');
   }
 
   private toPascalCase(str: string): string {
