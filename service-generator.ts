@@ -1,6 +1,6 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import { Table, Relation } from './interfaces';
+import { Table, Relation, Column } from './interfaces';
 
 class ServiceGenerator {
   private schema: Table[];
@@ -23,7 +23,7 @@ class ServiceGenerator {
         fs.mkdirSync(subDir, { recursive: true });
       }
 
-      const serviceContent = this.generateServiceContent(entityName, kebabCaseName, table.relations);
+      const serviceContent = this.generateServiceContent(entityName, kebabCaseName, table.relations, table.columns);
       const filePath = path.join(subDir, `${kebabCaseName}.service.ts`);
       fs.writeFileSync(filePath, serviceContent);
     });
@@ -31,9 +31,29 @@ class ServiceGenerator {
     console.log(`Services have been generated in ${outputDir}`);
   }
 
-  private generateServiceContent(entityName: string, kebabCaseName: string, relations: Relation[]): string {
+  private generateServiceContent(entityName: string, kebabCaseName: string, relations: Relation[], columns: Column[]): string {
     const imports = relations.map(rel => this.generateImportForRelation(rel)).join('\n');
     const relationCheckAndAssignment = relations.map(rel => this.generateRelationCheckAndAssignment(rel, entityName)).join('\n\n    ');
+
+    const createUpdateAssignments = columns
+      .filter(col => this.shouldIncludeColumn(col))
+      .map(col => {
+        if (col.columnName === 'external_id') {
+          return ''; // Skip external_id since it is auto-generated
+        }
+        return `newEntity.${col.columnName} = dto.${col.columnName};`;
+      })
+      .join('\n    ');
+
+    const toDTOAssignments = columns
+      .filter(col => this.shouldIncludeColumn(col))
+      .map(col => {
+        if (col.columnName === 'external_id') {
+          return ''; // Skip external_id since it is mapped separately
+        }
+        return `dto.${col.columnName} = entity.${col.columnName};`;
+      })
+      .join('\n    ');
 
     return `import { Injectable, Logger, NotFoundException } from "@nestjs/common";
 import { DataSourceService } from "../config/datasource.service";
@@ -50,8 +70,7 @@ export class ${entityName}Service {
   async create(dto: ${entityName}PersistDTO): Promise<${entityName}QueryDTO> {
     this.logger.log(\`Creating ${entityName.toLowerCase()} with label: \${dto.label}\`);
     const newEntity = new ${entityName}Entity();
-    newEntity.label = dto.label;
-    newEntity.url = dto.url;
+    ${createUpdateAssignments}
 
     ${relationCheckAndAssignment}
 
@@ -98,9 +117,7 @@ export class ${entityName}Service {
     if (!entity) {
       throw new NotFoundException("${entityName} não encontrado");
     }
-
-    entity.label = dto.label;
-    entity.url = dto.url;
+    ${createUpdateAssignments.replace(/newEntity/g, 'entity')}
 
     ${relationCheckAndAssignment.replace(/newEntity/g, 'entity')}
 
@@ -133,8 +150,7 @@ export class ${entityName}Service {
   private toDTO(entity: ${entityName}Entity): ${entityName}QueryDTO {
     this.logger.log(\`Mapping entity to DTO: \${entity.externalId}\`);
     const dto = new ${entityName}QueryDTO();
-    dto.label = entity.label;
-    dto.url = entity.url;
+    ${toDTOAssignments}
     ${this.generateRelationMapping(relations)}
     dto.externalId = entity.externalId;
     return dto;
@@ -168,6 +184,16 @@ export class ${entityName}Service {
       const relationName = this.toCamelCase(rel.columnName);
       return `dto.${relationName}Eid = entity.${relationName}.externalId;`;
     }).join('\n    ');
+  }
+
+  private shouldIncludeColumn(column: Column): boolean {
+    if (['id', 'created_at', 'updated_at', 'deleted_at'].includes(column.columnName)) {
+      return false;
+    }
+    if (column.columnName.endsWith('_id') && column.columnName !== 'external_id') {
+      return false;
+    }
+    return true;
   }
 
   private toPascalCase(str: string): string {
