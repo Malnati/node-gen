@@ -5,3 +5,5 @@ npx ts-node service-generator.ts
 npx ts-node interface-generator.ts
 npx ts-node controller-generator.ts
 npx ts-node dto-generator.ts
+npx ts-node module-generator.ts
+npx ts-node app-module-generator.ts
