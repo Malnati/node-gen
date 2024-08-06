@@ -9,3 +9,4 @@ npx ts-node module-generator.ts
 npx ts-node app-module-generator.ts
 npx ts-node main-generator.ts
 npx ts-node env-generator.ts
+npx ts-node package-json-generator.ts
