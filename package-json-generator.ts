@@ -124,7 +124,7 @@ console.log(`Build Directory: ${buildDir}`);
 
 if (!fs.existsSync(buildDir)) {
   console.log(`Creating directory: ${buildDir}`);
-  fs.mkdirSync(buildDir);
+  fs.mkdirSync(buildDir, { recursive: true });
 } else {
   console.log(`Directory already exists: ${buildDir}`);
 }
@@ -132,6 +132,9 @@ if (!fs.existsSync(buildDir)) {
 const filePath = path.join(buildDir, 'package.json');
 console.log(`File Path: ${filePath}`);
 
-fs.writeFileSync(filePath, JSON.stringify(packageJsonContent, null, 2));
-
-console.log(`package.json has been generated at ${filePath}`);
+try {
+  fs.writeFileSync(filePath, JSON.stringify(packageJsonContent, null, 2));
+  console.log(`package.json has been generated at ${filePath}`);
+} catch (error) {
+  console.error(`Error writing file: ${error}`);
+}
