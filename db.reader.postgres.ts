@@ -177,16 +177,4 @@ function saveSchemaInfoToFile(schemaInfo: Table[], dbName: string) {
   console.log(`Schema information has been saved to ${filePath}`);
 }
 
-function printSchemaInfo(schemaInfo: Table[]) {
-  for (const table of schemaInfo) {
-    console.log(`\nTabela: ${table.tableName}`);
-    for (const column of table.columns) {
-      console.log(`  Coluna: ${column.columnName}, Tipo: ${column.dataType}, Tamanho: ${column.characterMaximumLength || 'N/A'}, Obrigatório: ${column.isNullable ? 'Não' : 'Sim'}, Valor Padrão: ${column.columnDefault || 'N/A'}, Comentário: ${column.columnComment || 'N/A'}`);
-    }
-    for (const relation of table.relations) {
-      console.log(`  Relação: ${relation.columnName} -> ${relation.foreignTableName}(${relation.foreignColumnName})`);
-    }
-  }
-}
-
 getSchemaInfo();
