@@ -77,13 +77,23 @@ ${persistDto}`;
     const type = this.mapType(column.dataType);
     const optional = column.isNullable ? '@IsOptional()\n  ' : '@IsNotEmpty()\n  ';
     const maxLength = column.characterMaximumLength ? `@MaxLength(${column.characterMaximumLength})\n  ` : '';
+    
+    const example = this.getExampleForColumn(column);
+    
     const apiProperty = `@ApiProperty({
-    example: "${column.columnDefault || 'exemplo'}",
+    example: ${example},
     description: "${column.columnComment || 'Descrição do campo.'}",
     type: () => ${type},
   })\n  `;
 
-    return `${optional}${maxLength}${apiProperty}${column.columnName}: ${type};`;
+    return `${optional}${maxLength}${apiProperty}${this.toCamelCase(column.columnName)}: ${type};`;
+  }
+
+  private getExampleForColumn(column: Column): string {
+    if (column.dataType === 'uuid' || column.columnName.endsWith('_eid') || column.columnName === 'external_id') {
+      return `"b2e293e5-4a4a-4b29-b9a4-4b2b4a4a4b2b"`;
+    }
+    return `"${column.columnDefault || 'exemplo'}"`;
   }
 
   private shouldIncludeColumn(column: Column): boolean {
