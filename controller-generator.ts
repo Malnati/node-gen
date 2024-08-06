@@ -31,127 +31,137 @@ class ControllerGenerator {
     console.log(`Controllers have been generated in ${outputDir}`);
   }
 
+  private toCamelCase(str: string): string {
+    if (str.startsWith('tb_')) {
+      str = str.substring(3); // Remove the 'tb_' prefix
+    }
+    return str.replace(/[-_](.)/g, (match, group1) => group1.toUpperCase());
+  }
+
   private generateControllerContent(entityName: string, kebabCaseName: string): string {
+    const camelCaseName = this.toCamelCase(entityName);
+    const kebabCaseServiceName = this.toCamelCase(kebabCaseName);
+  
     return `import { Controller, Get, Post, Put, Delete, Body, Param, NotFoundException, BadRequestException, InternalServerErrorException, UseGuards } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
-import { ${entityName}Service } from './${kebabCaseName}.service';
-import { ${entityName}QueryDTO, ${entityName}PersistDTO } from './${kebabCaseName}.dto';
-import { JwtAuthGuard } from '../middleware/jwt-auth.guard';
-
-@ApiTags('${kebabCaseName}')
-@Controller('${kebabCaseName}')
-export class ${entityName}Controller {
-  constructor(private readonly ${kebabCaseName}Service: ${entityName}Service) {}
-
-  @Post()
-  @UseGuards(JwtAuthGuard)
-  @ApiOperation({
-    summary: "Criação de um novo ${kebabCaseName}.",
-    description: "Este endpoint cria um novo ${kebabCaseName} no sistema com as informações fornecidas.",
-  })
-  @ApiResponse({
-    status: 201,
-    description: 'O ${kebabCaseName} foi criado com sucesso.',
-    type: ${entityName}QueryDTO,
-  })
-  @ApiResponse({ status: 400, description: 'Dados inválidos' })
-  @ApiResponse({ status: 409, description: '${entityName} já existe' })
-  @ApiResponse({ status: 500, description: 'Erro interno no servidor' })
-  async create(@Body() dto: ${entityName}PersistDTO): Promise<${entityName}QueryDTO> {
-    try {
-      return await this.${kebabCaseName}Service.create(dto);
-    } catch (error) {
-      if (error.code === '23505') {
-        throw new BadRequestException('${entityName} já existe');
+  import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
+  import { ${entityName}Service } from './${kebabCaseName}.service';
+  import { ${entityName}QueryDTO, ${entityName}PersistDTO } from './${kebabCaseName}.dto';
+  import { JwtAuthGuard } from '../middleware/jwt-auth.guard';
+  
+  @ApiTags('${kebabCaseName}')
+  @Controller('${kebabCaseName}')
+  export class ${entityName}Controller {
+    constructor(private readonly ${kebabCaseServiceName}Service: ${entityName}Service) {}
+  
+    @Post()
+    @UseGuards(JwtAuthGuard)
+    @ApiOperation({
+      summary: "Criação de um novo ${camelCaseName}.",
+      description: "Este endpoint cria um novo ${camelCaseName} no sistema com as informações fornecidas.",
+    })
+    @ApiResponse({
+      status: 201,
+      description: 'O ${camelCaseName} foi criado com sucesso.',
+      type: ${entityName}QueryDTO,
+    })
+    @ApiResponse({ status: 400, description: 'Dados inválidos' })
+    @ApiResponse({ status: 409, description: '${entityName} já existe' })
+    @ApiResponse({ status: 500, description: 'Erro interno no servidor' })
+    async create(@Body() dto: ${entityName}PersistDTO): Promise<${entityName}QueryDTO> {
+      try {
+        return await this.${kebabCaseServiceName}Service.create(dto);
+      } catch (error) {
+        if (error.code === '23505') {
+          throw new BadRequestException('${entityName} já existe');
+        }
+        throw new InternalServerErrorException('Erro ao criar ${camelCaseName}');
       }
-      throw new InternalServerErrorException('Erro ao criar ${kebabCaseName}');
     }
-  }
-
-  @Get(':externalId')
-  @UseGuards(JwtAuthGuard)
-  @ApiOperation({
-    summary: "Busca um ${kebabCaseName} pelo External ID.",
-    description: "Este endpoint busca um ${kebabCaseName} no sistema pelo External ID fornecido.",
-  })
-  @ApiResponse({
-    status: 200,
-    description: 'O ${kebabCaseName} foi encontrado.',
-    type: ${entityName}QueryDTO,
-  })
-  @ApiResponse({ status: 404, description: '${entityName} não encontrado' })
-  async findByExternalId(@Param('externalId') externalId: string): Promise<${entityName}QueryDTO> {
-    try {
-      return await this.${kebabCaseName}Service.findByExternalId(externalId);
-    } catch (error) {
-      throw new NotFoundException('${entityName} não encontrado');
-    }
-  }
-
-  @Get()
-  @UseGuards(JwtAuthGuard)
-  @ApiOperation({
-    summary: "Busca todos os ${kebabCaseName}s.",
-    description: "Este endpoint busca todos os ${kebabCaseName}s cadastrados no sistema.",
-  })
-  @ApiResponse({
-    status: 200,
-    description: 'Lista de ${kebabCaseName}s.',
-    type: [${entityName}QueryDTO],
-  })
-  async findAll(): Promise<${entityName}QueryDTO[]> {
-    return await this.${kebabCaseName}Service.findAll();
-  }
-
-  @Put(':externalId')
-  @UseGuards(JwtAuthGuard)
-  @ApiOperation({
-    summary: "Atualiza um ${kebabCaseName} pelo External ID.",
-    description: "Este endpoint atualiza os detalhes de um ${kebabCaseName} no sistema pelo External ID fornecido.",
-  })
-  @ApiResponse({
-    status: 200,
-    description: 'O ${kebabCaseName} foi atualizado com sucesso.',
-    type: ${entityName}QueryDTO,
-  })
-  @ApiResponse({ status: 400, description: 'Dados inválidos' })
-  @ApiResponse({ status: 404, description: '${entityName} não encontrado' })
-  @ApiResponse({ status: 500, description: 'Erro interno no servidor' })
-  async updateByExternalId(@Param('externalId') externalId: string, @Body() dto: ${entityName}PersistDTO): Promise<${entityName}QueryDTO> {
-    try {
-      return await this.${kebabCaseName}Service.updateByExternalId(externalId, dto);
-    } catch (error) {
-      if (error instanceof NotFoundException) {
+  
+    @Get(':externalId')
+    @UseGuards(JwtAuthGuard)
+    @ApiOperation({
+      summary: "Busca um ${camelCaseName} pelo External ID.",
+      description: "Este endpoint busca um ${camelCaseName} no sistema pelo External ID fornecido.",
+    })
+    @ApiResponse({
+      status: 200,
+      description: 'O ${camelCaseName} foi encontrado.',
+      type: ${entityName}QueryDTO,
+    })
+    @ApiResponse({ status: 404, description: '${entityName} não encontrado' })
+    async findByExternalId(@Param('externalId') externalId: string): Promise<${entityName}QueryDTO> {
+      try {
+        return await this.${kebabCaseServiceName}Service.findByExternalId(externalId);
+      } catch (error) {
         throw new NotFoundException('${entityName} não encontrado');
       }
-      throw new InternalServerErrorException('Erro ao atualizar ${kebabCaseName}');
     }
-  }
-
-  @Delete(':externalId')
-  @UseGuards(JwtAuthGuard)
-  @ApiOperation({
-    summary: "Deleta um ${kebabCaseName} pelo External ID.",
-    description: "Este endpoint deleta um ${kebabCaseName} no sistema pelo External ID fornecido.",
-  })
-  @ApiResponse({
-    status: 204,
-    description: 'O ${kebabCaseName} foi deletado com sucesso.',
-  })
-  @ApiResponse({ status: 404, description: '${entityName} não encontrado' })
-  @ApiResponse({ status: 500, description: 'Erro interno no servidor' })
-  async deleteByExternalId(@Param('externalId') externalId: string): Promise<void> {
-    try {
-      await this.${kebabCaseName}Service.deleteByExternalId(externalId);
-    } catch (error) {
-      if (error instanceof NotFoundException) {
-        throw new NotFoundException('${entityName} não encontrado');
+  
+    @Get()
+    @UseGuards(JwtAuthGuard)
+    @ApiOperation({
+      summary: "Busca todos os ${camelCaseName}s.",
+      description: "Este endpoint busca todos os ${camelCaseName}s cadastrados no sistema.",
+    })
+    @ApiResponse({
+      status: 200,
+      description: 'Lista de ${camelCaseName}s.',
+      type: [${entityName}QueryDTO],
+    })
+    async findAll(): Promise<${entityName}QueryDTO[]> {
+      return await this.${kebabCaseServiceName}Service.findAll();
+    }
+  
+    @Put(':externalId')
+    @UseGuards(JwtAuthGuard)
+    @ApiOperation({
+      summary: "Atualiza um ${camelCaseName} pelo External ID.",
+      description: "Este endpoint atualiza os detalhes de um ${camelCaseName} no sistema pelo External ID fornecido.",
+    })
+    @ApiResponse({
+      status: 200,
+      description: 'O ${camelCaseName} foi atualizado com sucesso.',
+      type: ${entityName}QueryDTO,
+    })
+    @ApiResponse({ status: 400, description: 'Dados inválidos' })
+    @ApiResponse({ status: 404, description: '${entityName} não encontrado' })
+    @ApiResponse({ status: 500, description: 'Erro interno no servidor' })
+    async updateByExternalId(@Param('externalId') externalId: string, @Body() dto: ${entityName}PersistDTO): Promise<${entityName}QueryDTO> {
+      try {
+        return await this.${kebabCaseServiceName}Service.updateByExternalId(externalId, dto);
+      } catch (error) {
+        if (error instanceof NotFoundException) {
+          throw new NotFoundException('${entityName} não encontrado');
+        }
+        throw new InternalServerErrorException('Erro ao atualizar ${camelCaseName}');
       }
-      throw new InternalServerErrorException('Erro ao deletar ${kebabCaseName}');
+    }
+  
+    @Delete(':externalId')
+    @UseGuards(JwtAuthGuard)
+    @ApiOperation({
+      summary: "Deleta um ${camelCaseName} pelo External ID.",
+      description: "Este endpoint deleta um ${camelCaseName} no sistema pelo External ID fornecido.",
+    })
+    @ApiResponse({
+      status: 204,
+      description: 'O ${camelCaseName} foi deletado com sucesso.',
+    })
+    @ApiResponse({ status: 404, description: '${entityName} não encontrado' })
+    @ApiResponse({ status: 500, description: 'Erro interno no servidor' })
+    async deleteByExternalId(@Param('externalId') externalId: string): Promise<void> {
+      try {
+        await this.${kebabCaseServiceName}Service.deleteByExternalId(externalId);
+      } catch (error) {
+        if (error instanceof NotFoundException) {
+          throw new NotFoundException('${entityName} não encontrado');
+        }
+        throw new InternalServerErrorException('Erro ao deletar ${camelCaseName}');
+      }
     }
   }
-}
-`;
+  `;
   }
 
   private toPascalCase(str: string): string {
@@ -159,13 +169,6 @@ export class ${entityName}Controller {
       str = str.substring(3);  // Remove the 'tb_' prefix
     }
     return str.replace(/_./g, match => match.charAt(1).toUpperCase()).replace(/^./, match => match.toUpperCase());
-  }
-
-  private toCamelCase(str: string): string {
-    if (str.startsWith('tb_')) {
-      str = str.substring(3);  // Remove the 'tb_' prefix
-    }
-    return str.replace(/_./g, match => match.charAt(1).toUpperCase()).replace(/^./, match => match.toLowerCase());
   }
 
   private toKebabCase(str: string): string {
