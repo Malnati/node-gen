@@ -35,6 +35,10 @@ const argv = yargs(hideBin(process.argv))
     description: string;
   };
 
+console.log(`Name: ${argv.name}`);
+console.log(`Version: ${argv.version}`);
+console.log(`Description: ${argv.description}`);
+
 const packageJsonContent = {
   name: argv.name,
   version: argv.version,
@@ -116,11 +120,18 @@ const packageJsonContent = {
 
 const buildDir = path.join(__dirname, 'build');
 
+console.log(`Build Directory: ${buildDir}`);
+
 if (!fs.existsSync(buildDir)) {
+  console.log(`Creating directory: ${buildDir}`);
   fs.mkdirSync(buildDir);
+} else {
+  console.log(`Directory already exists: ${buildDir}`);
 }
 
 const filePath = path.join(buildDir, 'package.json');
+console.log(`File Path: ${filePath}`);
+
 fs.writeFileSync(filePath, JSON.stringify(packageJsonContent, null, 2));
 
 console.log(`package.json has been generated at ${filePath}`);
