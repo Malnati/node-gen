@@ -7,3 +7,5 @@ npx ts-node controller-generator.ts
 npx ts-node dto-generator.ts
 npx ts-node module-generator.ts
 npx ts-node app-module-generator.ts
+npx ts-node main-generator.ts
+npx ts-node env-generator.ts
