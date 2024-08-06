@@ -15,21 +15,28 @@ class AppModuleGenerator {
       fs.mkdirSync(outputDir, { recursive: true });
     }
 
-    const modules = this.schema.map(table => {
+    const moduleImports = this.schema.map(table => {
       const entityName = this.toPascalCase(table.tableName);
       const kebabCaseName = this.toKebabCase(table.tableName);
-      return `import { ${entityName}Module } from './${kebabCaseName}/${kebabCaseName}.module';\n${entityName}Module`;
+      return `import { ${entityName}Module } from './${kebabCaseName}/${kebabCaseName}.module';`;
+    }).join('\n');
+
+    const moduleList = this.schema.map(table => {
+      const entityName = this.toPascalCase(table.tableName);
+      return `${entityName}Module`;
     }).join(',\n    ');
 
-    const appModuleContent = this.generateAppModuleContent(modules);
+    const appModuleContent = this.generateAppModuleContent(moduleImports, moduleList);
     const filePath = path.join(outputDir, 'app.module.ts');
     fs.writeFileSync(filePath, appModuleContent);
 
     console.log(`AppModule has been generated in ${outputDir}`);
   }
 
-  private generateAppModuleContent(modules: string): string {
-    return `import { join } from "path";
+  private generateAppModuleContent(moduleImports: string, moduleList: string): string {
+    return `${moduleImports}
+
+import { join } from "path";
 import { Module } from "@nestjs/common";
 import { ConfigModule } from "@nestjs/config";
 import { ServeStaticModule } from "@nestjs/serve-static";
@@ -49,7 +56,7 @@ import { JwtAuthGuardModule } from "./middleware/jwt-auth.guard.module";
     VersionModule,
     JwtAuthGuardModule,
     HealthModule,
-    ${modules}
+    ${moduleList}
   ],
 })
 export class AppModule {}`;
