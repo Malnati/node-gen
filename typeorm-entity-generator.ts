@@ -7,7 +7,8 @@ class TypeORMEntityGenerator {
 
   constructor(schemaPath: string) {
     const schemaJson = fs.readFileSync(schemaPath, 'utf-8');
-    this.schema = JSON.parse(schemaJson);
+    const parsedSchema = JSON.parse(schemaJson);
+    this.schema = parsedSchema.schema; // Ajuste para acessar a propriedade `schema`
   }
 
   generateEntities(outputDir: string) {

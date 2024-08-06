@@ -69,6 +69,12 @@ console.log(`Database: ${dbConfig.database}`);
 console.log(`User: ${dbConfig.user}`);
 console.log(`Password: ${dbConfig.password}`);
 
+function toCamelCase(str: string): string {
+  return str
+    .replace(/([-_][a-z])/g, (group) => group.toUpperCase().replace('-', '').replace('_', ''))
+    .replace(/(^\w)/, (group) => group.toUpperCase());
+}
+
 async function getSchemaInfo() {
   const client = new Client(dbConfig);
 
@@ -139,7 +145,11 @@ async function getSchemaInfo() {
       schemaInfo.push({ tableName, columns, relations });
     }
 
-    saveSchemaInfoToFile(schemaInfo);
+    if (dbConfig.database) {
+      saveSchemaInfoToFile(schemaInfo, dbConfig.database);
+    } else {
+      console.error('Database name is not provided.');
+    }
   } catch (err) {
     console.error('Erro ao acessar o banco de dados:', err);
   } finally {
@@ -147,15 +157,22 @@ async function getSchemaInfo() {
   }
 }
 
-function saveSchemaInfoToFile(schemaInfo: Table[]) {
+function saveSchemaInfoToFile(schemaInfo: Table[], dbName: string) {
   const buildDir = path.join(__dirname, 'build');
 
   if (!fs.existsSync(buildDir)) {
     fs.mkdirSync(buildDir);
   }
 
+  const projectName = toCamelCase(dbName);
+
   const filePath = path.join(buildDir, 'db.reader.postgres.json');
-  fs.writeFileSync(filePath, JSON.stringify(schemaInfo, null, 2));
+  const output = {
+    databaseName: dbName,
+    projectName: projectName,
+    schema: schemaInfo
+  };
+  fs.writeFileSync(filePath, JSON.stringify(output, null, 2));
 
   console.log(`Schema information has been saved to ${filePath}`);
 }

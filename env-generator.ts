@@ -5,7 +5,6 @@ import * as path from 'path';
 import { config as dotenvConfig } from 'dotenv';
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
-import { Table } from './interfaces';
 
 dotenvConfig();
 

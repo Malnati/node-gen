@@ -7,7 +7,7 @@ class DTOGenerator {
 
   constructor(schemaPath: string) {
     const schemaJson = fs.readFileSync(schemaPath, 'utf-8');
-    this.schema = JSON.parse(schemaJson);
+    this.schema = JSON.parse(schemaJson).schema;
   }
 
   generateDTOs(outputDir: string) {
