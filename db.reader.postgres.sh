@@ -11,5 +11,6 @@ npx ts-node app-module-generator.ts
 npx ts-node main-generator.ts
 npx ts-node env-generator.ts
 npx ts-node package-json-generator.ts
+npx ts-node readme-generator.ts
 
 cp -r ./static/* ./build/
