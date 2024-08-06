@@ -1,48 +1,23 @@
 #!/usr/bin/env node
 
 import { config as dotenvConfig } from 'dotenv';
-import yargs from 'yargs';
-import { hideBin } from 'yargs/helpers';
 import * as fs from 'fs';
 import * as path from 'path';
 
 dotenvConfig();
 
-const argv = yargs(hideBin(process.argv))
-  .option('name', {
-    alias: 'n',
-    description: 'Nome do microserviço',
-    type: 'string',
-    demandOption: true
-  })
-  .option('version', {
-    alias: 'v',
-    description: 'Versão do microserviço',
-    type: 'string',
-    default: '1.0.0'
-  })
-  .option('description', {
-    alias: 'd',
-    description: 'Descrição do microserviço',
-    type: 'string',
-    default: 'Microserviço Nest.js'
-  })
-  .help()
-  .alias('help', 'h')
-  .argv as {
-    name: string;
-    version: string;
-    description: string;
-  };
+const MICROSERVICE_NAME = 'biud-microservice-optout';
+const MICROSERVICE_VERSION = '1.0.0';
+const MICROSERVICE_DESCRIPTION = 'O repositório biud-microservice-optout é um modelo de microserviço baseado no Nest.js. Ele inclui um conjunto de configurações, dependências e scripts para facilitar o desenvolvimento, teste e implantação de microserviços construídos com o Nest.js.';
 
-console.log(`Name: ${argv.name}`);
-console.log(`Version: ${argv.version}`);
-console.log(`Description: ${argv.description}`);
+console.log(`Name: ${MICROSERVICE_NAME}`);
+console.log(`Version: ${MICROSERVICE_VERSION}`);
+console.log(`Description: ${MICROSERVICE_DESCRIPTION}`);
 
 const packageJsonContent = {
-  name: argv.name,
-  version: argv.version,
-  description: argv.description,
+  name: MICROSERVICE_NAME,
+  version: MICROSERVICE_VERSION,
+  description: MICROSERVICE_DESCRIPTION,
   scripts: {
     prebuild: "rimraf dist",
     build: "nest build",
