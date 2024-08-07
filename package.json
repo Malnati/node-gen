@@ -10,7 +10,26 @@
     "publish:minor": "git add . && git commit -m \"publishing a minor\" && npm version minor && npm publish",
     "publish:major": "git add . && git commit -m \"publishing a major\" && npm version major && npm publish"
   },
-  "keywords": [],
+  "keywords": [
+  "code-generator",
+  "NestJS",
+  "TypeScript",
+  "PostgreSQL",
+  "typeorm",
+  "database",
+  "schema",
+  "entities",
+  "services",
+  "controllers",
+  "modules",
+  "DTO",
+  "automation",
+  "project-setup",
+  "backend",
+  "nodejs",
+  "typescript-generator",
+  "nest-generator"
+],
   "author": "",
   "license": "ISC",
   "dependencies": {
