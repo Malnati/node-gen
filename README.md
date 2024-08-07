@@ -344,3 +344,26 @@ npx ts-node readme-generator.ts
 
 cp -r ./static/* ./build/
 ```
+
+## publicação
+
+Para publicar no NPM, execute os comandos:
+
+```bash
+npm login
+npm run first:publishing
+```
+
+Para atualizar no NPM, execute um dos os comandos:
+
+```bash
+npm run publish:patch
+```
+ou
+```bash
+npm run publish:minor
+```
+ou
+```bash
+npm run publish:major
+```
