@@ -6,9 +6,9 @@
   "scripts": {
     "start": "bash db.reader.postgres.sh",
     "first:publishing": "npm org set codegenerator username owner && npm publish --access public",
-    "publish:patch": "git add . && git commit -m \"publishing a patch\" && npm version patch && npm run build && npm publish",
-    "publish:minor": "git add . && git commit -m \"publishing a minor\" && npm version minor && npm run build && npm publish",
-    "publish:major": "git add . && git commit -m \"publishing a major\" && npm version major && npm run build && npm publish"
+    "publish:patch": "git add . && git commit -m \"publishing a patch\" && npm version patch && npm publish",
+    "publish:minor": "git add . && git commit -m \"publishing a minor\" && npm version minor && npm publish",
+    "publish:major": "git add . && git commit -m \"publishing a major\" && npm version major && npm publish"
   },
   "keywords": [],
   "author": "",
