@@ -1,5 +1,5 @@
 {
-  "name": "gen",
+  "name": "node-gen",
   "version": "1.0.0",
   "description": "NodeJS code generator from database.",
   "main": "main.js",
