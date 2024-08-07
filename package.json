@@ -3,6 +3,9 @@
   "version": "1.0.3",
   "description": "NodeJS code generator from database.",
   "main": "main.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Malnati/node-gen.git"},
   "scripts": {
     "start": "bash db.reader.postgres.sh",
     "first:publishing": "npm org set codegenerator username owner && npm publish --access public",
