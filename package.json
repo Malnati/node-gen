@@ -7,6 +7,20 @@
     "type": "git",
     "url": "git+https://github.com/Malnati/node-gen.git"
   },
+  "bin": {
+    "db-reader-postgres": "./db.reader.postgres.ts",
+    "typeorm-entity-generator": "./typeorm-entity-generator.ts",
+    "service-generator": "./service-generator.ts",
+    "interface-generator": "./interface-generator.ts",
+    "controller-generator": "./controller-generator.ts",
+    "dto-generator": "./dto-generator.ts",
+    "module-generator": "./module-generator.ts",
+    "app-module-generator": "./app-module-generator.ts",
+    "main-generator": "./main-generator.ts",
+    "env-generator": "./env-generator.ts",
+    "package-json-generator": "./package-json-generator.ts",
+    "readme-generator": "./readme-generator.ts"
+  },
   "scripts": {
     "start": "bash db.reader.postgres.sh",
     "first:publishing": "npm org set codegenerator username owner && npm publish --access public",
