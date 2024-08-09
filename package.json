@@ -1,6 +1,6 @@
 {
   "name": "@codegenerator/node-gen",
-  "version": "3.0.1",
+  "version": "1.0.0",
   "description": "NodeJS code generator from database.",
   "repository": {
     "type": "git",
@@ -23,8 +23,8 @@
   },
   "scripts": {
     "build": "tsc",
-    "uninstall": "npm uninstall -g @codegenerator/node-gen && npm list -g --depth=0",
-    "install": "npm install -g @codegenerator/node-gen@latest",
+    "gen:uninstall": "npm uninstall -g @codegenerator/node-gen && npm list -g --depth=0",
+    "gen:install": "npm install -g @codegenerator/node-gen@latest",
     "start": "npm run build && node dist/main.js",
     "first:publishing": "npm run build && npm org set codegenerator username owner && npm publish --access public",
     "publish:patch": "npm run build && git add . && git commit -m \"publishing a patch\" && npm version patch && npm publish",
