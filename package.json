@@ -23,7 +23,7 @@
   },
   "scripts": {
     "build": "tsc",
-    "uninstall": "npm uninstall -g @codegenerator/node-gen && npm cache clean --force && npm list -g --depth=0",
+    "uninstall": "npm uninstall -g @codegenerator/node-gen && npm list -g --depth=0",
     "install": "npm install -g @codegenerator/node-gen@latest",
     "start": "npm run build && node dist/main.js",
     "first:publishing": "npm run build && npm org set codegenerator username owner && npm publish --access public",
