@@ -1,13 +1,13 @@
 {
   "name": "@codegenerator/node-gen",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "NodeJS code generator from database.",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Malnati/node-gen.git"
   },
-  "main": "dist/main.js",          
-  "bin": {                         
+  "main": "dist/main.js",
+  "bin": {
     "db-reader-postgres": "dist/db.reader.postgres.js",
     "typeorm-entity-generator": "dist/typeorm-entity-generator.js",
     "service-generator": "dist/service-generator.js",
