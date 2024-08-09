@@ -2,31 +2,34 @@
   "name": "@codegenerator/node-gen",
   "version": "2.0.0",
   "description": "NodeJS code generator from database.",
-  "main": "main.js",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Malnati/node-gen.git"
   },
-  "bin": {
-    "db-reader-postgres": "./db.reader.postgres.ts",
-    "typeorm-entity-generator": "./typeorm-entity-generator.ts",
-    "service-generator": "./service-generator.ts",
-    "interface-generator": "./interface-generator.ts",
-    "controller-generator": "./controller-generator.ts",
-    "dto-generator": "./dto-generator.ts",
-    "module-generator": "./module-generator.ts",
-    "app-module-generator": "./app-module-generator.ts",
-    "main-generator": "./main-generator.ts",
-    "env-generator": "./env-generator.ts",
-    "package-json-generator": "./package-json-generator.ts",
-    "readme-generator": "./readme-generator.ts"
+  "main": "dist/main.js",          
+  "bin": {                         
+    "db-reader-postgres": "dist/db.reader.postgres.js",
+    "typeorm-entity-generator": "dist/typeorm-entity-generator.js",
+    "service-generator": "dist/service-generator.js",
+    "interface-generator": "dist/interface-generator.js",
+    "controller-generator": "dist/controller-generator.js",
+    "dto-generator": "dist/dto-generator.js",
+    "module-generator": "dist/module-generator.js",
+    "app-module-generator": "dist/app-module-generator.js",
+    "main-generator": "dist/main-generator.js",
+    "env-generator": "dist/env-generator.js",
+    "package-json-generator": "dist/package-json-generator.js",
+    "readme-generator": "dist/readme-generator.js"
   },
   "scripts": {
-    "start": "bash db.reader.postgres.sh",
-    "first:publishing": "npm org set codegenerator username owner && npm publish --access public",
-    "publish:patch": "git add . && git commit -m \"publishing a patch\" && npm version patch && npm publish",
-    "publish:minor": "git add . && git commit -m \"publishing a minor\" && npm version minor && npm publish",
-    "publish:major": "git add . && git commit -m \"publishing a major\" && npm version major && npm publish"
+    "build": "tsc",
+    "uninstall": "npm uninstall -g @codegenerator/node-gen && npm list -g --depth=0",
+    "install": "npm install -g @codegenerator/node-gen",
+    "start": "npm run build && node dist/main.js",
+    "first:publishing": "npm run build && npm org set codegenerator username owner && npm publish --access public",
+    "publish:patch": "npm run build && git add . && git commit -m \"publishing a patch\" && npm version patch && npm publish",
+    "publish:minor": "npm run build && git add . && git commit -m \"publishing a minor\" && npm version minor && npm publish",
+    "publish:major": "npm run build && git add . && git commit -m \"publishing a major\" && npm version major && npm publish"
   },
   "keywords": [
     "code-generator",

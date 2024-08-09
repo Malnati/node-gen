@@ -1,8 +1,8 @@
 {
   "compilerOptions": {
     /* Language and Environment */
-    "target": "es2016",                                  /* Set the JavaScript language version for emitted JavaScript and include compatible library declarations. */
-    "module": "commonjs",                                /* Specify what module code is generated. */
+    "target": "ES2020",                                  /* Set the JavaScript language version for emitted JavaScript and include compatible library declarations. */
+    "module": "CommonJS",                                /* Specify what module code is generated. */
     "strict": true,                                      /* Enable all strict type-checking options. */
     "esModuleInterop": true,                             /* Emit additional JavaScript to ease support for importing CommonJS modules. This enables 'allowSyntheticDefaultImports' for type compatibility. */
     "forceConsistentCasingInFileNames": true,            /* Ensure that casing is correct in imports. */
@@ -18,5 +18,6 @@
   },
   "include": [
     "./**/*.ts"
-  ]
+  ],       // Inclui todos os arquivos .ts dentro de src/
+  "exclude": ["node_modules", "dist", "build", "static"] // Exclui node_modules e dist do processo de compilação
 }
