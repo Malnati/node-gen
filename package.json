@@ -1,6 +1,6 @@
 {
   "name": "@codegenerator/node-gen",
-  "version": "1.0.4",
+  "version": "2.0.0",
   "description": "NodeJS code generator from database.",
   "main": "main.js",
   "repository": {
