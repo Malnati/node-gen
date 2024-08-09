@@ -4,10 +4,13 @@ Este repositório contém um conjunto de geradores TypeScript para criar a estru
 
 ## Instalação
 
+O *node-gen* é um pacote Node.js que pode ser instalado globalmente via npm. O registro estaá disponível em [@codegenerator/node-gen](https://www.npmjs.com/package/@codegenerator/node-gen), então você pode instalar o pacote diretamente a partir do NPM.
+
+```bash
 Para instalar todas as dependências necessárias, execute o comando:
 
 ```bash
-npm install
+npm install -g @codegenerator/node-gen
 ```
 
 ## Uso
