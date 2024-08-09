@@ -49,7 +49,7 @@
     "nest-generator"
   ],
   "author": "",
-  "license": "ISC",
+  "license": "MIT",
   "dependencies": {
     "@types/pg": "^8.11.6",
     "@types/yargs": "^17.0.32",
