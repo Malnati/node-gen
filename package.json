@@ -48,7 +48,7 @@
     "typescript-generator",
     "nest-generator"
   ],
-  "author": "",
+  "author": "Ricardo Malnati",
   "license": "MIT",
   "dependencies": {
     "@types/pg": "^8.11.6",
