@@ -8,7 +8,13 @@ import { Table, Column, Relation } from './interfaces';
 import * as fs from 'fs';
 import * as path from 'path';
 
-dotenvConfig();
+const envPath = path.resolve(process.cwd(), '.env');
+console.log('Verificando se o arquivo .env existe:', fs.existsSync(envPath));
+if (fs.existsSync(envPath)) {
+  console.log('Conteúdo do .env:', fs.readFileSync(envPath, 'utf8'));
+}
+
+dotenvConfig({ path: envPath });
 
 // Debugging section to check environment variables
 console.log("Environment Variables:");

@@ -17,6 +17,11 @@ npm install -g @codegenerator/node-gen
 
 Este repositório contém vários geradores para criar diferentes partes de um projeto NestJS. Aqui está uma breve descrição de cada gerador:
 
+```bash
+    DB_HOST=99.999.99.99 DB_PORT=5432 DB_NAME=db DB_USER=user DB_PASSWORD='********' ./db.reader.postgres.sh
+```
+
+
 - **db.reader.postgres.ts**: Lê a estrutura do banco de dados PostgreSQL e gera um arquivo JSON com a definição do esquema.
 - **typeorm-entity-generator.ts**: Gera entidades TypeORM com base na definição do esquema.
 - **service-generator.ts**: Gera serviços NestJS com base nas entidades geradas.
