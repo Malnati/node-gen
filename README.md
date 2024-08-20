@@ -118,7 +118,6 @@ Isso iniciará o servidor NestJS usando as configurações geradas.
 ### Licença
 
 Este projeto é licenciado sob a licença MIT - veja o arquivo [LICENSE](LICENSE) para mais detalhes.
-```
 
 Para adicionar o gerador de README ao script `db.reader.postgres.sh`, basta incluir a chamada ao `readme-generator.ts` no final do script:
 
