@@ -103,8 +103,8 @@ ${persistDto}`;
 }
 
 // Usage
-const schemaPath = path.join(__dirname, 'build', 'db.reader.postgres.json');
-const outputDir = path.join(__dirname, 'build');
+const schemaPath = path.join(__dirname, '../build', 'db.reader.postgres.json');
+const outputDir = path.join(__dirname, '../build');
 
 const generator = new InterfaceGenerator(schemaPath);
 generator.generateInterfaces(outputDir);

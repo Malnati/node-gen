@@ -164,7 +164,7 @@ async function getSchemaInfo() {
 }
 
 function saveSchemaInfoToFile(schemaInfo: Table[], dbName: string) {
-  const buildDir = path.join(__dirname, 'build');
+  const buildDir = path.join(__dirname, '../build');
 
   if (!fs.existsSync(buildDir)) {
     fs.mkdirSync(buildDir);

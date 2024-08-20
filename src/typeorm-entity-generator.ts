@@ -101,8 +101,8 @@ export class ${this.toPascalCase(table.tableName)}Entity {
 }
 
 // Usage
-const schemaPath = path.join(__dirname, 'build', 'db.reader.postgres.json');
-const outputDir = path.join(__dirname, 'build/entities');
+const schemaPath = path.join(__dirname, '../build', 'db.reader.postgres.json');
+const outputDir = path.join(__dirname, '../build/entities');
 
 const generator = new TypeORMEntityGenerator(schemaPath);
 generator.generateEntities(outputDir);

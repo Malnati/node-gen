@@ -93,7 +93,7 @@ function generateEnvFile() {
     .map(([key, value]) => `${key}='${value}'`)
     .join('\n');
 
-  const buildDir = path.join(__dirname, 'build');
+  const buildDir = path.join(__dirname, '../build');
   if (!fs.existsSync(buildDir)) {
     fs.mkdirSync(buildDir, { recursive: true });
   }

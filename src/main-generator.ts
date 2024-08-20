@@ -108,7 +108,7 @@ bootstrap().catch((error) => {
 }
 
 // Usage
-const outputDir = path.join(__dirname, 'build');
+const outputDir = path.join(__dirname, '../build');
 
 const generator = new MainFileGenerator();
 generator.generateMainFile(outputDir);

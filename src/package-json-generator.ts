@@ -93,7 +93,7 @@ const packageJsonContent = {
   }
 };
 
-const buildDir = path.join(__dirname, 'build');
+const buildDir = path.join(__dirname, '../build');
 
 console.log(`Build Directory: ${buildDir}`);
 
