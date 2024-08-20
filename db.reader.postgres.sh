@@ -1,5 +1,7 @@
 rm -rf ./build
 
+cp -r ./static/. ./build/
+
 npx ts-node src/db.reader.postgres.ts
 npx ts-node src/typeorm-entity-generator.ts
 npx ts-node src/service-generator.ts
@@ -12,5 +14,3 @@ npx ts-node src/main-generator.ts
 npx ts-node src/env-generator.ts
 npx ts-node src/package-json-generator.ts
 npx ts-node src/readme-generator.ts
-
-cp -r ./static/* ./build/

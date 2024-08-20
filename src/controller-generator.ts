@@ -183,7 +183,7 @@ class ControllerGenerator {
 
 // Usage
 const schemaPath = path.join(__dirname, '../build', 'db.reader.postgres.json');
-const outputDir = path.join(__dirname, '../build');
+const outputDir = path.join(__dirname, '../build/src/app');
 
 const generator = new ControllerGenerator(schemaPath);
 generator.generateControllers(outputDir);
