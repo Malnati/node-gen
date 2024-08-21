@@ -15,7 +15,7 @@ export class ConfigUtil {
       .option('-u, --user <type>', 'Usuário do banco de dados')
       .option('-pw, --password <type>', 'Senha do banco de dados')
       .option('-o, --outputDir <type>', 'Diretório de saída para os arquivos gerados', './build')
-      .option('-f, --components <type>', 'Especifique quais componentes gerar (entities, services, interfaces, controllers, dtos, modules, app-module, main, env, package.json, readme):', 'db.reader.postgres.json')
+      .option('-f, --components <type>', 'Especifique quais componentes gerar (entities, services, interfaces, controllers, dtos, modules, app-module, main, env, package.json, readme):', 'entities')
       .parse(process.argv);
 
     const options = program.opts();
