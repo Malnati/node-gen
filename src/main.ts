@@ -11,6 +11,7 @@ import { ControllerGenerator } from "./controller-generator";
 import { DTOGenerator } from "./dto-generator";
 import { ModuleGenerator } from "./module-generator";
 import { AppModuleGenerator } from "./app-module-generator";
+import { MainFileGenerator } from "./main-generator";
 
 const dbConfig = ConfigUtil.getConfig(); // Obtém as configurações do banco de dados
 
@@ -131,6 +132,16 @@ async function main() {
                 );
                 // Gera as app-module
                 appModuleGenerator.generateAppModule();
+            }
+            if (component === "main") {
+                console.log(`Executando comando para ${component}`);
+                // Cria uma instância do gerador de main passando o schema e as configurações
+                const mainGenerator = new MainFileGenerator(
+                    schemaPath,
+                    dbConfig
+                );
+                // Gera as main
+                mainGenerator.generateMainFile();
             }
         } else {
             console.log(`Componente ${component} não reconhecido.`);

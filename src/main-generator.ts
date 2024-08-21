@@ -2,13 +2,18 @@
 
 import * as fs from 'fs';
 import * as path from 'path';
-import { ConfigUtil } from './utils/ConfigUtil';
+import { DbReaderConfig } from './interfaces';
 
-class MainFileGenerator {
+export class MainFileGenerator {
+  private config: DbReaderConfig;
+
+  constructor(schemaPath: string, config: DbReaderConfig) {
+    const schemaJson = fs.readFileSync(schemaPath, 'utf-8');
+    this.config = config;
+  }
 
 generateMainFile() {
-    const config = ConfigUtil.getConfig();
-    const outputDir = path.join(config.outputDir, 'src/app');
+    const outputDir = path.join(this.config.outputDir, 'src/app');
 
     if (!fs.existsSync(outputDir)) {
       fs.mkdirSync(outputDir, { recursive: true });
@@ -111,7 +116,3 @@ bootstrap().catch((error) => {
 `;
   }
 }
-
-// Usage
-const generator = new MainFileGenerator();
-generator.generateMainFile();

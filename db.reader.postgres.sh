@@ -11,7 +11,7 @@ npm run build && \
                     --user "biud_log" \
                     --password $1 \
                     --outputDir "./build" \
-                    --components "entities, services, interfaces, controllers, dtos, modules, app-module"
+                    --components "entities, services, interfaces, controllers, dtos, modules, app-module, main"
 
 # ['entities'|'services'|'interfaces'|'controllers'|'dtos'|'modules'|'app-module'|'main'|'env'|'package.json'|'readme'];
 # npx ts-node src/db.reader.postgres.ts
