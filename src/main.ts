@@ -5,6 +5,7 @@ import * as readline from "readline";
 import { DbReader } from "./db.reader.postgres";
 import { ConfigUtil } from "./utils/ConfigUtil";
 import { TypeORMEntityGenerator } from "./typeorm-entity-generator";
+import { ServiceGenerator } from "./service-generator";
 
 const dbConfig = ConfigUtil.getConfig(); // Obtém as configurações do banco de dados
 
@@ -59,6 +60,15 @@ async function main() {
         );
         // Gera as entidades
         entityGenerator.generateEntities();
+      }
+      if (command === "services") {
+        // Cria uma instância do gerador de serviços passando o schema e as configurações
+        const serviceGenerator = new ServiceGenerator(
+          schemaPath,
+          dbConfig
+        );
+        // Gera os serviços
+        serviceGenerator.generateServices();
       }
     } else {
       console.log(`Componente ${component} não reconhecido.`);

@@ -2,20 +2,21 @@
 
 import * as fs from 'fs';
 import * as path from 'path';
-import { Table, Relation, Column } from './interfaces';
+import { Table, Relation, Column, DbReaderConfig } from './interfaces';
 import { ConfigUtil } from './utils/ConfigUtil';
 
-class ServiceGenerator {
+export class ServiceGenerator {
   private schema: Table[];
+  private config: DbReaderConfig;
 
-  constructor(schemaPath: string) {
+  constructor(schemaPath: string, config: DbReaderConfig) {
     const schemaJson = fs.readFileSync(schemaPath, 'utf-8');
     this.schema = JSON.parse(schemaJson).schema;
+    this.config = config;
   }
 
   generateServices() {
-    const config = ConfigUtil.getConfig(); 
-    const outputDir = path.join(config.outputDir, 'src/app/services');
+    const outputDir = path.join(this.config.outputDir, 'src/app/services');
 
     if (!fs.existsSync(outputDir)) {
       fs.mkdirSync(outputDir, { recursive: true });
@@ -223,8 +224,3 @@ export class ${entityName}Service {
     return str.replace(/_/g, '-').toLowerCase();
   }
 }
-
-// Usage
-const schemaPath = path.join(__dirname, '../build', 'db.reader.postgres.json');
-const generator = new ServiceGenerator(schemaPath);
-generator.generateServices();
