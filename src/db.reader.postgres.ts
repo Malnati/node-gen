@@ -3,27 +3,20 @@
 
 import { Client } from 'pg';
 import * as fs from 'fs';
-import * as path from 'path';
 import { DbReaderConfig, Table, Column, Relation } from './interfaces';
 
 export class DbReader {
   private config: DbReaderConfig;
+  private schemaPath: string;
 
-  constructor(config: DbReaderConfig) {
+  constructor(schemaPath: string, config: DbReaderConfig) {
     this.config = config;
-
-    // Adicionando logs para verificar os valores recebidos (exceto senha)
-    console.log('DbReader Configuration:');
-    console.log(`Host: ${this.config.host}`);
-    console.log(`Port: ${this.config.port}`);
-    console.log(`Database: ${this.config.database}`);
-    console.log(`User: ${this.config.user}`);
-    console.log('Password: [HIDDEN]');
-    console.log(`Output Directory: ${this.config.outputDir}`);
-    console.log(`Components: ${this.config.components}`);
+    this.schemaPath = schemaPath;
   }
 
   public async getSchemaInfo() {
+
+    console.log('Connecting to the database...');
     const client = new Client({
       host: this.config.host,
       port: this.config.port,
@@ -116,7 +109,7 @@ export class DbReader {
 
     const projectName = this.toCamelCase(this.config.database);
 
-    const filePath = path.join(this.config.outputDir, 'db.reader.postgres.json');
+    const filePath = this.schemaPath;
     const output = {
       databaseName: this.config.database,
       projectName: projectName,

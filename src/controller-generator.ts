@@ -2,20 +2,20 @@
 
 import * as fs from 'fs';
 import * as path from 'path';
-import { Table, Relation, Column } from './interfaces';
-import { ConfigUtil } from './utils/ConfigUtil';
+import { Table, DbReaderConfig } from './interfaces';
 
-class ControllerGenerator {
+export class ControllerGenerator {
   private schema: Table[];
+  private config: DbReaderConfig;
 
-  constructor(schemaPath: string) {
+  constructor(schemaPath: string, config: DbReaderConfig) {
     const schemaJson = fs.readFileSync(schemaPath, 'utf-8');
     this.schema = JSON.parse(schemaJson).schema;
+    this.config = config;
   }
 
   generateControllers() {
-    const config = ConfigUtil.getConfig();
-    const outputDir = path.join(config.outputDir, 'src/app/controllers');
+    const outputDir = path.join(this.config.outputDir, 'src/app');
 
     if (!fs.existsSync(outputDir)) {
       fs.mkdirSync(outputDir, { recursive: true });
@@ -184,8 +184,3 @@ class ControllerGenerator {
     return str.replace(/_/g, '-').toLowerCase();
   }
 }
-
-// Usage
-const schemaPath = path.join(__dirname, '../build', 'db.reader.postgres.json');
-const generator = new ControllerGenerator(schemaPath);
-generator.generateControllers();

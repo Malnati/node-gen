@@ -3,7 +3,6 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import { Table, Relation, Column, DbReaderConfig } from './interfaces';
-import { ConfigUtil } from './utils/ConfigUtil';
 
 export class ServiceGenerator {
   private schema: Table[];
@@ -16,7 +15,7 @@ export class ServiceGenerator {
   }
 
   generateServices() {
-    const outputDir = path.join(this.config.outputDir, 'src/app/services');
+    const outputDir = path.join(this.config.outputDir, 'src/app');
 
     if (!fs.existsSync(outputDir)) {
       fs.mkdirSync(outputDir, { recursive: true });

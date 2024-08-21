@@ -2,7 +2,7 @@
 
 rm -rf ./build
 cp -r ./static/. ./build/
-# ['entities'|'services'|'interfaces'|'controllers'|'dtos'|'modules'|'app-module'|'main'|'env'|'package.json'|'readme'];
+
 npm run build && \
     npx ts-node src/main.ts \
                     --host "34.134.67.65" \
@@ -11,8 +11,9 @@ npm run build && \
                     --user "biud_log" \
                     --password $1 \
                     --outputDir "./build" \
-                    --components "entities, services"
+                    --components "entities, services, interfaces, controllers"
 
+# ['entities'|'services'|'interfaces'|'controllers'|'dtos'|'modules'|'app-module'|'main'|'env'|'package.json'|'readme'];
 # npx ts-node src/db.reader.postgres.ts
 # npx ts-node src/typeorm-entity-generator.ts
 # npx ts-node src/service-generator.ts

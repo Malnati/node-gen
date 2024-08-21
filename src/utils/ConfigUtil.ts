@@ -19,7 +19,10 @@ export class ConfigUtil {
       .parse(process.argv);
 
     const options = program.opts();
-
+    const components: ['entities'|'services'|'interfaces'|'controllers'|'dtos'|'modules'|'app-module'|'main'|'env'|'package.json'|'readme'] = options.components
+    .split(',')
+    .map((c: string) => c.trim().toLowerCase().replace("\"", "")) as ['entities'|'services'|'interfaces'|'controllers'|'dtos'|'modules'|'app-module'|'main'|'env'|'package.json'|'readme'];
+  
     return {
       host: options.host,
       port: parseInt(options.port, 10),
@@ -27,7 +30,7 @@ export class ConfigUtil {
       user: options.user,
       password: options.password,
       outputDir: options.outputDir,
-      components: options.components,
+      components: components,
     };
   }
 }

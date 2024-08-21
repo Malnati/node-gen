@@ -2,20 +2,20 @@
 
 import * as fs from 'fs';
 import * as path from 'path';
-import { Table, Column } from './interfaces';
-import { ConfigUtil } from './utils/ConfigUtil';
+import { Table, Column, DbReaderConfig } from './interfaces';
 
-class InterfaceGenerator {
+export class InterfaceGenerator {
   private schema: Table[];
+  private config: DbReaderConfig;
 
-  constructor(schemaPath: string) {
+  constructor(schemaPath: string, config: DbReaderConfig) {
     const schemaJson = fs.readFileSync(schemaPath, 'utf-8');
     this.schema = JSON.parse(schemaJson).schema;
+    this.config = config;
   }
 
   generateInterfaces() {
-    const config = ConfigUtil.getConfig(); 
-    const outputDir = path.join(config.outputDir, 'src/app/interfaces');
+    const outputDir = path.join(this.config.outputDir, 'src/app');
 
     if (!fs.existsSync(outputDir)) {
       fs.mkdirSync(outputDir, { recursive: true });
@@ -105,8 +105,3 @@ ${persistDto}`;
     return str.replace(/_/g, '-').toLowerCase();
   }
 }
-
-// Usage
-const schemaPath = path.join(__dirname, '../build', 'db.reader.postgres.json');
-const generator = new InterfaceGenerator(schemaPath);
-generator.generateInterfaces();
