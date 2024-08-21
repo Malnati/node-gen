@@ -29,5 +29,5 @@ export interface DbReaderConfig {
   user: string;
   password: string;
   outputDir: string;
-  outputFile: string; 
+  components: ['strientities'|'services'|'interfaces'|'controllers'|'dtos'|'modules'|'app-module'|'main'|'env'|'package.json'|'readme'];
 }

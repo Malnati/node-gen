@@ -2,21 +2,21 @@
 
 import * as fs from 'fs';
 import * as path from 'path';
-import { Table, Column, Relation } from './interfaces';
-import { ConfigUtil } from './utils/ConfigUtil';
+import { Table, Column, Relation, DbReaderConfig } from './interfaces';
 
 class TypeORMEntityGenerator {
   private schema: Table[];
+  private config: DbReaderConfig;
 
-  constructor(schemaPath: string) {
+  constructor(schemaPath: string, config: DbReaderConfig) {
     const schemaJson = fs.readFileSync(schemaPath, 'utf-8');
     const parsedSchema = JSON.parse(schemaJson);
-    this.schema = parsedSchema.schema; 
+    this.schema = parsedSchema.schema;
+    this.config = config;
   }
 
   generateEntities() {
-    const config = ConfigUtil.getConfig();
-    const outputDir = path.join(config.outputDir, 'src/app/entities');
+    const outputDir = path.join(this.config.outputDir, 'src/app/entities');
 
     if (!fs.existsSync(outputDir)) {
       fs.mkdirSync(outputDir, { recursive: true }); 
@@ -104,7 +104,18 @@ export class ${this.toPascalCase(table.tableName)}Entity {
   }
 }
 
-// Usage
-const schemaPath = path.join(__dirname, '../build', 'db.reader.postgres.json');
-const generator = new TypeORMEntityGenerator(schemaPath);
-generator.generateEntities();
+// Adaptando o código main para chamar o gerador de entidades
+
+import { ConfigUtil } from './utils/ConfigUtil';
+
+// Obtém as configurações
+const dbConfig = ConfigUtil.getConfig();
+
+// Define o caminho para o schema
+const schemaPath = path.join(dbConfig.outputDir, 'db.reader.postgres.json');
+
+// Cria uma instância do gerador de entidades passando o schema e as configurações
+const entityGenerator = new TypeORMEntityGenerator(schemaPath, dbConfig);
+
+// Gera as entidades
+entityGenerator.generateEntities();

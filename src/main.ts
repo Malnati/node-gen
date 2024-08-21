@@ -15,7 +15,7 @@ console.log(`Database: ${dbConfig.database}`);
 console.log(`User: ${dbConfig.user}`);
 console.log('Password: [HIDDEN]');
 console.log(`Output Directory: ${dbConfig.outputDir}`);
-console.log(`Output File: ${dbConfig.outputFile}`);
+console.log(`Components: ${dbConfig.components}`);
 
 const dbReader = new DbReader(dbConfig); // Passa as configurações para o DbReader
 dbReader.getSchemaInfo(); // Executa o método para obter o schema e gerar o arquivo

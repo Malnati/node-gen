@@ -20,7 +20,7 @@ export class DbReader {
     console.log(`User: ${this.config.user}`);
     console.log('Password: [HIDDEN]');
     console.log(`Output Directory: ${this.config.outputDir}`);
-    console.log(`Output File: ${this.config.outputFile}`);
+    console.log(`Components: ${this.config.components}`);
   }
 
   public async getSchemaInfo() {
@@ -116,7 +116,7 @@ export class DbReader {
 
     const projectName = this.toCamelCase(this.config.database);
 
-    const filePath = path.join(this.config.outputDir, this.config.outputFile);
+    const filePath = path.join(this.config.outputDir, 'db.reader.postgres.json');
     const output = {
       databaseName: this.config.database,
       projectName: projectName,
