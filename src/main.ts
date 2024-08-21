@@ -1,9 +1,10 @@
 #!/usr/bin/env node
 
+import path from 'path';
+import * as readline from 'readline';
 import { DbReader } from './db.reader.postgres';
 import { ConfigUtil } from './utils/ConfigUtil';
-import { execSync } from 'child_process';
-import * as readline from 'readline';
+import { TypeORMEntityGenerator } from './typeorm-entity-generator';
 
 const dbConfig = ConfigUtil.getConfig(); // Obtém as configurações do banco de dados
 
@@ -55,11 +56,19 @@ async function main() {
     'readme': `npx ts-node src/readme-generator.ts`,
   };
 
+  const schemaPath = path.join(dbConfig.outputDir, 'db.reader.postgres.json');
+
   for (const component of components) {
     const command = commandsMap[component];
     if (command) {
       console.log(`Executando comando para ${component}: ${command}`);
-      execSync(command, { stdio: 'inherit' });
+      if (command === 'entities') {
+        // Define o caminho para o schema
+        // Cria uma instância do gerador de entidades passando o schema e as configurações
+        const entityGenerator = new TypeORMEntityGenerator(schemaPath, dbConfig);
+        // Gera as entidades
+        entityGenerator.generateEntities();
+      }
     } else {
       console.log(`Componente ${component} não reconhecido.`);
     }

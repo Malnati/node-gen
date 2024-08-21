@@ -4,7 +4,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { Table, Column, Relation, DbReaderConfig } from './interfaces';
 
-class TypeORMEntityGenerator {
+export class TypeORMEntityGenerator {
   private schema: Table[];
   private config: DbReaderConfig;
 
@@ -103,19 +103,3 @@ export class ${this.toPascalCase(table.tableName)}Entity {
     return str.replace(/_./g, match => match.charAt(1).toUpperCase()).replace(/^./, match => match.toUpperCase());
   }
 }
-
-// Adaptando o código main para chamar o gerador de entidades
-
-import { ConfigUtil } from './utils/ConfigUtil';
-
-// Obtém as configurações
-const dbConfig = ConfigUtil.getConfig();
-
-// Define o caminho para o schema
-const schemaPath = path.join(dbConfig.outputDir, 'db.reader.postgres.json');
-
-// Cria uma instância do gerador de entidades passando o schema e as configurações
-const entityGenerator = new TypeORMEntityGenerator(schemaPath, dbConfig);
-
-// Gera as entidades
-entityGenerator.generateEntities();
