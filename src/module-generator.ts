@@ -2,20 +2,20 @@
 
 import * as fs from 'fs';
 import * as path from 'path';
-import { Table } from './interfaces';
-import { ConfigUtil } from './utils/ConfigUtil';
+import { Table, DbReaderConfig } from './interfaces';
 
-class ModuleGenerator {
+export class ModuleGenerator {
   private schema: Table[];
+  private config: DbReaderConfig;
 
-  constructor(schemaPath: string) {
+  constructor(schemaPath: string, config: DbReaderConfig) {
     const schemaJson = fs.readFileSync(schemaPath, 'utf-8');
     this.schema = JSON.parse(schemaJson).schema;
+    this.config = config;
   }
 
 generateModules() {
-    const config = ConfigUtil.getConfig();
-    const outputDir = path.join(config.outputDir, 'src/app/modules');
+    const outputDir = path.join(this.config.outputDir, 'src/app');
 
     if (!fs.existsSync(outputDir)) {
       fs.mkdirSync(outputDir, { recursive: true });
@@ -80,8 +80,3 @@ export class ${entityName}Module {}`;
     return str.replace(/_/g, '-').toLowerCase();
   }
 }
-
-// Usage
-const schemaPath = path.join(__dirname, '../build', 'db.reader.postgres.json');
-const generator = new ModuleGenerator(schemaPath);
-generator.generateModules();

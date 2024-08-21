@@ -8,6 +8,8 @@ import { TypeORMEntityGenerator } from "./typeorm-entity-generator";
 import { ServiceGenerator } from "./service-generator";
 import { InterfaceGenerator } from "./interface-generator";
 import { ControllerGenerator } from "./controller-generator";
+import { DTOGenerator } from "./dto-generator";
+import { ModuleGenerator } from "./module-generator";
 
 const dbConfig = ConfigUtil.getConfig(); // Obtém as configurações do banco de dados
 
@@ -98,6 +100,26 @@ async function main() {
                 );
                 // Gera as controllers
                 controllersGenerator.generateControllers();
+            }
+            if (component === "dtos") {
+                console.log(`Executando comando para ${component}`);
+                // Cria uma instância do gerador de DTOs passando o schema e as configurações
+                const dtosGenerator = new DTOGenerator(
+                    schemaPath,
+                    dbConfig
+                );
+                // Gera as DTOs
+                dtosGenerator.generateDTOs();
+            }
+            if (component === "modules") {
+                console.log(`Executando comando para ${component}`);
+                // Cria uma instância do gerador de modules passando o schema e as configurações
+                const modulesGenerator = new ModuleGenerator(
+                    schemaPath,
+                    dbConfig
+                );
+                // Gera as modules
+                modulesGenerator.generateModules();
             }
         } else {
             console.log(`Componente ${component} não reconhecido.`);
