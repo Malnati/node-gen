@@ -2,11 +2,9 @@
 
 import * as fs from 'fs';
 import * as path from 'path';
-import { config as dotenvConfig } from 'dotenv';
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
-
-dotenvConfig();
+import { ConfigUtil } from './utils/ConfigUtil';
 
 // Debugging section to check environment variables
 console.log("Environment Variables:");
@@ -93,7 +91,9 @@ function generateEnvFile() {
     .map(([key, value]) => `${key}='${value}'`)
     .join('\n');
 
-  const buildDir = path.join(__dirname, '../build');
+  const config = ConfigUtil.getConfig();
+  const buildDir = config.outputDir;
+  
   if (!fs.existsSync(buildDir)) {
     fs.mkdirSync(buildDir, { recursive: true });
   }

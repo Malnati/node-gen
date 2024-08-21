@@ -1,10 +1,8 @@
 #!/usr/bin/env node
 
-import { config as dotenvConfig } from 'dotenv';
 import * as fs from 'fs';
 import * as path from 'path';
-
-dotenvConfig();
+import { ConfigUtil } from './utils/ConfigUtil';
 
 const MICROSERVICE_NAME = 'biud-microservice-optout';
 const MICROSERVICE_VERSION = '1.0.0';
@@ -93,7 +91,8 @@ const packageJsonContent = {
   }
 };
 
-const buildDir = path.join(__dirname, '../build');
+const config = ConfigUtil.getConfig();
+const buildDir = config.outputDir;
 
 console.log(`Build Directory: ${buildDir}`);
 

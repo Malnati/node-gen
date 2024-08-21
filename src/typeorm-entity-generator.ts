@@ -3,6 +3,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import { Table, Column, Relation } from './interfaces';
+import { ConfigUtil } from './utils/ConfigUtil';
 
 class TypeORMEntityGenerator {
   private schema: Table[];
@@ -10,12 +11,15 @@ class TypeORMEntityGenerator {
   constructor(schemaPath: string) {
     const schemaJson = fs.readFileSync(schemaPath, 'utf-8');
     const parsedSchema = JSON.parse(schemaJson);
-    this.schema = parsedSchema.schema; // Ajuste para acessar a propriedade `schema`
+    this.schema = parsedSchema.schema; 
   }
 
-  generateEntities(outputDir: string) {
+  generateEntities() {
+    const config = ConfigUtil.getConfig();
+    const outputDir = path.join(config.outputDir, 'src/app/entities');
+
     if (!fs.existsSync(outputDir)) {
-      fs.mkdirSync(outputDir, { recursive: true }); // Adiciona { recursive: true } para garantir que os diretórios sejam criados recursivamente
+      fs.mkdirSync(outputDir, { recursive: true }); 
     }
 
     this.schema.forEach(table => {
@@ -102,7 +106,5 @@ export class ${this.toPascalCase(table.tableName)}Entity {
 
 // Usage
 const schemaPath = path.join(__dirname, '../build', 'db.reader.postgres.json');
-const outputDir = path.join(__dirname, '../build/src/app/entities');
-
 const generator = new TypeORMEntityGenerator(schemaPath);
-generator.generateEntities(outputDir);
+generator.generateEntities();

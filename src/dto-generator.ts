@@ -3,6 +3,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import { Table, Column } from './interfaces';
+import { ConfigUtil } from './utils/ConfigUtil';
 
 class DTOGenerator {
   private schema: Table[];
@@ -12,7 +13,10 @@ class DTOGenerator {
     this.schema = JSON.parse(schemaJson).schema;
   }
 
-  generateDTOs(outputDir: string) {
+  generateDTOs() {
+    const config = ConfigUtil.getConfig();
+    const outputDir = path.join(config.outputDir, 'src/app/dtos');
+
     if (!fs.existsSync(outputDir)) {
       fs.mkdirSync(outputDir, { recursive: true });
     }
@@ -144,7 +148,5 @@ ${persistDto}`;
 
 // Usage
 const schemaPath = path.join(__dirname, '../build', 'db.reader.postgres.json');
-const outputDir = path.join(__dirname, '../build/src/app');
-
 const generator = new DTOGenerator(schemaPath);
-generator.generateDTOs(outputDir);
+generator.generateDTOs();

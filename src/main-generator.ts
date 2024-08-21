@@ -2,9 +2,14 @@
 
 import * as fs from 'fs';
 import * as path from 'path';
+import { ConfigUtil } from './utils/ConfigUtil';
 
 class MainFileGenerator {
-  generateMainFile(outputDir: string) {
+
+generateMainFile() {
+    const config = ConfigUtil.getConfig();
+    const outputDir = path.join(config.outputDir, 'src/app');
+
     if (!fs.existsSync(outputDir)) {
       fs.mkdirSync(outputDir, { recursive: true });
     }
@@ -108,7 +113,5 @@ bootstrap().catch((error) => {
 }
 
 // Usage
-const outputDir = path.join(__dirname, '../build/src');
-
 const generator = new MainFileGenerator();
-generator.generateMainFile(outputDir);
+generator.generateMainFile();

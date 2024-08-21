@@ -3,6 +3,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import { Table } from './interfaces';
+import { ConfigUtil } from './utils/ConfigUtil';
 
 class AppModuleGenerator {
   private schema: Table[];
@@ -12,7 +13,10 @@ class AppModuleGenerator {
     this.schema = JSON.parse(schemaJson).schema;
   }
 
-  generateAppModule(outputDir: string) {
+  generateAppModule() {
+    const config = ConfigUtil.getConfig();
+    const outputDir = path.join(config.outputDir, 'src/app');
+
     if (!fs.existsSync(outputDir)) {
       fs.mkdirSync(outputDir, { recursive: true });
     }
@@ -81,7 +85,5 @@ export class AppModule {}`;
 
 // Usage
 const schemaPath = path.join(__dirname, '../build', 'db.reader.postgres.json');
-const outputDir = path.join(__dirname, '../build/src/app');
-
 const generator = new AppModuleGenerator(schemaPath);
-generator.generateAppModule(outputDir);
+generator.generateAppModule();
