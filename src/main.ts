@@ -5,7 +5,8 @@ import { ConfigUtil } from './utils/ConfigUtil';
 
 const dbConfig = ConfigUtil.getConfig(); // Obtém as configurações do banco de dados
 
-console.log('DbReader Configuration:');
+// Log para confirmar os valores capturados
+console.log('DbReader Configuration after ConfigUtil.getConfig():');
 console.log(`Host: ${dbConfig.host}`);
 console.log(`Port: ${dbConfig.port}`);
 console.log(`Database: ${dbConfig.database}`);

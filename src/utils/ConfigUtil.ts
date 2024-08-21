@@ -1,59 +1,33 @@
 
 // src/utils/ConfigUtil.ts
 
-import yargs from 'yargs';
-import { hideBin } from 'yargs/helpers';
+import { Command } from 'commander';
 import { DbReaderConfig } from '../interfaces';
 
 export class ConfigUtil {
   public static getConfig(): DbReaderConfig {
-    const argv = yargs(hideBin(process.argv))
-      .option('host', {
-        alias: 'h',
-        description: 'Host do banco de dados',
-        type: 'string',
-        demandOption: true,
-      })
-      .option('port', {
-        alias: 'p',
-        description: 'Porta do banco de dados',
-        type: 'number',
-        default: 5432,
-      })
-      .option('database', {
-        alias: 'd',
-        description: 'Nome do banco de dados',
-        type: 'string',
-        demandOption: true,
-      })
-      .option('user', {
-        alias: 'u',
-        description: 'Usuário do banco de dados',
-        type: 'string',
-        demandOption: true,
-      })
-      .option('password', {
-        alias: 'pw',
-        description: 'Senha do banco de dados',
-        type: 'string',
-        demandOption: true,
-      })
-      .option('outputDir', {
-        alias: 'o',
-        description: 'Diretório de saída para os arquivos gerados',
-        type: 'string',
-        default: './build',
-      })
-      .option('outputFile', {
-        alias: 'f',
-        description: 'Nome do arquivo de saída',
-        type: 'string',
-        default: 'db.reader.postgres.json',
-      })
-      .help()
-      .alias('help', 'h')
-      .argv as DbReaderConfig;
+    const program = new Command();
 
-    return argv; // Retornar diretamente o argv, que já é do tipo DbReaderConfig
+    program
+      .option('-h, --host <type>', 'Host do banco de dados')
+      .option('-p, --port <type>', 'Porta do banco de dados', '5432')
+      .option('-d, --database <type>', 'Nome do banco de dados')
+      .option('-u, --user <type>', 'Usuário do banco de dados')
+      .option('-pw, --password <type>', 'Senha do banco de dados')
+      .option('-o, --outputDir <type>', 'Diretório de saída para os arquivos gerados', './build')
+      .option('-f, --outputFile <type>', 'Nome do arquivo de saída', 'db.reader.postgres.json')
+      .parse(process.argv);
+
+    const options = program.opts();
+
+    return {
+      host: options.host,
+      port: parseInt(options.port, 10),
+      database: options.database,
+      user: options.user,
+      password: options.password,
+      outputDir: options.outputDir,
+      outputFile: options.outputFile,
+    };
   }
 }

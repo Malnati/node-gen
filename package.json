@@ -56,13 +56,13 @@
   "dependencies": {
     "@types/pg": "^8.11.6",
     "@types/yargs": "^17.0.32",
+    "commander": "^12.1.0",
     "dotenv": "^16.4.5",
     "pg": "^8.12.0",
     "reflect-metadata": "^0.2.2",
     "ts-node": "^10.9.2",
     "typeorm": "^0.3.20",
-    "typescript": "^5.5.4",
-    "yargs": "^17.7.2"
+    "typescript": "^5.5.4"
   },
   "devDependencies": {
     "@types/node": "^22.0.2"
