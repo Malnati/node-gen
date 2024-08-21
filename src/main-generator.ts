@@ -2,9 +2,19 @@
 
 import * as fs from 'fs';
 import * as path from 'path';
+import { DbReaderConfig } from './interfaces';
 
-class MainFileGenerator {
-  generateMainFile(outputDir: string) {
+export class MainFileGenerator {
+  private config: DbReaderConfig;
+
+  constructor(schemaPath: string, config: DbReaderConfig) {
+    const schemaJson = fs.readFileSync(schemaPath, 'utf-8');
+    this.config = config;
+  }
+
+generateMainFile() {
+    const outputDir = path.join(this.config.outputDir, 'src/app');
+
     if (!fs.existsSync(outputDir)) {
       fs.mkdirSync(outputDir, { recursive: true });
     }
@@ -106,9 +116,3 @@ bootstrap().catch((error) => {
 `;
   }
 }
-
-// Usage
-const outputDir = path.join(__dirname, '../build/src');
-
-const generator = new MainFileGenerator();
-generator.generateMainFile(outputDir);

@@ -2,20 +2,24 @@
 
 import * as fs from 'fs';
 import * as path from 'path';
-import { Table, Column, Relation } from './interfaces';
+import { Table, Column, Relation, DbReaderConfig } from './interfaces';
 
-class TypeORMEntityGenerator {
+export class TypeORMEntityGenerator {
   private schema: Table[];
+  private config: DbReaderConfig;
 
-  constructor(schemaPath: string) {
+  constructor(schemaPath: string, config: DbReaderConfig) {
     const schemaJson = fs.readFileSync(schemaPath, 'utf-8');
     const parsedSchema = JSON.parse(schemaJson);
-    this.schema = parsedSchema.schema; // Ajuste para acessar a propriedade `schema`
+    this.schema = parsedSchema.schema;
+    this.config = config;
   }
 
-  generateEntities(outputDir: string) {
+  generateEntities() {
+    const outputDir = path.join(this.config.outputDir, 'src/app/entities');
+
     if (!fs.existsSync(outputDir)) {
-      fs.mkdirSync(outputDir, { recursive: true }); // Adiciona { recursive: true } para garantir que os diretórios sejam criados recursivamente
+      fs.mkdirSync(outputDir, { recursive: true }); 
     }
 
     this.schema.forEach(table => {
@@ -99,10 +103,3 @@ export class ${this.toPascalCase(table.tableName)}Entity {
     return str.replace(/_./g, match => match.charAt(1).toUpperCase()).replace(/^./, match => match.toUpperCase());
   }
 }
-
-// Usage
-const schemaPath = path.join(__dirname, '../build', 'db.reader.postgres.json');
-const outputDir = path.join(__dirname, '../build/src/app/entities');
-
-const generator = new TypeORMEntityGenerator(schemaPath);
-generator.generateEntities(outputDir);

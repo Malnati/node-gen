@@ -18,29 +18,28 @@ npm install -g @codegenerator/node-gen
 Este repositório contém vários geradores para criar diferentes partes de um projeto NestJS. Aqui está uma breve descrição de cada gerador:
 
 ```bash
-    DB_HOST=99.999.99.99 DB_PORT=5432 DB_NAME=db DB_USER=user DB_PASSWORD='********' ./db.reader.postgres.sh
+
+rm -rf ./build
+cp -r ./static/. ./build/
+
+npm run build && \
+    npx ts-node src/main.ts \
+                    --app "Log" \
+                    --host "34.134.67.65" \
+                    --port "5432" \
+                    --database "biud_log" \
+                    --user "biud_log" \
+                    --password "********************" \
+                    --outputDir "./build" \
+                    --components "entities, services, interfaces, controllers, dtos, modules, app-module, main, env, package.json, readme"
 ```
-
-
-- **db.reader.postgres.ts**: Lê a estrutura do banco de dados PostgreSQL e gera um arquivo JSON com a definição do esquema.
-- **typeorm-entity-generator.ts**: Gera entidades TypeORM com base na definição do esquema.
-- **service-generator.ts**: Gera serviços NestJS com base nas entidades geradas.
-- **interface-generator.ts**: Gera interfaces para as entidades e serviços.
-- **controller-generator.ts**: Gera controladores NestJS com base nos serviços gerados.
-- **dto-generator.ts**: Gera DTOs (Data Transfer Objects) com base nas entidades geradas.
-- **module-generator.ts**: Gera módulos NestJS com base nos controladores e serviços gerados.
-- **app-module-generator.ts**: Gera o módulo principal do aplicativo NestJS.
-- **main-generator.ts**: Gera o arquivo de entrada principal do aplicativo NestJS.
-- **env-generator.ts**: Gera arquivos de configuração de ambiente.
-- **package-json-generator.ts**: Gera o arquivo `package.json` para o projeto.
-- **readme-generator.ts**: Gera o arquivo `README.md` para o projeto gerado.
 
 ## Executando o Gerador
 
 Para executar o gerador e criar toda a estrutura do projeto, use o script `db.reader.postgres.sh`:
 
 ```bash
-./db.reader.postgres.sh
+./db.reader.postgres.sh "********************"
 ```
 
 Este script executará todos os geradores na ordem correta e copiará os arquivos estáticos para o diretório `./build`.
@@ -123,44 +122,6 @@ Isso iniciará o servidor NestJS usando as configurações geradas.
 ### Licença
 
 Este projeto é licenciado sob a licença MIT - veja o arquivo [LICENSE](LICENSE) para mais detalhes.
-
-Para adicionar o gerador de README ao script `db.reader.postgres.sh`, basta incluir a chamada ao `readme-generator.ts` no final do script:
-
-```sh
-rm -rf ./build
-
-npx ts-node db.reader.postgres.ts
-npx ts-node typeorm-entity-generator.ts
-npx ts-node service-generator.ts
-npx ts-node interface-generator.ts
-npx ts-node controller-generator.ts
-npx ts-node dto-generator.ts
-npx ts-node module-generator.ts
-npx ts-node app-module-generator.ts
-npx ts-node main-generator.ts
-npx ts-node env-generator.ts
-npx ts-node package-json-generator.ts
-npx ts-node readme-generator.ts
-
-cp -r ./static/* ./build/
-```
-
-## publicação
-
-Para atualizar no NPM, execute um dos os comandos:
-
-```bash
-npm run publish:patch
-```
-ou
-```bash
-npm run publish:minor
-```
-ou
-```bash
-npm run publish:major
-```
-
 
 ## Pre-requisitos
 
