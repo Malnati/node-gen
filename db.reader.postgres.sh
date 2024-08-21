@@ -12,5 +12,5 @@ npm run build && \
                     --user "biud_log" \
                     --password $1 \
                     --outputDir "./build" \
-                    --components "entities, services, interfaces, controllers, dtos, modules, app-module, main, env, package.json, readme"
+                    --components "entities, services, interfaces, controllers, dtos, modules, app-module, main, env, package.json, readme, datasource"
 

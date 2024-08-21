@@ -16,13 +16,13 @@ export class ConfigUtil {
       .option('-u, --user <type>', 'Usuário do banco de dados')
       .option('-pw, --password <type>', 'Senha do banco de dados')
       .option('-o, --outputDir <type>', 'Diretório de saída para os arquivos gerados', './build')
-      .option('-f, --components <type>', 'Especifique quais componentes gerar (entities, services, interfaces, controllers, dtos, modules, app-module, main, env, package.json, readme):', 'entities')
+      .option('-f, --components <type>', 'Especifique quais componentes gerar (entities, services, interfaces, controllers, dtos, modules, app-module, main, env, package.json, readme, datasource):', 'entities')
       .parse(process.argv);
 
     const options = program.opts();
-    const components: ['entities'|'services'|'interfaces'|'controllers'|'dtos'|'modules'|'app-module'|'main'|'env'|'package.json'|'readme'] = options.components
+    const components: ['entities'|'services'|'interfaces'|'controllers'|'dtos'|'modules'|'app-module'|'main'|'env'|'package.json'|'readme'|'datasource'] = options.components
     .split(',')
-    .map((c: string) => c.trim().toLowerCase().replace("\"", "")) as ['entities'|'services'|'interfaces'|'controllers'|'dtos'|'modules'|'app-module'|'main'|'env'|'package.json'|'readme'];
+    .map((c: string) => c.trim().toLowerCase().replace("\"", "")) as ['entities'|'services'|'interfaces'|'controllers'|'dtos'|'modules'|'app-module'|'main'|'env'|'package.json'|'readme'|'datasource'];
   
     return {
       app: options.app,

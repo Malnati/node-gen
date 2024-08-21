@@ -31,7 +31,7 @@ npm run build && \
                     --user "biud_log" \
                     --password "********************" \
                     --outputDir "./build" \
-                    --components "entities, services, interfaces, controllers, dtos, modules, app-module, main, env, package.json, readme"
+                    --components "entities, services, interfaces, controllers, dtos, modules, app-module, main, env, package.json, readme, , datasource"
 ```
 
 ## Executando o Gerador

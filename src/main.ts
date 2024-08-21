@@ -15,6 +15,7 @@ import { MainFileGenerator } from "./main-generator";
 import { EnvGenerator } from "./env-generator";
 import { PackageJsonGenerator } from "./package-json-generator";
 import { ReadmeGenerator } from "./readme-generator";
+import { DataSourceGenerator } from "./datasource-generator";
 
 const dbConfig = ConfigUtil.getConfig(); // Obtém as configurações do banco de dados
 
@@ -144,7 +145,7 @@ async function main() {
                     schemaPath,
                     dbConfig
                 );
-                // Gera as main
+                // Gera a main
                 mainGenerator.generateMainFile();
             }
             if (component === "env") {
@@ -154,7 +155,7 @@ async function main() {
                     schemaPath,
                     dbConfig
                 );
-                // Gera as env
+                // Gera a env
                 envGenerator.generateEnvFile();
             }
             if (component === "package.json") {
@@ -164,7 +165,7 @@ async function main() {
                     schemaPath,
                     dbConfig
                 );
-                // Gera as package.json
+                // Gera a package.json
                 packageJsonGenerator.generatePackageJsonFile();
             }
             if (component === "readme") {
@@ -174,8 +175,18 @@ async function main() {
                     schemaPath,
                     dbConfig
                 );
-                // Gera as readme
+                // Gera a readme
                 readmeGenerator.generateReadme();
+            }
+            if (component === "datasource") {
+                console.log(`Executando comando para ${component}`);
+                // Cria uma instância do gerador de datasource passando o schema e as configurações
+                const dsGenerator = new DataSourceGenerator(
+                    schemaPath,
+                    dbConfig
+                );
+                // Gera a datasource
+                dsGenerator.generateDataSourceFile();
             }
         } else {
             console.log(`Componente ${component} não reconhecido.`);
