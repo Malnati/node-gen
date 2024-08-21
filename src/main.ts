@@ -35,6 +35,19 @@ const argv = yargs(hideBin(process.argv))
     type: 'string',
     demandOption: true,
   })
+  .option('outputDir', {
+    alias: 'o',
+    description: 'Diretório de saída para os arquivos gerados',
+    type: 'string',
+    default: './build',
+  })
+  .option('generate', {
+    alias: 'g',
+    description: 'Especifique quais componentes gerar (entities, services, interfaces, controllers, dtos, modules, app-module, main, env, package.json, readme)',
+    type: 'array',
+    choices: ['entities', 'services', 'interfaces', 'controllers', 'dtos', 'modules', 'app-module', 'main', 'env', 'package.json', 'readme'],
+    demandOption: true,
+  })
   .help()
   .alias('help', 'h')
   .argv;
@@ -45,6 +58,8 @@ const dbConfig = {
   database: argv.database,
   user: argv.user,
   password: argv.password,
+  outputDir: argv.outputDir,
+  generate: argv.generate,
 };
 
 console.log("Usando a seguinte configuração de banco de dados:");
@@ -53,6 +68,8 @@ console.log(`Port: ${dbConfig.port}`);
 console.log(`Database: ${dbConfig.database}`);
 console.log(`User: ${dbConfig.user}`);
 console.log(`Password: ${dbConfig.password}`);
+console.log(`Output Directory: ${dbConfig.outputDir}`);
+console.log(`Components to Generate: ${dbConfig.generate.join(', ')}`);
 
 function executeCommand(command: string) {
   try {
@@ -64,18 +81,28 @@ function executeCommand(command: string) {
   }
 }
 
-// Executando a sequência de geradores com os parâmetros fornecidos
-const commandPrefix = `DB_HOST=${dbConfig.host} DB_PORT=${dbConfig.port} DB_NAME=${dbConfig.database} DB_USER=${dbConfig.user} DB_PASSWORD='${dbConfig.password}'`;
+// Mapeamento das opções de geração para os comandos correspondentes
+const commandsMap: { [key: string]: string } = {
+  'entities': `npx ts-node src/typeorm-entity-generator.ts`,
+  'services': `npx ts-node src/service-generator.ts`,
+  'interfaces': `npx ts-node src/interface-generator.ts`,
+  'controllers': `npx ts-node src/controller-generator.ts`,
+  'dtos': `npx ts-node src/dto-generator.ts`,
+  'modules': `npx ts-node src/module-generator.ts`,
+  'app-module': `npx ts-node src/app-module-generator.ts`,
+  'main': `npx ts-node src/main-generator.ts`,
+  'env': `npx ts-node src/env-generator.ts`,
+  'package.json': `npx ts-node src/package-json-generator.ts`,
+  'readme': `npx ts-node src/readme-generator.ts`,
+};
 
+// Executando cada gerador conforme as opções selecionadas
 executeCommand(`${commandPrefix} npx ts-node src/db.reader.postgres.ts`);
-executeCommand(`npx ts-node src/typeorm-entity-generator.ts`);
-executeCommand(`npx ts-node src/service-generator.ts`);
-executeCommand(`npx ts-node src/interface-generator.ts`);
-executeCommand(`npx ts-node src/controller-generator.ts`);
-executeCommand(`npx ts-node src/dto-generator.ts`);
-executeCommand(`npx ts-node src/module-generator.ts`);
-executeCommand(`npx ts-node src/app-module-generator.ts`);
-executeCommand(`npx ts-node src/main-generator.ts`);
-executeCommand(`npx ts-node src/env-generator.ts`);
-executeCommand(`npx ts-node src/package-json-generator.ts`);
-executeCommand(`npx ts-node src/readme-generator.ts`);
+
+dbConfig.generate.forEach(component => {
+  if (commandsMap[component]) {
+    executeCommand(commandsMap[component]);
+  } else {
+    console.warn(`Componente ${component} não é reconhecido.`);
+  }
+});
