@@ -10,6 +10,7 @@ import { InterfaceGenerator } from "./interface-generator";
 import { ControllerGenerator } from "./controller-generator";
 import { DTOGenerator } from "./dto-generator";
 import { ModuleGenerator } from "./module-generator";
+import { AppModuleGenerator } from "./app-module-generator";
 
 const dbConfig = ConfigUtil.getConfig(); // Obtém as configurações do banco de dados
 
@@ -120,6 +121,16 @@ async function main() {
                 );
                 // Gera as modules
                 modulesGenerator.generateModules();
+            }
+            if (component === "app-module") {
+                console.log(`Executando comando para ${component}`);
+                // Cria uma instância do gerador de app-module passando o schema e as configurações
+                const appModuleGenerator = new AppModuleGenerator(
+                    schemaPath,
+                    dbConfig
+                );
+                // Gera as app-module
+                appModuleGenerator.generateAppModule();
             }
         } else {
             console.log(`Componente ${component} não reconhecido.`);
