@@ -2,20 +2,20 @@
 
 import * as fs from 'fs';
 import * as path from 'path';
-import { Table, Column } from './interfaces';
-import { ConfigUtil } from './utils/ConfigUtil';
+import { Table, Column, DbReaderConfig } from './interfaces';
 
-class ReadmeGenerator {
+export class ReadmeGenerator {
   private schema: Table[];
+  private config: DbReaderConfig;
 
-  constructor(schemaPath: string) {
+  constructor(schemaPath: string, config: DbReaderConfig) {
     const schemaJson = fs.readFileSync(schemaPath, 'utf-8');
     this.schema = JSON.parse(schemaJson).schema;
+    this.config = config;
   }
 
   generateReadme() {
-    const config = ConfigUtil.getConfig();
-    const outputDir = config.outputDir;
+    const outputDir = this.config.outputDir;
 
     const readmeContent = this.generateReadmeContent();
     const filePath = path.join(outputDir, 'README.md');
@@ -96,8 +96,3 @@ ${columnComments}`;
     return typeMapping[dataType] || dataType;
   }
 }
-
-// Usage
-const schemaPath = path.join(__dirname, '../build', 'db.reader.postgres.json');
-const generator = new ReadmeGenerator(schemaPath);
-generator.generateReadme();

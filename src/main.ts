@@ -13,6 +13,8 @@ import { ModuleGenerator } from "./module-generator";
 import { AppModuleGenerator } from "./app-module-generator";
 import { MainFileGenerator } from "./main-generator";
 import { EnvGenerator } from "./env-generator";
+import { PackageJsonGenerator } from "./package-json-generator";
+import { ReadmeGenerator } from "./readme-generator";
 
 const dbConfig = ConfigUtil.getConfig(); // Obtém as configurações do banco de dados
 
@@ -154,6 +156,26 @@ async function main() {
                 );
                 // Gera as env
                 envGenerator.generateEnvFile();
+            }
+            if (component === "package.json") {
+                console.log(`Executando comando para ${component}`);
+                // Cria uma instância do gerador de package.json passando o schema e as configurações
+                const packageJsonGenerator = new PackageJsonGenerator(
+                    schemaPath,
+                    dbConfig
+                );
+                // Gera as package.json
+                packageJsonGenerator.generatePackageJsonFile();
+            }
+            if (component === "readme") {
+                console.log(`Executando comando para ${component}`);
+                // Cria uma instância do gerador de readme passando o schema e as configurações
+                const readmeGenerator = new ReadmeGenerator(
+                    schemaPath,
+                    dbConfig
+                );
+                // Gera as readme
+                readmeGenerator.generateReadme();
             }
         } else {
             console.log(`Componente ${component} não reconhecido.`);
