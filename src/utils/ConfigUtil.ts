@@ -9,6 +9,7 @@ export class ConfigUtil {
     const program = new Command();
 
     program
+      .option('-a, --app <type>', 'Nome da aplicação')
       .option('-h, --host <type>', 'Host do banco de dados')
       .option('-p, --port <type>', 'Porta do banco de dados', '5432')
       .option('-d, --database <type>', 'Nome do banco de dados')
@@ -24,6 +25,7 @@ export class ConfigUtil {
     .map((c: string) => c.trim().toLowerCase().replace("\"", "")) as ['entities'|'services'|'interfaces'|'controllers'|'dtos'|'modules'|'app-module'|'main'|'env'|'package.json'|'readme'];
   
     return {
+      app: options.app,
       host: options.host,
       port: parseInt(options.port, 10),
       database: options.database,

@@ -23,6 +23,7 @@ export interface Relation {
 }
 
 export interface DbReaderConfig {
+  app: string;
   host: string;
   port: number;
   database: string;

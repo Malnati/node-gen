@@ -12,11 +12,13 @@ import { DTOGenerator } from "./dto-generator";
 import { ModuleGenerator } from "./module-generator";
 import { AppModuleGenerator } from "./app-module-generator";
 import { MainFileGenerator } from "./main-generator";
+import { EnvGenerator } from "./env-generator";
 
 const dbConfig = ConfigUtil.getConfig(); // Obtém as configurações do banco de dados
 
 // Log para confirmar os valores capturados
 console.log("Main...");
+console.log(`App: ${dbConfig.app}`);
 console.log(`Host: ${dbConfig.host}`);
 console.log(`Port: ${dbConfig.port}`);
 console.log(`Database: ${dbConfig.database}`);
@@ -142,6 +144,16 @@ async function main() {
                 );
                 // Gera as main
                 mainGenerator.generateMainFile();
+            }
+            if (component === "env") {
+                console.log(`Executando comando para ${component}`);
+                // Cria uma instância do gerador de env passando o schema e as configurações
+                const envGenerator = new EnvGenerator(
+                    schemaPath,
+                    dbConfig
+                );
+                // Gera as env
+                envGenerator.generateEnvFile();
             }
         } else {
             console.log(`Componente ${component} não reconhecido.`);
