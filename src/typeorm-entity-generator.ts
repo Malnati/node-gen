@@ -24,7 +24,7 @@ export class TypeORMEntityGenerator {
 
     this.schema.forEach(table => {
       const entityContent = this.generateEntityContent(table);
-      const filePath = path.join(outputDir, `${table.tableName}.ts`);
+      const filePath = path.join(outputDir, `${this.removeTbPrefix(table.tableName)}.ts`);
       fs.writeFileSync(filePath, entityContent);
     });
 
@@ -61,8 +61,8 @@ export class ${this.toPascalCase(table.tableName)}Entity {
     const apiPropertyDecorator = `@ApiProperty({ description: "${column.columnComment || ''}", ${typeOptions.join(', ')} })`;
 
     return `${columnDecorator}
-  ${apiPropertyDecorator}
-  ${column.columnName}: ${this.mapType(column.dataType)};`;
+    ${apiPropertyDecorator}
+    ${column.columnName}: ${this.mapType(column.dataType)};`;
   }
 
   private generateRelationDefinition(relation: Relation): string {
@@ -97,9 +97,11 @@ export class ${this.toPascalCase(table.tableName)}Entity {
   }
 
   private toPascalCase(str: string): string {
-    if (str.startsWith('tb_')) {
-      str = str.substring(3);  // Remove the 'tb_' prefix
-    }
+    str = this.removeTbPrefix(str);
     return str.replace(/_./g, match => match.charAt(1).toUpperCase()).replace(/^./, match => match.toUpperCase());
+  }
+
+  private removeTbPrefix(str: string): string {
+    return str.startsWith('tb_') ? str.substring(3) : str;
   }
 }
