@@ -17,8 +17,6 @@ import { PackageJsonGenerator } from "./package-json-generator";
 import { ReadmeGenerator } from "./readme-generator";
 import { DataSourceGenerator } from "./datasource-generator";
 import fs from 'fs-extra';
-import { DiagramGenerator } from "./diagram-generator";
-import { exec } from "child_process";
 
 
 const dbConfig = ConfigUtil.getConfig();
@@ -59,27 +57,11 @@ async function copyStaticFiles(destDir: string) {
     }
 }
 
-async function runNpmInstall(directory: string): Promise<void> {
-    console.log('Instalando dependências via npm install...');
-    return new Promise((resolve, reject) => {
-        exec('npm install', { cwd: directory }, (error, stdout, stderr) => {
-            if (error) {
-                console.error(`Erro ao executar npm install: ${error.message}`);
-                reject(error);
-            }
-            if (stderr) {
-                console.error(`stderr: ${stderr}`);
-            }
-            console.log(`stdout: ${stdout}`);
-            console.log('Dependências instaladas com sucesso.');
-            resolve();
-        });
-    });
-}
-
 async function main() {
     await copyStaticFiles(dbConfig.outputDir);
 
+    await copyStaticFiles(dbConfig.outputDir);
+    // Define o caminho para o schema
     const schemaPath = path.join(dbConfig.outputDir, "db.reader.postgres.json");
     console.log(`Executando comando para ${schemaPath}`);
     const dbReader = new DbReader(schemaPath, dbConfig);
