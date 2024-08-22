@@ -54,10 +54,12 @@
   "author": "Ricardo Malnati",
   "license": "MIT",
   "dependencies": {
+    "@types/fs-extra": "^11.0.4",
     "@types/pg": "^8.11.6",
     "@types/yargs": "^17.0.32",
     "commander": "^12.1.0",
     "dotenv": "^16.4.5",
+    "fs-extra": "^11.2.0",
     "pg": "^8.12.0",
     "reflect-metadata": "^0.2.2",
     "ts-node": "^10.9.2",

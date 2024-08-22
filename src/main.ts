@@ -16,6 +16,8 @@ import { EnvGenerator } from "./env-generator";
 import { PackageJsonGenerator } from "./package-json-generator";
 import { ReadmeGenerator } from "./readme-generator";
 import { DataSourceGenerator } from "./datasource-generator";
+import fs from 'fs-extra';
+
 
 const dbConfig = ConfigUtil.getConfig(); // Obtém as configurações do banco de dados
 
@@ -45,8 +47,21 @@ function askQuestion(query: string): Promise<string> {
     );
 }
 
+async function copyStaticFiles(destDir: string) {
+    try {
+        const staticPath = path.resolve(__dirname, '../static');
+        await fs.copy(staticPath, destDir, {
+            overwrite: true,
+        });
+        console.log('Arquivos estáticos copiados com sucesso.');
+    } catch (err) {
+        console.error('Erro ao copiar arquivos estáticos:', err);
+    }
+}
+
 async function main() {
 
+    await copyStaticFiles(dbConfig.outputDir);
     // Define o caminho para o schema
     const schemaPath = path.join(dbConfig.outputDir, "db.reader.postgres.json");
     console.log(`Executando comando para ${schemaPath}`);
@@ -59,7 +74,7 @@ async function main() {
     } else {
         const response = await askQuestion(
             "Especifique quais componentes gerar \n" + 
-            "(entities, services, interfaces, controllers, dtos, modules, app-module, main, env, package.json, readme): "
+            "(entities, services, interfaces, controllers, dtos, modules, app-module, main, env, package.json, readme, datasource): "
         );
         components = response.replace("\"", "")
         .split(",")
