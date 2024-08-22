@@ -25,9 +25,9 @@ export class ReadmeGenerator {
 
   private generateReadmeContent(): string {
     const sections = this.schema.map(table => this.generateTableSection(table)).join('\n\n---\n\n');
-    return `# Repositório do micro-serviço Opt-Out
+    return `# Repositório do micro-serviço ${this.config.app}
 
-## Opt-Out Database
+## ${this.config.app} Database
 
 Este documento descreve a estrutura do banco de dados e os passos para sua criação, incluindo a definição das tabelas, colunas, comentários, funções e triggers. A motivação para a criação deste documento é fornecer um guia detalhado para a configuração do banco de dados, garantindo que todas as etapas sejam seguidas corretamente para uma implementação consistente. Este documento também explica as vantagens de utilizar colunas como \`external_id\`, funções e triggers diretamente no banco de dados, comparado com a implementação no backend.
 
@@ -69,13 +69,13 @@ ${columnComments}`;
   }
 
   private generateColumnsTable(columns: Column[]): string {
-    const header = `| Coluna        | Tipo      | Nulo  |\n|---------------|-----------|-------|`;
+    const header = '| Coluna | Tipo | Nulo | Comentário |';
+    const divider = '|---|---|---|---|';
     const rows = columns.map(column => {
-      const nullable = column.isNullable ? 'SIM' : 'NÃO';
-      return `| ${column.columnName} | ${this.mapType(column.dataType)} | ${nullable} |`;
+      return `| ${column.columnName} | ${this.mapType(column.dataType)} | ${column.isNullable ? 'SIM' : 'NÃO'} | ${column.columnComment || '-'} |`;
     }).join('\n');
-
-    return `${header}\n${rows}`;
+  
+    return `${header}\n${divider}\n${rows}`;
   }
 
   private generateColumnComments(columns: Column[]): string {

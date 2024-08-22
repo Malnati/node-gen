@@ -5,7 +5,7 @@ import { firstValueFrom } from "rxjs";
 import { HttpService } from "@nestjs/axios";
 import { AuthGuard } from "@nestjs/passport";
 import { Injectable, Logger } from "@nestjs/common";
-import { HttpSourceService } from "../../app/config/httpsource.service";
+import { HttpSourceService } from "@app/config/httpsource.service";
 
 @Injectable()
 export class JwtAuthGuard extends AuthGuard("jwt") {

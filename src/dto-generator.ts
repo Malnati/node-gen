@@ -89,10 +89,9 @@ ${persistDto}`;
     const apiProperty = `@ApiProperty({
     example: ${example},
     description: "${column.columnComment || 'Descrição do campo.'}",
-    type: () => ${type},
   })\n  `;
 
-    return `${optional}${maxLength}${apiProperty}${this.toCamelCase(column.columnName)}: ${type};`;
+    return `${optional}${maxLength}${apiProperty}${this.toSnakeCase(column.columnName)}: ${type};`;
   }
 
   private getExampleForColumn(column: Column): string {
@@ -136,6 +135,12 @@ ${persistDto}`;
       str = str.substring(3);  // Remove the 'tb_' prefix
     }
     return str.replace(/[-_](.)/g, (match, group1) => group1.toUpperCase());
+  }
+
+  private toSnakeCase(str: string): string {
+    const cleanedStr = str.replace(/[^a-zA-Z0-9]/g, '_');
+    
+    return cleanedStr.replace(/([A-Z])/g, "_$1").toLowerCase();
   }
 
   private toKebabCase(str: string): string {

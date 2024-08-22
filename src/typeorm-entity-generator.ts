@@ -35,7 +35,7 @@ export class TypeORMEntityGenerator {
     const columns = table.columns.map(col => this.generateColumnDefinition(col)).join('\n  ');
     const relations = table.relations.map(rel => this.generateRelationDefinition(rel)).join('\n  ');
 
-    return `import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn, CreateDateColumn, UpdateDateColumn } from 'typeorm';
+    return `import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn, CreateDateColumn, UpdateDateColumn, DeleteDateColumn } from 'typeorm';
 import 'reflect-metadata';
 import { ApiProperty } from '@nestjs/swagger';
 
@@ -54,9 +54,27 @@ export class ${this.toPascalCase(table.tableName)}Entity {
     if (column.columnDefault) options.push(`default: "${column.columnDefault.replace(/"/g, '\\"')}"`);
     if (column.characterMaximumLength) options.push(`length: ${column.characterMaximumLength}`);
 
-    const columnDecorator = column.columnName === 'id'
-      ? '@PrimaryGeneratedColumn()'
-      : `@Column({ type: '${this.mapDataType(column.dataType)}', ${options.join(', ')} })`;
+    let columnDecorator = `@Column({ type: '${this.mapDataType(column.dataType)}', ${options.join(', ')} })`;
+
+    if (column.columnName === 'id') {
+      columnDecorator = `@PrimaryGeneratedColumn()`;
+    }
+
+    if (column.columnName === 'created_at') {
+      columnDecorator = `@CreateDateColumn({type: '${this.mapDataType(column.dataType)}', nullable: true})`;
+    }
+
+    if (column.columnName === 'updated_at') {
+      columnDecorator = `@UpdateDateColumn({type: '${this.mapDataType(column.dataType)}', nullable: true})`;
+    }
+
+    if (column.columnName === 'external_id') {
+      columnDecorator = `@Column({ type: 'uuid', unique: true })`;
+    }
+
+    if (column.columnName === 'deleted_at') {
+      columnDecorator = `@DeleteDateColumn({type: '${this.mapDataType(column.dataType)}', nullable: true})`;
+    }
 
     const apiPropertyDecorator = `@ApiProperty({ description: "${column.columnComment || ''}", ${typeOptions.join(', ')} })`;
 

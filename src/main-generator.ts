@@ -31,11 +31,11 @@ generateMainFile() {
 import { NestFactory } from "@nestjs/core";
 import { MicroserviceOptions, Transport } from "@nestjs/microservices";
 import { SwaggerModule, DocumentBuilder } from "@nestjs/swagger";
-import { AppModule } from "./app/app.module";
-import { DataSourceService } from "./app/config/datasource.service";
-import { EnvironmentService } from "./app/config/environment.service";
-import { HealthService } from "./app/health/health.service";
-import { AppReadinessService } from "./app/config/app.readiness.service";
+import { AppModule } from "./app.module";
+import { DataSourceService } from "./config/datasource.service";
+import { EnvironmentService } from "./config/environment.service";
+import { HealthService } from "./health/health.service";
+import { AppReadinessService } from "./config/app.readiness.service";
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
