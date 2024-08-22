@@ -63,6 +63,9 @@ web_modules/
 # Optional eslint cache
 .eslintcache
 
+# Editorconfig files
+.editorconfig
+
 # Optional stylelint cache
 .stylelintcache
 

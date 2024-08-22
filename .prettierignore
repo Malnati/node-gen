@@ -1,0 +1,11 @@
+# Ignore artifacts:
+dist
+node_modules
+
+# Ignore all HTML files:
+src/**/*.*
+package.json
+package-lock.json
+README.md
+tsconfig.json
+webpack.config.js
