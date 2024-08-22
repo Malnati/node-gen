@@ -1,107 +1,63 @@
-#!/usr/bin/env node
+
+// src/typeorm-entity-generator.ts
 
 import * as fs from 'fs';
 import * as path from 'path';
 import { Table, Column, Relation, DbReaderConfig } from './interfaces';
+import { entityTemplate, columnTemplate, relationTemplate, typeMapping, jsTypeMapping, toPascalCase, removeTbPrefix } from './static-templates';
 
 export class TypeORMEntityGenerator {
-  private schema: Table[];
-  private config: DbReaderConfig;
+	private schema: Table[];
+	private config: DbReaderConfig;
 
-  constructor(schemaPath: string, config: DbReaderConfig) {
-    const schemaJson = fs.readFileSync(schemaPath, 'utf-8');
-    const parsedSchema = JSON.parse(schemaJson);
-    this.schema = parsedSchema.schema;
-    this.config = config;
-  }
+	constructor(schemaPath: string, config: DbReaderConfig) {
+		const schemaJson = fs.readFileSync(schemaPath, 'utf-8');
+		const parsedSchema = JSON.parse(schemaJson);
+		this.schema = parsedSchema.schema;
+		this.config = config;
+	}
 
-  generateEntities() {
-    const outputDir = path.join(this.config.outputDir, 'src/app/entities');
+	generateEntities() {
+		const outputDir = path.join(this.config.outputDir, 'src/app/entities');
 
-    if (!fs.existsSync(outputDir)) {
-      fs.mkdirSync(outputDir, { recursive: true }); 
-    }
+		if (!fs.existsSync(outputDir)) {
+			fs.mkdirSync(outputDir, { recursive: true });
+		}
 
-    this.schema.forEach(table => {
-      const entityContent = this.generateEntityContent(table);
-      const filePath = path.join(outputDir, `${this.removeTbPrefix(table.tableName)}.ts`);
-      fs.writeFileSync(filePath, entityContent);
-    });
+		this.schema.forEach(table => {
+			const entityContent = this.generateEntityContent(table);
+			const filePath = path.join(outputDir, `${removeTbPrefix(table.tableName)}.ts`);
+			fs.writeFileSync(filePath, entityContent);
+		});
 
-    console.log(`Entities have been generated in ${outputDir}`);
-  }
+		console.log(`Entities have been generated in ${outputDir}`);
+	}
 
-  private generateEntityContent(table: Table): string {
-    const columns = table.columns.map(col => this.generateColumnDefinition(col)).join('\n  ');
-    const relations = table.relations.map(rel => this.generateRelationDefinition(rel)).join('\n  ');
+	private generateEntityContent(table: Table): string {
+		const columns = table.columns.map(col => this.generateColumnDefinition(col)).join('\n  ');
+		const relations = table.relations.map(rel => this.generateRelationDefinition(rel)).join('\n  ');
 
-    return `import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn, CreateDateColumn, UpdateDateColumn } from 'typeorm';
-import 'reflect-metadata';
-import { ApiProperty } from '@nestjs/swagger';
+		return entityTemplate(table.tableName, columns, relations);
+	}
 
-@Entity('${table.tableName}')
-export class ${this.toPascalCase(table.tableName)}Entity {
-  ${columns}
-  ${relations}
-}`;
-  }
+	private generateColumnDefinition(column: Column): string {
+		const options: string[] = [];
+		const typeOptions: string[] = [];
 
-  private generateColumnDefinition(column: Column): string {
-    const options: string[] = [];
-    const typeOptions: string[] = [];
+		if (column.isNullable) typeOptions.push('nullable: true');
+		if (column.columnDefault) options.push(`default: "${column.columnDefault.replace(/"/g, '\\"')}"`);
+		if (column.characterMaximumLength) options.push(`length: ${column.characterMaximumLength}`);
 
-    if (column.isNullable) typeOptions.push('nullable: true');
-    if (column.columnDefault) options.push(`default: "${column.columnDefault.replace(/"/g, '\\"')}"`);
-    if (column.characterMaximumLength) options.push(`length: ${column.characterMaximumLength}`);
+		const columnDecorator = column.columnName === 'id'
+			? '@PrimaryGeneratedColumn()'
+			: `@Column({ type: '${typeMapping[column.dataType] || column.dataType}', ${options.join(', ')} })`;
 
-    const columnDecorator = column.columnName === 'id'
-      ? '@PrimaryGeneratedColumn()'
-      : `@Column({ type: '${this.mapDataType(column.dataType)}', ${options.join(', ')} })`;
+		const apiPropertyDecorator = `@ApiProperty({ description: "${column.columnComment || ''}", ${typeOptions.join(', ')} })`;
 
-    const apiPropertyDecorator = `@ApiProperty({ description: "${column.columnComment || ''}", ${typeOptions.join(', ')} })`;
+		return columnTemplate(columnDecorator, apiPropertyDecorator, column.columnName, jsTypeMapping[column.dataType] || 'any');
+	}
 
-    return `${columnDecorator}
-    ${apiPropertyDecorator}
-    ${column.columnName}: ${this.mapType(column.dataType)};`;
-  }
-
-  private generateRelationDefinition(relation: Relation): string {
-    return `@ManyToOne(() => ${this.toPascalCase(relation.foreignTableName)}Entity)
-  @JoinColumn({ name: '${relation.columnName}' })
-  @ApiProperty({ description: "Relacionamento com ${relation.foreignTableName}." })
-  ${relation.columnName}: ${this.toPascalCase(relation.foreignTableName)}Entity;`;
-  }
-
-  private mapDataType(dataType: string): string {
-    const typeMapping: { [key: string]: string } = {
-      'integer': 'int',
-      'bigint': 'bigint',
-      'uuid': 'uuid',
-      'timestamp without time zone': 'timestamp',
-      'character varying': 'varchar',
-      'bytea': 'bytea'
-    };
-    return typeMapping[dataType] || dataType;
-  }
-
-  private mapType(dataType: string): string {
-    const typeMapping: { [key: string]: string } = {
-      'integer': 'number',
-      'bigint': 'number',
-      'uuid': 'string',
-      'timestamp without time zone': 'Date',
-      'character varying': 'string',
-      'bytea': 'Buffer'
-    };
-    return typeMapping[dataType] || 'any';
-  }
-
-  private toPascalCase(str: string): string {
-    str = this.removeTbPrefix(str);
-    return str.replace(/_./g, match => match.charAt(1).toUpperCase()).replace(/^./, match => match.toUpperCase());
-  }
-
-  private removeTbPrefix(str: string): string {
-    return str.startsWith('tb_') ? str.substring(3) : str;
-  }
+	private generateRelationDefinition(relation: Relation): string {
+		return relationTemplate(relation.foreignTableName, relation.columnName);
+	}
 }
