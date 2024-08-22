@@ -10,6 +10,6 @@ npm run build && \
                     --port "5432" \
                     --database "biud_payment" \
                     --user "biud_payment" \
-                    --password "4R-fbqRM7-0t-AUA" \
+                    --password "**********" \
                     --outputDir "/home/jupiter/Projetos/BIUD/biud-microservice-payment" \
                     --components "entities, services, interfaces, controllers, dtos, modules, app-module, main, env, package.json, readme, datasource"
