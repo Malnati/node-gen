@@ -34,7 +34,7 @@ export class DataSourceGenerator {
     const entityImports = this.schema
       .map((table) => {
         const entityName = this.toPascalCase(table.tableName);
-        return `import { ${entityName}Entity } from "../entities/${table.tableName}.entity";`;
+        return `import { ${entityName}Entity } from "@app/entities/${entityName.toLowerCase()}";`;
       })
       .join('\n');
 
@@ -70,11 +70,7 @@ export class DataSourceService {
       logging: true,
       ssl: {
         rejectUnauthorized: false,
-      },
-      cache: {
-        type: "database", 
-        duration: cacheDuration 
-      },
+      }
     });
   }
 
@@ -86,8 +82,9 @@ export class DataSourceService {
   }
 
   private toPascalCase(str: string): string {
-    return str
-      .replace(/([-_][a-z])/g, (group) => group.toUpperCase().replace('-', '').replace('_', ''))
-      .replace(/(^\w)/, (group) => group.toUpperCase());
+    if (str.startsWith('tb_')) {
+      str = str.substring(3);  // Remove the 'tb_' prefix
+    }
+    return str.replace(/_./g, match => match.charAt(1).toUpperCase()).replace(/^./, match => match.toUpperCase());
   }
 }

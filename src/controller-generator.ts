@@ -84,7 +84,7 @@ export class ControllerGenerator {
       }
     }
   
-    @Get(':externalId')
+    @Get(':external_id')
     @UseGuards(JwtAuthGuard)
     @ApiOperation({
       summary: "Busca um ${camelCaseName} pelo External ID.",
@@ -96,9 +96,9 @@ export class ControllerGenerator {
       type: ${entityName}QueryDTO,
     })
     @ApiResponse({ status: 404, description: '${entityName} não encontrado' })
-    async findByExternalId(@Param('externalId') externalId: string): Promise<${entityName}QueryDTO> {
+    async findByExternalId(@Param('external_id') external_id: string): Promise<${entityName}QueryDTO> {
       try {
-        return await this.${kebabCaseServiceName}Service.findByExternalId(externalId);
+        return await this.${kebabCaseServiceName}Service.findByExternalId(external_id);
       } catch (error) {
         throw new NotFoundException('${entityName} não encontrado');
       }
@@ -119,7 +119,7 @@ export class ControllerGenerator {
       return await this.${kebabCaseServiceName}Service.findAll();
     }
   
-    @Put(':externalId')
+    @Put(':external_id')
     @UseGuards(JwtAuthGuard)
     @ApiOperation({
       summary: "Atualiza um ${camelCaseName} pelo External ID.",
@@ -133,9 +133,9 @@ export class ControllerGenerator {
     @ApiResponse({ status: 400, description: 'Dados inválidos' })
     @ApiResponse({ status: 404, description: '${entityName} não encontrado' })
     @ApiResponse({ status: 500, description: 'Erro interno no servidor' })
-    async updateByExternalId(@Param('externalId') externalId: string, @Body() dto: ${entityName}PersistDTO): Promise<${entityName}QueryDTO> {
+    async updateByExternalId(@Param('external_id') external_id: string, @Body() dto: ${entityName}PersistDTO): Promise<${entityName}QueryDTO> {
       try {
-        return await this.${kebabCaseServiceName}Service.updateByExternalId(externalId, dto);
+        return await this.${kebabCaseServiceName}Service.updateByExternalId(external_id, dto);
       } catch (error) {
         if (error instanceof NotFoundException) {
           throw new NotFoundException('${entityName} não encontrado');
@@ -144,7 +144,7 @@ export class ControllerGenerator {
       }
     }
   
-    @Delete(':externalId')
+    @Delete(':external_id')
     @UseGuards(JwtAuthGuard)
     @ApiOperation({
       summary: "Deleta um ${camelCaseName} pelo External ID.",
@@ -156,9 +156,9 @@ export class ControllerGenerator {
     })
     @ApiResponse({ status: 404, description: '${entityName} não encontrado' })
     @ApiResponse({ status: 500, description: 'Erro interno no servidor' })
-    async deleteByExternalId(@Param('externalId') externalId: string): Promise<void> {
+    async deleteByExternalId(@Param('external_id') external_id: string): Promise<void> {
       try {
-        await this.${kebabCaseServiceName}Service.deleteByExternalId(externalId);
+        await this.${kebabCaseServiceName}Service.deleteByExternalId(external_id);
       } catch (error) {
         if (error instanceof NotFoundException) {
           throw new NotFoundException('${entityName} não encontrado');

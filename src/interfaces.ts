@@ -32,3 +32,6 @@ export interface DbReaderConfig {
   outputDir: string;
   components: ['entities'|'services'|'interfaces'|'controllers'|'dtos'|'modules'|'app-module'|'main'|'env'|'package.json'|'readme'|'datasource'];
 }
+
+export type Format = "svg" | "dot" | "json" | "dot_json" | "xdot_json" | "png";
+export type Engine = "circo" | "dot" | "fdp" | "neato" | "osage" | "patchwork" | "twopi";

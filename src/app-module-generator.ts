@@ -54,7 +54,7 @@ import { JwtAuthGuardModule } from "./middleware/jwt-auth.guard.module";
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: process.env.NODE_ENV === "test" ? ".env.test" : ".env",
+      envFilePath: process.env.NODE_ENV === 'test' ? '.env.test' : ['.env.local', '.env'],
     }),
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, "..", "..", "public"),

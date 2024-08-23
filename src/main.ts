@@ -17,11 +17,12 @@ import { PackageJsonGenerator } from "./package-json-generator";
 import { ReadmeGenerator } from "./readme-generator";
 import { DataSourceGenerator } from "./datasource-generator";
 import fs from 'fs-extra';
+import { DiagramGenerator } from "./diagram-generator";
+import { exec } from "child_process";
 
 
-const dbConfig = ConfigUtil.getConfig(); // Obtém as configurações do banco de dados
+const dbConfig = ConfigUtil.getConfig();
 
-// Log para confirmar os valores capturados
 console.log("Main...");
 console.log(`App: ${dbConfig.app}`);
 console.log(`Host: ${dbConfig.host}`);
@@ -32,7 +33,6 @@ console.log("Password: [HIDDEN]");
 console.log(`Output Directory: ${dbConfig.outputDir}`);
 console.log(`Components: ${dbConfig.components}`);
 
-// Função para perguntar ao usuário quais componentes deseja gerar
 function askQuestion(query: string): Promise<string> {
     const rl = readline.createInterface({
         input: process.stdin,
@@ -59,14 +59,31 @@ async function copyStaticFiles(destDir: string) {
     }
 }
 
-async function main() {
+async function runNpmInstall(directory: string): Promise<void> {
+    console.log('Instalando dependências via npm install...');
+    return new Promise((resolve, reject) => {
+        exec('npm install', { cwd: directory }, (error, stdout, stderr) => {
+            if (error) {
+                console.error(`Erro ao executar npm install: ${error.message}`);
+                reject(error);
+            }
+            if (stderr) {
+                console.error(`stderr: ${stderr}`);
+            }
+            console.log(`stdout: ${stdout}`);
+            console.log('Dependências instaladas com sucesso.');
+            resolve();
+        });
+    });
+}
 
+async function main() {
     await copyStaticFiles(dbConfig.outputDir);
-    // Define o caminho para o schema
+
     const schemaPath = path.join(dbConfig.outputDir, "db.reader.postgres.json");
     console.log(`Executando comando para ${schemaPath}`);
-    const dbReader = new DbReader(schemaPath, dbConfig); // Passa as configurações para o DbReader
-    await dbReader.getSchemaInfo(); // Executa o método para obter o schema e gerar o arquivo
+    const dbReader = new DbReader(schemaPath, dbConfig);
+    await dbReader.getSchemaInfo();
 
     let components: string[];
     if (dbConfig.components && Array.isArray(dbConfig.components)) {
@@ -81,132 +98,86 @@ async function main() {
         .map((c) => c.trim().toLowerCase());
     }
 
-    for (const component of components) {
+    const promises = components.map(async (component) => {
         if (component) {
-            if (component === "entities") {
-                console.log(`Executando comando para ${component}, ${schemaPath}, ${JSON.stringify(dbConfig)}`);
-                // Cria uma instância do gerador de entidades passando o schema e as configurações
-                const entityGenerator = new TypeORMEntityGenerator(
-                    schemaPath,
-                    dbConfig
-                );
-                // Gera as entidades
-                entityGenerator.generateEntities();
+            console.log(`Executando comando para ${component}`);
+            switch (component) {
+                case "entities": {
+                    const entityGenerator = new TypeORMEntityGenerator(schemaPath, dbConfig);
+                    return entityGenerator.generateEntities();
+                }
+    
+                case "services": {
+                    const serviceGenerator = new ServiceGenerator(schemaPath, dbConfig);
+                    return serviceGenerator.generateServices();
+                }
+    
+                case "interfaces": {
+                    const interfaceGenerator = new InterfaceGenerator(schemaPath, dbConfig);
+                    return interfaceGenerator.generateInterfaces();
+                }
+    
+                case "controllers": {
+                    const controllersGenerator = new ControllerGenerator(schemaPath, dbConfig);
+                    return controllersGenerator.generateControllers();
+                }
+    
+                case "dtos": {
+                    const dtosGenerator = new DTOGenerator(schemaPath, dbConfig);
+                    return dtosGenerator.generateDTOs();
+                }
+    
+                case "modules": {
+                    const modulesGenerator = new ModuleGenerator(schemaPath, dbConfig);
+                    return modulesGenerator.generateModules();
+                }
+    
+                case "app-module": {
+                    const appModuleGenerator = new AppModuleGenerator(schemaPath, dbConfig);
+                    return appModuleGenerator.generateAppModule();
+                }
+    
+                case "main": {
+                    const mainGenerator = new MainFileGenerator(schemaPath, dbConfig);
+                    return mainGenerator.generateMainFile();
+                }
+    
+                case "env": {
+                    const envGenerator = new EnvGenerator(schemaPath, dbConfig);
+                    return envGenerator.generateEnvFile();
+                }
+    
+                case "package.json": {
+                    const packageJsonGenerator = new PackageJsonGenerator(schemaPath, dbConfig);
+                    return packageJsonGenerator.generatePackageJsonFile();
+                }
+    
+                case "readme": {
+                    const readmeGenerator = new ReadmeGenerator(schemaPath, dbConfig);
+                    return readmeGenerator.generateReadme();
+                }
+    
+                case "datasource": {
+                    const dsGenerator = new DataSourceGenerator(schemaPath, dbConfig);
+                    return dsGenerator.generateDataSourceFile();
+                }
+    
+                case "diagram": {
+                    const diagramGenerator = new DiagramGenerator(schemaPath, dbConfig);
+                    return diagramGenerator.generateDiagram();
+                }
+    
+                default: {
+                    console.log(`Componente ${component} não reconhecido.`);
+                    return Promise.resolve();
+                }
             }
-            if (component === "services") {
-                console.log(`Executando comando para ${component}`);
-                // Cria uma instância do gerador de serviços passando o schema e as configurações
-                const serviceGenerator = new ServiceGenerator(
-                    schemaPath,
-                    dbConfig
-                );
-                // Gera os serviços
-                serviceGenerator.generateServices();
-            }
-            if (component === "interfaces") {
-                console.log(`Executando comando para ${component}`);
-                // Cria uma instância do gerador de interfaces passando o schema e as configurações
-                const interfaceGenerator = new InterfaceGenerator(
-                    schemaPath,
-                    dbConfig
-                );
-                // Gera as interfaces
-                interfaceGenerator.generateInterfaces();
-            }
-            if (component === "controllers") {
-                console.log(`Executando comando para ${component}`);
-                // Cria uma instância do gerador de controllers passando o schema e as configurações
-                const controllersGenerator = new ControllerGenerator(
-                    schemaPath,
-                    dbConfig
-                );
-                // Gera as controllers
-                controllersGenerator.generateControllers();
-            }
-            if (component === "dtos") {
-                console.log(`Executando comando para ${component}`);
-                // Cria uma instância do gerador de DTOs passando o schema e as configurações
-                const dtosGenerator = new DTOGenerator(
-                    schemaPath,
-                    dbConfig
-                );
-                // Gera as DTOs
-                dtosGenerator.generateDTOs();
-            }
-            if (component === "modules") {
-                console.log(`Executando comando para ${component}`);
-                // Cria uma instância do gerador de modules passando o schema e as configurações
-                const modulesGenerator = new ModuleGenerator(
-                    schemaPath,
-                    dbConfig
-                );
-                // Gera as modules
-                modulesGenerator.generateModules();
-            }
-            if (component === "app-module") {
-                console.log(`Executando comando para ${component}`);
-                // Cria uma instância do gerador de app-module passando o schema e as configurações
-                const appModuleGenerator = new AppModuleGenerator(
-                    schemaPath,
-                    dbConfig
-                );
-                // Gera as app-module
-                appModuleGenerator.generateAppModule();
-            }
-            if (component === "main") {
-                console.log(`Executando comando para ${component}`);
-                // Cria uma instância do gerador de main passando o schema e as configurações
-                const mainGenerator = new MainFileGenerator(
-                    schemaPath,
-                    dbConfig
-                );
-                // Gera a main
-                mainGenerator.generateMainFile();
-            }
-            if (component === "env") {
-                console.log(`Executando comando para ${component}`);
-                // Cria uma instância do gerador de env passando o schema e as configurações
-                const envGenerator = new EnvGenerator(
-                    schemaPath,
-                    dbConfig
-                );
-                // Gera a env
-                envGenerator.generateEnvFile();
-            }
-            if (component === "package.json") {
-                console.log(`Executando comando para ${component}`);
-                // Cria uma instância do gerador de package.json passando o schema e as configurações
-                const packageJsonGenerator = new PackageJsonGenerator(
-                    schemaPath,
-                    dbConfig
-                );
-                // Gera a package.json
-                packageJsonGenerator.generatePackageJsonFile();
-            }
-            if (component === "readme") {
-                console.log(`Executando comando para ${component}`);
-                // Cria uma instância do gerador de readme passando o schema e as configurações
-                const readmeGenerator = new ReadmeGenerator(
-                    schemaPath,
-                    dbConfig
-                );
-                // Gera a readme
-                readmeGenerator.generateReadme();
-            }
-            if (component === "datasource") {
-                console.log(`Executando comando para ${component}`);
-                // Cria uma instância do gerador de datasource passando o schema e as configurações
-                const dsGenerator = new DataSourceGenerator(
-                    schemaPath,
-                    dbConfig
-                );
-                // Gera a datasource
-                dsGenerator.generateDataSourceFile();
-            }
-        } else {
-            console.log(`Componente ${component} não reconhecido.`);
         }
-    }
+    });
+    
+    await Promise.all(promises);
+
+    await runNpmInstall(dbConfig.outputDir);
 }
 
 main();

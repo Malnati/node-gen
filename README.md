@@ -18,10 +18,6 @@ npm install -g @codegenerator/node-gen
 Este repositório contém vários geradores para criar diferentes partes de um projeto NestJS. Aqui está uma breve descrição de cada gerador:
 
 ```bash
-
-rm -rf ./build
-cp -r ./static/. ./build/
-
 npm run build && \
     npx ts-node src/main.ts \
                     --app "Log" \
@@ -31,18 +27,26 @@ npm run build && \
                     --user "biud_log" \
                     --password "********************" \
                     --outputDir "./build" \
-                    --components "entities, services, interfaces, controllers, dtos, modules, app-module, main, env, package.json, readme, , datasource"
+                    --components "entities, services, interfaces, controllers, dtos, modules, app-module, main, env, package.json, readme, datasource, diagram"
 ```
 
 ## Executando o Gerador
 
-Para executar o gerador e criar toda a estrutura do projeto, use o script `db.reader.postgres.sh`:
+Para executar o gerador e criar toda a estrutura do projeto, use o comando `node-gen`:
 
 ```bash
-./db.reader.postgres.sh "********************"
+node-gen\
+    --app "Log" \
+    --host "34.134.67.65" \
+    --port "5432" \
+    --database "biud_log" \
+    --user "biud_log" \
+    --password "********************" \
+    --outputDir "./build" \
+    --components "entities, services, interfaces, controllers, dtos, modules, app-module, main, env, package.json, readme, datasource, diagram"
 ```
 
-Este script executará todos os geradores na ordem correta e copiará os arquivos estáticos para o diretório `./build`.
+Este comando executará todos os geradores na ordem correta e copiará os arquivos estáticos para o diretório de destino.
 
 ## Estrutura do Projeto Gerado
 
