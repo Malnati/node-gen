@@ -8,6 +8,7 @@
   },
   "main": "dist/main.js",
   "bin": {
+    "node-gen": "./dist/main.js",
     "db-reader-postgres": "dist/db.reader.postgres.js",
     "typeorm-entity-generator": "dist/typeorm-entity-generator.js",
     "service-generator": "dist/service-generator.js",
