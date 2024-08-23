@@ -24,7 +24,7 @@ npx ts-node src/main.ts \
                 --user $2 \
                 --password $3 \
                 --outputDir $4 \
-                --components "entities, services, interfaces, controllers, dtos, modules, app-module, main, env, package.json, readme, datasource"
+                --components "entities, services, interfaces, controllers, dtos, modules, app-module, main, env, package.json, readme, datasource, diagram"
 
 
 # copia os arquivos estaticos para o diretorio de destino
