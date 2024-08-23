@@ -17,8 +17,6 @@ import { PackageJsonGenerator } from "./package-json-generator";
 import { ReadmeGenerator } from "./readme-generator";
 import { DataSourceGenerator } from "./datasource-generator";
 import fs from 'fs-extra';
-// import * as fs from 'fs';
-// import * as path from 'path';
 import { DiagramGenerator } from "./diagram-generator";
 import { exec } from "child_process";
 import * as prettier from "prettier";
@@ -149,7 +147,7 @@ async function main() {
     } else {
         const response = await askQuestion(
             "Especifique quais componentes gerar \n" +
-            "(entities, services, interfaces, controllers, dtos, modules, app-module, main, env, package.json, readme, datasource): "
+            "(entities, services, interfaces, controllers, dtos, modules, app-module, main, env, package.json, readme, datasource, diagram): "
         );
         components = response.replace("\"", "")
         .split(",")
