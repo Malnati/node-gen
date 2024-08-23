@@ -21,6 +21,7 @@ npx ts-node src/main.ts \
                 --host "34.134.67.65" \
                 --port "5432" \
                 --database $2 \
+                
                 --user $2 \
                 --password $3 \
                 --outputDir $4 \
