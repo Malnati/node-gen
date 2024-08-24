@@ -3,6 +3,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import { Table, Relation, Column, DbReaderConfig } from './interfaces';
+import { toKebabCase, toPascalCase, toSnakeCase } from './utils/string';
 
 export class ServiceGenerator {
   private schema: Table[];
@@ -22,8 +23,8 @@ export class ServiceGenerator {
     }
 
     this.schema.forEach(table => {
-      const entityName = this.toPascalCase(table.tableName);
-      const kebabCaseName = this.toKebabCase(table.tableName);
+      const entityName = toPascalCase(table.tableName);
+      const kebabCaseName = toKebabCase(table.tableName);
       const subDir = path.join(outputDir, kebabCaseName);
       if (!fs.existsSync(subDir)) {
         fs.mkdirSync(subDir, { recursive: true });
@@ -53,7 +54,7 @@ export class ServiceGenerator {
 
     return `import { Injectable, Logger, NotFoundException } from "@nestjs/common";
 import { DataSourceService } from "../config/datasource.service";
-import { ${entityName}Entity } from "@app/entities/${entityName.toLowerCase()}";
+import { ${entityName}Entity } from "@app/entities/${toSnakeCase(entityName)}";
 import { ${entityName}QueryDTO, ${entityName}PersistDTO } from "./${kebabCaseName}.dto";
 ${imports}
 
@@ -154,13 +155,13 @@ export class ${entityName}Service {
   }
 
   private generateImportForRelation(relation: Relation): string {
-    const relatedEntityName = this.toPascalCase(relation.foreignTableName);
-    return `import { ${relatedEntityName}Entity } from "@app/entities/${this.toSnakeCase(relatedEntityName)}";`;
+    const relatedEntityName = toPascalCase(relation.foreignTableName);
+    return `import { ${relatedEntityName}Entity } from "@app/entities/${toSnakeCase(relatedEntityName)}";`;
   }
 
   private generateRelationCheckAndAssignment(relation: Relation, entityName: string): string {
-    const relatedEntityName = this.toPascalCase(relation.foreignTableName);
-    const relationName = this.toSnakeCase(relation.columnName.replace('_id', ''));
+    const relatedEntityName = toPascalCase(relation.foreignTableName);
+    const relationName = toSnakeCase(relation.columnName.replace('_id', ''));
     return `const ${relationName} = await this.dataSourceService
       .getDataSource()
       .getRepository(${relatedEntityName}Entity)
@@ -175,13 +176,13 @@ export class ${entityName}Service {
 
   private generateRelationMapping(relations: Relation[]): string {
     return relations.map(rel => {
-      const relationName = this.toSnakeCase(rel.columnName.replace('_id', ''));
+      const relationName = toSnakeCase(rel.columnName.replace('_id', ''));
       return `dto.${relationName}_eid = entity.${relationName}.external_id;`;
     }).join('\n    ');
   }
 
   private generateAssignment(column: Column, target: string, source: string): string {
-    const columnName = this.toSnakeCase(column.columnName);
+    const columnName = toSnakeCase(column.columnName);
     return `${target}.${columnName} = ${source}.${columnName};`;
   }
 
@@ -195,21 +196,4 @@ export class ${entityName}Service {
     return true;
   }
 
-  private toPascalCase(str: string): string {
-    if (str.startsWith('tb_')) {
-      str = str.substring(3);  // Remove the 'tb_' prefix
-    }
-    return str.replace(/_./g, match => match.charAt(1).toUpperCase()).replace(/^./, match => match.toUpperCase());
-  }
-
-  private toSnakeCase(str: string): string {
-    return str.replace(/([A-Z])/g, "_$1").toLowerCase().replace(/^_/, '');
-  }
-
-  private toKebabCase(str: string): string {
-    if (str.startsWith('tb_')) {
-      str = str.substring(3);  // Remove the 'tb_' prefix
-    }
-    return str.replace(/_/g, '-').toLowerCase();
-  }
 }

@@ -3,6 +3,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import { Table, DbReaderConfig } from './interfaces';
+import { toKebabCase, toPascalCase } from './utils/string';
 
 export class AppModuleGenerator {
   private schema: Table[];
@@ -22,13 +23,13 @@ export class AppModuleGenerator {
     }
 
     const moduleImports = this.schema.map(table => {
-      const entityName = this.toPascalCase(table.tableName);
-      const kebabCaseName = this.toKebabCase(table.tableName);
+      const entityName = toPascalCase(table.tableName);
+      const kebabCaseName = toKebabCase(table.tableName);
       return `import { ${entityName}Module } from './${kebabCaseName}/${kebabCaseName}.module';`;
     }).join('\n');
 
     const moduleList = this.schema.map(table => {
-      const entityName = this.toPascalCase(table.tableName);
+      const entityName = toPascalCase(table.tableName);
       return `${entityName}Module`;
     }).join(',\n    ');
 
@@ -66,19 +67,5 @@ import { JwtAuthGuardModule } from "./middleware/jwt-auth.guard.module";
   ],
 })
 export class AppModule {}`;
-  }
-
-  private toPascalCase(str: string): string {
-    if (str.startsWith('tb_')) {
-      str = str.substring(3);  // Remove the 'tb_' prefix
-    }
-    return str.replace(/_./g, match => match.charAt(1).toUpperCase()).replace(/^./, match => match.toUpperCase());
-  }
-
-  private toKebabCase(str: string): string {
-    if (str.startsWith('tb_')) {
-      str = str.substring(3);  // Remove the 'tb_' prefix
-    }
-    return str.replace(/_/g, '-').toLowerCase();
   }
 }
