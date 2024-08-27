@@ -5,6 +5,7 @@ import * as path from 'path';
 import { Table, Column, Relation, DbReaderConfig } from './interfaces';
 import { toKebabCase, toPascalCase, toSnakeCase } from './utils/string';
 
+
 export class DTOGenerator {
   private schema: Table[];
   private config: DbReaderConfig;
@@ -91,7 +92,6 @@ ${persistDto}`;
     example: ${example},
     description: "${column.columnComment || 'Descrição do campo.'}",
   })\n  `;
-
     return `${validationDecorators}${apiProperty}${toSnakeCase(column.columnName)}: ${type};`;
   }
 
@@ -166,5 +166,4 @@ ${persistDto}`;
     };
     return typeMapping[dataType] || 'any';
   }
-
 }

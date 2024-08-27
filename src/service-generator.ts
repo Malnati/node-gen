@@ -195,5 +195,4 @@ export class ${entityName}Service {
     }
     return true;
   }
-
 }
