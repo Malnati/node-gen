@@ -3,6 +3,8 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import { Table, Column, Relation, DbReaderConfig } from './interfaces';
+import { toKebabCase, toPascalCase, toSnakeCase } from './utils/string';
+
 
 export class DTOGenerator {
   private schema: Table[];
@@ -22,8 +24,8 @@ export class DTOGenerator {
     }
 
     this.schema.forEach(table => {
-      const entityName = this.toPascalCase(table.tableName);
-      const kebabCaseName = this.toKebabCase(table.tableName);
+      const entityName = toPascalCase(table.tableName);
+      const kebabCaseName = toKebabCase(table.tableName);
       const subDir = path.join(outputDir, kebabCaseName);
       if (!fs.existsSync(subDir)) {
         fs.mkdirSync(subDir, { recursive: true });
@@ -43,7 +45,7 @@ export class DTOGenerator {
 
     return `import { IsString, IsNotEmpty, MaxLength, IsOptional, IsNumber, IsUUID, IsDate } from "class-validator";
 import { ApiProperty } from "@nestjs/swagger";
-import { I${entityName}QueryDTO, I${entityName}PersistDTO } from "./${this.toKebabCase(entityName)}.interface";
+import { I${entityName}QueryDTO, I${entityName}PersistDTO } from "./${toKebabCase(entityName)}.interface";
 
 /**
  * Data Transfer Object for ${entityName}.
@@ -90,12 +92,11 @@ ${persistDto}`;
     example: ${example},
     description: "${column.columnComment || 'Descrição do campo.'}",
   })\n  `;
-
-    return `${validationDecorators}${apiProperty}${this.toSnakeCase(column.columnName)}: ${type};`;
+    return `${validationDecorators}${apiProperty}${toSnakeCase(column.columnName)}: ${type};`;
   }
 
   private generateRelationProperty(relation: Relation): string {
-    const relationName = this.toSnakeCase(relation.columnName.replace('_id', ''));
+    const relationName = toSnakeCase(relation.columnName.replace('_id', ''));
     return `
   @ApiProperty({
     example: "b2e293e5-4a4a-4b29-b9a4-4b2b4a4a4b2b",
@@ -164,31 +165,5 @@ ${persistDto}`;
       'bytea': 'Buffer'
     };
     return typeMapping[dataType] || 'any';
-  }
-
-  private toPascalCase(str: string): string {
-    if (str.startsWith('tb_')) {
-      str = str.substring(3);  // Remove the 'tb_' prefix
-    }
-    return str.replace(/_./g, match => match.charAt(1).toUpperCase()).replace(/^./, match => match.toUpperCase());
-  }
-
-  private toCamelCase(str: string): string {
-    if (str.startsWith('tb_')) {
-      str = str.substring(3);  // Remove the 'tb_' prefix
-    }
-    return str.replace(/[-_](.)/g, (match, group1) => group1.toUpperCase());
-  }
-
-  private toSnakeCase(str: string): string {
-    const cleanedStr = str.replace(/[^a-zA-Z0-9]/g, '_');
-    return cleanedStr.replace(/([A-Z])/g, "_$1").toLowerCase();
-  }
-
-  private toKebabCase(str: string): string {
-    if (str.startsWith('tb_')) {
-      str = str.substring(3);  // Remove the 'tb_' prefix
-    }
-    return str.replace(/_/g, '-').toLowerCase();
   }
 }

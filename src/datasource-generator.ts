@@ -4,6 +4,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import { DbReaderConfig, Table } from './interfaces';
+import { toPascalCase, toSnakeCase } from './utils/string';
 
 export class DataSourceGenerator {
   private schema: Table[];
@@ -33,14 +34,14 @@ export class DataSourceGenerator {
   private generateDataSourceFileContent(): string {
     const entityImports = this.schema
       .map((table) => {
-        const entityName = this.toPascalCase(table.tableName);
-        return `import { ${entityName}Entity } from "@app/entities/${entityName.toLowerCase()}";`;
+        const entityName = toPascalCase(table.tableName);
+        return `import { ${entityName}Entity } from "@app/entities/${toSnakeCase(entityName)}";`;
       })
       .join('\n');
 
     const entitiesArray = this.schema
       .map((table) => {
-        const entityName = this.toPascalCase(table.tableName);
+        const entityName = toPascalCase(table.tableName);
         return `${entityName}Entity`;
       })
       .join(', ');
@@ -81,10 +82,4 @@ export class DataSourceService {
 `;
   }
 
-  private toPascalCase(str: string): string {
-    if (str.startsWith('tb_')) {
-      str = str.substring(3);  // Remove the 'tb_' prefix
-    }
-    return str.replace(/_./g, match => match.charAt(1).toUpperCase()).replace(/^./, match => match.toUpperCase());
-  }
 }
