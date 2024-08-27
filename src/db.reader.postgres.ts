@@ -1,4 +1,3 @@
-
 // src/db.reader.postgres.ts
 
 import { Client } from 'pg';
@@ -15,7 +14,6 @@ export class DbReader {
   }
 
   public async getSchemaInfo() {
-
     console.log('Connecting to the database...');
     const client = new Client({
       host: this.config.host,
@@ -34,7 +32,7 @@ export class DbReader {
         FROM information_schema.tables
         WHERE table_schema = 'public'
       `;
-      const tablesResult = await client.query(tablesQuery);
+      const tablesResult = await client.query<{ table_name: string }>(tablesQuery);
       const tables = tablesResult.rows.map(row => row.table_name);
 
       const schemaInfo: Table[] = [];
@@ -57,9 +55,16 @@ export class DbReader {
           WHERE 
             c.table_schema = 'public' AND c.table_name = $1
         `;
-        const columnsResult = await client.query(columnsQuery, [tableName]);
+        const columnsResult = await client.query<{
+          column_name: string;
+          data_type: string;
+          character_maximum_length: number | null;
+          is_nullable: 'YES' | 'NO';
+          column_default: string | null;
+          column_comment: string | null;
+        }>(columnsQuery, [tableName]);
 
-        const columns: Column[] = columnsResult.rows.map((column: any) => ({
+        const columns: Column[] = columnsResult.rows.map(column => ({
           columnName: column.column_name,
           dataType: column.data_type,
           characterMaximumLength: column.character_maximum_length,
@@ -72,22 +77,49 @@ export class DbReader {
           SELECT
             kcu.column_name,
             ccu.table_name AS foreign_table_name,
-            ccu.column_name AS foreign_column_name
+            ccu.column_name AS foreign_column_name,
+            tc.constraint_type AS relation_type,
+            (SELECT COUNT(*) = 1
+             FROM information_schema.table_constraints tc2
+             JOIN information_schema.key_column_usage kcu2
+               ON tc2.constraint_name = kcu2.constraint_name
+               AND tc2.table_schema = kcu2.table_schema
+             WHERE tc2.table_name = kcu.table_name
+               AND kcu2.column_name = kcu.column_name
+               AND tc2.constraint_type = 'UNIQUE') AS is_unique_constraint,
+            (SELECT COUNT(*) > 0
+             FROM information_schema.table_constraints tc2
+             JOIN information_schema.key_column_usage kcu2
+               ON tc2.constraint_name = kcu2.constraint_name
+               AND tc2.table_schema = kcu2.table_schema
+             WHERE tc2.table_name = kcu.table_name
+               AND kcu2.column_name = kcu.column_name
+               AND tc2.constraint_type = 'PRIMARY KEY') AS is_primary_key_constraint
           FROM
             information_schema.table_constraints AS tc
-            JOIN information_schema.key_column_usage AS kcu
+          JOIN information_schema.key_column_usage AS kcu
             ON tc.constraint_name = kcu.constraint_name
             AND tc.table_schema = kcu.table_schema
-            JOIN information_schema.constraint_column_usage AS ccu
+          JOIN information_schema.constraint_column_usage AS ccu
             ON ccu.constraint_name = tc.constraint_name
-          WHERE tc.constraint_type = 'FOREIGN KEY' AND tc.table_name=$1;
+          WHERE
+            tc.constraint_type = 'FOREIGN KEY'
+            AND tc.table_name = $1;
         `;
-        const relationsResult = await client.query(relationsQuery, [tableName]);
+        const relationsResult = await client.query<{
+          column_name: string;
+          foreign_table_name: string;
+          foreign_column_name: string;
+          relation_type: string;
+          is_unique_constraint: boolean;
+          is_primary_key_constraint: boolean;
+        }>(relationsQuery, [tableName]);
 
-        const relations: Relation[] = relationsResult.rows.map((relation: any) => ({
+        const relations: Relation[] = relationsResult.rows.map(relation => ({
           columnName: relation.column_name,
           foreignTableName: relation.foreign_table_name,
           foreignColumnName: relation.foreign_column_name,
+          relationType: this.determineRelationType(relation.is_unique_constraint, relation.is_primary_key_constraint)
         }));
 
         schemaInfo.push({ tableName, columns, relations });
@@ -95,11 +127,19 @@ export class DbReader {
 
       this.saveSchemaInfoToFile(schemaInfo);
     } catch (err) {
-      console.error('Erro ao acessar o banco de dados:', err);
+      console.error('Error accessing the database:', err);
     } finally {
       await client.end();
       console.log('Database connection closed.');
     }
+  }
+
+  private determineRelationType(isUnique: boolean, isPrimaryKey: boolean): 'ManyToOne' | 'OneToOne' | 'OneToMany' | 'ManyToMany' {
+    if (isUnique || isPrimaryKey) {
+      return 'OneToOne';
+    }
+
+    return 'ManyToOne';
   }
 
   private saveSchemaInfoToFile(schemaInfo: Table[]) {
@@ -122,7 +162,7 @@ export class DbReader {
 
   private toCamelCase(str: string): string {
     return str
-      .replace(/([-_][a-z])/g, (group) => group.toUpperCase().replace('-', '').replace('_', ''))
-      .replace(/(^\w)/, (group) => group.toUpperCase());
+      .replace(/([-_][a-z])/g, group => group.toUpperCase().replace('-', '').replace('_', ''))
+      .replace(/(^\w)/, group => group.toUpperCase());
   }
 }

@@ -1,4 +1,3 @@
-
 // src/interfaces.ts
 
 export interface Column {
@@ -20,6 +19,7 @@ export interface Relation {
   columnName: string;
   foreignTableName: string;
   foreignColumnName: string;
+  relationType: 'ManyToOne' | 'OneToOne' | 'OneToMany' | 'ManyToMany'; // Novo campo adicionado
 }
 
 export interface DbReaderConfig {
@@ -30,7 +30,21 @@ export interface DbReaderConfig {
   user: string;
   password: string;
   outputDir: string;
-  components: ['entities'|'services'|'interfaces'|'controllers'|'dtos'|'modules'|'app-module'|'main'|'env'|'package.json'|'readme'|'datasource'];
+  components: [
+    'entities' |
+    'services' |
+    'interfaces' |
+    'controllers' |
+    'dtos' |
+    'modules' |
+    'app-module' |
+    'main' |
+    'env' |
+    'package.json' |
+    'readme' |
+    'datasource' | 
+    'diagram'
+  ];
 }
 
 export type Format = "svg" | "dot" | "json" | "dot_json" | "xdot_json" | "png";

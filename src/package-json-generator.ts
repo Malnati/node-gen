@@ -49,7 +49,7 @@ export class PackageJsonGenerator {
           "@nestjs/passport": "^10.0.3",
           "@nestjs/platform-express": "10.2.10",
           "@nestjs/serve-static": "^4.0.1",
-          "@nestjs/swagger": "^7.2.0",
+          "@nestjs/swagger": "^7.4.0",
           "@nestjs/terminus": "^10.2.3",
           "@nestjs/typeorm": "^10.0.1",
           "@types/js-yaml": "^4.0.9",
