@@ -44,18 +44,16 @@ export class TypeORMEntityGenerator {
   }
 
   private generateColumnDefinition(column: Column): string {
-    const options: string[] = [];
-    const typeOptions: string[] = [];
+	const options: string[] = [];
+	const typeOptions: string[] = [];
 
-    if (column.isNullable) typeOptions.push('nullable: true');
-    if (column.columnDefault) options.push(`default: "${column.columnDefault.replace(/"/g, '\\"')}"`);
-    if (column.characterMaximumLength) options.push(`length: ${column.characterMaximumLength}`);
+	if (column.isNullable) typeOptions.push('nullable: true');
+	if (column.columnDefault) options.push(`default: "${column.columnDefault.replace(/"/g, '\\"')}"`);
+	if (column.characterMaximumLength) options.push(`length: ${column.characterMaximumLength}`);
 
-    let columnDecorator = `@Column({ type: '${typeMapping[column.dataType] || column.dataType}', ${options.join(', ')} })`;
-
-	if (column.columnName === 'id') {
-	  columnDecorator = `@PrimaryGeneratedColumn()`;
-	}
+	let columnDecorator = column.isPrimaryKey
+	  ? `@PrimaryColumn({ type: '${typeMapping[column.dataType] || column.dataType}' })`
+	  : `@Column({ type: '${typeMapping[column.dataType] || column.dataType}', ${options.join(', ')} })`;
 
 	if (column.columnName === 'created_at') {
 	  columnDecorator = `@CreateDateColumn()`;
@@ -69,9 +67,9 @@ export class TypeORMEntityGenerator {
 	  columnDecorator = `@DeleteDateColumn()`;
 	}
 
-    const apiPropertyDecorator = `@ApiProperty({ description: "${column.columnComment || ''}", ${typeOptions.join(', ')} })`;
+	const apiPropertyDecorator = `@ApiProperty({ description: "${column.columnComment || ''}", ${typeOptions.join(', ')} })`;
 
-    return columnTemplate(columnDecorator, apiPropertyDecorator, column.columnName, jsTypeMapping[column.dataType] || 'any');
+	return columnTemplate(columnDecorator, apiPropertyDecorator, column.columnName, jsTypeMapping[column.dataType] || 'any');
   }
 
   private generateRelationDefinition(relation: Relation): string {

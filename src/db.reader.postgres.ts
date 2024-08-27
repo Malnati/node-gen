@@ -38,40 +38,52 @@ export class DbReader {
       const schemaInfo: Table[] = [];
 
       for (const tableName of tables) {
-        const columnsQuery = `
-          SELECT 
-            c.column_name, 
-            c.data_type, 
-            c.character_maximum_length, 
-            c.is_nullable, 
-            c.column_default,
-            pgd.description AS column_comment
-          FROM 
-            information_schema.columns c
-          LEFT JOIN 
-            pg_catalog.pg_statio_all_tables as st on c.table_schema = st.schemaname and c.table_name = st.relname
-          LEFT JOIN 
-            pg_catalog.pg_description pgd on pgd.objoid = st.relid and pgd.objsubid = c.ordinal_position
-          WHERE 
-            c.table_schema = 'public' AND c.table_name = $1
-        `;
+		const columnsQuery = `
+		SELECT
+		  c.column_name,
+		  c.data_type,
+		  c.character_maximum_length,
+		  c.is_nullable,
+		  c.column_default,
+		  pgd.description AS column_comment,
+		  (SELECT EXISTS (
+			SELECT 1
+			FROM information_schema.table_constraints tc
+			JOIN information_schema.key_column_usage kcu
+			ON tc.constraint_name = kcu.constraint_name
+			AND tc.table_schema = kcu.table_schema
+			WHERE tc.constraint_type = 'PRIMARY KEY'
+			AND tc.table_name = c.table_name
+			AND kcu.column_name = c.column_name
+		  )) AS is_primary_key
+		FROM
+		  information_schema.columns c
+		LEFT JOIN
+		  pg_catalog.pg_statio_all_tables as st on c.table_schema = st.schemaname and c.table_name = st.relname
+		LEFT JOIN
+		  pg_catalog.pg_description pgd on pgd.objoid = st.relid and pgd.objsubid = c.ordinal_position
+		WHERE
+		  c.table_schema = 'public' AND c.table_name = $1
+	  `;
         const columnsResult = await client.query<{
           column_name: string;
           data_type: string;
           character_maximum_length: number | null;
           is_nullable: 'YES' | 'NO';
+		  is_primary_key: boolean;
           column_default: string | null;
           column_comment: string | null;
         }>(columnsQuery, [tableName]);
 
         const columns: Column[] = columnsResult.rows.map(column => ({
-          columnName: column.column_name,
-          dataType: column.data_type,
-          characterMaximumLength: column.character_maximum_length,
-          isNullable: column.is_nullable === 'YES',
-          columnDefault: column.column_default,
-          columnComment: column.column_comment,
-        }));
+			columnName: column.column_name,
+			dataType: column.data_type,
+			characterMaximumLength: column.character_maximum_length,
+			isNullable: column.is_nullable === 'YES',
+			isPrimaryKey: column.is_primary_key,
+			columnDefault: column.column_default,
+			columnComment: column.column_comment
+		  }));
 
         const relationsQuery = `
           SELECT
