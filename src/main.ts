@@ -131,6 +131,23 @@ async function runNpmInstall(directory: string): Promise<void> {
         });
     });
 }
+async function runPrettier(directory: string): Promise<void> {
+    console.log('Rodando prettier...');
+    return new Promise((resolve, reject) => {
+        exec('npx prettier --write "src/app/**/*.ts"', { cwd: directory }, (error, stdout, stderr) => {
+            if (error) {
+                console.error(`Erro ao executar prettier: ${error.message}`);
+                reject(error);
+            }
+            if (stderr) {
+                console.error(`stderr: ${stderr}`);
+            }
+            console.log(`stdout: ${stdout}`);
+            console.log('prettier executado com sucesso.');
+            resolve();
+        });
+    });
+}
 
 async function main() {
     await copyStaticFiles(dbConfig.outputDir);
@@ -234,6 +251,7 @@ async function main() {
     await Promise.all(promises);
 
     await runNpmInstall(dbConfig.outputDir);
+    await runPrettier(dbConfig.outputDir);
 }
 
 main();
