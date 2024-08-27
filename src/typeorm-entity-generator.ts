@@ -100,9 +100,15 @@ export class TypeORMEntityGenerator {
   }
 
   private generateCustomMethods(table: Table): string {
+	const column = table.columns.find(col =>
+        !["id", "external_id", "updated_at", "created_at", "deleted_at"].includes(col.columnName)
+    );
+
+    const columnName = column ? ` - \${this.${this.removeIdSuffix(column.columnName)}}` : '';
+
     return `
     toString() {
-      return \`\${this.id} - \${this.${this.removeIdSuffix(table.columns[1].columnName)}} \`;
+      return \`\${this.external_id}${columnName}\`;
     }`;
   }
 
@@ -111,6 +117,6 @@ export class TypeORMEntityGenerator {
   }
 
   private removeIdSuffix(columnName: string): string {
-    return columnName.endsWith('_id') ? columnName.slice(0, -3) : columnName;
+    return columnName.endsWith('_id') && columnName !== 'external_id' ? columnName.slice(0, -3) : columnName;
   }
 }
