@@ -22,7 +22,9 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-          registry-url: https://registry.npmjs.org/
+          registry-url: https://registry.npmjs.org/      
+      - run: git config --local user.name "GitHub Actions"
+      - run: git config --local user.email "actions@github.com"
       - run: git add .
       - run: git commit -m "Publishing a patch version"
       - run: git push
