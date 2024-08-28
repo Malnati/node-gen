@@ -1,4 +1,4 @@
-name: Node.js Package Minor
+name: NPM minor Package
 
 on:
   workflow_dispatch:
