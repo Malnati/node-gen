@@ -5,6 +5,7 @@ export interface Column {
   dataType: string;
   characterMaximumLength: number | null;
   isNullable: boolean;
+  isPrimaryKey: boolean;
   columnDefault: string | null;
   columnComment: string | null;
 }
@@ -42,7 +43,7 @@ export interface DbReaderConfig {
     'env' |
     'package.json' |
     'readme' |
-    'datasource' | 
+    'datasource' |
     'diagram'
   ];
 }

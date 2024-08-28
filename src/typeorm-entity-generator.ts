@@ -1,3 +1,5 @@
+
+// src/typeorm-entity-generator.ts
 import * as fs from 'fs';
 import * as path from 'path';
 import { Table, Column, Relation, DbReaderConfig } from './interfaces';
@@ -31,19 +33,21 @@ export class TypeORMEntityGenerator {
   }
 
   private generateEntityContent(table: Table): string {
-    const columns = table.columns
-      .filter(col => !this.isRelationColumn(col.columnName, table.relations))
-      .map(col => this.generateColumnDefinition(col))
-      .join('\n  ');
+	const primaryKeys = table.columns.filter(col => col.columnName.includes('id')); // Identifica colunas de chave primária (exemplo simplificado)
 
-    const relations = table.relations.map(rel => this.generateRelationDefinition(rel)).join('\n  ');
-    const imports = this.generateImports(table);
-    const customMethods = this.generateCustomMethods(table);
+	const columns = table.columns
+	  .filter(col => !this.isRelationColumn(col.columnName, table.relations))
+	  .map(col => this.generateColumnDefinition(col, primaryKeys.includes(col)))
+	  .join('\n  ');
 
-    return entityTemplate(table.tableName, columns, relations, imports, customMethods);
+	const relations = table.relations.map(rel => this.generateRelationDefinition(rel)).join('\n  ');
+	const imports = this.generateImports(table);
+	const customMethods = this.generateCustomMethods(table);
+
+	return entityTemplate(table.tableName, columns, relations, imports, customMethods);
   }
 
-  private generateColumnDefinition(column: Column): string {
+  private generateColumnDefinition(column: Column, isPrimaryKey: boolean = false): string {
     const options: string[] = [];
     const typeOptions: string[] = [];
 
@@ -53,21 +57,21 @@ export class TypeORMEntityGenerator {
 
     let columnDecorator = `@Column({ type: '${typeMapping[column.dataType] || column.dataType}', ${options.join(', ')} })`;
 
-	if (column.columnName === 'id') {
-	  columnDecorator = `@PrimaryGeneratedColumn()`;
-	}
+    if (isPrimaryKey) {
+        columnDecorator = `@PrimaryColumn({ type: '${typeMapping[column.dataType] || column.dataType}', ${options.join(', ')} })`;
+    }
 
-	if (column.columnName === 'created_at') {
-	  columnDecorator = `@CreateDateColumn()`;
-	}
+    if (column.columnName === 'created_at') {
+        columnDecorator = `@CreateDateColumn()`;
+    }
 
-	if (column.columnName === 'updated_at') {
-	  columnDecorator = `@UpdateDateColumn()`;
-	}
+    if (column.columnName === 'updated_at') {
+        columnDecorator = `@UpdateDateColumn()`;
+    }
 
-	if (column.columnName === 'deleted_at') {
-	  columnDecorator = `@DeleteDateColumn()`;
-	}
+    if (column.columnName === 'deleted_at') {
+        columnDecorator = `@DeleteDateColumn()`;
+    }
 
     const apiPropertyDecorator = `@ApiProperty({ description: "${column.columnComment || ''}", ${typeOptions.join(', ')} })`;
 
@@ -90,19 +94,39 @@ export class TypeORMEntityGenerator {
   }
 
   private generateImports(table: Table): string {
-    const imports = new Set<string>();
+	const typeormImports = new Set<string>([
+	  'Entity',
+	  'Column',
+	  'CreateDateColumn',
+	  'UpdateDateColumn',
+	  'DeleteDateColumn',
+	  'PrimaryColumn',
+	  'JoinColumn'
+	]);
 
-    table.relations.forEach(relation => {
-      imports.add(`import { ${toPascalCase(relation.foreignTableName)}Entity } from './${removeTbPrefix(relation.foreignTableName)}';`);
-    });
+	table.relations.forEach(relation => {
+	  typeormImports.add(relation.relationType);
+	});
 
-    return Array.from(imports).join('\n');
+	const entityImports = table.relations.map(relation =>
+	  `import { ${toPascalCase(relation.foreignTableName)}Entity } from './${removeTbPrefix(relation.foreignTableName)}';`
+	).join('\n');
+
+	const typeormImportsString = `import { ${Array.from(typeormImports).join(', ')} } from 'typeorm';`;
+
+	return `${typeormImportsString}\nimport 'reflect-metadata';\nimport { ApiProperty } from '@nestjs/swagger';\n${entityImports}`;
   }
-
+  
   private generateCustomMethods(table: Table): string {
+	const column = table.columns.find(col =>
+        !["id", "external_id", "updated_at", "created_at", "deleted_at"].includes(col.columnName)
+    );
+
+    const columnName = column ? ` - \${this.${this.removeIdSuffix(column.columnName)}}` : '';
+
     return `
     toString() {
-      return \`\${this.id} - \${this.${this.removeIdSuffix(table.columns[1].columnName)}} \`;
+      return \`\${this.external_id}${columnName}\`;
     }`;
   }
 
@@ -111,6 +135,6 @@ export class TypeORMEntityGenerator {
   }
 
   private removeIdSuffix(columnName: string): string {
-    return columnName.endsWith('_id') ? columnName.slice(0, -3) : columnName;
+    return columnName.endsWith('_id') && columnName !== 'external_id' ? columnName.slice(0, -3) : columnName;
   }
 }

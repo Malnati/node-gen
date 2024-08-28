@@ -1,24 +1,21 @@
 // src/static-templates.ts
 
 export const entityTemplate = (
-  tableName: string,
-  columns: string,
-  relations: string,
-  imports: string,
-  customMethods: string = ''
-) => `
-import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, OneToOne, OneToMany, ManyToMany, JoinColumn, CreateDateColumn, UpdateDateColumn, DeleteDateColumn } from 'typeorm';
-import 'reflect-metadata';
-import { ApiProperty } from '@nestjs/swagger';
-${imports}
+	tableName: string,
+	columns: string,
+	relations: string,
+	imports: string,
+	customMethods: string = ''
+  ) => `
+  ${imports}
 
-@Entity('${tableName}')
-export class ${toPascalCase(tableName)}Entity {
-${columns}
-${relations}
+  @Entity('${tableName}')
+  export class ${toPascalCase(tableName)}Entity {
+	${columns}
+	${relations}
 
-${customMethods}
-}`;
+	${customMethods}
+  }`;
 
 export const columnTemplate = (
   columnDecorator: string,
