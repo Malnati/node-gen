@@ -28,6 +28,11 @@ jobs:
           node-version: 20
           registry-url: https://registry.npmjs.org/
       - run: npm ci
+      - run: npm run build
+      - run: git add .
+      - run: git commit -m \"publishing a major\"
+      - run: git push
+      - run: npm version major
       - run: npm publish
         env:
           NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN_NODE_GEN}}
