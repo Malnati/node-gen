@@ -1,4 +1,4 @@
-name: Node.js Package Patch
+name: NPM Patch Package
 
 on:
   workflow_dispatch:
