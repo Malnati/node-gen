@@ -46,6 +46,7 @@ export interface DbReaderConfig {
     'datasource' |
     'diagram'
   ];
+  dbType: string;
 }
 
 export type Format = "svg" | "dot" | "json" | "dot_json" | "xdot_json" | "png";
