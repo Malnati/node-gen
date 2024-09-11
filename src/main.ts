@@ -20,6 +20,7 @@ import fs from 'fs-extra';
 import { DiagramGenerator } from "./diagram-generator";
 import { exec } from "child_process";
 import * as prettier from "prettier";
+import { DbReaderMysql } from "./db.reader.mysql";
 
 const dbConfig = ConfigUtil.getConfig();
 
@@ -32,6 +33,8 @@ console.log(`User: ${dbConfig.user}`);
 console.log("Password: [HIDDEN]");
 console.log(`Output Directory: ${dbConfig.outputDir}`);
 console.log(`Components: ${dbConfig.components}`);
+console.log(`Database Type: ${dbConfig.dbType}`);
+
 
 function askQuestion(query: string): Promise<string> {
     const rl = readline.createInterface({
@@ -153,9 +156,19 @@ async function main() {
     await copyStaticFiles(dbConfig.outputDir);
 	await removeNodeModules(dbConfig.outputDir);
 	await formatFiles(dbConfig.outputDir);
-    const schemaPath = path.join(dbConfig.outputDir, "db.reader.postgres.json");
-    console.log(`Executando comando para ${schemaPath}`);
-    const dbReader = new DbReader(schemaPath, dbConfig);
+    let schemaPath;
+
+    let dbReader;
+    if (dbConfig.dbType === 'mysql') {
+        dbReader = new DbReaderMysql(path.join(dbConfig.outputDir, "db.reader.mysql.json"), dbConfig);
+        schemaPath = path.join(dbConfig.outputDir, "db.reader.mysql.json");
+    } else if (dbConfig.dbType === 'postgres') {
+        dbReader = new DbReader(path.join(dbConfig.outputDir, "db.reader.postgres.json"), dbConfig);
+        schemaPath = path.join(dbConfig.outputDir, "db.reader.postgres.json");
+    } else {
+        throw new Error('Tipo de banco de dados não suportado');
+    }
+
     await dbReader.getSchemaInfo();
 
     let components: string[];
