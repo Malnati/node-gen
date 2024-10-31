@@ -7,7 +7,7 @@ echo "Deve copiar os arquivos para $4"
 echo ""
 
 # remove os arquivos antigos gerados pelo comando anterior
-# rm -rf $4
+rm -rf $4
 
 # copia apenas od diretorios do static para o diretorio de destino
 # rsync -av --include '*/' --exclude '*' ./static/. $4
