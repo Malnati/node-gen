@@ -2,12 +2,12 @@
 
 import * as fs from 'fs';
 import * as path from 'path';
-import { DbReaderConfig } from './interfaces';
+import { IDbReaderConfig } from './interfaces';
 
 export class MainFileGenerator {
-  private config: DbReaderConfig;
+  private config: IDbReaderConfig;
 
-  constructor(schemaPath: string, config: DbReaderConfig) {
+  constructor(schemaPath: string, config: IDbReaderConfig) {
     const schemaJson = fs.readFileSync(schemaPath, 'utf-8');
     this.config = config;
   }

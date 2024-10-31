@@ -2,15 +2,15 @@
 
 import * as fs from 'fs';
 import * as path from 'path';
-import { Table, Column, Relation, DbReaderConfig } from './interfaces';
+import { ITable, IColumn, IRelation, IDbReaderConfig } from './interfaces';
 import { toKebabCase, toPascalCase, toSnakeCase } from './utils/string';
 
 
 export class DTOGenerator {
-  private schema: Table[];
-  private config: DbReaderConfig;
+  private schema: ITable[];
+  private config: IDbReaderConfig;
 
-  constructor(schemaPath: string, config: DbReaderConfig) {
+  constructor(schemaPath: string, config: IDbReaderConfig) {
     const schemaJson = fs.readFileSync(schemaPath, 'utf-8');
     this.schema = JSON.parse(schemaJson).schema;
     this.config = config;
@@ -39,7 +39,7 @@ export class DTOGenerator {
     console.log(`DTOs have been generated in ${outputDir}`);
   }
 
-  private generateDTOContent(entityName: string, columns: Column[], relations: Relation[]): string {
+  private generateDTOContent(entityName: string, columns: IColumn[], relations: IRelation[]): string {
     const queryDto = this.generateQueryDTO(entityName, columns, relations);
     const persistDto = this.generatePersistDTO(entityName, columns, relations);
 
@@ -49,7 +49,7 @@ import { I${entityName}QueryDTO, I${entityName}PersistDTO } from "./${toKebabCas
 
 /**
  * Data Transfer Object for ${entityName}.
- * 
+ *
  * Utilizado para transferir dados entre a camada de persistência e a camada de controle,
  * ocultando chaves primárias e datas automáticas, enquanto expõe os external_id e outras
  * informações de negócio relevantes.
@@ -59,7 +59,7 @@ ${queryDto}
 ${persistDto}`;
   }
 
-  private generateQueryDTO(entityName: string, columns: Column[], relations: Relation[]): string {
+  private generateQueryDTO(entityName: string, columns: IColumn[], relations: IRelation[]): string {
     const properties = columns
       .filter(col => this.shouldIncludeColumn(col))
       .map(col => this.generateProperty(col, true))
@@ -71,7 +71,7 @@ ${persistDto}`;
 }`;
   }
 
-  private generatePersistDTO(entityName: string, columns: Column[], relations: Relation[]): string {
+  private generatePersistDTO(entityName: string, columns: IColumn[], relations: IRelation[]): string {
     const properties = columns
       .filter(col => this.shouldIncludeColumn(col))
       .map(col => this.generateProperty(col, false))
@@ -83,10 +83,10 @@ ${persistDto}`;
 }`;
   }
 
-  private generateProperty(column: Column, isQuery: boolean): string {
+  private generateProperty(column: IColumn, isQuery: boolean): string {
     const type = this.mapType(column.dataType);
     const validationDecorators = this.generateValidationDecorators(column);
-    
+
     const example = this.getExampleForColumn(column);
     const apiProperty = `@ApiProperty({
     example: ${example},
@@ -95,7 +95,7 @@ ${persistDto}`;
     return `${validationDecorators}${apiProperty}${toSnakeCase(column.columnName)}: ${type};`;
   }
 
-  private generateRelationProperty(relation: Relation): string {
+  private generateRelationProperty(relation: IRelation): string {
     const relationName = toSnakeCase(relation.columnName.replace('_id', ''));
     return `
   @ApiProperty({
@@ -105,7 +105,7 @@ ${persistDto}`;
   ${relationName}_eid: string;`;
   }
 
-  private generateValidationDecorators(column: Column): string {
+  private generateValidationDecorators(column: IColumn): string {
     const decorators = [];
 
     if (column.isNullable) {
@@ -131,7 +131,7 @@ ${persistDto}`;
     return decorators.join('\n  ') + '\n  ';
   }
 
-  private getExampleForColumn(column: Column): string {
+  private getExampleForColumn(column: IColumn): string {
     if (column.dataType === 'uuid' || column.columnName.endsWith('_eid') || column.columnName === 'external_id') {
       return `"b2e293e5-4a4a-4b29-b9a4-4b2b4a4a4b2b"`;
     } else if (column.dataType === 'integer' || column.dataType === 'bigint') {
@@ -144,7 +144,7 @@ ${persistDto}`;
     return `"${column.columnDefault || 'exemplo'}"`;
   }
 
-  private shouldIncludeColumn(column: Column): boolean {
+  private shouldIncludeColumn(column: IColumn): boolean {
     const excludedColumns = ['id', 'created_at', 'updated_at', 'deleted_at'];
     if (excludedColumns.includes(column.columnName)) {
       return false;

@@ -3,14 +3,14 @@
 
 import * as fs from 'fs';
 import * as path from 'path';
-import { DbReaderConfig, Table } from './interfaces';
+import { IDbReaderConfig, ITable } from './interfaces';
 import { toPascalCase, toSnakeCase } from './utils/string';
 
 export class DataSourceGenerator {
-  private schema: Table[];
-  private config: DbReaderConfig;
+  private schema: ITable[];
+  private config: IDbReaderConfig;
 
-  constructor(schemaPath: string, config: DbReaderConfig) {
+  constructor(schemaPath: string, config: IDbReaderConfig) {
     const schemaJson = fs.readFileSync(schemaPath, 'utf-8');
     const parsedSchema = JSON.parse(schemaJson);
     this.schema = parsedSchema.schema;

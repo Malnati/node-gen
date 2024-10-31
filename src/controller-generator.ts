@@ -2,13 +2,13 @@
 
 import * as fs from 'fs';
 import * as path from 'path';
-import { Table, DbReaderConfig } from './interfaces';
+import { ITable, IDbReaderConfig } from './interfaces';
 
 export class ControllerGenerator {
-  private schema: Table[];
-  private config: DbReaderConfig;
+  private schema: ITable[];
+  private config: IDbReaderConfig;
 
-  constructor(schemaPath: string, config: DbReaderConfig) {
+  constructor(schemaPath: string, config: IDbReaderConfig) {
     const schemaJson = fs.readFileSync(schemaPath, 'utf-8');
     this.schema = JSON.parse(schemaJson).schema;
     this.config = config;
@@ -47,18 +47,18 @@ export class ControllerGenerator {
   private generateControllerContent(entityName: string, kebabCaseName: string): string {
     const camelCaseName = this.toCamelCase(entityName);
     const kebabCaseServiceName = this.toCamelCase(kebabCaseName);
-  
+
     return `import { Controller, Get, Post, Put, Delete, Body, Param, NotFoundException, BadRequestException, InternalServerErrorException, UseGuards } from '@nestjs/common';
   import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
   import { ${entityName}Service } from './${kebabCaseName}.service';
   import { ${entityName}QueryDTO, ${entityName}PersistDTO } from './${kebabCaseName}.dto';
   import { JwtAuthGuard } from '../middleware/jwt-auth.guard';
-  
+
   @ApiTags('${kebabCaseName}')
   @Controller('${kebabCaseName}')
   export class ${entityName}Controller {
     constructor(private readonly ${kebabCaseServiceName}Service: ${entityName}Service) {}
-  
+
     @Post()
     @UseGuards(JwtAuthGuard)
     @ApiOperation({
@@ -83,7 +83,7 @@ export class ControllerGenerator {
         throw new InternalServerErrorException('Erro ao criar ${camelCaseName}');
       }
     }
-  
+
     @Get(':external_id')
     @UseGuards(JwtAuthGuard)
     @ApiOperation({
@@ -103,7 +103,7 @@ export class ControllerGenerator {
         throw new NotFoundException('${entityName} não encontrado');
       }
     }
-  
+
     @Get()
     @UseGuards(JwtAuthGuard)
     @ApiOperation({
@@ -118,7 +118,7 @@ export class ControllerGenerator {
     async findAll(): Promise<${entityName}QueryDTO[]> {
       return await this.${kebabCaseServiceName}Service.findAll();
     }
-  
+
     @Put(':external_id')
     @UseGuards(JwtAuthGuard)
     @ApiOperation({
@@ -143,7 +143,7 @@ export class ControllerGenerator {
         throw new InternalServerErrorException('Erro ao atualizar ${camelCaseName}');
       }
     }
-  
+
     @Delete(':external_id')
     @UseGuards(JwtAuthGuard)
     @ApiOperation({

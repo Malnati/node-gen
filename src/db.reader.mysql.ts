@@ -1,12 +1,12 @@
 import mysql, { RowDataPacket } from 'mysql2/promise';
 import * as fs from 'fs';
-import { DbReaderConfig, Table, Column, Relation } from './interfaces';
+import { IDbReaderConfig, ITable, IColumn, IRelation } from './interfaces';
 
 export class DbReaderMysql {
-  private config: DbReaderConfig;
+  private config: IDbReaderConfig;
   private schemaPath: string;
 
-  constructor(schemaPath: string, config: DbReaderConfig) {
+  constructor(schemaPath: string, config: IDbReaderConfig) {
     this.config = config;
     this.schemaPath = schemaPath;
   }
@@ -26,24 +26,24 @@ export class DbReaderMysql {
 
       // Corrigindo o tipo para RowDataPacket[]
       const [tablesResult] = await connection.query<RowDataPacket[]>(`
-        SELECT TABLE_NAME 
-        FROM information_schema.tables 
+        SELECT TABLE_NAME
+        FROM information_schema.tables
         WHERE table_schema = ?
       `, [this.config.database]);
 
       // Mapear as tabelas corretamente
       const tables = tablesResult.map((row: any) => row.TABLE_NAME);
-      const schemaInfo: Table[] = [];
+      const schemaInfo: ITable[] = [];
 
       for (const tableName of tables) {
         const [columnsResult] = await connection.query<RowDataPacket[]>(`
-          SELECT 
-            COLUMN_NAME, DATA_TYPE, CHARACTER_MAXIMUM_LENGTH, IS_NULLABLE, COLUMN_DEFAULT, COLUMN_COMMENT, COLUMN_KEY 
-          FROM information_schema.columns 
+          SELECT
+            COLUMN_NAME, DATA_TYPE, CHARACTER_MAXIMUM_LENGTH, IS_NULLABLE, COLUMN_DEFAULT, COLUMN_COMMENT, COLUMN_KEY
+          FROM information_schema.columns
           WHERE table_schema = ? AND table_name = ?
         `, [this.config.database, tableName]);
 
-        const columns: Column[] = columnsResult.map((column: any) => ({
+        const columns: IColumn[] = columnsResult.map((column: any) => ({
           columnName: column.COLUMN_NAME,
           dataType: column.DATA_TYPE,
           characterMaximumLength: column.CHARACTER_MAXIMUM_LENGTH,
@@ -54,15 +54,15 @@ export class DbReaderMysql {
         }));
 
         const [relationsResult] = await connection.query<RowDataPacket[]>(`
-          SELECT 
+          SELECT
             COLUMN_NAME, REFERENCED_TABLE_NAME, REFERENCED_COLUMN_NAME
-          FROM information_schema.key_column_usage 
-          WHERE table_schema = ? 
-            AND table_name = ? 
+          FROM information_schema.key_column_usage
+          WHERE table_schema = ?
+            AND table_name = ?
             AND REFERENCED_TABLE_NAME IS NOT NULL
         `, [this.config.database, tableName]);
 
-        const relations: Relation[] = relationsResult.map((relation: any) => ({
+        const relations: IRelation[] = relationsResult.map((relation: any) => ({
           columnName: relation.COLUMN_NAME,
           foreignTableName: relation.REFERENCED_TABLE_NAME,
           foreignColumnName: relation.REFERENCED_COLUMN_NAME,
@@ -81,7 +81,7 @@ export class DbReaderMysql {
     }
   }
 
-  private saveSchemaInfoToFile(schemaInfo: Table[]) {
+  private saveSchemaInfoToFile(schemaInfo: ITable[]) {
     if (!fs.existsSync(this.config.outputDir)) {
       fs.mkdirSync(this.config.outputDir, { recursive: true });
     }

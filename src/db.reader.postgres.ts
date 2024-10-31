@@ -2,13 +2,13 @@
 
 import { Client } from 'pg';
 import * as fs from 'fs';
-import { DbReaderConfig, Table, Column, Relation } from './interfaces';
+import { IDbReaderConfig, ITable, IColumn, IRelation } from './interfaces';
 
 export class DbReader {
-  private config: DbReaderConfig;
+  private config: IDbReaderConfig;
   private schemaPath: string;
 
-  constructor(schemaPath: string, config: DbReaderConfig) {
+  constructor(schemaPath: string, config: IDbReaderConfig) {
     this.config = config;
     this.schemaPath = schemaPath;
   }
@@ -35,7 +35,7 @@ export class DbReader {
       const tablesResult = await client.query<{ table_name: string }>(tablesQuery);
       const tables = tablesResult.rows.map(row => row.table_name);
 
-      const schemaInfo: Table[] = [];
+      const schemaInfo: ITable[] = [];
 
       for (const tableName of tables) {
 		const columnsQuery = `
@@ -75,7 +75,7 @@ export class DbReader {
           column_comment: string | null;
         }>(columnsQuery, [tableName]);
 
-        const columns: Column[] = columnsResult.rows.map(column => ({
+        const columns: IColumn[] = columnsResult.rows.map(column => ({
 			columnName: column.column_name,
 			dataType: column.data_type,
 			characterMaximumLength: column.character_maximum_length,
@@ -127,7 +127,7 @@ export class DbReader {
           is_primary_key_constraint: boolean;
         }>(relationsQuery, [tableName]);
 
-        const relations: Relation[] = relationsResult.rows.map(relation => ({
+        const relations: IRelation[] = relationsResult.rows.map(relation => ({
           columnName: relation.column_name,
           foreignTableName: relation.foreign_table_name,
           foreignColumnName: relation.foreign_column_name,
@@ -154,7 +154,7 @@ export class DbReader {
     return 'ManyToOne';
   }
 
-  private saveSchemaInfoToFile(schemaInfo: Table[]) {
+  private saveSchemaInfoToFile(schemaInfo: ITable[]) {
     if (!fs.existsSync(this.config.outputDir)) {
       fs.mkdirSync(this.config.outputDir, { recursive: true });
     }

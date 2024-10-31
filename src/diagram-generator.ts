@@ -1,12 +1,12 @@
-import { Table, DbReaderConfig, Format } from './interfaces';
+import { ITable, IDbReaderConfig, Format } from './interfaces';
 import * as fs from 'fs';
 import sharp from 'sharp';
 
 export class DiagramGenerator {
-  private schema: Table[];
-  private config: DbReaderConfig;
+  private schema: ITable[];
+  private config: IDbReaderConfig;
 
-  constructor(schemaPath: string, config: DbReaderConfig) {
+  constructor(schemaPath: string, config: IDbReaderConfig) {
     const schemaJson = fs.readFileSync(schemaPath, 'utf-8');
     const parsedSchema = JSON.parse(schemaJson);
     this.schema = parsedSchema.schema;
@@ -103,7 +103,7 @@ export class DiagramGenerator {
       { x: x + width + offset, y: y + height / 2 }, // Right center
       { x: x + width / 2, y: y - offset }, // Top center
       { x: x + width / 2, y: y + height + offset }, // Bottom center
-      
+
       // Pontos nas quinas
       { x: x - offset, y: y - offset }, // Top-left
       { x: x + width + offset, y: y - offset }, // Top-right

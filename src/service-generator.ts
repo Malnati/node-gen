@@ -2,14 +2,14 @@
 
 import * as fs from 'fs';
 import * as path from 'path';
-import { Table, Relation, Column, DbReaderConfig } from './interfaces';
+import { ITable, IRelation, IColumn, IDbReaderConfig } from './interfaces';
 import { toKebabCase, toPascalCase, toSnakeCase } from './utils/string';
 
 export class ServiceGenerator {
-  private schema: Table[];
-  private config: DbReaderConfig;
+  private schema: ITable[];
+  private config: IDbReaderConfig;
 
-  constructor(schemaPath: string, config: DbReaderConfig) {
+  constructor(schemaPath: string, config: IDbReaderConfig) {
     const schemaJson = fs.readFileSync(schemaPath, 'utf-8');
     this.schema = JSON.parse(schemaJson).schema;
     this.config = config;
@@ -38,7 +38,7 @@ export class ServiceGenerator {
     console.log(`Services have been generated in ${outputDir}`);
   }
 
-  private generateServiceContent(entityName: string, kebabCaseName: string, relations: Relation[], columns: Column[]): string {
+  private generateServiceContent(entityName: string, kebabCaseName: string, relations: IRelation[], columns: IColumn[]): string {
     const imports = relations.map(rel => this.generateImportForRelation(rel)).join('\n');
     const relationCheckAndAssignment = relations.map(rel => this.generateRelationCheckAndAssignment(rel, entityName)).join('\n\n    ');
 
@@ -154,12 +154,12 @@ export class ${entityName}Service {
   }`;
   }
 
-  private generateImportForRelation(relation: Relation): string {
+  private generateImportForRelation(relation: IRelation): string {
     const relatedEntityName = toPascalCase(relation.foreignTableName);
     return `import { ${relatedEntityName}Entity } from "@app/entities/${toSnakeCase(relatedEntityName)}";`;
   }
 
-  private generateRelationCheckAndAssignment(relation: Relation, entityName: string): string {
+  private generateRelationCheckAndAssignment(relation: IRelation, entityName: string): string {
     const relatedEntityName = toPascalCase(relation.foreignTableName);
     const relationName = toSnakeCase(relation.columnName.replace('_id', ''));
     return `const ${relationName} = await this.dataSourceService
@@ -174,19 +174,19 @@ export class ${entityName}Service {
     newEntity.${relationName} = ${relationName};`;
   }
 
-  private generateRelationMapping(relations: Relation[]): string {
+  private generateRelationMapping(relations: IRelation[]): string {
     return relations.map(rel => {
       const relationName = toSnakeCase(rel.columnName.replace('_id', ''));
       return `dto.${relationName}_eid = entity.${relationName}.external_id;`;
     }).join('\n    ');
   }
 
-  private generateAssignment(column: Column, target: string, source: string): string {
+  private generateAssignment(column: IColumn, target: string, source: string): string {
     const columnName = toSnakeCase(column.columnName);
     return `${target}.${columnName} = ${source}.${columnName};`;
   }
 
-  private shouldIncludeColumn(column: Column): boolean {
+  private shouldIncludeColumn(column: IColumn): boolean {
     if (['id', 'created_at', 'updated_at', 'deleted_at'].includes(column.columnName)) {
       return false;
     }

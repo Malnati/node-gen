@@ -2,13 +2,13 @@
 
 import * as fs from 'fs';
 import * as path from 'path';
-import { Table, Column, DbReaderConfig } from './interfaces';
+import { ITable, IColumn, IDbReaderConfig } from './interfaces';
 
 export class ReadmeGenerator {
-  private schema: Table[];
-  private config: DbReaderConfig;
+  private schema: ITable[];
+  private config: IDbReaderConfig;
 
-  constructor(schemaPath: string, config: DbReaderConfig) {
+  constructor(schemaPath: string, config: IDbReaderConfig) {
     const schemaJson = fs.readFileSync(schemaPath, 'utf-8');
     this.schema = JSON.parse(schemaJson).schema;
     this.config = config;
@@ -51,7 +51,7 @@ Este documento descreve a estrutura do banco de dados e os passos para sua cria�
 ${sections}`;
   }
 
-  private generateTableSection(table: Table): string {
+  private generateTableSection(table: ITable): string {
     const columnsTable = this.generateColumnsTable(table.columns);
     const columnComments = this.generateColumnComments(table.columns);
 
@@ -68,17 +68,17 @@ ${columnsTable}
 ${columnComments}`;
   }
 
-  private generateColumnsTable(columns: Column[]): string {
+  private generateColumnsTable(columns: IColumn[]): string {
     const header = '| Coluna | Tipo | Nulo | Comentário |';
     const divider = '|---|---|---|---|';
     const rows = columns.map(column => {
       return `| ${column.columnName} | ${this.mapType(column.dataType)} | ${column.isNullable ? 'SIM' : 'NÃO'} | ${column.columnComment || '-'} |`;
     }).join('\n');
-  
+
     return `${header}\n${divider}\n${rows}`;
   }
 
-  private generateColumnComments(columns: Column[]): string {
+  private generateColumnComments(columns: IColumn[]): string {
     return columns.map(column => {
       return `- **${column.columnName}**: ${column.columnComment || 'Sem comentário.'}`;
     }).join('\n');

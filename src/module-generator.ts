@@ -2,13 +2,13 @@
 
 import * as fs from 'fs';
 import * as path from 'path';
-import { Table, DbReaderConfig } from './interfaces';
+import { ITable, IDbReaderConfig } from './interfaces';
 
 export class ModuleGenerator {
-  private schema: Table[];
-  private config: DbReaderConfig;
+  private schema: ITable[];
+  private config: IDbReaderConfig;
 
-  constructor(schemaPath: string, config: DbReaderConfig) {
+  constructor(schemaPath: string, config: IDbReaderConfig) {
     const schemaJson = fs.readFileSync(schemaPath, 'utf-8');
     this.schema = JSON.parse(schemaJson).schema;
     this.config = config;

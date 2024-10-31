@@ -1,10 +1,10 @@
 // src/utils/ConfigUtil.ts
 
 import { Command } from 'commander';
-import { DbReaderConfig } from '../interfaces';
+import { IDbReaderConfig } from '../interfaces';
 
 export class ConfigUtil {
-  public static getConfig(): DbReaderConfig {
+  public static getConfig(): IDbReaderConfig {
     const program = new Command();
 
     program
@@ -23,7 +23,7 @@ export class ConfigUtil {
     const components: ['entities'|'services'|'interfaces'|'controllers'|'dtos'|'modules'|'app-module'|'main'|'env'|'package.json'|'readme'|'datasource'] = options.components
       .split(',')
       .map((c: string) => c.trim().toLowerCase().replace("\"", "")) as ['entities'|'services'|'interfaces'|'controllers'|'dtos'|'modules'|'app-module'|'main'|'env'|'package.json'|'readme'|'datasource'];
-  
+
     return {
       app: options.app,
       host: options.host,
@@ -33,7 +33,7 @@ export class ConfigUtil {
       password: options.password,
       outputDir: options.outputDir,
       components: components,
-      dbType: options.dbType, 
+      dbType: options.dbType,
     };
   }
 }

@@ -2,13 +2,13 @@
 
 import * as fs from 'fs';
 import * as path from 'path';
-import { Table, Column, DbReaderConfig } from './interfaces';
+import { ITable, IColumn, IDbReaderConfig } from './interfaces';
 
 export class InterfaceGenerator {
-  private schema: Table[];
-  private config: DbReaderConfig;
+  private schema: ITable[];
+  private config: IDbReaderConfig;
 
-  constructor(schemaPath: string, config: DbReaderConfig) {
+  constructor(schemaPath: string, config: IDbReaderConfig) {
     const schemaJson = fs.readFileSync(schemaPath, 'utf-8');
     this.schema = JSON.parse(schemaJson).schema;
     this.config = config;
@@ -37,7 +37,7 @@ export class InterfaceGenerator {
     console.log(`Interfaces have been generated in ${outputDir}`);
   }
 
-  private generateInterfaceContent(entityName: string, columns: Column[]): string {
+  private generateInterfaceContent(entityName: string, columns: IColumn[]): string {
     const filteredColumns = columns.filter(col => this.shouldIncludeColumn(col));
     const queryDto = this.generateQueryDto(entityName, filteredColumns);
     const persistDto = this.generatePersistDto(entityName, filteredColumns);
@@ -47,7 +47,7 @@ export class InterfaceGenerator {
 ${persistDto}`;
   }
 
-  private shouldIncludeColumn(column: Column): boolean {
+  private shouldIncludeColumn(column: IColumn): boolean {
     if (['id', 'created_at', 'updated_at', 'deleted_at'].includes(column.columnName)) {
       return false;
     }
@@ -57,7 +57,7 @@ ${persistDto}`;
     return true;
   }
 
-  private generateQueryDto(entityName: string, columns: Column[]): string {
+  private generateQueryDto(entityName: string, columns: IColumn[]): string {
     const properties = columns.map(col => this.generateProperty(col, true)).join('\n  ');
 
     return `export interface I${entityName}QueryDTO {
@@ -65,7 +65,7 @@ ${persistDto}`;
 }`;
   }
 
-  private generatePersistDto(entityName: string, columns: Column[]): string {
+  private generatePersistDto(entityName: string, columns: IColumn[]): string {
     const properties = columns.map(col => this.generateProperty(col, false)).join('\n  ');
 
     return `export interface I${entityName}PersistDTO {
@@ -73,7 +73,7 @@ ${persistDto}`;
 }`;
   }
 
-  private generateProperty(column: Column, includeOptional: boolean): string {
+  private generateProperty(column: IColumn, includeOptional: boolean): string {
     const type = this.mapType(column.dataType);
     const optional = includeOptional && column.isNullable ? '?' : '';
     return `${column.columnName}${optional}: ${type};`;

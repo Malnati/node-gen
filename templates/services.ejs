@@ -1,0 +1,21 @@
+import axios from "axios";
+
+export const use<%= serviceName %> = () => {
+    const <%= functionName %> = async (data: any, signal?: AbortSignal): Promise<any> => {
+       const headers = {<% for (const [key, value] of Object.entries(headers)) { %>
+         '<%= key %>': '<%= value %>',<% } %>
+       };
+
+       try {
+         const response = await axios.<%= method %>("<%= url %>", data, { headers, signal });
+         return response.data;
+       } catch (error) {
+         console.error("Erro ao realizar a requisição:", error);
+         return { error: "Erro ao realizar a requisição" };
+       }
+    };
+
+     return {
+        <%= functionName %>,
+    };
+};

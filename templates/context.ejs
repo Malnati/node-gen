@@ -1,0 +1,61 @@
+import React, { createContext, useContext, useState, useEffect } from "react";
+import { <%= contextName %> } from "../services/<%= contextName %>";
+
+// Definir interfaces para o contexto
+interface <%= contextName %>ContextProps {
+    state: <%= responseType %>;
+    setState: React.Dispatch<React.SetStateAction<any>>;
+    token: string | null;
+    login: (newToken: string) => void;
+    logout: () => void;
+}
+
+const initialState = {}; // Defina o estado inicial conforme necessário
+
+const <%= contextName %>Context = createContext<<%= contextName %>ContextProps | undefined>(undefined);
+
+export const <%= contextName %>Provider: React.FC = ({ children }) => {
+    const [state, setState] = useState(initialState);
+    const [token, setToken] = useState<string | null>(localStorage.getItem("token"));
+
+    const { <%= method %><%= url %> } = <%= serviceName %>();
+
+    useEffect(() => {
+        const fetchData = async () => {
+            const result = await <%= method %><%= url %>(null);
+            setState(result);
+        };
+
+        fetchData();
+    }, []);
+
+    const login = (newToken: string) => {
+        setToken(newToken);
+        localStorage.setItem("token", newToken);
+    };
+
+    const logout = () => {
+        setToken(null);
+        localStorage.removeItem("token");
+    };
+
+    const value = {
+        state,
+        setState,
+        token,
+        login,
+        logout,
+    };
+
+    return (
+        <<%= contextName %>Context.Provider value={value}>{children}</<%= contextName %>Context.Provider>
+    );
+};
+
+export const use<%= contextName %>Context = () => {
+    const context = useContext(<%= contextName %>Context);
+    if (!context) {
+        throw new Error("use<%= contextName %>Context deve ser usado dentro de um <%= contextName %>Provider");
+    }
+    return context;
+};

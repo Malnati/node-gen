@@ -1,0 +1,14 @@
+import React from "react";
+import "./styles.scss";
+import { I<%= appName %>Props } from "./types.ts";
+
+function <%= appName %>({}: I<%= appName %>Props) {
+    return (
+        <section className="<%= appName.toLowerCase() %>-container">
+            <%= appName %> component generated successfully!
+        </section>
+    );
+}
+
+export type { I<%= appName %>Props };
+export default <%= appName %>;

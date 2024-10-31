@@ -2,14 +2,14 @@
 // src/typeorm-entity-generator.ts
 import * as fs from 'fs';
 import * as path from 'path';
-import { Table, Column, Relation, DbReaderConfig } from './interfaces';
+import { ITable, IColumn, IRelation, IDbReaderConfig } from './interfaces';
 import { entityTemplate, columnTemplate, relationTemplate, typeMapping, jsTypeMapping, toPascalCase, removeTbPrefix } from './static-templates';
 
 export class TypeORMEntityGenerator {
-  private schema: Table[];
-  private config: DbReaderConfig;
+  private schema: ITable[];
+  private config: IDbReaderConfig;
 
-  constructor(schemaPath: string, config: DbReaderConfig) {
+  constructor(schemaPath: string, config: IDbReaderConfig) {
     const schemaJson = fs.readFileSync(schemaPath, 'utf-8');
     const parsedSchema = JSON.parse(schemaJson);
     this.schema = parsedSchema.schema;
@@ -32,8 +32,9 @@ export class TypeORMEntityGenerator {
     console.log(`Entities have been generated in ${outputDir}`);
   }
 
-  private generateEntityContent(table: Table): string {
-	const primaryKeys = table.columns.filter(col => col.columnName.includes('id')); // Identifica colunas de chave primária (exemplo simplificado)
+  private generateEntityContent(table: ITable): string {
+	// Identifica colunas de chave primária (exemplo simplificado)
+	const primaryKeys = table.columns.filter(col => col.columnName.includes('id'));
 
 	const columns = table.columns
 	  .filter(col => !this.isRelationColumn(col.columnName, table.relations))
@@ -47,7 +48,7 @@ export class TypeORMEntityGenerator {
 	return entityTemplate(table.tableName, columns, relations, imports, customMethods);
   }
 
-  private generateColumnDefinition(column: Column, isPrimaryKey: boolean = false): string {
+  private generateColumnDefinition(column: IColumn, isPrimaryKey: boolean = false): string {
     const options: string[] = [];
     const typeOptions: string[] = [];
 
@@ -78,7 +79,7 @@ export class TypeORMEntityGenerator {
     return columnTemplate(columnDecorator, apiPropertyDecorator, column.columnName, jsTypeMapping[column.dataType] || 'any');
   }
 
-  private generateRelationDefinition(relation: Relation): string {
+  private generateRelationDefinition(relation: IRelation): string {
     let relationType: 'ManyToOne' | 'OneToOne' | 'OneToMany' | 'ManyToMany' = 'ManyToOne';
 
     if (relation.relationType === 'OneToOne') {
@@ -93,7 +94,7 @@ export class TypeORMEntityGenerator {
     return relationTemplate(relationType, relation.foreignTableName, propertyName, relationType === 'ManyToOne' || relationType === 'OneToOne');
   }
 
-  private generateImports(table: Table): string {
+  private generateImports(table: ITable): string {
 	const typeormImports = new Set<string>([
 	  'Entity',
 	  'Column',
@@ -116,8 +117,8 @@ export class TypeORMEntityGenerator {
 
 	return `${typeormImportsString}\nimport 'reflect-metadata';\nimport { ApiProperty } from '@nestjs/swagger';\n${entityImports}`;
   }
-  
-  private generateCustomMethods(table: Table): string {
+
+  private generateCustomMethods(table: ITable): string {
 	const column = table.columns.find(col =>
         !["id", "external_id", "updated_at", "created_at", "deleted_at"].includes(col.columnName)
     );
@@ -130,7 +131,7 @@ export class TypeORMEntityGenerator {
     }`;
   }
 
-  private isRelationColumn(columnName: string, relations: Relation[]): boolean {
+  private isRelationColumn(columnName: string, relations: IRelation[]): boolean {
     return relations.some(relation => relation.columnName === columnName);
   }
 
