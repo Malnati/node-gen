@@ -22,6 +22,7 @@ export interface IColumn {
   attributeName: string;
   columnName: string;
   dataType: string;
+  type: string;
   characterMaximumLength: number | null;
   isNullable: boolean;
   isPrimaryKey: boolean;

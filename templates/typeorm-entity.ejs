@@ -1,27 +1,25 @@
-<% schema.forEach(table => { %>
-	import { Entity, Column, PrimaryGeneratedColumn<% if (table.relations.length) { %>, OneToOne, JoinColumn<% } %> } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn<% if (table.relations.length) { %>, OneToOne, JoinColumn<% } %> } from 'typeorm';
 
-	@Entity('<%= table.tableName %>')
-	export class <%= table.entityName %> {
-	  <% table.columns.forEach(column => { %>
-	  <% if (column.isPrimaryKey) { %>
-	  @PrimaryGeneratedColumn()
-	  <% } else { %>
-	  @Column({
-		type: '<%= column.dataType %>',
-		<% if (column.characterMaximumLength) { %> length: <%= column.characterMaximumLength %>, <% } %>
-		nullable: <%= column.isNullable ? 'true' : 'false' %>,
-		<% if (column.columnDefault) { %> default: '<%= column.columnDefault %>', <% } %>
-	  })
-	  <% } %>
-	  public <%= column.attributeName %>: <%= column.dataType === 'integer' ? 'number' : column.dataType %>;
+@Entity('<%= table.tableName %>')
+export class <%= table.entityName %> {
+  <% table.columns.forEach(column => { %>
+  <% if (column.isPrimaryKey) { %>
+  @PrimaryGeneratedColumn()
+  <% } else { %>
+  @Column({
+    type: '<%= column.dataType %>',
+    <% if (column.characterMaximumLength) { %> length: <%= column.characterMaximumLength %>, <% } %>
+    nullable: <%= column.isNullable ? 'true' : 'false' %>,
+    <% if (column.columnDefault) { %> default: '<%= column.columnDefault %>', <% } %>
+  })
+  <% } %>
+  public <%= column.attributeName %>: <%= column.type %>;
 
-	  <% }); %>
+  <% }); %>
 
-	  <% table.relations.forEach(relation => { %>
-	  @OneToOne(() => <%= relation.foreignTableName %>, { nullable: true })
-	  @JoinColumn({ name: '<%= relation.columnName %>' })
-	  public <%= relation.attributeName %>: <%= relation.foreignTableName %>;
-	  <% }); %>
-	}
-	<% }); %>
+  <% table.relations.forEach(relation => { %>
+  @OneToOne(() => <%= relation.foreignTableName %>, { nullable: true })
+  @JoinColumn({ name: '<%= relation.columnName %>' })
+  public <%= relation.attributeName %>: <%= relation.foreignTableName %>;
+  <% }); %>
+}

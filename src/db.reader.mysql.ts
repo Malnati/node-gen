@@ -47,6 +47,7 @@ export class DbReaderMysql {
 		  attributeName: this.toCamelCase(column.COLUMN_NAME),
           columnName: column.COLUMN_NAME,
           dataType: column.DATA_TYPE,
+		  type: this.mapDatabaseTypeToJsType(column.DATA_TYPE),
           characterMaximumLength: column.CHARACTER_MAXIMUM_LENGTH,
           isNullable: column.IS_NULLABLE === 'YES',
           isPrimaryKey: column.COLUMN_KEY === 'PRI',
@@ -115,5 +116,39 @@ export class DbReaderMysql {
 
   private removeTbPrefix(str: string): string {
 	return str.startsWith('tb_') ? str.substring(3) : str;
+  }
+
+  private toLowerFirst(str: string): string {
+    if (!str) return str;
+    return str.charAt(0).toLowerCase() + str.slice(1);
+  }
+
+  private formatAttributeName(str: string): string {
+    if (!str) return str;
+    return this.toLowerFirst(this.toCamelCase(str));
+  }
+
+  private mapDatabaseTypeToJsType(dbType: string) {
+	const typeMap: { [key: string]: string } = {
+		'integer': 'number',
+		'smallint': 'number',
+		'bigint': 'number',
+		'real': 'number',
+		'double precision': 'number',
+		'numeric': 'number',
+		'decimal': 'number',
+		'boolean': 'boolean',
+		'character varying': 'string',
+		'character': 'string',
+		'text': 'string',
+		'bytea': 'Buffer',
+		'date': 'Date',
+		'timestamp without time zone': 'Date',
+		'timestamp with time zone': 'Date',
+		'USER-DEFINED': 'any', // Mapear para "any" ou um tipo específico se desejado
+		'name': 'string',      // Mapear para string em JS
+	};
+
+	return typeMap[dbType as keyof typeof typeMap] || 'any'; // Retorna 'any' como padrão para tipos desconhecidos
   }
 }

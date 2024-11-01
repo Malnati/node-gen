@@ -77,8 +77,9 @@ export class DbReader {
 
         const columns: IColumn[] = columnsResult.rows.map(column => ({
 			columnName: column.column_name,
-			attributeName: this.toCamelCase(column.column_name),
+			attributeName: this.formatAttributeName(column.column_name),
 			dataType: column.data_type,
+			type: this.mapDatabaseTypeToJsType(column.data_type),
 			characterMaximumLength: column.character_maximum_length,
 			isNullable: column.is_nullable === 'YES',
 			isPrimaryKey: column.is_primary_key,
@@ -130,7 +131,7 @@ export class DbReader {
 
         const relations: IRelation[] = relationsResult.rows.map(relation => ({
           columnName: relation.column_name,
-		  attributeName: this.toCamelCase(relation.column_name),
+		  attributeName: this.formatAttributeName(relation.column_name),
           foreignTableName: relation.foreign_table_name,
           foreignColumnName: relation.foreign_column_name,
           relationType: this.determineRelationType(relation.is_unique_constraint, relation.is_primary_key_constraint)
@@ -187,5 +188,39 @@ export class DbReader {
 
   private removeTbPrefix(str: string): string {
 	return str.startsWith('tb_') ? str.substring(3) : str;
+  }
+
+  private toLowerFirst(str: string): string {
+    if (!str) return str;
+    return str.charAt(0).toLowerCase() + str.slice(1);
+  }
+
+  private formatAttributeName(str: string): string {
+    if (!str) return str;
+    return this.toLowerFirst(this.toCamelCase(str));
+  }
+
+  private mapDatabaseTypeToJsType(dbType: string) {
+	const typeMap: { [key: string]: string } = {
+		'integer': 'number',
+		'smallint': 'number',
+		'bigint': 'number',
+		'real': 'number',
+		'double precision': 'number',
+		'numeric': 'number',
+		'decimal': 'number',
+		'boolean': 'boolean',
+		'character varying': 'string',
+		'character': 'string',
+		'text': 'string',
+		'bytea': 'Buffer',
+		'date': 'Date',
+		'timestamp without time zone': 'Date',
+		'timestamp with time zone': 'Date',
+		'USER-DEFINED': 'any', // Mapear para "any" ou um tipo específico se desejado
+		'name': 'string',      // Mapear para string em JS
+	};
+
+	return typeMap[dbType as keyof typeof typeMap] || 'any'; // Retorna 'any' como padrão para tipos desconhecidos
   }
 }

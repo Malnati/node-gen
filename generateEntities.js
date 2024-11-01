@@ -3,7 +3,7 @@ const ejs = require('ejs');
 const path = require('path');
 
 // Carrega o JSON com os metadados do banco de dados
-const metadataPath = path.join(__dirname, 'src/metadata.json');
+const metadataPath = path.join(__dirname, 'build/db.metadata.json');
 const metadata = JSON.parse(fs.readFileSync(metadataPath, 'utf-8'));
 
 // Carrega o template EJS para entidades
@@ -11,11 +11,11 @@ const templatePath = path.join(__dirname, 'templates/typeorm-entity.ejs');
 const template = fs.readFileSync(templatePath, 'utf-8');
 
 // Caminho para salvar os arquivos de saída
-const outputDir = path.join(__dirname, 'generatedEntities');
+const outputDir = path.join(__dirname, 'build/src/app/entities');
 
 // Cria o diretório de saída, se não existir
 if (!fs.existsSync(outputDir)) {
-  fs.mkdirSync(outputDir);
+  fs.mkdirSync(outputDir, { recursive: true });
 }
 
 // Gera um arquivo separado para cada entidade
