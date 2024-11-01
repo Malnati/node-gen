@@ -44,6 +44,7 @@ export class DbReaderMysql {
         `, [this.config.database, tableName]);
 
         const columns: IColumn[] = columnsResult.map((column: any) => ({
+		  attributeName: this.toCamelCase(column.COLUMN_NAME),
           columnName: column.COLUMN_NAME,
           dataType: column.DATA_TYPE,
           characterMaximumLength: column.CHARACTER_MAXIMUM_LENGTH,

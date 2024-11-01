@@ -1,8 +1,7 @@
 
 // src/generator-config.ts
 
-import { IGeneratorConfig } from "./interfaces";
-import { TComponents } from './types';
+import { IGeneratorConfig, TComponents } from "./interfaces";
 
 export class GeneratorConfig implements IGeneratorConfig{
 	public app!: string;
