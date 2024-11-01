@@ -66,7 +66,7 @@ export interface IGeneratorConfig {
 }
 
 export interface IGenerator {
-	templateName: string;
+	templateFileName: string;
 	targetDir: string;
 	generate(): void
 }

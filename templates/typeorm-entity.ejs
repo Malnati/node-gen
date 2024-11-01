@@ -1,0 +1,68 @@
+import React from "react";
+import "./styles.scss";
+import { I<%= appName %>Props } from "./types.ts";
+
+import {
+	Entity,
+	Column,
+	CreateDateColumn,
+	UpdateDateColumn,
+	DeleteDateColumn,
+	PrimaryColumn,
+	JoinColumn,
+	ManyToOne,
+} from 'typeorm';
+import 'reflect-metadata';
+import { ApiProperty } from '@nestjs/swagger';
+import { PersonEntity } from './person';
+
+@Entity('tb_born')
+export class <%= tableName %> {
+	@CreateDateColumn()
+	@ApiProperty({ description: 'Data de criação do registro.' })
+	created_at: Date;
+
+	@UpdateDateColumn()
+	@ApiProperty({ description: 'Data de atualização do registro.' })
+	updated_at: Date;
+
+	@Column({ type: 'date' })
+	@ApiProperty({
+		description:
+			'O born (data de nascimento) informado pela pessoa. Informação obrigatória.',
+	})
+	born: any;
+
+	@DeleteDateColumn()
+	@ApiProperty({
+		description: 'Data da exclusão lógica do registro.',
+		nullable: true,
+	})
+	deleted_at: Date;
+
+	@PrimaryColumn({ type: 'uuid', default: 'uuid_generate_v4()' })
+	@ApiProperty({
+		description:
+			'Identificador único externo de registros desta tabela. Este campo é obrigatório.',
+	})
+	external_id: string;
+
+	@PrimaryColumn({
+		type: 'int',
+		default: "nextval('tb_born_id_seq'::regclass)",
+	})
+	@ApiProperty({
+		description:
+			'Identificador único interno (chave primária) de registros desta tabela. Este campo é obrigatório.',
+	})
+	id: number;
+
+	@ManyToOne(() => PersonEntity)
+	@JoinColumn({ name: 'person' })
+	@ApiProperty({ description: 'Relacionamento com tb_person.' })
+	person: PersonEntity;
+
+	toString() {
+		return `${this.external_id} - ${this.person}`;
+	}
+}

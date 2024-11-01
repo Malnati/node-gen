@@ -6,7 +6,7 @@ import { IGeneratorConfig } from "./interfaces";
 import { ITable, IColumn, IRelation, IDbReaderConfig } from './interfaces';
 
 export abstract class EJSBaseGenerator {
-	
+
     protected generatorConfig: IGeneratorConfig;
 	protected schema: ITable[];
 
@@ -50,5 +50,14 @@ export abstract class EJSBaseGenerator {
 			}
 		}
 		return "any";
+	}
+
+	public static toPascalCase(str: string): string {
+		str = this.removeTbPrefix(str);
+		return str.replace(/_./g, match => match.charAt(1).toUpperCase()).replace(/^./, match => match.toUpperCase());
+	}
+
+	public static removeTbPrefix(str: string): string {
+		return str.startsWith('tb_') ? str.substring(3) : str;
 	}
 }
