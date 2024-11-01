@@ -7,7 +7,7 @@ const metadataPath = path.join(__dirname, 'build/db.metadata.json');
 const metadataJSONContent = JSON.parse(fs.readFileSync(metadataPath, 'utf-8'));
 
 // Carrega o template EJS para entidades
-const entitiesTemplatePath = path.join(__dirname, 'templates/typeorm-entity.ejs');
+const entitiesTemplatePath = path.join(__dirname, 'templates/entities.ejs');
 const entitiesTemplateContent = fs.readFileSync(entitiesTemplatePath, 'utf-8');
 // Caminho para salvar os arquivos de saída
 const entitiesOutputDir = path.join(__dirname, 'build/src/app/entities');
@@ -18,6 +18,9 @@ if (!fs.existsSync(entitiesOutputDir)) {
 // Carrega o template EJS para entidades
 const servicesTemplatePath = path.join(__dirname, 'templates/services.ejs');
 const servicesTemplateContent = fs.readFileSync(servicesTemplatePath, 'utf-8');
+// Carrega o template EJS para entidades
+const controllersTemplatePath = path.join(__dirname, 'templates/controllers.ejs');
+const controllersTemplateContent = fs.readFileSync(controllersTemplatePath, 'utf-8');
 
 // Gera um arquivo separado para cada entidade
 metadataJSONContent.schema.forEach(table => {
@@ -35,6 +38,7 @@ metadataJSONContent.schema.forEach(table => {
 	if (!fs.existsSync(moduleOutputDir)) {
 		fs.mkdirSync(moduleOutputDir, { recursive: true });
 	}
+
 	// Gera um arquivo separado para cada serviço
 	const servicesContentOutput = ejs.render(servicesTemplateContent, { table });
 	// Define o nome do arquivo com base no nome do serviço
@@ -42,4 +46,12 @@ metadataJSONContent.schema.forEach(table => {
 	// Salva o arquivo para o serviço específico
 	fs.writeFileSync(serviceOutputPath, servicesContentOutput);
 	console.log(`Serviço ${table.entityName}Service.ts gerada com sucesso em ${serviceOutputPath}`);
+
+	// Gera um arquivo separado para cada Controller
+	const controllersContentOutput = ejs.render(controllersTemplateContent, { table });
+	// Define o nome do arquivo com base no nome do Controller
+	const controllersOutputPath = path.join(moduleOutputDir, `${table.entityName}Controller.ts`);
+	// Salva o arquivo para o Controller específico
+	fs.writeFileSync(controllersOutputPath, controllersContentOutput);
+	console.log(`Controller ${table.entityName}Controller.ts gerada com sucesso em ${controllersOutputPath}`);
 });
