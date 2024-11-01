@@ -1,6 +1,7 @@
 import mysql, { RowDataPacket } from 'mysql2/promise';
 import * as fs from 'fs';
 import { IDbReaderConfig, ITable, IColumn, IRelation } from './interfaces';
+import { mapDatabaseTypeToJsType, toCamelCase, toPascalCase, toSlugCase } from './db.reader.util';
 
 export class DbReaderMysql {
   private config: IDbReaderConfig;
@@ -44,10 +45,10 @@ export class DbReaderMysql {
         `, [this.config.database, tableName]);
 
         const columns: IColumn[] = columnsResult.map((column: any) => ({
-		  attributeName: this.toCamelCase(column.COLUMN_NAME),
+		  attributeName: toCamelCase(column.COLUMN_NAME),
           columnName: column.COLUMN_NAME,
           dataType: column.DATA_TYPE,
-		  type: this.mapDatabaseTypeToJsType(column.DATA_TYPE),
+		  type: mapDatabaseTypeToJsType(column.DATA_TYPE),
           characterMaximumLength: column.CHARACTER_MAXIMUM_LENGTH,
           isNullable: column.IS_NULLABLE === 'YES',
           isPrimaryKey: column.COLUMN_KEY === 'PRI',
@@ -66,14 +67,15 @@ export class DbReaderMysql {
 
         const relations: IRelation[] = relationsResult.map((relation: any) => ({
           columnName: relation.COLUMN_NAME,
-		  attributeName: this.toCamelCase(relation.COLUMN_NAME),
+		  attributeName: toCamelCase(relation.COLUMN_NAME),
           foreignTableName: relation.REFERENCED_TABLE_NAME,
           foreignColumnName: relation.REFERENCED_COLUMN_NAME,
           relationType: 'ManyToOne', // Por padrão, muitas chaves estrangeiras são ManyToOne
         }));
 
-		const entityName = this.toPascalCase(tableName);
-        schemaInfo.push({ tableName, entityName, columns, relations });
+		const entityName = toPascalCase(tableName);
+		const slugName = toSlugCase(tableName);
+        schemaInfo.push({ tableName, entityName, slugName, columns, relations });
       }
 
       this.saveSchemaInfoToFile(schemaInfo);
@@ -90,7 +92,7 @@ export class DbReaderMysql {
       fs.mkdirSync(this.config.outputDir, { recursive: true });
     }
 
-    const projectName = this.toCamelCase(this.config.database);
+    const projectName = toCamelCase(this.config.database);
 
     const filePath = this.schemaPath;
     const output = {
@@ -101,54 +103,5 @@ export class DbReaderMysql {
     fs.writeFileSync(filePath, JSON.stringify(output, null, 2));
 
     console.log(`Schema information has been saved to ${filePath}`);
-  }
-
-  private toCamelCase(str: string): string {
-    return str
-      .replace(/([-_][a-z])/g, group => group.toUpperCase().replace('-', '').replace('_', ''))
-      .replace(/(^\w)/, group => group.toUpperCase());
-  }
-
-  private toPascalCase(str: string): string {
-	str = this.removeTbPrefix(str);
-	return str.replace(/_./g, match => match.charAt(1).toUpperCase()).replace(/^./, match => match.toUpperCase());
-  }
-
-  private removeTbPrefix(str: string): string {
-	return str.startsWith('tb_') ? str.substring(3) : str;
-  }
-
-  private toLowerFirst(str: string): string {
-    if (!str) return str;
-    return str.charAt(0).toLowerCase() + str.slice(1);
-  }
-
-  private formatAttributeName(str: string): string {
-    if (!str) return str;
-    return this.toLowerFirst(this.toCamelCase(str));
-  }
-
-  private mapDatabaseTypeToJsType(dbType: string) {
-	const typeMap: { [key: string]: string } = {
-		'integer': 'number',
-		'smallint': 'number',
-		'bigint': 'number',
-		'real': 'number',
-		'double precision': 'number',
-		'numeric': 'number',
-		'decimal': 'number',
-		'boolean': 'boolean',
-		'character varying': 'string',
-		'character': 'string',
-		'text': 'string',
-		'bytea': 'Buffer',
-		'date': 'Date',
-		'timestamp without time zone': 'Date',
-		'timestamp with time zone': 'Date',
-		'USER-DEFINED': 'any', // Mapear para "any" ou um tipo específico se desejado
-		'name': 'string',      // Mapear para string em JS
-	};
-
-	return typeMap[dbType as keyof typeof typeMap] || 'any'; // Retorna 'any' como padrão para tipos desconhecidos
   }
 }

@@ -33,6 +33,7 @@ export interface IColumn {
 export interface ITable {
   tableName: string;
   entityName: string;
+  slugName: string;
   columns: IColumn[];
   relations: IRelation[];
 }

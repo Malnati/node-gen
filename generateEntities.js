@@ -18,25 +18,27 @@ if (!fs.existsSync(entitiesOutputDir)) {
 // Carrega o template EJS para entidades
 const servicesTemplatePath = path.join(__dirname, 'templates/services.ejs');
 const servicesTemplateContent = fs.readFileSync(servicesTemplatePath, 'utf-8');
-// Caminho para salvar os arquivos de saída
-const servicesOutputDir = path.join(__dirname, 'build/src/app/services');
-// Cria o diretório de saída, se não existir
-if (!fs.existsSync(servicesOutputDir)) {
-  fs.mkdirSync(servicesOutputDir, { recursive: true });
-}
 
 // Gera um arquivo separado para cada entidade
 metadataJSONContent.schema.forEach(table => {
-  const entitiesContentOutput = ejs.render(entitiesTemplateContent, { table });
-  // Define o nome do arquivo com base no nome da entidade
-  const entitiesOutputPath = path.join(entitiesOutputDir, `${table.entityName}.ts`);
-  // Salva o arquivo para a entidade específica
-  fs.writeFileSync(entitiesOutputPath, entitiesContentOutput);
-  console.log(`Entidade ${table.entityName} gerada com sucesso em ${entitiesOutputPath}`);
-  const servicesContentOutput = ejs.render(servicesTemplateContent, { table });
-  // Define o nome do arquivo com base no nome da entidade
-  const serviceOutputPath = path.join(servicesOutputDir, `${table.entityName}Service.ts`);
-  // Salva o arquivo para a entidade específica
-  fs.writeFileSync(serviceOutputPath, servicesContentOutput);
-  console.log(`Entidade ${table.entityName} gerada com sucesso em ${entitiesOutputPath}`);
+	const entitiesContentOutput = ejs.render(entitiesTemplateContent, { table });
+	// Define o nome do arquivo com base no nome da entidade
+	const entitiesOutputPath = path.join(entitiesOutputDir, `${table.entityName}.ts`);
+	// Salva o arquivo para a entidade específica
+	fs.writeFileSync(entitiesOutputPath, entitiesContentOutput);
+	console.log(`Entidade ${table.entityName} gerada com sucesso em ${entitiesOutputPath}`);
+
+
+	// Caminho para salvar os arquivos de saída
+	const moduleOutputDir = path.join(__dirname, `build/src/app/${table.slugName}`);
+	// Cria o diretório de saída, se não existir
+	if (!fs.existsSync(moduleOutputDir)) {
+		fs.mkdirSync(moduleOutputDir, { recursive: true });
+	}
+	const servicesContentOutput = ejs.render(servicesTemplateContent, { table });
+	// Define o nome do arquivo com base no nome da entidade
+	const serviceOutputPath = path.join(moduleOutputDir, `${table.entityName}Service.ts`);
+	// Salva o arquivo para a entidade específica
+	fs.writeFileSync(serviceOutputPath, servicesContentOutput);
+	console.log(`Serviço ${table.entityName}Service.ts gerada com sucesso em ${serviceOutputPath}`);
 });

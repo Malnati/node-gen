@@ -3,6 +3,7 @@
 import { Client } from 'pg';
 import * as fs from 'fs';
 import { IDbReaderConfig, ITable, IColumn, IRelation } from './interfaces';
+import { formatAttributeName, mapDatabaseTypeToJsType, toCamelCase, toPascalCase, toSlugCase } from './db.reader.util';
 
 export class DbReader {
   private config: IDbReaderConfig;
@@ -77,9 +78,9 @@ export class DbReader {
 
         const columns: IColumn[] = columnsResult.rows.map(column => ({
 			columnName: column.column_name,
-			attributeName: this.formatAttributeName(column.column_name),
+			attributeName: formatAttributeName(column.column_name),
 			dataType: column.data_type,
-			type: this.mapDatabaseTypeToJsType(column.data_type),
+			type: mapDatabaseTypeToJsType(column.data_type),
 			characterMaximumLength: column.character_maximum_length,
 			isNullable: column.is_nullable === 'YES',
 			isPrimaryKey: column.is_primary_key,
@@ -131,13 +132,14 @@ export class DbReader {
 
         const relations: IRelation[] = relationsResult.rows.map(relation => ({
           columnName: relation.column_name,
-		  attributeName: this.formatAttributeName(relation.column_name),
+		  attributeName: formatAttributeName(relation.column_name),
           foreignTableName: relation.foreign_table_name,
           foreignColumnName: relation.foreign_column_name,
           relationType: this.determineRelationType(relation.is_unique_constraint, relation.is_primary_key_constraint)
         }));
-		const entityName = this.toPascalCase(tableName);
-        schemaInfo.push({ tableName, entityName, columns, relations });
+		const entityName = toPascalCase(tableName);
+		const slugName = toSlugCase(tableName);
+        schemaInfo.push({ tableName, entityName, slugName, columns, relations });
       }
 
       this.saveSchemaInfoToFile(schemaInfo);
@@ -162,7 +164,7 @@ export class DbReader {
       fs.mkdirSync(this.config.outputDir, { recursive: true });
     }
 
-    const projectName = this.toCamelCase(this.config.database);
+    const projectName = toCamelCase(this.config.database);
 
     const filePath = this.schemaPath;
     const output = {
@@ -173,54 +175,5 @@ export class DbReader {
     fs.writeFileSync(filePath, JSON.stringify(output, null, 2));
 
     console.log(`Schema information has been saved to ${filePath}`);
-  }
-
-  private toCamelCase(str: string): string {
-    return str
-      .replace(/([-_][a-z])/g, group => group.toUpperCase().replace('-', '').replace('_', ''))
-      .replace(/(^\w)/, group => group.toUpperCase());
-  }
-
-  private toPascalCase(str: string): string {
-	str = this.removeTbPrefix(str);
-	return str.replace(/_./g, match => match.charAt(1).toUpperCase()).replace(/^./, match => match.toUpperCase());
-  }
-
-  private removeTbPrefix(str: string): string {
-	return str.startsWith('tb_') ? str.substring(3) : str;
-  }
-
-  private toLowerFirst(str: string): string {
-    if (!str) return str;
-    return str.charAt(0).toLowerCase() + str.slice(1);
-  }
-
-  private formatAttributeName(str: string): string {
-    if (!str) return str;
-    return this.toLowerFirst(this.toCamelCase(str));
-  }
-
-  private mapDatabaseTypeToJsType(dbType: string) {
-	const typeMap: { [key: string]: string } = {
-		'integer': 'number',
-		'smallint': 'number',
-		'bigint': 'number',
-		'real': 'number',
-		'double precision': 'number',
-		'numeric': 'number',
-		'decimal': 'number',
-		'boolean': 'boolean',
-		'character varying': 'string',
-		'character': 'string',
-		'text': 'string',
-		'bytea': 'Buffer',
-		'date': 'Date',
-		'timestamp without time zone': 'Date',
-		'timestamp with time zone': 'Date',
-		'USER-DEFINED': 'any', // Mapear para "any" ou um tipo específico se desejado
-		'name': 'string',      // Mapear para string em JS
-	};
-
-	return typeMap[dbType as keyof typeof typeMap] || 'any'; // Retorna 'any' como padrão para tipos desconhecidos
   }
 }
