@@ -1,4 +1,4 @@
-import { Entity, Column, CreateDateColumn, UpdateDateColumn, DeleteDateColumn, PrimaryGeneratedColumn, PrimaryColumn, JoinColumn } from 'typeorm';
+import { Entity, Column, CreateDateColumn, UpdateDateColumn, DeleteDateColumn, PrimaryGeneratedColumn, PrimaryColumn, JoinColumn, OneToOne } from 'typeorm';
 import 'reflect-metadata';
 import { ApiProperty } from '@nestjs/swagger';
 
@@ -8,16 +8,16 @@ export class <%= table.entityName %> {
   <% table.columns.forEach(column => { %>
   <% if (column.isPrimaryKey) { %>
   @PrimaryColumn({
-    type: '<%= column.dataType %>'<% if (column.columnDefault) { %><% } %>
+    type: '<%= column.dataType || 'varchar' %>'
   })
   <% } else { %>
   @Column({
-    type: '<%= column.dataType %>'<% if (column.characterMaximumLength) { %>, length: <%= column.characterMaximumLength %><% } %>,
-    nullable: <%= column.isNullable %><% if (column.columnDefault) { %>, default: "<%- column.columnDefault %>" <% } %>
+    type: '<%= column.dataType || 'varchar' %>'<% if (column.characterMaximumLength) { %>, length: <%= column.characterMaximumLength %><% } %>,
+    nullable: <%= column.isNullable !== undefined ? column.isNullable : true %>
   })
   <% } %>
   @ApiProperty({ description: "<%= column.columnComment || '' %>"<% if (column.isNullable) { %>, nullable: true <% } %> })
-  public <%= column.attributeName %>: <%= column.type %>;
+  public <%= column.attributeName %>: <%= column.type || 'string' %>;
 
   <% }); %>
 
@@ -30,8 +30,8 @@ export class <%= table.entityName %> {
   <% } %>
 
   toString() {
-    <% const primaryKeyColumn = table.columns.find(col => col.isPrimaryKey); %>
+    <% const primaryKeyColumn = table.columns.find(col => col.isPrimaryKey) || { attributeName: 'id' }; %>
     <% const displayColumn = table.columns.find(col => col.attributeName === 'nome') || table.columns[0]; %>
-    return `${this.<%= primaryKeyColumn ? primaryKeyColumn.attributeName : 'id' %>} - ${this.<%= displayColumn.attributeName %>}`;
+    return `${this.<%= primaryKeyColumn.attributeName %>} - ${this.<%= displayColumn.attributeName %>}`;
   }
 }
