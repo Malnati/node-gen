@@ -5,11 +5,6 @@ import * as readline from "readline";
 import { DbReader } from "./db.reader.postgres";
 import { ConfigUtil } from "./utils/ConfigUtil";
 import { TypeORMEntityGenerator } from "./typeorm-entity-generator";
-import { ServiceGenerator } from "./service-generator";
-import { InterfaceGenerator } from "./interface-generator";
-import { ControllerGenerator } from "./controller-generator";
-import { DTOGenerator } from "./dto-generator";
-import { ModuleGenerator } from "./module-generator";
 import { AppModuleGenerator } from "./app-module-generator";
 import { MainFileGenerator } from "./main-generator";
 import { EnvGenerator } from "./env-generator";
@@ -191,31 +186,6 @@ async function main() {
                 case "entities": {
                     const entityGenerator = new TypeORMEntityGenerator(schemaPath, dbConfig);
                     return entityGenerator.generateEntities();
-                }
-
-                case "services": {
-                    const serviceGenerator = new ServiceGenerator(schemaPath, dbConfig);
-                    return serviceGenerator.generateServices();
-                }
-
-                case "interfaces": {
-                    const interfaceGenerator = new InterfaceGenerator(schemaPath, dbConfig);
-                    return interfaceGenerator.generateInterfaces();
-                }
-
-                case "controllers": {
-                    const controllersGenerator = new ControllerGenerator(schemaPath, dbConfig);
-                    return controllersGenerator.generateControllers();
-                }
-
-                case "dtos": {
-                    const dtosGenerator = new DTOGenerator(schemaPath, dbConfig);
-                    return dtosGenerator.generateDTOs();
-                }
-
-                case "modules": {
-                    const modulesGenerator = new ModuleGenerator(schemaPath, dbConfig);
-                    return modulesGenerator.generateModules();
                 }
 
                 case "app-module": {
