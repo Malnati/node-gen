@@ -8,8 +8,6 @@ import { TypeORMEntityGenerator } from "./typeorm-entity-generator";
 import { AppModuleGenerator } from "./app-module-generator";
 import { MainFileGenerator } from "./main-generator";
 import { EnvGenerator } from "./env-generator";
-import { PackageJsonGenerator } from "./package-json-generator";
-import { ReadmeGenerator } from "./readme-generator";
 import { DataSourceGenerator } from "./datasource-generator";
 import fs from 'fs-extra';
 import { DiagramGenerator } from "./diagram-generator";
@@ -201,16 +199,6 @@ async function main() {
                 case "env": {
                     const envGenerator = new EnvGenerator(schemaPath, dbConfig);
                     return envGenerator.generateEnvFile();
-                }
-
-                case "package.json": {
-                    const packageJsonGenerator = new PackageJsonGenerator(schemaPath, dbConfig);
-                    return packageJsonGenerator.generatePackageJsonFile();
-                }
-
-                case "readme": {
-                    const readmeGenerator = new ReadmeGenerator(schemaPath, dbConfig);
-                    return readmeGenerator.generateReadme();
                 }
 
                 case "datasource": {
