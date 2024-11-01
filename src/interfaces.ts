@@ -14,11 +14,13 @@ export interface IColumn {
 
 export interface ITable {
   tableName: string;
+  entityName: string;
   columns: IColumn[];
   relations: IRelation[];
 }
 
 export interface IRelation {
+  attributeName: string;
   columnName: string;
   foreignTableName: string;
   foreignColumnName: string;
@@ -33,21 +35,7 @@ export interface IDbReaderConfig {
   user: string;
   password: string;
   outputDir: string;
-  components: [
-    'entities' |
-    'services' |
-    'interfaces' |
-    'controllers' |
-    'dtos' |
-    'modules' |
-    'app-module' |
-    'main' |
-    'env' |
-    'package.json' |
-    'readme' |
-    'datasource' |
-    'diagram'
-  ];
+  components: TComponents;
   dbType: string;
 }
 

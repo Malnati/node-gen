@@ -64,12 +64,14 @@ export class DbReaderMysql {
 
         const relations: IRelation[] = relationsResult.map((relation: any) => ({
           columnName: relation.COLUMN_NAME,
+		  attributeName: this.toCamelCase(relation.COLUMN_NAME),
           foreignTableName: relation.REFERENCED_TABLE_NAME,
           foreignColumnName: relation.REFERENCED_COLUMN_NAME,
           relationType: 'ManyToOne', // Por padrão, muitas chaves estrangeiras são ManyToOne
         }));
 
-        schemaInfo.push({ tableName, columns, relations });
+		const entityName = this.toPascalCase(tableName);
+        schemaInfo.push({ tableName, entityName, columns, relations });
       }
 
       this.saveSchemaInfoToFile(schemaInfo);
@@ -103,5 +105,14 @@ export class DbReaderMysql {
     return str
       .replace(/([-_][a-z])/g, group => group.toUpperCase().replace('-', '').replace('_', ''))
       .replace(/(^\w)/, group => group.toUpperCase());
+  }
+
+  private toPascalCase(str: string): string {
+	str = this.removeTbPrefix(str);
+	return str.replace(/_./g, match => match.charAt(1).toUpperCase()).replace(/^./, match => match.toUpperCase());
+  }
+
+  private removeTbPrefix(str: string): string {
+	return str.startsWith('tb_') ? str.substring(3) : str;
   }
 }

@@ -77,6 +77,7 @@ export class DbReader {
 
         const columns: IColumn[] = columnsResult.rows.map(column => ({
 			columnName: column.column_name,
+			attributeName: this.toCamelCase(column.column_name),
 			dataType: column.data_type,
 			characterMaximumLength: column.character_maximum_length,
 			isNullable: column.is_nullable === 'YES',
@@ -129,12 +130,13 @@ export class DbReader {
 
         const relations: IRelation[] = relationsResult.rows.map(relation => ({
           columnName: relation.column_name,
+		  attributeName: this.toCamelCase(relation.column_name),
           foreignTableName: relation.foreign_table_name,
           foreignColumnName: relation.foreign_column_name,
           relationType: this.determineRelationType(relation.is_unique_constraint, relation.is_primary_key_constraint)
         }));
-
-        schemaInfo.push({ tableName, columns, relations });
+		const entityName = this.toPascalCase(tableName);
+        schemaInfo.push({ tableName, entityName, columns, relations });
       }
 
       this.saveSchemaInfoToFile(schemaInfo);
@@ -176,5 +178,14 @@ export class DbReader {
     return str
       .replace(/([-_][a-z])/g, group => group.toUpperCase().replace('-', '').replace('_', ''))
       .replace(/(^\w)/, group => group.toUpperCase());
+  }
+
+  private toPascalCase(str: string): string {
+	str = this.removeTbPrefix(str);
+	return str.replace(/_./g, match => match.charAt(1).toUpperCase()).replace(/^./, match => match.toUpperCase());
+  }
+
+  private removeTbPrefix(str: string): string {
+	return str.startsWith('tb_') ? str.substring(3) : str;
   }
 }

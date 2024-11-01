@@ -107,10 +107,8 @@ if [ -z "$7" ]; then
   show_example
   exit 1
 elif [[ ! -d "$7" ]]; then
-  echo "Erro: O caminho de destino $7 (parâmetro 7) não existe. Por favor, forneça um caminho válido."
-  list_provided_params
-  show_example
-  exit 1
+  echo "Warn: O caminho de destino $7 (parâmetro 7) não existe. Criando um caminho."
+  mkdir -p $7
 fi
 
 # Mensagem de sucesso se todos os parâmetros forem válidos
