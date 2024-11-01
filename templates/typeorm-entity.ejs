@@ -8,7 +8,7 @@ export class <%= table.entityName %> {
   <% table.columns.forEach(column => { %>
   <% if (column.isPrimaryKey) { %>
   @PrimaryColumn({
-    type: '<%= column.dataType %>'<% if (column.columnDefault) { %>, default: "<%- column.columnDefault %>" <% } %>
+    type: '<%= column.dataType %>'<% if (column.columnDefault) { %><% } %>
   })
   <% } else { %>
   @Column({
