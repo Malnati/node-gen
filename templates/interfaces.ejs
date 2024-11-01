@@ -1,0 +1,11 @@
+export interface I<%= table.entityName %>QueryDTO {
+	<% table.columns.forEach(column => { %>
+	<%= column.attributeName %><%= column.isNullable ? '?' : '' %>: <%= column.type %>;
+	<% }); %>
+  }
+
+  export interface I<%= table.entityName %>PersistDTO {
+	<% table.columns.forEach(column => { %>
+	<%= column.attributeName %><%= column.isNullable ? '?' : '' %>: <%= column.type %>;
+	<% }); %>
+  }

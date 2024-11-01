@@ -24,6 +24,9 @@ const controllersTemplateContent = fs.readFileSync(controllersTemplatePath, 'utf
 // Carrega o template EJS para dtos
 const dtosTemplatePath = path.join(__dirname, 'templates/dtos.ejs');
 const dtosTemplateContent = fs.readFileSync(dtosTemplatePath, 'utf-8');
+// Carrega o template EJS para interfaces
+const interfacesTemplatePath = path.join(__dirname, 'templates/interfaces.ejs');
+const interfacesTemplateContent = fs.readFileSync(interfacesTemplatePath, 'utf-8');
 
 // Gera um arquivo separado para cada entidade
 metadataJSONContent.schema.forEach(table => {
@@ -61,8 +64,16 @@ metadataJSONContent.schema.forEach(table => {
 	// Gera um arquivo separado para cada DTOs
 	const dtosContentOutput = ejs.render(dtosTemplateContent, { table });
 	// Define o nome do arquivo com base no nome do DTOs
-	const dtosOutputPath = path.join(moduleOutputDir, `${table.entityName}DTO.ts`);
+	const dtosOutputPath = path.join(moduleOutputDir, `${table.entityName}DTOs.ts`);
 	// Salva o arquivo para o DTOs específico
 	fs.writeFileSync(dtosOutputPath, dtosContentOutput);
-	console.log(`DTO ${table.entityName}DTO.ts gerada com sucesso em ${dtosOutputPath}`);
+	console.log(`DTOs ${table.entityName}DTOs.ts gerada com sucesso em ${dtosOutputPath}`);
+
+	// Gera um arquivo separado para cada interfaces
+	const interfacesContentOutput = ejs.render(interfacesTemplateContent, { table });
+	// Define o nome do arquivo com base no nome do interfaces
+	const interfacesOutputPath = path.join(moduleOutputDir, `${table.entityName}Interfaces.ts`);
+	// Salva o arquivo para o interfaces específico
+	fs.writeFileSync(interfacesOutputPath, interfacesContentOutput);
+	console.log(`Interfaces ${table.entityName}Interfaces.ts gerada com sucesso em ${interfacesOutputPath}`);
 });
