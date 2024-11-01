@@ -35,10 +35,11 @@ metadataJSONContent.schema.forEach(table => {
 	if (!fs.existsSync(moduleOutputDir)) {
 		fs.mkdirSync(moduleOutputDir, { recursive: true });
 	}
+	// Gera um arquivo separado para cada serviço
 	const servicesContentOutput = ejs.render(servicesTemplateContent, { table });
-	// Define o nome do arquivo com base no nome da entidade
+	// Define o nome do arquivo com base no nome do serviço
 	const serviceOutputPath = path.join(moduleOutputDir, `${table.entityName}Service.ts`);
-	// Salva o arquivo para a entidade específica
+	// Salva o arquivo para o serviço específico
 	fs.writeFileSync(serviceOutputPath, servicesContentOutput);
 	console.log(`Serviço ${table.entityName}Service.ts gerada com sucesso em ${serviceOutputPath}`);
 });
