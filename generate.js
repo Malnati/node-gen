@@ -44,6 +44,16 @@ const readmeOutputPath = path.join(rootOutputDir, 'README.md');
 fs.writeFileSync(readmeOutputPath, readmeContentOutput);
 console.log(`README.md gerada com sucesso em ${readmeOutputPath}`);
 
+// Carrega o template EJS para package.json
+const packageTemplatePath = path.join(__dirname, 'templates/package.ejs');
+const packageTemplateContent = fs.readFileSync(packageTemplatePath, 'utf-8');
+const packageContentOutput = ejs.render(packageTemplateContent, metadataJSONContent);
+// Define o nome do arquivo com base no nome da package.json
+const packageOutputPath = path.join(rootOutputDir, 'package.md');
+// Salva o arquivo para a package.json específica
+fs.writeFileSync(packageOutputPath, packageContentOutput);
+console.log(`package.json gerada com sucesso em ${packageOutputPath}`);
+
 
 // Gera um arquivo separado para cada entidade
 metadataJSONContent.schema.forEach(table => {
