@@ -6,6 +6,9 @@ const path = require('path');
 const metadataPath = path.join(__dirname, 'build/db.metadata.json');
 const metadataJSONContent = JSON.parse(fs.readFileSync(metadataPath, 'utf-8'));
 
+// Caminho para salvar os arquivos de saída
+const rootOutputDir = path.join(__dirname, 'build');
+
 // Carrega o template EJS para entidades
 const entitiesTemplatePath = path.join(__dirname, 'templates/entities.ejs');
 const entitiesTemplateContent = fs.readFileSync(entitiesTemplatePath, 'utf-8');
@@ -30,6 +33,17 @@ const interfacesTemplateContent = fs.readFileSync(interfacesTemplatePath, 'utf-8
 // Carrega o template EJS para module
 const moduleTemplatePath = path.join(__dirname, 'templates/module.ejs');
 const moduleTemplateContent = fs.readFileSync(moduleTemplatePath, 'utf-8');
+
+// Carrega o template EJS para 'README.md'
+const readmeTemplatePath = path.join(__dirname, 'templates/readme.ejs');
+const readmeTemplateContent = fs.readFileSync(readmeTemplatePath, 'utf-8');
+const readmeContentOutput = ejs.render(readmeTemplateContent, metadataJSONContent);
+// Define o nome do arquivo com base no nome da 'README.md'
+const readmeOutputPath = path.join(rootOutputDir, 'README.md');
+// Salva o arquivo para a 'README.md' específica
+fs.writeFileSync(readmeOutputPath, readmeContentOutput);
+console.log(`README.md gerada com sucesso em ${readmeOutputPath}`);
+
 
 // Gera um arquivo separado para cada entidade
 metadataJSONContent.schema.forEach(table => {
