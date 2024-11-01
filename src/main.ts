@@ -163,8 +163,8 @@ async function main() {
         dbReader = new DbReaderMysql(path.join(dbConfig.outputDir, "db.reader.mysql.json"), dbConfig);
         schemaPath = path.join(dbConfig.outputDir, "db.reader.mysql.json");
     } else if (dbConfig.dbType === 'postgres') {
-        dbReader = new DbReader(path.join(dbConfig.outputDir, "db.reader.postgres.json"), dbConfig);
-        schemaPath = path.join(dbConfig.outputDir, "db.reader.postgres.json");
+        dbReader = new DbReader(path.join(dbConfig.outputDir, "db.metadata.json"), dbConfig);
+        schemaPath = path.join(dbConfig.outputDir, "db.metadata.json");
     } else {
         throw new Error('Tipo de banco de dados não suportado');
     }

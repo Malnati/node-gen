@@ -1,0 +1,729 @@
+{
+  "databaseName": "postgres",
+  "projectName": "Postgres",
+  "schema": [
+    {
+      "tableName": "geography_columns",
+      "entityName": "GeographyColumns",
+      "columns": [
+        {
+          "columnName": "f_table_catalog",
+          "attributeName": "FTableCatalog",
+          "dataType": "name",
+          "characterMaximumLength": null,
+          "isNullable": true,
+          "isPrimaryKey": false,
+          "columnDefault": null,
+          "columnComment": null
+        },
+        {
+          "columnName": "f_table_schema",
+          "attributeName": "FTableSchema",
+          "dataType": "name",
+          "characterMaximumLength": null,
+          "isNullable": true,
+          "isPrimaryKey": false,
+          "columnDefault": null,
+          "columnComment": null
+        },
+        {
+          "columnName": "f_table_name",
+          "attributeName": "FTableName",
+          "dataType": "name",
+          "characterMaximumLength": null,
+          "isNullable": true,
+          "isPrimaryKey": false,
+          "columnDefault": null,
+          "columnComment": null
+        },
+        {
+          "columnName": "f_geography_column",
+          "attributeName": "FGeographyColumn",
+          "dataType": "name",
+          "characterMaximumLength": null,
+          "isNullable": true,
+          "isPrimaryKey": false,
+          "columnDefault": null,
+          "columnComment": null
+        },
+        {
+          "columnName": "coord_dimension",
+          "attributeName": "CoordDimension",
+          "dataType": "integer",
+          "characterMaximumLength": null,
+          "isNullable": true,
+          "isPrimaryKey": false,
+          "columnDefault": null,
+          "columnComment": null
+        },
+        {
+          "columnName": "srid",
+          "attributeName": "Srid",
+          "dataType": "integer",
+          "characterMaximumLength": null,
+          "isNullable": true,
+          "isPrimaryKey": false,
+          "columnDefault": null,
+          "columnComment": null
+        },
+        {
+          "columnName": "type",
+          "attributeName": "Type",
+          "dataType": "text",
+          "characterMaximumLength": null,
+          "isNullable": true,
+          "isPrimaryKey": false,
+          "columnDefault": null,
+          "columnComment": null
+        }
+      ],
+      "relations": []
+    },
+    {
+      "tableName": "geometry_columns",
+      "entityName": "GeometryColumns",
+      "columns": [
+        {
+          "columnName": "f_table_catalog",
+          "attributeName": "FTableCatalog",
+          "dataType": "character varying",
+          "characterMaximumLength": 256,
+          "isNullable": true,
+          "isPrimaryKey": false,
+          "columnDefault": null,
+          "columnComment": null
+        },
+        {
+          "columnName": "f_table_schema",
+          "attributeName": "FTableSchema",
+          "dataType": "name",
+          "characterMaximumLength": null,
+          "isNullable": true,
+          "isPrimaryKey": false,
+          "columnDefault": null,
+          "columnComment": null
+        },
+        {
+          "columnName": "f_table_name",
+          "attributeName": "FTableName",
+          "dataType": "name",
+          "characterMaximumLength": null,
+          "isNullable": true,
+          "isPrimaryKey": false,
+          "columnDefault": null,
+          "columnComment": null
+        },
+        {
+          "columnName": "f_geometry_column",
+          "attributeName": "FGeometryColumn",
+          "dataType": "name",
+          "characterMaximumLength": null,
+          "isNullable": true,
+          "isPrimaryKey": false,
+          "columnDefault": null,
+          "columnComment": null
+        },
+        {
+          "columnName": "coord_dimension",
+          "attributeName": "CoordDimension",
+          "dataType": "integer",
+          "characterMaximumLength": null,
+          "isNullable": true,
+          "isPrimaryKey": false,
+          "columnDefault": null,
+          "columnComment": null
+        },
+        {
+          "columnName": "srid",
+          "attributeName": "Srid",
+          "dataType": "integer",
+          "characterMaximumLength": null,
+          "isNullable": true,
+          "isPrimaryKey": false,
+          "columnDefault": null,
+          "columnComment": null
+        },
+        {
+          "columnName": "type",
+          "attributeName": "Type",
+          "dataType": "character varying",
+          "characterMaximumLength": 30,
+          "isNullable": true,
+          "isPrimaryKey": false,
+          "columnDefault": null,
+          "columnComment": null
+        }
+      ],
+      "relations": []
+    },
+    {
+      "tableName": "spatial_ref_sys",
+      "entityName": "SpatialRefSys",
+      "columns": [
+        {
+          "columnName": "srid",
+          "attributeName": "Srid",
+          "dataType": "integer",
+          "characterMaximumLength": null,
+          "isNullable": false,
+          "isPrimaryKey": true,
+          "columnDefault": null,
+          "columnComment": null
+        },
+        {
+          "columnName": "auth_name",
+          "attributeName": "AuthName",
+          "dataType": "character varying",
+          "characterMaximumLength": 256,
+          "isNullable": true,
+          "isPrimaryKey": false,
+          "columnDefault": null,
+          "columnComment": null
+        },
+        {
+          "columnName": "auth_srid",
+          "attributeName": "AuthSrid",
+          "dataType": "integer",
+          "characterMaximumLength": null,
+          "isNullable": true,
+          "isPrimaryKey": false,
+          "columnDefault": null,
+          "columnComment": null
+        },
+        {
+          "columnName": "srtext",
+          "attributeName": "Srtext",
+          "dataType": "character varying",
+          "characterMaximumLength": 2048,
+          "isNullable": true,
+          "isPrimaryKey": false,
+          "columnDefault": null,
+          "columnComment": null
+        },
+        {
+          "columnName": "proj4text",
+          "attributeName": "Proj4text",
+          "dataType": "character varying",
+          "characterMaximumLength": 2048,
+          "isNullable": true,
+          "isPrimaryKey": false,
+          "columnDefault": null,
+          "columnComment": null
+        }
+      ],
+      "relations": []
+    },
+    {
+      "tableName": "ibge_br_regioes_2022",
+      "entityName": "IbgeBrRegioes2022",
+      "columns": [
+        {
+          "columnName": "cd_reg",
+          "attributeName": "CdReg",
+          "dataType": "character",
+          "characterMaximumLength": 1,
+          "isNullable": false,
+          "isPrimaryKey": false,
+          "columnDefault": "nextval('ibge_br_regioes_2022_cd_reg_seq'::regclass)",
+          "columnComment": null
+        },
+        {
+          "columnName": "geom",
+          "attributeName": "Geom",
+          "dataType": "USER-DEFINED",
+          "characterMaximumLength": null,
+          "isNullable": true,
+          "isPrimaryKey": false,
+          "columnDefault": null,
+          "columnComment": null
+        },
+        {
+          "columnName": "nm_regiao",
+          "attributeName": "NmRegiao",
+          "dataType": "character varying",
+          "characterMaximumLength": 20,
+          "isNullable": true,
+          "isPrimaryKey": false,
+          "columnDefault": null,
+          "columnComment": null
+        },
+        {
+          "columnName": "sigla_rg",
+          "attributeName": "SiglaRg",
+          "dataType": "character varying",
+          "characterMaximumLength": 2,
+          "isNullable": true,
+          "isPrimaryKey": false,
+          "columnDefault": null,
+          "columnComment": null
+        },
+        {
+          "columnName": "area_km2",
+          "attributeName": "AreaKm2",
+          "dataType": "double precision",
+          "characterMaximumLength": null,
+          "isNullable": true,
+          "isPrimaryKey": false,
+          "columnDefault": null,
+          "columnComment": null
+        }
+      ],
+      "relations": []
+    },
+    {
+      "tableName": "ibge_br_uf_2022",
+      "entityName": "IbgeBrUf2022",
+      "columns": [
+        {
+          "columnName": "cd_uf",
+          "attributeName": "CdUf",
+          "dataType": "smallint",
+          "characterMaximumLength": null,
+          "isNullable": false,
+          "isPrimaryKey": true,
+          "columnDefault": null,
+          "columnComment": null
+        },
+        {
+          "columnName": "geom",
+          "attributeName": "Geom",
+          "dataType": "USER-DEFINED",
+          "characterMaximumLength": null,
+          "isNullable": true,
+          "isPrimaryKey": false,
+          "columnDefault": null,
+          "columnComment": null
+        },
+        {
+          "columnName": "nm_uf",
+          "attributeName": "NmUf",
+          "dataType": "character varying",
+          "characterMaximumLength": 50,
+          "isNullable": true,
+          "isPrimaryKey": false,
+          "columnDefault": null,
+          "columnComment": null
+        },
+        {
+          "columnName": "sigla_uf",
+          "attributeName": "SiglaUf",
+          "dataType": "character",
+          "characterMaximumLength": 2,
+          "isNullable": true,
+          "isPrimaryKey": false,
+          "columnDefault": null,
+          "columnComment": null
+        },
+        {
+          "columnName": "nm_regiao",
+          "attributeName": "NmRegiao",
+          "dataType": "character varying",
+          "characterMaximumLength": 20,
+          "isNullable": true,
+          "isPrimaryKey": false,
+          "columnDefault": null,
+          "columnComment": null
+        },
+        {
+          "columnName": "area_km2",
+          "attributeName": "AreaKm2",
+          "dataType": "double precision",
+          "characterMaximumLength": null,
+          "isNullable": true,
+          "isPrimaryKey": false,
+          "columnDefault": null,
+          "columnComment": null
+        }
+      ],
+      "relations": []
+    },
+    {
+      "tableName": "iso3166_country",
+      "entityName": "Iso3166Country",
+      "columns": [
+        {
+          "columnName": "code",
+          "attributeName": "Code",
+          "dataType": "smallint",
+          "characterMaximumLength": null,
+          "isNullable": false,
+          "isPrimaryKey": true,
+          "columnDefault": null,
+          "columnComment": null
+        },
+        {
+          "columnName": "name",
+          "attributeName": "Name",
+          "dataType": "character varying",
+          "characterMaximumLength": 255,
+          "isNullable": false,
+          "isPrimaryKey": false,
+          "columnDefault": null,
+          "columnComment": null
+        },
+        {
+          "columnName": "code_alpha2",
+          "attributeName": "CodeAlpha2",
+          "dataType": "character",
+          "characterMaximumLength": 2,
+          "isNullable": true,
+          "isPrimaryKey": false,
+          "columnDefault": null,
+          "columnComment": null
+        },
+        {
+          "columnName": "code_alpha3",
+          "attributeName": "CodeAlpha3",
+          "dataType": "character",
+          "characterMaximumLength": 3,
+          "isNullable": true,
+          "isPrimaryKey": false,
+          "columnDefault": null,
+          "columnComment": null
+        }
+      ],
+      "relations": []
+    },
+    {
+      "tableName": "isagro_time_series",
+      "entityName": "IsagroTimeSeries",
+      "columns": [
+        {
+          "columnName": "id",
+          "attributeName": "Id",
+          "dataType": "integer",
+          "characterMaximumLength": null,
+          "isNullable": false,
+          "isPrimaryKey": true,
+          "columnDefault": "nextval('isagro_indicator_data_id_seq'::regclass)",
+          "columnComment": null
+        },
+        {
+          "columnName": "series_id",
+          "attributeName": "SeriesId",
+          "dataType": "smallint",
+          "characterMaximumLength": null,
+          "isNullable": false,
+          "isPrimaryKey": false,
+          "columnDefault": null,
+          "columnComment": null
+        },
+        {
+          "columnName": "country_id",
+          "attributeName": "CountryId",
+          "dataType": "smallint",
+          "characterMaximumLength": null,
+          "isNullable": false,
+          "isPrimaryKey": false,
+          "columnDefault": null,
+          "columnComment": null
+        },
+        {
+          "columnName": "region_id",
+          "attributeName": "RegionId",
+          "dataType": "integer",
+          "characterMaximumLength": null,
+          "isNullable": false,
+          "isPrimaryKey": false,
+          "columnDefault": null,
+          "columnComment": null
+        },
+        {
+          "columnName": "period",
+          "attributeName": "Period",
+          "dataType": "date",
+          "characterMaximumLength": null,
+          "isNullable": false,
+          "isPrimaryKey": false,
+          "columnDefault": null,
+          "columnComment": null
+        },
+        {
+          "columnName": "category",
+          "attributeName": "Category",
+          "dataType": "character varying",
+          "characterMaximumLength": 50,
+          "isNullable": false,
+          "isPrimaryKey": false,
+          "columnDefault": null,
+          "columnComment": null
+        },
+        {
+          "columnName": "value",
+          "attributeName": "Value",
+          "dataType": "double precision",
+          "characterMaximumLength": null,
+          "isNullable": false,
+          "isPrimaryKey": false,
+          "columnDefault": null,
+          "columnComment": null
+        },
+        {
+          "columnName": "created_at",
+          "attributeName": "CreatedAt",
+          "dataType": "timestamp without time zone",
+          "characterMaximumLength": null,
+          "isNullable": true,
+          "isPrimaryKey": false,
+          "columnDefault": "now()",
+          "columnComment": null
+        },
+        {
+          "columnName": "updated_at",
+          "attributeName": "UpdatedAt",
+          "dataType": "timestamp without time zone",
+          "characterMaximumLength": null,
+          "isNullable": true,
+          "isPrimaryKey": false,
+          "columnDefault": "now()",
+          "columnComment": null
+        }
+      ],
+      "relations": [
+        {
+          "columnName": "country_id",
+          "attributeName": "CountryId",
+          "foreignTableName": "iso3166_country",
+          "foreignColumnName": "code",
+          "relationType": "OneToOne"
+        },
+        {
+          "columnName": "series_id",
+          "attributeName": "SeriesId",
+          "foreignTableName": "isagro_series",
+          "foreignColumnName": "id",
+          "relationType": "OneToOne"
+        }
+      ]
+    },
+    {
+      "tableName": "isagro_indicator",
+      "entityName": "IsagroIndicator",
+      "columns": [
+        {
+          "columnName": "id",
+          "attributeName": "Id",
+          "dataType": "smallint",
+          "characterMaximumLength": null,
+          "isNullable": false,
+          "isPrimaryKey": true,
+          "columnDefault": "nextval('isagro_indicators_id_seq'::regclass)",
+          "columnComment": null
+        },
+        {
+          "columnName": "name",
+          "attributeName": "Name",
+          "dataType": "character varying",
+          "characterMaximumLength": 50,
+          "isNullable": false,
+          "isPrimaryKey": false,
+          "columnDefault": null,
+          "columnComment": null
+        },
+        {
+          "columnName": "slug",
+          "attributeName": "Slug",
+          "dataType": "character varying",
+          "characterMaximumLength": 50,
+          "isNullable": false,
+          "isPrimaryKey": false,
+          "columnDefault": null,
+          "columnComment": null
+        },
+        {
+          "columnName": "description",
+          "attributeName": "Description",
+          "dataType": "character varying",
+          "characterMaximumLength": 1024,
+          "isNullable": true,
+          "isPrimaryKey": false,
+          "columnDefault": null,
+          "columnComment": null
+        }
+      ],
+      "relations": []
+    },
+    {
+      "tableName": "isagro_series",
+      "entityName": "IsagroSeries",
+      "columns": [
+        {
+          "columnName": "id",
+          "attributeName": "Id",
+          "dataType": "smallint",
+          "characterMaximumLength": null,
+          "isNullable": false,
+          "isPrimaryKey": true,
+          "columnDefault": "nextval('isagro_indicator_series_id_seq'::regclass)",
+          "columnComment": null
+        },
+        {
+          "columnName": "indicator_id",
+          "attributeName": "IndicatorId",
+          "dataType": "smallint",
+          "characterMaximumLength": null,
+          "isNullable": false,
+          "isPrimaryKey": false,
+          "columnDefault": null,
+          "columnComment": null
+        },
+        {
+          "columnName": "name",
+          "attributeName": "Name",
+          "dataType": "character varying",
+          "characterMaximumLength": 50,
+          "isNullable": false,
+          "isPrimaryKey": false,
+          "columnDefault": null,
+          "columnComment": null
+        },
+        {
+          "columnName": "slug",
+          "attributeName": "Slug",
+          "dataType": "character varying",
+          "characterMaximumLength": 50,
+          "isNullable": false,
+          "isPrimaryKey": false,
+          "columnDefault": null,
+          "columnComment": null
+        },
+        {
+          "columnName": "description",
+          "attributeName": "Description",
+          "dataType": "character varying",
+          "characterMaximumLength": 1024,
+          "isNullable": true,
+          "isPrimaryKey": false,
+          "columnDefault": null,
+          "columnComment": null
+        },
+        {
+          "columnName": "source",
+          "attributeName": "Source",
+          "dataType": "character varying",
+          "characterMaximumLength": 4000,
+          "isNullable": true,
+          "isPrimaryKey": false,
+          "columnDefault": null,
+          "columnComment": null
+        }
+      ],
+      "relations": [
+        {
+          "columnName": "indicator_id",
+          "attributeName": "IndicatorId",
+          "foreignTableName": "isagro_indicator",
+          "foreignColumnName": "id",
+          "relationType": "OneToOne"
+        }
+      ]
+    },
+    {
+      "tableName": "tb_item",
+      "entityName": "Item",
+      "columns": [
+        {
+          "columnName": "id",
+          "attributeName": "Id",
+          "dataType": "bigint",
+          "characterMaximumLength": null,
+          "isNullable": false,
+          "isPrimaryKey": true,
+          "columnDefault": "nextval('tb_item_id_seq'::regclass)",
+          "columnComment": "Chave primaria da tabela."
+        },
+        {
+          "columnName": "nome",
+          "attributeName": "Nome",
+          "dataType": "character varying",
+          "characterMaximumLength": 4000,
+          "isNullable": false,
+          "isPrimaryKey": false,
+          "columnDefault": null,
+          "columnComment": "Nome"
+        },
+        {
+          "columnName": "telefone",
+          "attributeName": "Telefone",
+          "dataType": "character varying",
+          "characterMaximumLength": 12,
+          "isNullable": true,
+          "isPrimaryKey": false,
+          "columnDefault": null,
+          "columnComment": "Telefone"
+        },
+        {
+          "columnName": "senha",
+          "attributeName": "Senha",
+          "dataType": "character varying",
+          "characterMaximumLength": 256,
+          "isNullable": false,
+          "isPrimaryKey": false,
+          "columnDefault": null,
+          "columnComment": null
+        },
+        {
+          "columnName": "nascimento",
+          "attributeName": "Nascimento",
+          "dataType": "date",
+          "characterMaximumLength": null,
+          "isNullable": false,
+          "isPrimaryKey": false,
+          "columnDefault": null,
+          "columnComment": "Data de nascimento"
+        },
+        {
+          "columnName": "cpf",
+          "attributeName": "Cpf",
+          "dataType": "character varying",
+          "characterMaximumLength": 11,
+          "isNullable": false,
+          "isPrimaryKey": false,
+          "columnDefault": null,
+          "columnComment": "CPF"
+        },
+        {
+          "columnName": "pontuacao",
+          "attributeName": "Pontuacao",
+          "dataType": "real",
+          "characterMaximumLength": null,
+          "isNullable": false,
+          "isPrimaryKey": false,
+          "columnDefault": null,
+          "columnComment": "Pontuação"
+        },
+        {
+          "columnName": "ativo",
+          "attributeName": "Ativo",
+          "dataType": "boolean",
+          "characterMaximumLength": null,
+          "isNullable": false,
+          "isPrimaryKey": false,
+          "columnDefault": "true",
+          "columnComment": "Ativo/inativo"
+        },
+        {
+          "columnName": "avatar",
+          "attributeName": "Avatar",
+          "dataType": "bytea",
+          "characterMaximumLength": null,
+          "isNullable": true,
+          "isPrimaryKey": false,
+          "columnDefault": null,
+          "columnComment": "Avatar"
+        },
+        {
+          "columnName": "descricao",
+          "attributeName": "Descricao",
+          "dataType": "text",
+          "characterMaximumLength": null,
+          "isNullable": true,
+          "isPrimaryKey": false,
+          "columnDefault": null,
+          "columnComment": "Descrição"
+        }
+      ],
+      "relations": []
+    }
+  ]
+}
