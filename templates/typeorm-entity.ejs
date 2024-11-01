@@ -1,25 +1,38 @@
-import { Entity, Column, PrimaryGeneratedColumn<% if (table.relations.length) { %>, OneToOne, JoinColumn<% } %> } from 'typeorm';
+import { Entity, Column, CreateDateColumn, UpdateDateColumn, DeleteDateColumn, PrimaryGeneratedColumn, PrimaryColumn, JoinColumn } from 'typeorm';
+import 'reflect-metadata';
+import { ApiProperty } from '@nestjs/swagger';
 
 @Entity('<%= table.tableName %>')
 export class <%= table.entityName %> {
+
   <% table.columns.forEach(column => { %>
   <% if (column.isPrimaryKey) { %>
-  @PrimaryGeneratedColumn()
+  @PrimaryColumn({
+    type: '<%= column.dataType %>'<% if (column.columnDefault) { %>, default: "<%- column.columnDefault %>" <% } %>
+  })
   <% } else { %>
   @Column({
     type: '<%= column.dataType %>',
     <% if (column.characterMaximumLength) { %> length: <%= column.characterMaximumLength %>, <% } %>
-    nullable: <%= column.isNullable ? 'true' : 'false' %>,
-    <% if (column.columnDefault) { %> default: '<%= column.columnDefault %>', <% } %>
+    nullable: <%= column.isNullable ? 'true' : 'false' %><% if (column.columnDefault) { %>, default: "<%- column.columnDefault %>" <% } %>
   })
   <% } %>
+  @ApiProperty({ description: "<%= column.columnComment || '' %>"<% if (column.isNullable) { %>, nullable: true <% } %> })
   public <%= column.attributeName %>: <%= column.type %>;
 
   <% }); %>
 
+  <% if (table.relations.length) { %>
   <% table.relations.forEach(relation => { %>
   @OneToOne(() => <%= relation.foreignTableName %>, { nullable: true })
   @JoinColumn({ name: '<%= relation.columnName %>' })
   public <%= relation.attributeName %>: <%= relation.foreignTableName %>;
   <% }); %>
+  <% } %>
+
+  toString() {
+    <% const primaryKeyColumn = table.columns.find(col => col.isPrimaryKey); %>
+    <% const displayColumn = table.columns.find(col => col.attributeName === 'nome') || table.columns[0]; %>
+    return `${this.<%= primaryKeyColumn ? primaryKeyColumn.attributeName : 'id' %>} - ${this.<%= displayColumn.attributeName %>}`;
+  }
 }
