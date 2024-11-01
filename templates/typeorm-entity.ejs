@@ -12,9 +12,8 @@ export class <%= table.entityName %> {
   })
   <% } else { %>
   @Column({
-    type: '<%= column.dataType %>',
-    <% if (column.characterMaximumLength) { %> length: <%= column.characterMaximumLength %>, <% } %>
-    nullable: <%= column.isNullable ? 'true' : 'false' %><% if (column.columnDefault) { %>, default: "<%- column.columnDefault %>" <% } %>
+    type: '<%= column.dataType %>'<% if (column.characterMaximumLength) { %>, length: <%= column.characterMaximumLength %><% } %>,
+    nullable: <%= column.isNullable %><% if (column.columnDefault) { %>, default: "<%- column.columnDefault %>" <% } %>
   })
   <% } %>
   @ApiProperty({ description: "<%= column.columnComment || '' %>"<% if (column.isNullable) { %>, nullable: true <% } %> })
