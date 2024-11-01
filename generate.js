@@ -15,12 +15,15 @@ const entitiesOutputDir = path.join(__dirname, 'build/src/app/entities');
 if (!fs.existsSync(entitiesOutputDir)) {
 	fs.mkdirSync(entitiesOutputDir, { recursive: true });
 }
-// Carrega o template EJS para entidades
+// Carrega o template EJS para serviços
 const servicesTemplatePath = path.join(__dirname, 'templates/services.ejs');
 const servicesTemplateContent = fs.readFileSync(servicesTemplatePath, 'utf-8');
-// Carrega o template EJS para entidades
+// Carrega o template EJS para controllers
 const controllersTemplatePath = path.join(__dirname, 'templates/controllers.ejs');
 const controllersTemplateContent = fs.readFileSync(controllersTemplatePath, 'utf-8');
+// Carrega o template EJS para dtos
+const dtosTemplatePath = path.join(__dirname, 'templates/dtos.ejs');
+const dtosTemplateContent = fs.readFileSync(dtosTemplatePath, 'utf-8');
 
 // Gera um arquivo separado para cada entidade
 metadataJSONContent.schema.forEach(table => {
@@ -54,4 +57,12 @@ metadataJSONContent.schema.forEach(table => {
 	// Salva o arquivo para o Controller específico
 	fs.writeFileSync(controllersOutputPath, controllersContentOutput);
 	console.log(`Controller ${table.entityName}Controller.ts gerada com sucesso em ${controllersOutputPath}`);
+
+	// Gera um arquivo separado para cada DTOs
+	const dtosContentOutput = ejs.render(dtosTemplateContent, { table });
+	// Define o nome do arquivo com base no nome do DTOs
+	const dtosOutputPath = path.join(moduleOutputDir, `${table.entityName}DTO.ts`);
+	// Salva o arquivo para o DTOs específico
+	fs.writeFileSync(dtosOutputPath, dtosContentOutput);
+	console.log(`DTO ${table.entityName}DTO.ts gerada com sucesso em ${dtosOutputPath}`);
 });

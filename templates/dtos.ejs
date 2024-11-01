@@ -1,0 +1,36 @@
+import { IsString, IsNotEmpty, MaxLength, IsOptional, IsNumber, IsBoolean, IsUUID, IsDate } from "class-validator";
+import { ApiProperty } from "@nestjs/swagger";
+import { I<%= table.entityName %>QueryDTO, I<%= table.entityName %>PersistDTO } from "./<%= table.tableName %>.interface";
+
+/**
+ * Data Transfer Object for <%= table.entityName %>.
+ *
+ * Utilizado para transferir dados entre a camada de persistência e a camada de controle,
+ * ocultando chaves primárias e datas automáticas, enquanto expõe os external_id e outras
+ * informações de negócio relevantes.
+ */
+export class <%= table.entityName %>QueryDTO implements I<%= table.entityName %>QueryDTO {
+  <% table.columns.forEach(column => { %>
+  <% if (column.isNullable) { %>@IsOptional()<% } else { %>@IsNotEmpty()<% } %>
+  <% if (column.type === 'string') { %>@IsString()<% } else if (column.type === 'number') { %>@IsNumber()<% } else if (column.type === 'boolean') { %>@IsBoolean()<% } else if (column.type === 'Date') { %>@IsDate()<% } %>
+  <% if (column.characterMaximumLength) { %>@MaxLength(<%= column.characterMaximumLength %>)<% } %>
+  @ApiProperty({
+    example: "exemplo",
+    description: "<%= column.columnComment || 'Descrição do campo.' %>"
+  })
+  public <%= column.attributeName %>: <%= column.type %>;
+  <% }); %>
+}
+
+export class <%= table.entityName %>PersistDTO implements I<%= table.entityName %>PersistDTO {
+  <% table.columns.forEach(column => { %>
+  <% if (column.isNullable) { %>@IsOptional()<% } else { %>@IsNotEmpty()<% } %>
+  <% if (column.type === 'string') { %>@IsString()<% } else if (column.type === 'number') { %>@IsNumber()<% } else if (column.type === 'boolean') { %>@IsBoolean()<% } else if (column.type === 'Date') { %>@IsDate()<% } %>
+  <% if (column.characterMaximumLength) { %>@MaxLength(<%= column.characterMaximumLength %>)<% } %>
+  @ApiProperty({
+    example: "exemplo",
+    description: "<%= column.columnComment || 'Descrição do campo.' %>"
+  })
+  public <%= column.attributeName %>: <%= column.type %>;
+  <% }); %>
+}
