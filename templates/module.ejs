@@ -1,0 +1,19 @@
+import { Module } from "@nestjs/common";
+import { HttpModule } from "@nestjs/axios";
+import { <%= table.entityName %>Service } from "./<%= table.entityName.toLowerCase() %>.service";
+import { EnvironmentModule } from "../config/environment.module";
+import { <%= table.entityName %>Controller } from "./<%= table.entityName.toLowerCase() %>.controller";
+import { JwtAuthGuardModule } from "../middleware/jwt-auth.guard.module";
+import { JwtAuthGuard } from "../middleware/jwt-auth.guard";
+
+@Module({
+  imports: [
+    HttpModule,
+    EnvironmentModule, // Importa o EnvironmentModule para usar o EnvironmentService e o DataSourceService
+    JwtAuthGuardModule, // Importa o JwtAuthGuardModule para usar o JwtAuthGuard
+  ],
+  providers: [<%= table.entityName %>Service, JwtAuthGuard], // Registra-os como provedores para serem utilizados por este módulo
+  exports: [<%= table.entityName %>Service], // Exporta o <%= table.entityName %>Service para que possa ser injetado em outros módulos
+  controllers: [<%= table.entityName %>Controller],
+})
+export class <%= table.entityName %>Module {}
