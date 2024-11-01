@@ -1,0 +1,104 @@
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { DataSourceService } from '../config/datasource.service';
+import { <%= table.entityName %> } from '@app/entities/<%= table.tableName %>';
+import { <%= table.entityName %>QueryDTO, <%= table.entityName %>PersistDTO } from './<%= table.tableName %>.dto';
+
+@Injectable()
+export class <%= table.entityName %>Service {
+  private readonly logger = new Logger(<%= table.entityName %>Service.name);
+
+  constructor(private dataSourceService: DataSourceService) {}
+
+  async create(dto: <%= table.entityName %>PersistDTO): Promise<<%= table.entityName %>QueryDTO> {
+    this.logger.log(`Creating <%= table.entityName.toLowerCase() %>`);
+    const newEntity = new <%= table.entityName %>();
+    <% table.columns.forEach(column => { %>
+    newEntity.<%= column.attributeName %> = dto.<%= column.attributeName %>;
+    <% }); %>
+
+    const savedEntity = await this.dataSourceService
+      .getDataSource()
+      .getRepository(<%= table.entityName %>)
+      .save(newEntity);
+
+    return this.toDTO(savedEntity);
+  }
+
+  async findByExternalId(external_id: string): Promise<<%= table.entityName %>QueryDTO> {
+    this.logger.log(`Finding <%= table.entityName.toLowerCase() %> with External ID: ${external_id}`);
+    const entity = await this.dataSourceService
+      .getDataSource()
+      .getRepository(<%= table.entityName %>)
+      .findOne({
+        where: { external_id },
+      });
+
+    if (!entity) {
+      throw new NotFoundException('<%= table.entityName %> not found');
+    }
+
+    return this.toDTO(entity);
+  }
+
+  async findAll(): Promise<<%= table.entityName %>QueryDTO[]> {
+    this.logger.log('Finding all <%= table.entityName.toLowerCase() %>s');
+    const entities = await this.dataSourceService
+      .getDataSource()
+      .getRepository(<%= table.entityName %>)
+      .find();
+    return entities.map((entity: <%= table.entityName %>) => this.toDTO(entity));
+  }
+
+  async updateByExternalId(
+    external_id: string,
+    dto: <%= table.entityName %>PersistDTO
+  ): Promise<<%= table.entityName %>QueryDTO> {
+    this.logger.log(`Updating <%= table.entityName.toLowerCase() %> with External ID: ${external_id}`);
+    let entity = await this.dataSourceService
+      .getDataSource()
+      .getRepository(<%= table.entityName %>)
+      .findOne({ where: { external_id } });
+
+    if (!entity) {
+      throw new NotFoundException('<%= table.entityName %> not found');
+    }
+    <% table.columns.forEach(column => { %>
+    entity.<%= column.attributeName %> = dto.<%= column.attributeName %>;
+    <% }); %>
+
+    const updatedEntity = await this.dataSourceService
+      .getDataSource()
+      .getRepository(<%= table.entityName %>)
+      .save(entity);
+
+    return this.toDTO(updatedEntity);
+  }
+
+  async deleteByExternalId(external_id: string): Promise<void> {
+    this.logger.log(`Deleting <%= table.entityName.toLowerCase() %> with External ID: ${external_id}`);
+    const entity = await this.dataSourceService
+      .getDataSource()
+      .getRepository(<%= table.entityName %>)
+      .findOne({ where: { external_id } });
+
+    if (!entity) {
+      throw new NotFoundException('<%= table.entityName %> not found');
+    }
+
+    await this.dataSourceService
+      .getDataSource()
+      .getRepository(<%= table.entityName %>)
+      .softDelete({ external_id: entity.external_id });
+  }
+
+  private toDTO(entity: <%= table.entityName %>): <%= table.entityName %>QueryDTO {
+    this.logger.log(`Mapping entity to DTO: ${entity.external_id}`);
+    const dto = new <%= table.entityName %>QueryDTO();
+    <% table.columns.forEach(column => { %>
+    dto.<%= column.attributeName %> = entity.<%= column.attributeName %>;
+    <% }); %>
+
+    dto.external_id = entity.external_id;
+    return dto;
+  }
+}

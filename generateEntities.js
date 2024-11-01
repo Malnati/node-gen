@@ -4,29 +4,39 @@ const path = require('path');
 
 // Carrega o JSON com os metadados do banco de dados
 const metadataPath = path.join(__dirname, 'build/db.metadata.json');
-const metadata = JSON.parse(fs.readFileSync(metadataPath, 'utf-8'));
+const metadataJSONContent = JSON.parse(fs.readFileSync(metadataPath, 'utf-8'));
 
 // Carrega o template EJS para entidades
-const templatePath = path.join(__dirname, 'templates/typeorm-entity.ejs');
-const template = fs.readFileSync(templatePath, 'utf-8');
-
+const entitiesTemplatePath = path.join(__dirname, 'templates/typeorm-entity.ejs');
+const entitiesTemplateContent = fs.readFileSync(entitiesTemplatePath, 'utf-8');
 // Caminho para salvar os arquivos de saída
-const outputDir = path.join(__dirname, 'build/src/app/entities');
-
+const entitiesOutputDir = path.join(__dirname, 'build/src/app/entities');
 // Cria o diretório de saída, se não existir
-if (!fs.existsSync(outputDir)) {
-  fs.mkdirSync(outputDir, { recursive: true });
+if (!fs.existsSync(entitiesOutputDir)) {
+	fs.mkdirSync(entitiesOutputDir, { recursive: true });
+}
+// Carrega o template EJS para entidades
+const servicesTemplatePath = path.join(__dirname, 'templates/services.ejs');
+const servicesTemplateContent = fs.readFileSync(servicesTemplatePath, 'utf-8');
+// Caminho para salvar os arquivos de saída
+const servicesOutputDir = path.join(__dirname, 'build/src/app/services');
+// Cria o diretório de saída, se não existir
+if (!fs.existsSync(servicesOutputDir)) {
+  fs.mkdirSync(servicesOutputDir, { recursive: true });
 }
 
 // Gera um arquivo separado para cada entidade
-metadata.schema.forEach(table => {
-  const output = ejs.render(template, { table });
-
+metadataJSONContent.schema.forEach(table => {
+  const entitiesContentOutput = ejs.render(entitiesTemplateContent, { table });
   // Define o nome do arquivo com base no nome da entidade
-  const outputPath = path.join(outputDir, `${table.entityName}.ts`);
-
+  const entitiesOutputPath = path.join(entitiesOutputDir, `${table.entityName}.ts`);
   // Salva o arquivo para a entidade específica
-  fs.writeFileSync(outputPath, output);
-
-  console.log(`Entidade ${table.entityName} gerada com sucesso em ${outputPath}`);
+  fs.writeFileSync(entitiesOutputPath, entitiesContentOutput);
+  console.log(`Entidade ${table.entityName} gerada com sucesso em ${entitiesOutputPath}`);
+  const servicesContentOutput = ejs.render(servicesTemplateContent, { table });
+  // Define o nome do arquivo com base no nome da entidade
+  const serviceOutputPath = path.join(servicesOutputDir, `${table.entityName}Service.ts`);
+  // Salva o arquivo para a entidade específica
+  fs.writeFileSync(serviceOutputPath, servicesContentOutput);
+  console.log(`Entidade ${table.entityName} gerada com sucesso em ${entitiesOutputPath}`);
 });
