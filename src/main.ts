@@ -7,7 +7,6 @@ import { ConfigUtil } from "./utils/ConfigUtil";
 import { TypeORMEntityGenerator } from "./typeorm-entity-generator";
 import { AppModuleGenerator } from "./app-module-generator";
 import { MainFileGenerator } from "./main-generator";
-import { EnvGenerator } from "./env-generator";
 import { DataSourceGenerator } from "./datasource-generator";
 import fs from 'fs-extra';
 import { DiagramGenerator } from "./diagram-generator";
@@ -194,11 +193,6 @@ async function main() {
                 case "main": {
                     const mainGenerator = new MainFileGenerator(schemaPath, dbConfig);
                     return mainGenerator.generateMainFile();
-                }
-
-                case "env": {
-                    const envGenerator = new EnvGenerator(schemaPath, dbConfig);
-                    return envGenerator.generateEnvFile();
                 }
 
                 case "datasource": {

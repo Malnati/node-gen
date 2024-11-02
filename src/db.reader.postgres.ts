@@ -171,6 +171,11 @@ export class DbReader {
       databaseName: this.config.database,
       projectName: projectName,
       schema: schemaInfo,
+	  host: this.config.host,
+	  port: this.config.port,
+	  user: this.config.user,
+	  password: this.config.password,
+
     };
     fs.writeFileSync(filePath, JSON.stringify(output, null, 2));
 

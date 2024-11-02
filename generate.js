@@ -49,10 +49,20 @@ const packageTemplatePath = path.join(__dirname, 'templates/package.ejs');
 const packageTemplateContent = fs.readFileSync(packageTemplatePath, 'utf-8');
 const packageContentOutput = ejs.render(packageTemplateContent, metadataJSONContent);
 // Define o nome do arquivo com base no nome da package.json
-const packageOutputPath = path.join(rootOutputDir, 'package.md');
+const packageOutputPath = path.join(rootOutputDir, 'package.json');
 // Salva o arquivo para a package.json específica
 fs.writeFileSync(packageOutputPath, packageContentOutput);
 console.log(`package.json gerada com sucesso em ${packageOutputPath}`);
+
+// Carrega o template EJS para .env
+const envTemplatePath = path.join(__dirname, 'templates/env.ejs');
+const envTemplateContent = fs.readFileSync(envTemplatePath, 'utf-8');
+const envContentOutput = ejs.render(envTemplateContent, metadataJSONContent);
+// Define o nome do arquivo com base no nome da env.json
+const envOutputPath = path.join(rootOutputDir, '.env');
+// Salva o arquivo para a env.json específica
+fs.writeFileSync(envOutputPath, envContentOutput);
+console.log(`.env gerada com sucesso em ${envOutputPath}`);
 
 
 // Gera um arquivo separado para cada entidade
