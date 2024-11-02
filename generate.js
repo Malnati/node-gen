@@ -74,15 +74,25 @@ const mainOutputPath = path.join(rootOutputDir, 'src/app/main.ts');
 fs.writeFileSync(mainOutputPath, mainContentOutput);
 console.log(`main.ts gerada com sucesso em ${mainOutputPath}`);
 
-// Carrega o template EJS para main.ts
+// Carrega o template EJS para DataSource.ts
 const dsTemplatePath = path.join(__dirname, 'templates/datasource.ejs');
 const dsTemplateContent = fs.readFileSync(dsTemplatePath, 'utf-8');
 const dsContentOutput = ejs.render(dsTemplateContent, metadataJSONContent);
-// Define o nome do arquivo com base no nome da ds.json
+// Define o nome do arquivo com base no nome da DataSource.ts
 const dsOutputPath = path.join(rootOutputDir, 'src/app/config/DataSource.ts');
-// Salva o arquivo para a ds.ts específica
+// Salva o arquivo para a DataSource.ts específica
 fs.writeFileSync(dsOutputPath, dsContentOutput);
-console.log(`ds.ts gerada com sucesso em ${dsOutputPath}`);
+console.log(`DataSource.ts gerada com sucesso em ${dsOutputPath}`);
+
+// Carrega o template EJS para AppModule.ts
+const appModuleTemplatePath = path.join(__dirname, 'templates/app-module.ejs');
+const appModuleTemplateContent = fs.readFileSync(appModuleTemplatePath, 'utf-8');
+const appModuleContentOutput = ejs.render(appModuleTemplateContent, metadataJSONContent);
+// Define o nome do arquivo com base no nome da AppModule.ts
+const appModuleOutputPath = path.join(rootOutputDir, 'src/app/AppModule.ts');
+// Salva o arquivo para a AppModule.ts específica
+fs.writeFileSync(appModuleOutputPath, appModuleContentOutput);
+console.log(`AppModule.ts gerada com sucesso em ${appModuleOutputPath}`);
 
 
 // Gera um arquivo separado para cada entidade
