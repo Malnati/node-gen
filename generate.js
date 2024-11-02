@@ -69,10 +69,20 @@ const mainTemplatePath = path.join(__dirname, 'templates/main.ejs');
 const mainTemplateContent = fs.readFileSync(mainTemplatePath, 'utf-8');
 const mainContentOutput = ejs.render(mainTemplateContent, metadataJSONContent);
 // Define o nome do arquivo com base no nome da main.json
-const mainOutputPath = path.join(rootOutputDir, 'app/main.ts');
+const mainOutputPath = path.join(rootOutputDir, 'src/app/main.ts');
 // Salva o arquivo para a main.ts específica
 fs.writeFileSync(mainOutputPath, mainContentOutput);
 console.log(`main.ts gerada com sucesso em ${mainOutputPath}`);
+
+// Carrega o template EJS para main.ts
+const dsTemplatePath = path.join(__dirname, 'templates/datasource.ejs');
+const dsTemplateContent = fs.readFileSync(dsTemplatePath, 'utf-8');
+const dsContentOutput = ejs.render(dsTemplateContent, metadataJSONContent);
+// Define o nome do arquivo com base no nome da ds.json
+const dsOutputPath = path.join(rootOutputDir, 'src/app/config/DataSource.ts');
+// Salva o arquivo para a ds.ts específica
+fs.writeFileSync(dsOutputPath, dsContentOutput);
+console.log(`ds.ts gerada com sucesso em ${dsOutputPath}`);
 
 
 // Gera um arquivo separado para cada entidade
