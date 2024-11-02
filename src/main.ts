@@ -6,7 +6,6 @@ import { DbReader } from "./db.reader.postgres";
 import { ConfigUtil } from "./utils/ConfigUtil";
 import { TypeORMEntityGenerator } from "./typeorm-entity-generator";
 import { AppModuleGenerator } from "./app-module-generator";
-import { MainFileGenerator } from "./main-generator";
 import { DataSourceGenerator } from "./datasource-generator";
 import fs from 'fs-extra';
 import { DiagramGenerator } from "./diagram-generator";
@@ -188,11 +187,6 @@ async function main() {
                 case "app-module": {
                     const appModuleGenerator = new AppModuleGenerator(schemaPath, dbConfig);
                     return appModuleGenerator.generateAppModule();
-                }
-
-                case "main": {
-                    const mainGenerator = new MainFileGenerator(schemaPath, dbConfig);
-                    return mainGenerator.generateMainFile();
                 }
 
                 case "datasource": {

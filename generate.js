@@ -64,6 +64,16 @@ const envOutputPath = path.join(rootOutputDir, '.env');
 fs.writeFileSync(envOutputPath, envContentOutput);
 console.log(`.env gerada com sucesso em ${envOutputPath}`);
 
+// Carrega o template EJS para main.ts
+const mainTemplatePath = path.join(__dirname, 'templates/main.ejs');
+const mainTemplateContent = fs.readFileSync(mainTemplatePath, 'utf-8');
+const mainContentOutput = ejs.render(mainTemplateContent, metadataJSONContent);
+// Define o nome do arquivo com base no nome da main.json
+const mainOutputPath = path.join(rootOutputDir, 'app/main.ts');
+// Salva o arquivo para a main.ts específica
+fs.writeFileSync(mainOutputPath, mainContentOutput);
+console.log(`main.ts gerada com sucesso em ${mainOutputPath}`);
+
 
 // Gera um arquivo separado para cada entidade
 metadataJSONContent.schema.forEach(table => {
