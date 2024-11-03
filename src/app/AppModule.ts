@@ -4,6 +4,7 @@ import { ConfigModule } from '@nestjs/config';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { VersionModule } from './version/version.module';
 import { EnvironmentModule } from './config/environment.module';
+import { GeneratorModule } from './generator/generator.module';
 
 @Module({
 	imports: [
@@ -19,6 +20,7 @@ import { EnvironmentModule } from './config/environment.module';
 		}),
 		EnvironmentModule,
 		VersionModule,
+		GeneratorModule
 	],
 })
 export class AppModule {}
