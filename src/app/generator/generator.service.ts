@@ -28,7 +28,7 @@ export class GeneratorService {
     const promises = components.map((component) => this.executeComponentGeneration(component, schemaPath, dbConfig));
 
     await Promise.all(promises);
-    await this.runNpmInstall(dbConfig.outputDir);
+    // await this.runNpmInstall(dbConfig.outputDir);
     await this.runPrettier(dbConfig.outputDir);
 
     const zipPath = path.join(dbConfig.outputDir, 'generated_code.zip');
@@ -51,7 +51,7 @@ export class GeneratorService {
 
   private async copyStaticFiles(outputDir: string) {
     try {
-      const staticPath = path.resolve(__dirname, './static');
+      const staticPath = path.resolve('./static');
       await fsextra.copy(staticPath, outputDir, { overwrite: true });
       console.log('Arquivos estáticos copiados com sucesso.');
     } catch (err) {
