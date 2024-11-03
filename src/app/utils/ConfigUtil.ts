@@ -1,7 +1,7 @@
 // src/utils/ConfigUtil.ts
 
 import { Command } from 'commander';
-import { IDbReaderConfig, TComponents } from '../interfaces';
+import { IDbReaderConfig, TComponents } from '../generator/interfaces';
 
 export class ConfigUtil {
   public static getConfig(): IDbReaderConfig {
@@ -34,7 +34,7 @@ export class ConfigUtil {
       password: options.password,
       outputDir: options.outputDir,
       components: components,
-      dbType: options.dbType as 'mysql' | 'postgres', 
+      dbType: options.dbType as 'mysql' | 'postgres',
     };
   }
 }

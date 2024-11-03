@@ -132,7 +132,7 @@ rm -rf $7
 npm run build
 
 # executa o gerador de codigo
-npx ts-node src/generator.ts \
+npx ts-node src/app/generator/generator.ts \
                 --app $1 \
                 --host $2 \
                 --port $3 \

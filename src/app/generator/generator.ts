@@ -5,7 +5,7 @@ const ejs = require('ejs');
 const path = require('path');
 import * as readline from "readline";
 import { DbReader } from "./db.metadata.generator";
-import { ConfigUtil } from "./utils/ConfigUtil";
+import { ConfigUtil } from "../utils/ConfigUtil";
 import fsextra from 'fs-extra';
 import { DiagramGenerator } from "./diagram-generator";
 import { exec } from "child_process";
@@ -42,7 +42,7 @@ function askQuestion(query: string): Promise<string> {
 
 async function copyStaticFiles(destDir: string) {
 	try {
-		const staticPath = path.resolve(__dirname, '../static');
+		const staticPath = path.resolve(__dirname, './static');
 		await fsextra.copy(staticPath, destDir, {
 			overwrite: true,
 		});

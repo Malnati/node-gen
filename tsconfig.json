@@ -19,5 +19,5 @@
   "include": [
     "./**/*.ts"
   ],       // Inclui todos os arquivos .ts dentro de src/
-  "exclude": ["node_modules", "dist", "build", "static"] // Exclui node_modules e dist do processo de compilação
+  "exclude": ["node_modules", "dist", "build", "src/app/generator/static", "public"] // Exclui do processo de compilação
 }
