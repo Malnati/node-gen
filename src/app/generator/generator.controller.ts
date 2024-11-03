@@ -2,10 +2,10 @@ import { Body, Controller, Logger, Post, Res, HttpException, HttpStatus } from "
 import * as fs from 'fs';
 import { Response } from 'express';
 import { GeneratorService } from "./generator.service";
-import { IDbReaderConfig } from "./interfaces";
+import { DbConfigDto } from "./db.config.dto"
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 
-@Controller("version")
+@Controller("Generator")
 @ApiTags("Code Generation")
 export class GeneratorController {
   private readonly logger = new Logger(GeneratorController.name);
@@ -28,7 +28,7 @@ export class GeneratorController {
   @ApiResponse({ status: 409, description: 'Conflito: item existente ou conflito nos dados fornecidos.' })
   @ApiResponse({ status: 500, description: 'Erro interno no servidor ao processar o pedido.' })
   @Post()
-  async generateCode(@Body() config: IDbReaderConfig, @Res() res: Response) {
+  async generateCode(@Body() config: DbConfigDto, @Res() res: Response) {
     try {
       const zipPath = await this.generatorService.generate(config);
 
