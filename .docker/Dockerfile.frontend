@@ -27,7 +27,7 @@ RUN ssh -T git@github.com || true
 RUN git clone git@github.com:Malnati/node-gen-fre.git .
 
 # Instala as dependências da aplicação
-RUN npm install
+RUN npm install --legacy-peer-deps
 
 # Constrói a aplicação para produção
 RUN npm run build
