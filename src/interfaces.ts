@@ -43,7 +43,7 @@ export interface IRelation {
   columnName: string;
   foreignTableName: string;
   foreignColumnName: string;
-  relationType: 'ManyToOne' | 'OneToOne' | 'OneToMany' | 'ManyToMany'; // Novo campo adicionado
+  relationType: 'ManyToOne' | 'OneToOne' | 'OneToMany' | 'ManyToMany';
 }
 
 export interface IDbReaderConfig {
@@ -55,7 +55,7 @@ export interface IDbReaderConfig {
   password: string;
   outputDir: string;
   components: TComponents;
-  dbType: 'mysql' | 'postgres'; 
+  dbType: 'mysql' | 'postgres';
 }
 
 export interface IGeneratorConfig {
@@ -64,9 +64,9 @@ export interface IGeneratorConfig {
 	schemaPath: string;
     outputDir: string;
     components: TComponents;
-    scripts?: Record<string, string>; // Novas propriedades para scripts
-    dependencies?: Record<string, string>; // Novas propriedades para dependências
-    devDependencies?: Record<string, string>; // Novas propriedades para devDependencies
+    scripts?: Record<string, string>;
+    dependencies?: Record<string, string>;
+    devDependencies?: Record<string, string>; 
 }
 
 export interface IGenerator {

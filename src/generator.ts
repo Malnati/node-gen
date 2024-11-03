@@ -148,7 +148,6 @@ async function main() {
 	await formatFiles(dbConfig.outputDir);
 	let schemaPath = path.join(dbConfig.outputDir, "db.metadata.json");
 
-	// Instancia `DbReader` passando o tipo de banco de dados
 	const dbReader = new DbReader(schemaPath, dbConfig, dbConfig.dbType);
 	await dbReader.getSchemaInfo();
 

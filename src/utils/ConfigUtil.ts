@@ -16,12 +16,11 @@ export class ConfigUtil {
       .option('-pw, --password <type>', 'Senha do banco de dados')
       .option('-o, --outputDir <type>', 'Diretório de saída para os arquivos gerados', './build')
       .option('-f, --components <type>', 'Especifique quais componentes gerar', 'entities')
-      .option('-t, --dbType <type>', 'Tipo de banco de dados (mysql ou postgres)', 'postgres') // dbType incluído aqui
+      .option('-t, --dbType <type>', 'Tipo de banco de dados (mysql ou postgres)', 'postgres')
       .parse(process.argv);
 
     const options = program.opts();
 
-    // Usar `TComponents` e separar os valores corretamente
     const components: TComponents = options.components
       .split(',')
       .map((c: string) => c.trim()) as TComponents;
@@ -35,7 +34,7 @@ export class ConfigUtil {
       password: options.password,
       outputDir: options.outputDir,
       components: components,
-      dbType: options.dbType as 'mysql' | 'postgres', // Tipagem explícita para evitar valores inesperados
+      dbType: options.dbType as 'mysql' | 'postgres', 
     };
   }
 }

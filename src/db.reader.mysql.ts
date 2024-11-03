@@ -25,14 +25,12 @@ export class DbReaderMysql {
     try {
       console.log('Connected to the MySQL database successfully.');
 
-      // Corrigindo o tipo para RowDataPacket[]
       const [tablesResult] = await connection.query<RowDataPacket[]>(`
         SELECT TABLE_NAME
         FROM information_schema.tables
         WHERE table_schema = ?
       `, [this.config.database]);
 
-      // Mapear as tabelas corretamente
       const tables = tablesResult.map((row: any) => row.TABLE_NAME);
       const schemaInfo: ITable[] = [];
 

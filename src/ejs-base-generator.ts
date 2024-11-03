@@ -24,7 +24,6 @@ export abstract class EJSBaseGenerator {
             // Criar o diretório se não existir
             fs.mkdirSync(path.dirname(filePath), { recursive: true });
 
-            // Escrever o conteúdo no arquivo
             fs.writeFileSync(filePath, content);
             console.log(`${path.basename(filePath)} generated at ${filePath}`);
         } catch (error) {
