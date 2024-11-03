@@ -22,8 +22,8 @@ export class DbConfigDto {
   @ApiProperty({ description: 'Senha do usuário para autenticação', example: 'postgres' })
 	password: string = 'postgres';
 
-  @ApiProperty({ description: 'Diretório onde os arquivos gerados serão salvos', example: './output' })
-	outputDir: string = './output';
+  @ApiProperty({ description: 'Diretório onde os arquivos gerados serão salvos', example: './build' })
+	outputDir: string = "./build";
 
   @ApiProperty({
 		description: 'Tipos de componentes a serem gerados',
