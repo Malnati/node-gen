@@ -8,7 +8,7 @@ WORKDIR /app
 RUN apk add --no-cache git openssh
 
 # Copia a chave privada para o container
-COPY ~/.ssh/id_docker_rsa /root/.ssh/id_docker_rsa
+COPY .docker/id_docker_rsa /root/.ssh/id_docker_rsa
 
 # Configura permissões seguras para a chave
 RUN chmod 600 /root/.ssh/id_docker_rsa
