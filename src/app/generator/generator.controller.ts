@@ -38,14 +38,17 @@ export class GeneratorController {
       // Garante que o caminho absoluto seja passado
       absoluteZipPath = path.resolve(zipPath);
 
+	  if (!fs.existsSync(absoluteZipPath)) {
+        throw new HttpException('Arquivo ZIP não encontrado', HttpStatus.INTERNAL_SERVER_ERROR);
+      }
+
       res.setHeader('Content-Type', 'application/zip');
-      res.setHeader('Content-Disposition', `attachment; filename=generated_code.zip`);
+      res.setHeader('Content-Disposition', `attachment; filename=${path.basename(absoluteZipPath)}`);
       res.sendFile(absoluteZipPath, (err) => {
         if (err) {
           this.logger.error(`Erro ao enviar o arquivo: ${err.message}`);
           throw new HttpException('Falha ao enviar o arquivo zip.', HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        // fs.unlinkSync(absoluteZipPath); // Exclui o arquivo zip temporário após o envio
       });
     } catch (error: any) {
       this.handleException(`${error} [zipPath: ${zipPath}, absoluteZipPath: ${absoluteZipPath}]`, res);
