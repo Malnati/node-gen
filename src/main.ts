@@ -2,11 +2,9 @@ import 'reflect-metadata';
 import { NestFactory } from '@nestjs/core';
 import { MicroserviceOptions, Transport } from '@nestjs/microservices';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
-import { AppModule } from './app.module';
-import { DataSourceService } from './config/datasource.service';
-import { EnvironmentService } from './config/environment.service';
-import { HealthService } from './health/health.service';
-import { AppReadinessService } from './config/app.readiness.service';
+import { AppModule } from './app/AppModule';
+import { EnvironmentService } from './app/config/environment.service';
+import { AppReadinessService } from './app/config/app.readiness.service';
 
 async function bootstrap() {
 	const app = await NestFactory.create(AppModule);
@@ -31,28 +29,7 @@ async function bootstrap() {
 	const microservicePort =
 		app.get(EnvironmentService).getEnv().get<string>('PORT') || '3001';
 
-	const ds = app.get(DataSourceService).getDataSource();
-	ds.initialize()
-		.then(() => {
-			console.log('Data Source has been initialized!');
-		})
-		.catch((error: any) =>
-			console.log('Data Source initialization error:', error)
-		);
-
 	if (!isProd) {
-		const sessionHealthCheck = await app
-			.get(HealthService)
-			.verifyEndpointSessionHealthCheck()
-			.catch((error: any) =>
-				console.log('Session health check failed:', error)
-			);
-
-		if (sessionHealthCheck) {
-			console.log('Session Token JWT microservice is UP!');
-		} else {
-			throw new Error('Session Token JWT microservice is DOWN!');
-		}
 
 		const config = new DocumentBuilder()
 			.setTitle(microserviceName)

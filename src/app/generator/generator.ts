@@ -249,7 +249,7 @@ async function main() {
 	const mainTemplateContent = fs.readFileSync(mainTemplatePath, 'utf-8');
 	const mainContentOutput = ejs.render(mainTemplateContent, metadataJSONContent);
 	// Define o nome do arquivo com base no nome da main.json
-	const mainOutputPath = path.join(dbConfig.outputDir, 'src/app/main.ts');
+	const mainOutputPath = path.join(dbConfig.outputDir, 'src/main.ts');
 	// Salva o arquivo para a main.ts específica
 	fs.writeFileSync(mainOutputPath, mainContentOutput);
 	console.log(`main.ts gerada com sucesso em ${mainOutputPath}`);
