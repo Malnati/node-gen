@@ -24,10 +24,10 @@ RUN ls -la /root/.ssh
 RUN ssh -T git@github.com || true
 
 # Clona o repositório diretamente no diretório de trabalho sem criar uma pasta
-RUN git clone git@github.com:Malnati/node-gen-fre.git .
+RUN git clone git@github.com:Malnati/node-gen-fre.git /app
 
 # Instala as dependências da aplicação
-RUN npm install --legacy-peer-deps
+RUN npm install
 
 # Constrói a aplicação para produção
 RUN npm run build
