@@ -4,6 +4,7 @@ import { Response } from 'express';
 import { GeneratorService } from "./generator.service";
 import { DbConfigDto } from "./db.config.dto"
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import path from "path";
 
 @Controller("Generator")
 @ApiTags("Code Generation")
@@ -29,20 +30,25 @@ export class GeneratorController {
   @ApiResponse({ status: 500, description: 'Erro interno no servidor ao processar o pedido.' })
   @Post()
   async generateCode(@Body() config: DbConfigDto, @Res() res: Response) {
+	let zipPath = '';
+	let absoluteZipPath = '';
     try {
-      const zipPath = await this.generatorService.generate(config);
+      zipPath = await this.generatorService.generate(config);
+
+      // Garante que o caminho absoluto seja passado
+      absoluteZipPath = path.resolve(zipPath);
 
       res.setHeader('Content-Type', 'application/zip');
       res.setHeader('Content-Disposition', `attachment; filename=generated_code.zip`);
-      res.sendFile(zipPath, (err) => {
+      res.sendFile(absoluteZipPath, (err) => {
         if (err) {
           this.logger.error(`Erro ao enviar o arquivo: ${err.message}`);
           throw new HttpException('Falha ao enviar o arquivo zip.', HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        fs.unlinkSync(zipPath); // Exclui o arquivo zip temporário após o envio
+        fs.unlinkSync(absoluteZipPath); // Exclui o arquivo zip temporário após o envio
       });
     } catch (error: any) {
-      this.handleException(error, res);
+      this.handleException(`${error} [zipPath: ${zipPath}, absoluteZipPath: ${absoluteZipPath}]`, res);
     }
   }
 
@@ -56,6 +62,7 @@ export class GeneratorController {
     } else if (error.name === 'ValidationError') {
       res.status(HttpStatus.BAD_REQUEST).json({ message: 'Dados inválidos. Verifique os parâmetros de entrada.' });
     } else {
+	  console.error(error);
       res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ message: 'Erro ao gerar o código. Tente novamente mais tarde.' });
     }
   }
