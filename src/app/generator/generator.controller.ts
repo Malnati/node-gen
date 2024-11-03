@@ -45,7 +45,7 @@ export class GeneratorController {
           this.logger.error(`Erro ao enviar o arquivo: ${err.message}`);
           throw new HttpException('Falha ao enviar o arquivo zip.', HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        fs.unlinkSync(absoluteZipPath); // Exclui o arquivo zip temporário após o envio
+        // fs.unlinkSync(absoluteZipPath); // Exclui o arquivo zip temporário após o envio
       });
     } catch (error: any) {
       this.handleException(`${error} [zipPath: ${zipPath}, absoluteZipPath: ${absoluteZipPath}]`, res);
