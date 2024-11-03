@@ -140,3 +140,7 @@ dist
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
+
+id_rsa
+ssh_config
+id_docker_rsa

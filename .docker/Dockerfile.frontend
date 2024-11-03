@@ -1,0 +1,24 @@
+# Use a imagem oficial do Node.js (ou a base que você utiliza)
+FROM node:18-alpine
+
+# Configuração do diretório de trabalho
+WORKDIR /app
+
+# Instala dependências para o Git e SSH
+RUN apk add --no-cache git openssh
+
+# Copia a chave privada para o container
+COPY ~/.ssh/id_docker_rsa /root/.ssh/id_docker_rsa
+
+# Configura permissões seguras para a chave
+RUN chmod 600 /root/.ssh/id_docker_rsa
+
+# Configura o SSH para usar essa chave específica
+RUN echo "Host github.com\n\tIdentityFile /root/.ssh/id_docker_rsa\n\tStrictHostKeyChecking no\n" >> /root/.ssh/config
+
+# Copia o restante dos arquivos da aplicação e instala as dependências
+COPY ../ ./
+RUN npm install --legacy-peer-deps
+
+# Comando para iniciar a aplicação
+CMD ["npm", "start"]

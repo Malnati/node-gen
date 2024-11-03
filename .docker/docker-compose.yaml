@@ -15,7 +15,20 @@ services:
       - DATABASE_PASSWORD=postgres
     depends_on:
       postgres:
-        condition: service_healthy
+        condition: service_healthy # A API aguarda o Postgres
+    networks:
+      - gerador-net
+
+  frontend:
+    build:
+      context: ..
+      dockerfile: .docker/Dockerfile.frontend
+    container_name: frontend
+    restart: always
+    ports:
+      - "3003:3000"  # Altere a porta conforme necessário
+    depends_on:
+      - api  # O frontend aguarda o backend
     networks:
       - gerador-net
 
