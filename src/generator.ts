@@ -4,13 +4,12 @@ const fs = require('fs');
 const ejs = require('ejs');
 const path = require('path');
 import * as readline from "readline";
-import { DbReader } from "./db.reader.postgres";
+import { DbReader } from "./db.metadata.generator";
 import { ConfigUtil } from "./utils/ConfigUtil";
 import fsextra from 'fs-extra';
 import { DiagramGenerator } from "./diagram-generator";
 import { exec } from "child_process";
 import * as prettier from "prettier";
-import { DbReaderMysql } from "./db.reader.mysql";
 import { ITable } from "./interfaces";
 
 const dbConfig = ConfigUtil.getConfig();
@@ -147,18 +146,11 @@ async function main() {
 	await copyStaticFiles(dbConfig.outputDir);
 	await removeNodeModules(dbConfig.outputDir);
 	await formatFiles(dbConfig.outputDir);
-	let schemaPath;
+	let schemaPath = path.join(dbConfig.outputDir, "db.metadata.json");
 
-	let dbReader;
-	if (dbConfig.dbType === 'mysql') {
-		dbReader = new DbReaderMysql(path.join(dbConfig.outputDir, "db.reader.mysql.json"), dbConfig);
-		schemaPath = path.join(dbConfig.outputDir, "db.reader.mysql.json");
-	} else if (dbConfig.dbType === 'postgres') {
-		dbReader = new DbReader(path.join(dbConfig.outputDir, "db.metadata.json"), dbConfig);
-		schemaPath = path.join(dbConfig.outputDir, "db.metadata.json");
-	} else {
-		throw new Error('Tipo de banco de dados não suportado');
-	}
+	// Instancia `DbReader` passando o tipo de banco de dados
+	const dbReader = new DbReader(schemaPath, dbConfig, dbConfig.dbType);
+	await dbReader.getSchemaInfo();
 
 	await dbReader.getSchemaInfo();
 

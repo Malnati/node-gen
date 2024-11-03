@@ -55,7 +55,7 @@ export interface IDbReaderConfig {
   password: string;
   outputDir: string;
   components: TComponents;
-  dbType: string;
+  dbType: 'mysql' | 'postgres'; 
 }
 
 export interface IGeneratorConfig {
