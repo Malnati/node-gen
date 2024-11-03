@@ -16,9 +16,17 @@ RUN chmod 600 /root/.ssh/id_docker_rsa
 # Configura o SSH para usar essa chave específica
 RUN echo "Host github.com\n\tIdentityFile /root/.ssh/id_docker_rsa\n\tStrictHostKeyChecking no\n" >> /root/.ssh/config
 
-# Copia o restante dos arquivos da aplicação e instala as dependências
-COPY ../ ./
-RUN npm install --legacy-peer-deps
+# Clona o repositório diretamente no diretório de trabalho sem criar uma pasta
+RUN git clone git@github.com:Malnati/node-gen-fre.git .
 
-# Comando para iniciar a aplicação
-CMD ["npm", "start"]
+# Instala as dependências da aplicação
+RUN npm install
+
+# Constrói a aplicação para produção
+RUN npm run build
+
+# Expõe a porta que o Vite irá utilizar para servir a aplicação
+EXPOSE 5173
+
+# Comando para iniciar a aplicação em modo de preview para produção
+CMD ["npm", "run", "serve"]
