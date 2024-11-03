@@ -1,28 +1,37 @@
+// src/app/generator/generator.controller.ts
 
-// src/app/version/version.controller.ts
-
-import { Controller, Get, Logger } from "@nestjs/common";
+import { Body, Controller, Logger, Post, Res } from "@nestjs/common";
+import * as fs from 'fs';
+import { Response } from 'express';
 import { ApiTags } from "@nestjs/swagger";
-import { execSync } from "child_process";
+import { GeneratorService } from "./generator.service";
+import { IDbReaderConfig } from "./interfaces";
 
 @Controller("version")
 @ApiTags("Version Check")
 export class GeneratorController {
   private readonly logger = new Logger(GeneratorController.name);
 
-  @Get()
-  async commit() {
+  constructor(private readonly generatorService: GeneratorService) {}
+
+  @Post()
+  async generateCode(@Body() config: IDbReaderConfig, @Res() res: Response) {
     try {
-      // Executando o comando e convertendo o Buffer de saída para string
-      const commitHash =
-        process.env.COMMIT_HASH ||
-        execSync("git rev-parse HEAD").toString().trim();
-      this.logger.log(`Commit Hash: ${commitHash}`);
-      return { commitHash }; // Retornando o hash do commit como um objeto
-    } catch (error) {
-      this.logger.error("Erro ao obter o hash do commit", error);
-      // Tratamento de erro ou retorno de uma mensagem de erro
-      return "Erro ao obter o hash do commit";
+      const service = new GeneratorService();
+      const zipPath = await service.generate(config);
+
+      res.setHeader('Content-Type', 'application/zip');
+      res.setHeader('Content-Disposition', `attachment; filename=generated_code.zip`);
+      res.sendFile(zipPath, (err) => {
+        if (err) {
+          this.logger.error(`Erro ao enviar o arquivo: ${err.message}`);
+        }
+        // Exclua o arquivo zip temporário após o envio
+        fs.unlinkSync(zipPath);
+      });
+    } catch (error: any) {
+      this.logger.error(`Erro durante a geração de código: ${error.message}`);
+      res.status(500).json({ message: 'Erro ao gerar o código.' });
     }
   }
 }
