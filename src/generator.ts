@@ -193,7 +193,7 @@ async function main() {
 	const entitiesTemplatePath = path.join(__dirname, 'templates/entities.ejs');
 	const entitiesTemplateContent = fs.readFileSync(entitiesTemplatePath, 'utf-8');
 	// Caminho para salvar os arquivos de saída
-	const entitiesOutputDir = path.join(__dirname, 'build/src/app/entities');
+	const entitiesOutputDir = path.join(dbConfig.outputDir, 'src/app/entities');
 	// Cria o diretório de saída, se não existir
 	if (!fs.existsSync(entitiesOutputDir)) {
 		fs.mkdirSync(entitiesOutputDir, { recursive: true });
@@ -286,7 +286,7 @@ async function main() {
 
 
 		// Caminho para salvar os arquivos de saída
-		const moduleOutputDir = path.join(__dirname, `build/src/app/${table.slugName}`);
+		const moduleOutputDir = path.join(dbConfig.outputDir, `src/app/${table.slugName}`);
 		// Cria o diretório de saída, se não existir
 		if (!fs.existsSync(moduleOutputDir)) {
 			fs.mkdirSync(moduleOutputDir, { recursive: true });
