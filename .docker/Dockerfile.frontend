@@ -13,8 +13,15 @@ COPY .docker/id_docker_rsa /root/.ssh/id_docker_rsa
 # Configura permissões seguras para a chave
 RUN chmod 600 /root/.ssh/id_docker_rsa
 
-# Configura o SSH para usar essa chave específica
-RUN echo "Host github.com\n\tIdentityFile /root/.ssh/id_docker_rsa\n\tStrictHostKeyChecking no\n" >> /root/.ssh/config
+# Copia o arquivo config para o diretório SSH
+COPY .docker/ssh_config /root/.ssh/config
+
+# Adiciona a chave do GitHub ao known_hosts para evitar o erro de verificação do host
+RUN ssh-keyscan github.com >> /root/.ssh/known_hosts
+
+# Verifique se a chave e a configuração estão corretas
+RUN ls -la /root/.ssh
+RUN ssh -T git@github.com || true
 
 # Clona o repositório diretamente no diretório de trabalho sem criar uma pasta
 RUN git clone git@github.com:Malnati/node-gen-fre.git .
