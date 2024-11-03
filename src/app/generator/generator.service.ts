@@ -12,7 +12,7 @@ import { zipDirectory } from '../utils/ZipUtil';
 
 @Injectable()
 export class GeneratorService {
-	
+
   async generate(dbConfig: IDbReaderConfig): Promise<string> {
     console.log('Iniciando geração de código...');
 
@@ -51,7 +51,7 @@ export class GeneratorService {
 
   private async copyStaticFiles(outputDir: string) {
     try {
-      const staticPath = path.resolve(__dirname, '../static');
+      const staticPath = path.resolve(__dirname, './static');
       await fsextra.copy(staticPath, outputDir, { overwrite: true });
       console.log('Arquivos estáticos copiados com sucesso.');
     } catch (err) {
