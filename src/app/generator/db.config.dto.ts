@@ -6,32 +6,32 @@ import { TComponents } from './interfaces';
 
 export class DbConfigDto {
 	@ApiProperty({ description: 'Nome da aplicação que utiliza o banco de dados', example: 'myApp' })
-	@IsNotEmpty({ message: 'O campo "host" é obrigatório.' })
+	@IsNotEmpty({ message: 'O campo "app" é obrigatório.' })
 	@IsString()
 	app: string = 'myApp';
 
-	@ApiProperty({ description: 'Host do banco de dados', example: 'localhost' })
-	@IsNotEmpty({ message: 'O campo "host" é obrigatório.' })
+	@ApiProperty({ description: 'Host do banco de dados', example: 'postgres' })
+	@IsNotEmpty({ message: 'O campo "postgres" é obrigatório.' })
 	@IsString()
 	host: string = "localhost";
 
 	@ApiProperty({ description: 'Porta de conexão com o banco de dados', example: 5432 })
-	@IsNotEmpty({ message: 'O campo "host" é obrigatório.' })
+	@IsNotEmpty({ message: 'O campo "port" é obrigatório.' })
 	@IsNumber()
 	port: number = 5432;
 
 	@ApiProperty({ description: 'Nome do banco de dados', example: 'postgres' })
-	@IsNotEmpty({ message: 'O campo "host" é obrigatório.' })
+	@IsNotEmpty({ message: 'O campo "database" é obrigatório.' })
 	@IsString()
 	database: string = 'postgres';
 
 	@ApiProperty({ description: 'Nome do usuário para autenticação no banco de dados', example: 'postgres' })
-	@IsNotEmpty({ message: 'O campo "host" é obrigatório.' })
+	@IsNotEmpty({ message: 'O campo "user" é obrigatório.' })
 	@IsString()
 	user: string = 'postgres';
 
 	@ApiProperty({ description: 'Senha do usuário para autenticação', example: 'postgres' })
-	@IsNotEmpty({ message: 'O campo "host" é obrigatório.' })
+	@IsNotEmpty({ message: 'O campo "password" é obrigatório.' })
 	@IsString()
 	password: string = 'postgres';
 
