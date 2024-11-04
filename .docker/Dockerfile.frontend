@@ -5,7 +5,7 @@ FROM node:18-alpine
 WORKDIR /app
 
 # Instala dependências para o Git e SSH
-RUN apk add --no-cache git openssh
+RUN apk add --no-cache git openssh postgresql-client
 
 # Copia a chave privada para o container
 COPY .docker/id_docker_rsa /root/.ssh/id_docker_rsa

@@ -5,7 +5,7 @@ FROM node:18-alpine
 WORKDIR /app
 
 # Instala dependências para o node-gyp, Python e ferramentas de build
-RUN apk add --no-cache python3 py3-pip make g++ && ln -sf python3 /usr/bin/python
+RUN apk add --no-cache python3 py3-pip make g++ && ln -sf python3 /usr/bin/python postgresql-client
 
 # Copia o package.json e package-lock.json para o diretório de trabalho
 COPY ../package*.json ./
