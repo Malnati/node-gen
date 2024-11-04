@@ -43,12 +43,17 @@ export class GeneratorController {
 
 			res.setHeader('Content-Type', 'application/zip');
 			res.setHeader('Content-Disposition', `attachment; filename=${path.basename(absoluteZipPath)}`);
+
+			// Envia o arquivo e encerra a resposta
 			res.sendFile(absoluteZipPath, (err) => {
 				if (err) {
 					this.logger.error(`Erro ao enviar o arquivo: ${err.message}`);
-					throw new HttpException('Falha ao enviar o arquivo zip.', HttpStatus.INTERNAL_SERVER_ERROR);
+					res.status(HttpStatus.INTERNAL_SERVER_ERROR).send('Falha ao enviar o arquivo zip.');
+				} else {
+					res.end();  // Finaliza a resposta explicitamente
 				}
 			});
+
 		} catch (error: any) {
 			this.logger.error(`Erro durante a geração de código: ${error.message}`);
 			if (error instanceof HttpException) {
