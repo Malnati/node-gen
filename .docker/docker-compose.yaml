@@ -26,7 +26,7 @@ services:
     container_name: frontend
     restart: always
     ports:
-      - "3003:4173"
+      - "3003:3001"
     depends_on:
       - api  # O frontend aguarda o backend
     networks:

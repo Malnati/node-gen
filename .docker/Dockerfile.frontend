@@ -36,4 +36,4 @@ RUN npm run build
 EXPOSE 5173
 
 # Comando para iniciar a aplicação em modo de preview para produção
-CMD ["npm", "run", "serve"]
+CMD ["sh", "-c", "git fetch && git pull && npm run serve"]
