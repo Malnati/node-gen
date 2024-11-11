@@ -15,30 +15,53 @@ import { validateDatabaseConnection } from '../utils/PostgresUtil';
 export class GeneratorService {
 	private readonly logger = new Logger(GeneratorService.name);
 
-  async generate(dbConfig: IDbReaderConfig): Promise<string> {
-    this.logger.log('Iniciando geração de código...');
+	async generate(dbConfig: IDbReaderConfig): Promise<string> {
+		const startTime = Date.now();
+		this.logger.log('Iniciando geração de código...');
 
-	validateDatabaseConnection(dbConfig, this.logger);
+		try {
+			validateDatabaseConnection(dbConfig, this.logger);
+			this.logger.log('Conexão ao banco validada.');
 
-    await this.copyStaticFiles(dbConfig.outputDir);
-    await this.removeNodeModules(dbConfig.outputDir);
-    await this.formatFiles(dbConfig.outputDir);
+			const copyStart = Date.now();
+			await this.copyStaticFiles(dbConfig.outputDir);
+			this.logger.log(`Tempo para copiar arquivos estáticos: ${Date.now() - copyStart} ms.`);
 
-    const schemaPath = path.join(dbConfig.outputDir, 'db.metadata.json');
-    const dbReader = new DbReader(schemaPath, dbConfig, dbConfig.dbType);
-    await dbReader.getSchemaInfo();
+			const removeStart = Date.now();
+			await this.removeNodeModules(dbConfig.outputDir);
+			this.logger.log(`Tempo para remover node_modules: ${Date.now() - removeStart} ms.`);
 
-    const components = dbConfig.components || ['entities', 'services', 'interfaces', 'controllers'];
-    const promises = components.map((component) => this.executeComponentGeneration(component, schemaPath, dbConfig));
+			const formatStart = Date.now();
+			await this.formatFiles(dbConfig.outputDir);
+			this.logger.log(`Tempo para formatar arquivos: ${Date.now() - formatStart} ms.`);
 
-    await Promise.all(promises);
-    // await this.runNpmInstall(dbConfig.outputDir);
-    await this.runPrettier(dbConfig.outputDir);
+			const schemaPath = path.join(dbConfig.outputDir, 'db.metadata.json');
+			const dbReader = new DbReader(schemaPath, dbConfig, dbConfig.dbType);
+			await dbReader.getSchemaInfo();
+			this.logger.log('Esquema do banco de dados carregado.');
 
-    const zipPath = path.join(dbConfig.outputDir, 'generated_code.zip');
-    await zipDirectory(dbConfig.outputDir, zipPath);
-    return zipPath;
-  }
+			const generateComponentsStart = Date.now();
+			const components = dbConfig.components || ['entities', 'services', 'interfaces', 'controllers'];
+			const promises = components.map((component) => this.executeComponentGeneration(component, schemaPath, dbConfig));
+			await Promise.all(promises);
+			this.logger.log(`Tempo para geração dos componentes: ${Date.now() - generateComponentsStart} ms.`);
+
+			const zipStart = Date.now();
+			const zipPath = path.join(dbConfig.outputDir, 'generated_code.zip');
+			const absoluteZipPath = await zipDirectory(dbConfig.outputDir, zipPath);
+			if (absoluteZipPath) {
+				this.logger.log(`Geração de código concluída com sucesso em: ${absoluteZipPath}. Tempo para compactar: ${Date.now() - zipStart} ms.`);
+			} else {
+				this.logger.error('Erro ao gerar arquivo zip.');
+			}
+
+			this.logger.log(`Tempo total de geração: ${Date.now() - startTime} ms.`);
+			return absoluteZipPath;
+		} catch (error) {
+      this.logger.error(`Erro ao gerar código: ${(error as Error).message}`);
+			throw error;
+		}
+	}
 
   private async executeComponentGeneration(component: string, schemaPath: string, dbConfig: IDbReaderConfig) {
     this.logger.log(`Executando geração para componente: ${component}`);

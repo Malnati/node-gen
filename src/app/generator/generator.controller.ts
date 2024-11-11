@@ -30,26 +30,34 @@ export class GeneratorController {
 	@ApiResponse({ status: 500, description: 'Erro interno no servidor ao processar o pedido.' })
 	@Post()
 	async generateCode(@Body() config: DbConfigDto, @Res() res: Response) {
-		let zipPath = '';
-		let absoluteZipPath = '';
-		try {
-			this.validateConfig(config);
-			zipPath = await this.generatorService.generate(config);
+		const startTime = Date.now(); // Marca o início da execução
 
-			absoluteZipPath = path.resolve(zipPath);
+		try {
+			this.logger.log('Validação de configuração iniciada.');
+			this.validateConfig(config);
+
+			this.logger.log('Iniciando geração do código no serviço.');
+			const zipPath = await this.generatorService.generate(config);
+			this.logger.log(`Código gerado no caminho ${zipPath} em ${Date.now() - startTime} ms.`);
+
+			const absoluteZipPath = path.resolve(zipPath);
+			this.logger.log(`Verificando a existência do arquivo ZIP em ${absoluteZipPath}`);
+
 			if (!fs.existsSync(absoluteZipPath)) {
 				throw new HttpException('Arquivo ZIP não encontrado', HttpStatus.INTERNAL_SERVER_ERROR);
 			}
 
+			this.logger.log(`Arquivo ZIP encontrado: ${absoluteZipPath}. Preparando resposta...`);
 			res.setHeader('Content-Type', 'application/zip');
 			res.setHeader('Content-Disposition', `attachment; filename=${path.basename(absoluteZipPath)}`);
 
-			// Envia o arquivo e encerra a resposta
+			this.logger.log('Enviando o arquivo ZIP como resposta...');
 			res.sendFile(absoluteZipPath, (err) => {
 				if (err) {
 					this.logger.error(`Erro ao enviar o arquivo: ${err.message}`);
 					res.status(HttpStatus.INTERNAL_SERVER_ERROR).send('Falha ao enviar o arquivo zip.');
 				} else {
+					this.logger.log('Arquivo enviado com sucesso.');
 					res.end();  // Finaliza a resposta explicitamente
 				}
 			});
@@ -58,15 +66,11 @@ export class GeneratorController {
 			this.logger.error(`Erro durante a geração de código: ${error.message}`);
 			if (error instanceof HttpException) {
 				res.status(error.getStatus()).json({ message: error.message });
-			} else if (error.code === 'EEXIST') {
-				res.status(HttpStatus.CONFLICT).json({ message: 'Conflito: O recurso já existe.' });
-			} else if (error.name === 'ValidationError') {
-				res.status(HttpStatus.BAD_REQUEST).json({ message: 'Dados inválidos. Verifique os parâmetros de entrada.' });
 			} else {
-				this.logger.error(error);
 				res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ message: 'Erro ao gerar o código. Tente novamente mais tarde.' });
 			}
 		}
+		this.logger.log(`Tempo total de processamento: ${Date.now() - startTime} ms.`);
 	}
 
 	private validateConfig(config: DbConfigDto) {

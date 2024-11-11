@@ -16,7 +16,7 @@ import { GeneratorModule } from './generator/generator.module';
 					: ['.env.local', '.env'],
 		}),
 		ServeStaticModule.forRoot({
-			rootPath: join(__dirname, '..', '..', 'public'),
+			rootPath: join(__dirname, '..', 'public'),
 		}),
 		EnvironmentModule,
 		VersionModule,
