@@ -31,6 +31,7 @@ export interface DbReaderConfig {
   user: string;
   password: string;
   outputDir: string;
+  templateDir?: string;
   components: [
     'entities' |
     'services' |
