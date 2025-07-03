@@ -1,6 +1,6 @@
 import { Injectable, Logger, NotFoundException } from "@nestjs/common";
 import { DataSourceService } from "../config/datasource.service";
-import { <%= entityName %>Entity } from "@app/entities/<%= snakeEntityName %>";
+import { <%= entityName %>Entity } from "@app/entities/<%= toSnakeCase(entityName) %>";
 import { <%= entityName %>QueryDTO, <%= entityName %>PersistDTO } from "./<%= kebabCaseName %>.dto";
 <%- imports %>
 
