@@ -1,31 +1,32 @@
-// src/static-templates.ts
+import { loadTemplate } from './utils/template-loader';
+import { toPascalCase } from './utils/string';
 
 export const entityTemplate = (
-	tableName: string,
-	columns: string,
-	relations: string,
-	imports: string,
-	customMethods: string = ''
-  ) => `
-  ${imports}
-
-  @Entity('${tableName}')
-  export class ${toPascalCase(tableName)}Entity {
-	${columns}
-	${relations}
-
-	${customMethods}
-  }`;
+  tableName: string,
+  columns: string,
+  relations: string,
+  imports: string,
+  customMethods: string = ''
+) => loadTemplate('entity.template.ts', {
+  tableName,
+  pascalTableName: toPascalCase(tableName),
+  columns,
+  relations,
+  imports,
+  customMethods,
+});
 
 export const columnTemplate = (
   columnDecorator: string,
   apiPropertyDecorator: string,
   columnName: string,
   columnType: string
-) => `
-${columnDecorator}
-${apiPropertyDecorator}
-${columnName}: ${columnType};`;
+) => loadTemplate('column.template.ts', {
+  columnDecorator,
+  apiPropertyDecorator,
+  columnName,
+  columnType,
+});
 
 export const relationTemplate = (
   relationType: 'ManyToOne' | 'OneToOne' | 'OneToMany' | 'ManyToMany',
@@ -36,12 +37,14 @@ export const relationTemplate = (
   const relationDecorator = `@${relationType}(() => ${toPascalCase(foreignTableName)}Entity)`;
   const joinColumnDecorator = joinColumn ? `@JoinColumn({ name: '${columnName}' })` : '';
   const apiPropertyDecorator = `@ApiProperty({ description: "Relacionamento com ${foreignTableName}." })`;
-
-  return `
-${relationDecorator}
-${joinColumnDecorator}
-${apiPropertyDecorator}
-${columnName}: ${toPascalCase(foreignTableName)}Entity${relationType === 'OneToMany' || relationType === 'ManyToMany' ? '[]' : ''};`;
+  return loadTemplate('relation.template.ts', {
+    relationDecorator,
+    joinColumnDecorator,
+    apiPropertyDecorator,
+    columnName,
+    relationEntity: toPascalCase(foreignTableName),
+    arraySuffix: relationType === 'OneToMany' || relationType === 'ManyToMany' ? '[]' : ''
+  });
 };
 
 export const typeMapping: { [key: string]: string } = {
@@ -66,17 +69,8 @@ export const jsTypeMapping: { [key: string]: string } = {
   'character varying': 'string',
   'bytea': 'Buffer',
   'boolean': 'boolean',
-  'json': 'any', // 'any' é usado para JSON, pois pode ser um objeto ou array
+  'json': 'any',
   'jsonb': 'any',
   'text': 'string',
   'double precision': 'number'
 };
-
-export function toPascalCase(str: string): string {
-  str = removeTbPrefix(str);
-  return str.replace(/_./g, match => match.charAt(1).toUpperCase()).replace(/^./, match => match.toUpperCase());
-}
-
-export function removeTbPrefix(str: string): string {
-  return str.startsWith('tb_') ? str.substring(3) : str;
-}

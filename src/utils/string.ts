@@ -20,3 +20,7 @@ export function toKebabCase(str: string): string {
     str = toSnakeCase(str);
     return str.replace(/_/g, '-').toLowerCase();
 }
+
+export function removeTbPrefix(str: string): string {
+    return str.startsWith('tb_') ? str.substring(3) : str;
+}
