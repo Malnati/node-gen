@@ -5,6 +5,7 @@ import * as path from 'path';
 import { Table, Relation, Column, DbReaderConfig } from './interfaces';
 import { toKebabCase, toPascalCase, toSnakeCase } from './utils/string';
 import { renderTemplate } from './utils/TemplateEngine';
+import { loadTemplate } from './utils/template-loader';
 
 export class ServiceGenerator {
   private schema: Table[];

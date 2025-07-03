@@ -14,7 +14,8 @@
 
     /* Emit */
     "outDir": "./dist",                                  /* Specify an output folder for all emitted files. */
-    "skipLibCheck": true                                 /* Skip type checking all .d.ts files. */
+    "skipLibCheck": true,                                /* Skip type checking all .d.ts files. */
+    "types": ["node"]
   },
   "include": [
     "src/**/*.ts"

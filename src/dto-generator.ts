@@ -4,6 +4,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { Table, Column, Relation, DbReaderConfig } from './interfaces';
 import { toKebabCase, toPascalCase, toSnakeCase } from './utils/string';
+import { loadTemplate } from './utils/template-loader';
 
 
 export class DTOGenerator {
@@ -43,20 +44,12 @@ export class DTOGenerator {
     const queryDto = this.generateQueryDTO(entityName, columns, relations);
     const persistDto = this.generatePersistDTO(entityName, columns, relations);
 
-    return `import { IsString, IsNotEmpty, MaxLength, IsOptional, IsNumber, IsUUID, IsDate } from "class-validator";
-import { ApiProperty } from "@nestjs/swagger";
-import { I${entityName}QueryDTO, I${entityName}PersistDTO } from "./${toKebabCase(entityName)}.interface";
-
-/**
- * Data Transfer Object for ${entityName}.
- * 
- * Utilizado para transferir dados entre a camada de persistência e a camada de controle,
- * ocultando chaves primárias e datas automáticas, enquanto expõe os external_id e outras
- * informações de negócio relevantes.
- */
-${queryDto}
-
-${persistDto}`;
+    return loadTemplate('dto.template.ts', {
+      entityName,
+      kebabCaseName: toKebabCase(entityName),
+      queryDto,
+      persistDto,
+    });
   }
 
   private generateQueryDTO(entityName: string, columns: Column[], relations: Relation[]): string {
