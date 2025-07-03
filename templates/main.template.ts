@@ -42,17 +42,20 @@ async function bootstrap() {
     .catch((error: any) => console.log(error));
 
   if (!isProd) {
-    const sessionHealthCheck = app
-      .get(HealthService)
-      .verifyEndpointSessionHealthCheck()
-      .catch((error: any) => console.log(error));
-
-    if (sessionHealthCheck) {
-      console.log("Session Token JWT microservice is UP!");
-    } else {
-      throw Error("Session Token JWT microservice is DOWN!");
+    let sessionHealthCheck: boolean;
+    try {
+      sessionHealthCheck = await app
+        .get(HealthService)
+        .verifyEndpointSessionHealthCheck();
+      if (sessionHealthCheck) {
+        console.log("Session Token JWT microservice is UP!");
+      } else {
+        throw Error("Session Token JWT microservice is DOWN!");
+      }
+    } catch (error: any) {
+      console.error("Error during session health check:", error);
+      throw Error("Session Token JWT microservice health check failed!");
     }
-
     const config = new DocumentBuilder()
       .setTitle(microserviceName)
       .setDescription(`${microserviceName} - documentação`)
