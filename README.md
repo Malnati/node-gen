@@ -29,6 +29,7 @@ npm run build && \
                     --outputDir "./build" \
                     --templateDir "./templates" \
                     --components "entities, services, interfaces, controllers, dtos, modules, app-module, main, env, package.json, readme, datasource, diagram"
+
 ```
 
 ## Executando o Gerador
