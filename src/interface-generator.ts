@@ -3,6 +3,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import { Table, Column, DbReaderConfig } from './interfaces';
+import { loadTemplate } from './utils/template-loader';
 
 export class InterfaceGenerator {
   private schema: Table[];
@@ -42,9 +43,10 @@ export class InterfaceGenerator {
     const queryDto = this.generateQueryDto(entityName, filteredColumns);
     const persistDto = this.generatePersistDto(entityName, filteredColumns);
 
-    return `${queryDto}
-
-${persistDto}`;
+    return loadTemplate('interface.template.ts', {
+      queryDto,
+      persistDto,
+    });
   }
 
   private shouldIncludeColumn(column: Column): boolean {

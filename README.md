@@ -124,6 +124,11 @@ Para executar o projeto gerado, use os seguintes comandos:
 
 Isso iniciará o servidor NestJS usando as configurações geradas.
 
+## Customização de Templates
+
+Os geradores utilizam a biblioteca [EJS](https://ejs.co/) para renderizar os arquivos finais. Os modelos podem ser encontrados no diretório `templates/` com a extensão `.template.ts`.  
+Edite esses arquivos para personalizar o código gerado de acordo com as suas necessidades.
+
 ---
 
 ### Licença

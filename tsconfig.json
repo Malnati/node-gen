@@ -14,10 +14,11 @@
 
     /* Emit */
     "outDir": "./dist",                                  /* Specify an output folder for all emitted files. */
-    "skipLibCheck": true                                 /* Skip type checking all .d.ts files. */
+    "skipLibCheck": true,                                /* Skip type checking all .d.ts files. */
+    "types": ["node"]
   },
   "include": [
-    "./**/*.ts"
-  ],       // Inclui todos os arquivos .ts dentro de src/
-  "exclude": ["node_modules", "dist", "build", "static"] // Exclui node_modules e dist do processo de compilação
+    "src/**/*.ts"
+  ],
+  "exclude": ["node_modules", "dist", "build", "static", "templates"]
 }
