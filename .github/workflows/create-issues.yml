@@ -1,0 +1,42 @@
+name: Create Issues from Markdown
+
+on:
+  push:
+    paths:
+      - '.github/ISSUE/*.md'
+  workflow_dispatch:
+
+jobs:
+  create-issues:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Set up GitHub CLI
+        uses: actions/setup-gh@v4
+      - name: Create issues and PRs
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -e
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          files=$(git diff --name-only "${{ github.event.before }}" "${{ github.sha }}" -- '.github/ISSUE/*.md')
+          for file in $files; do
+            echo "Processing $file"
+            title=$(grep '^name:' "$file" | head -n1 | sed 's/^name:[[:space:]]*//' | tr -d '"')
+            sanitized=$(echo "$title" | tr '[:upper:]' '[:lower:]' | tr ' ' '-' | tr -cd '[:alnum:]-')
+            labels=$(grep '^labels:' "$file" | head -n1 | sed 's/^labels:[[:space:]]*//' | tr -d '"')
+            assignees=$(grep '^assignees:' "$file" | head -n1 | sed 's/^assignees:[[:space:]]*//' | tr -d "'")
+            body=$(awk 'BEGIN{in=0} /^---$/{in++; next} in>=2 {print}' "$file")
+            issue_url=$(gh issue create --title "$title" --body "$body" ${labels:+--label "$labels"} ${assignees:+--assignee "$assignees"})
+            issue_number=$(basename "$issue_url")
+            branch="issue-$issue_number-$sanitized"
+            git checkout -b "$branch"
+            git commit --allow-empty -m "Start work on #$issue_number"
+            git push origin "$branch"
+            pr_title=$(echo "$title" | tr -cd '[:alnum:][:space:]-')
+            gh pr create --title "$pr_title" --body "Closes #$issue_number" --head "$branch" --base main
+            git checkout main
+          done
