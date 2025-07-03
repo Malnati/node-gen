@@ -20,6 +20,9 @@ export class <%= entityName %>Service {
     const savedEntity = await this.dataSourceService
       .getDataSource()
       .getRepository(<%= entityName %>Entity)
+      .save(newEntity);
+
+    return this.toDTO(savedEntity);
 import { {{entityName}}Entity } from "@app/entities/{{snakeEntityName}}";
 import { {{entityName}}QueryDTO, {{entityName}}PersistDTO } from "./{{kebabCaseName}}.dto";
 {{imports}}
