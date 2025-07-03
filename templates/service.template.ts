@@ -23,29 +23,6 @@ export class <%= entityName %>Service {
       .save(newEntity);
 
     return this.toDTO(savedEntity);
-import { {{entityName}}Entity } from "@app/entities/{{snakeEntityName}}";
-import { {{entityName}}QueryDTO, {{entityName}}PersistDTO } from "./{{kebabCaseName}}.dto";
-{{imports}}
-
-@Injectable()
-export class {{entityName}}Service {
-  private readonly logger = new Logger({{entityName}}Service.name);
-
-  constructor(private dataSourceService: DataSourceService) {}
-
-  async create(dto: {{entityName}}PersistDTO): Promise<{{entityName}}QueryDTO> {
-    this.logger.log(`Creating {{entityLower}}`);
-    const newEntity = new {{entityName}}Entity();
-    {{createUpdateAssignments}}
-
-    {{relationCheckAndAssignment}}
-
-    const savedEntity = await this.dataSourceService
-      .getDataSource()
-      .getRepository({{entityName}}Entity)
-      .save(newEntity);
-
-    return this.toDTO(savedEntity);
   }
 
   async findByExternalId(external_id: string): Promise<<%= entityName %>QueryDTO> {
