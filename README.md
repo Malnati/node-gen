@@ -27,6 +27,7 @@ npm run build && \
                     --user "biud_log" \
                     --password "********************" \
                     --outputDir "./build" \
+                    --templateDir "./templates" \
                     --components "entities, services, interfaces, controllers, dtos, modules, app-module, main, env, package.json, readme, datasource, diagram"
 ```
 
@@ -43,10 +44,12 @@ node-gen\
     --user "biud_log" \
     --password "********************" \
     --outputDir "./build" \
+    --templateDir "./templates" \
     --components "entities, services, interfaces, controllers, dtos, modules, app-module, main, env, package.json, readme, datasource, diagram"
 ```
 
 Este comando executará todos os geradores na ordem correta e copiará os arquivos estáticos para o diretório de destino.
+Você pode fornecer `--templateDir` para usar um diretório personalizado de templates. Se omitido, o diretório `static` deste projeto será utilizado.
 
 ## Estrutura do Projeto Gerado
 
