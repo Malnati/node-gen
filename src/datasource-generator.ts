@@ -5,6 +5,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { DbReaderConfig, Table } from './interfaces';
 import { toPascalCase, toSnakeCase } from './utils/string';
+import { loadTemplate } from './utils/template-loader';
 
 export class DataSourceGenerator {
   private schema: Table[];
@@ -46,40 +47,10 @@ export class DataSourceGenerator {
       })
       .join(', ');
 
-    return `import "reflect-metadata";
-import { DataSource } from "typeorm";
-import { Injectable } from "@nestjs/common";
-import { EnvironmentService } from "./environment.service";
-${entityImports}
-
-export const cacheDuration = 31536000000;
-
-@Injectable()
-export class DataSourceService {
-  private dataSource: DataSource;
-
-  constructor(private env: EnvironmentService) {
-    this.dataSource = new DataSource({
-      type: "postgres",
-      host: env.getEnv().get<string>("DATABASE_HOST"),
-      port: env.getEnv().get<number>("DATABASE_PORT"),
-      database: env.getEnv().get<string>("DATABASE_NAME"),
-      username: env.getEnv().get<string>("DATABASE_USER"),
-      password: env.getEnv().get<string>("DATABASE_PASSWORD"),
-      entities: [${entitiesArray}],
-      synchronize: false,
-      logging: true,
-      ssl: {
-        rejectUnauthorized: false,
-      }
+    return loadTemplate('datasource.template.ts', {
+      entityImports,
+      entitiesArray,
     });
-  }
-
-  getDataSource(): DataSource {
-    return this.dataSource;
-  }
-}
-`;
   }
 
 }

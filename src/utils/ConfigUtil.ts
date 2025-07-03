@@ -15,8 +15,10 @@ export class ConfigUtil {
       .option('-u, --user <type>', 'Usuário do banco de dados')
       .option('-pw, --password <type>', 'Senha do banco de dados')
       .option('-o, --outputDir <type>', 'Diretório de saída para os arquivos gerados', './build')
-      .option('-f, --components <type>', 'Especifique quais componentes gerar', 'entities')
-      .option('-t, --dbType <type>', 'Tipo de banco de dados (mysql ou postgres)', 'postgres')
+
+      .option('-T, --templateDir <type>', 'Diretório de templates para copiar arquivos estáticos (default: "./templates")', './templates')
+      .option('-f, --components <type>', 'Especifique quais componentes gerar (entities, services, interfaces, controllers, dtos, modules, app-module, main, env, package.json, readme, datasource):', 'entities')
+
       .parse(process.argv);
 
     const options = program.opts();
@@ -32,6 +34,7 @@ export class ConfigUtil {
       user: options.user,
       password: options.password,
       outputDir: options.outputDir,
+      templateDir: options.templateDir,
       components: components,
       dbType: options.dbType, 
     };

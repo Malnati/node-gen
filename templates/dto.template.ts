@@ -1,0 +1,14 @@
+import { IsString, IsNotEmpty, MaxLength, IsOptional, IsNumber, IsUUID, IsDate } from "class-validator";
+import { ApiProperty } from "@nestjs/swagger";
+import { I{{entityName}}QueryDTO, I{{entityName}}PersistDTO } from "./{{kebabCaseName}}.interface";
+
+/**
+ * Data Transfer Object for {{entityName}}.
+ *
+ * Utilizado para transferir dados entre a camada de persistência e a camada de controle,
+ * ocultando chaves primárias e datas automáticas, enquanto expõe os external_id e outras
+ * informações de negócio relevantes.
+ */
+{{queryDto}}
+
+{{persistDto}}

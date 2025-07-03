@@ -27,8 +27,9 @@ npm run build && \
                     --user "biud_log" \
                     --password "********************" \
                     --outputDir "./build" \
-                    --components "entities, services, interfaces, controllers, dtos, modules, app-module, main, env, package.json, readme, datasource, diagram" \
-                    --dbType "postgres"
+                    --templateDir "./templates" \
+                    --components "entities, services, interfaces, controllers, dtos, modules, app-module, main, env, package.json, readme, datasource, diagram"
+
 ```
 
 ## Executando o Gerador
@@ -44,10 +45,12 @@ node-gen\
     --user "biud_log" \
     --password "********************" \
     --outputDir "./build" \
+    --templateDir "./templates" \
     --components "entities, services, interfaces, controllers, dtos, modules, app-module, main, env, package.json, readme, datasource, diagram"
 ```
 
 Este comando executará todos os geradores na ordem correta e copiará os arquivos estáticos para o diretório de destino.
+Você pode fornecer `--templateDir` para usar um diretório personalizado de templates. Se omitido, o diretório `static` deste projeto será utilizado.
 
 ## Estrutura do Projeto Gerado
 
@@ -121,6 +124,11 @@ Para executar o projeto gerado, use os seguintes comandos:
    ```
 
 Isso iniciará o servidor NestJS usando as configurações geradas.
+
+## Customização de Templates
+
+Os geradores utilizam a biblioteca [EJS](https://ejs.co/) para renderizar os arquivos finais. Os modelos podem ser encontrados no diretório `templates/` com a extensão `.template.ts`.  
+Edite esses arquivos para personalizar o código gerado de acordo com as suas necessidades.
 
 ---
 

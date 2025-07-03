@@ -33,8 +33,10 @@ console.log(`User: ${dbConfig.user}`);
 console.log("Password: [HIDDEN]");
 console.log(`Output Directory: ${dbConfig.outputDir}`);
 console.log(`Components: ${dbConfig.components}`);
-console.log(`Database Type: ${dbConfig.dbType}`);
 
+if (dbConfig.templateDir) {
+    console.log(`Template Directory: ${dbConfig.templateDir}`);
+}
 
 function askQuestion(query: string): Promise<string> {
     const rl = readline.createInterface({
@@ -50,9 +52,9 @@ function askQuestion(query: string): Promise<string> {
     );
 }
 
-async function copyStaticFiles(destDir: string) {
+async function copyStaticFiles(destDir: string, templateDir?: string) {
     try {
-        const staticPath = path.resolve(__dirname, '../static');
+        const staticPath = templateDir ? path.resolve(templateDir) : path.resolve(__dirname, '../static');
         await fs.copy(staticPath, destDir, {
             overwrite: true,
         });
@@ -153,7 +155,7 @@ async function runPrettier(directory: string): Promise<void> {
 }
 
 async function main() {
-    await copyStaticFiles(dbConfig.outputDir);
+    await copyStaticFiles(dbConfig.outputDir, dbConfig.templateDir);
 	await removeNodeModules(dbConfig.outputDir);
 	await formatFiles(dbConfig.outputDir);
     let schemaPath;
