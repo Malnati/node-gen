@@ -4,6 +4,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { Table, Relation, Column, DbReaderConfig } from './interfaces';
 import { toKebabCase, toPascalCase, toSnakeCase } from './utils/string';
+import { renderTemplate } from './utils/TemplateEngine';
 import { loadTemplate } from './utils/template-loader';
 
 export class ServiceGenerator {
@@ -40,6 +41,7 @@ export class ServiceGenerator {
   }
 
   private generateServiceContent(entityName: string, kebabCaseName: string, relations: Relation[], columns: Column[]): string {
+    const templatePath = path.join('templates', 'service.template.ts');
     const imports = relations.map(rel => this.generateImportForRelation(rel)).join('\n');
     const relationCheckAndAssignment = relations.map(rel => this.generateRelationCheckAndAssignment(rel, entityName)).join('\n\n    ');
 
@@ -48,23 +50,24 @@ export class ServiceGenerator {
       .map(col => this.generateAssignment(col, 'newEntity', 'dto'))
       .join('\n    ');
 
+    const updateAssignments = createUpdateAssignments.replace(/newEntity/g, 'entity');
+
     const toDTOAssignments = columns
       .filter(col => this.shouldIncludeColumn(col))
       .map(col => this.generateAssignment(col, 'dto', 'entity'))
       .join('\n    ');
 
-    return loadTemplate('service.template.ts', {
+    return renderTemplate(templatePath, {
       entityName,
       kebabCaseName,
       snakeEntityName: toSnakeCase(entityName),
       imports,
       createUpdateAssignments,
       relationCheckAndAssignment,
-      createUpdateAssignmentsEntity: createUpdateAssignments.replace(/newEntity/g, 'entity'),
-      relationCheckAndAssignmentEntity: relationCheckAndAssignment.replace(/newEntity/g, 'entity'),
+      updateAssignments,
+      relationUpdateAndAssignment: relationCheckAndAssignment.replace(/newEntity/g, 'entity'),
       toDTOAssignments,
-      relationMapping: this.generateRelationMapping(relations),
-      entityLower: entityName.toLowerCase(),
+      relationMappings: this.generateRelationMapping(relations),
     });
   }
 
