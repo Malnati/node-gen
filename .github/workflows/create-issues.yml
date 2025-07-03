@@ -22,7 +22,7 @@ jobs:
           set -e
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
-          files=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} -- '.github/ISSUE/*.md')
+          files=$(git diff --name-only "${{ github.event.before }}" "${{ github.sha }}" -- '.github/ISSUE/*.md')
           for file in $files; do
             echo "Processing $file"
             title=$(grep '^name:' "$file" | head -n1 | sed 's/^name:[[:space:]]*//' | tr -d '"')
