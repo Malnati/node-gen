@@ -18,7 +18,7 @@ jobs:
         with:
           fetch-depth: 0
       - name: Set up GitHub CLI
-        uses: actions/setup-gh@v4
+        uses: actions/setup-gh-cli@v2
       - name: Create issues and PRs
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
