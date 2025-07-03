@@ -30,11 +30,6 @@ export class <%= entityName %>Service {
     const entity = await this.dataSourceService
       .getDataSource()
       .getRepository(<%= entityName %>Entity)
-  async findByExternalId(external_id: string): Promise<{{entityName}}QueryDTO> {
-    this.logger.log(`Finding {{entityLower}} with External ID: ${external_id}`);
-    const entity = await this.dataSourceService
-      .getDataSource()
-      .getRepository({{entityName}}Entity)
       .findOne({
         where: { external_id }
       });
