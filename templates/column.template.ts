@@ -1,0 +1,3 @@
+{{columnDecorator}}
+{{apiPropertyDecorator}}
+{{columnName}}: {{columnType}};

@@ -3,7 +3,8 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import { Table, Column, Relation, DbReaderConfig } from './interfaces';
-import { entityTemplate, columnTemplate, relationTemplate, typeMapping, jsTypeMapping, toPascalCase, removeTbPrefix } from './static-templates';
+import { entityTemplate, columnTemplate, relationTemplate, typeMapping, jsTypeMapping } from './static-templates';
+import { toPascalCase, toSnakeCase, removeTbPrefix } from './utils/string';
 
 export class TypeORMEntityGenerator {
   private schema: Table[];
