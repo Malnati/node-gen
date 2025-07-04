@@ -35,16 +35,19 @@ jobs:
           # Se BEFORE estiver vazio, este é o primeiro commit disponível para o
           # workflow (por exemplo em execução manual). Nesse caso é preciso varrer
           # todos os templates de issue do repositório.
+          # Verifica se BEFORE está vazio para definir quais arquivos analisar
           if [ -z "$BEFORE" ]; then
+            # Lista todos os templates existentes quando não há commit anterior
             files=$(git ls-files '.github/ISSUE/*.md')
             echo "BEFORE not set, processing all templates: $files"
           else
-            # Quando BEFORE está definido, consideramos apenas os templates
-            # alterados neste push e comparamos com o commit anterior.
+            # Caso contrário, procura apenas os templates alterados neste push
             files=$(git diff --name-only "$BEFORE" "${{ github.sha }}" -- '.github/ISSUE/*.md')
             echo "BEFORE=$BEFORE -> changed templates: $files"
           fi
           changed=false
+          # Para cada template encontrado, adiciona ou atualiza o UUID
+          # Abre cada arquivo encontrado para criar a issue correspondente
           for file in $files; do
             [ -f "$file" ] || continue
             # Gera um UUID com uuidgen quando disponível; caso contrário usa
@@ -61,8 +64,10 @@ jobs:
               echo "Inserted uuid in $file"
             fi
             git add "$file"
+            echo "Staged $file with new UUID"
             changed=true
           done
+          # Se algum arquivo foi alterado, abre um PR com as atualizacoes de UUID
           if [ "$changed" = true ]; then
             branch="uuid-update-$GITHUB_RUN_ID"
             echo "Opening PR on branch $branch"
@@ -82,10 +87,13 @@ jobs:
           BEFORE="${{ github.event.before }}"
           # Detecta quais templates mudaram neste push. Se BEFORE estiver vazio
           # listamos todos; caso contrário, comparamos com o commit anterior.
+          # Novamente verificamos BEFORE para decidir quais arquivos gerar issues
           if [ -z "$BEFORE" ]; then
+            # Todos os templates serão processados quando BEFORE não existe
             files=$(git ls-files '.github/ISSUE/*.md')
             echo "BEFORE not set, creating issues for all templates: $files"
           else
+            # Apenas os templates modificados em relacao ao commit anterior
             files=$(git diff --name-only "$BEFORE" "${{ github.sha }}" -- '.github/ISSUE/*.md')
             echo "BEFORE=$BEFORE -> changed templates for issue creation: $files"
           fi
