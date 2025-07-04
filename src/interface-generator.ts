@@ -44,6 +44,7 @@ export class InterfaceGenerator {
     const persistDto = this.generatePersistDto(entityName, filteredColumns);
 
     return loadTemplate('interface.template.ts', {
+      entityName,
       queryDto,
       persistDto,
     });
@@ -62,17 +63,13 @@ export class InterfaceGenerator {
   private generateQueryDto(entityName: string, columns: Column[]): string {
     const properties = columns.map(col => this.generateProperty(col, true)).join('\n  ');
 
-    return `export interface I${entityName}QueryDTO {
-  ${properties}
-}`;
+    return `/**\n   * DTO retornado em consultas de ${entityName}.\n   */\nexport interface I${entityName}QueryDTO {\n  ${properties}\n}`;
   }
 
   private generatePersistDto(entityName: string, columns: Column[]): string {
     const properties = columns.map(col => this.generateProperty(col, false)).join('\n  ');
 
-    return `export interface I${entityName}PersistDTO {
-  ${properties}
-}`;
+    return `/**\n   * DTO utilizado para criar ou atualizar ${entityName}.\n   */\nexport interface I${entityName}PersistDTO {\n  ${properties}\n}`;
   }
 
   private generateProperty(column: Column, includeOptional: boolean): string {
