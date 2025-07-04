@@ -23,7 +23,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20.x'
-        # Os runners do Ubuntu já incluem gh e uuidgen, então não é necessário instalar
+      # Ubuntu runners already include gh and uuidgen, so no install step needed
       - name: Add UUID to templates
         env:
           BEFORE: ${{ github.event.before }}
