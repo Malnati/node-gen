@@ -18,15 +18,11 @@ jobs:
       - name: Merge check
         run: |
           set -e
-          # Workflow só executa quando um PR é mergeado na main.
-          # No GitHub, quando um PR é encerrado com:
-          # 	•	Merge normal
-          # 	•	Squash merge
-          # 	•	Rebase and merge
           if [ "${{ github.event.pull_request.merged }}" != "true" ]; then
             echo "Pull request was closed without merge. Exiting."
             exit 0
           fi
+
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
@@ -45,22 +41,31 @@ jobs:
           set -e
           for file in .github/ISSUE/*.md; do
             [ -f "$file" ] || continue
-          
-            # pular se já tiver File: <caminho> na última linha
-            if grep -Eq '^File: '"$file"'$' "$file"; then
+
+            # pula se já tiver marca única no fim
+            if grep -Eq '^@Origem-issue: '"$file"'$' "$file"; then
               echo "Já processado: $file"
               continue
             fi
-          
-            # anexa marcador no fim do arquivo
-            printf '\nFile: %s\n' "$file" >> "$file"
+
+            # anexa marcador único ao fim do arquivo
+            printf '\n@Origem-issue: %s\n' "$file" >> "$file"
+            git config user.name "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
             git add "$file"
-          
+
             # extrai título e corpo
-            title=$(grep '^name:' "$file" | sed -e 's/^name:[[:space:]]*//' -e 's/"//g' -e "s/'//g")
+            title=$(grep '^name:' "$file" \
+              | sed -E 's/^name:[[:space:]]*//; s/^"//; s/"$//; s/^'\''//; s/'\''$//')
             body=$(awk 'BEGIN{p=0} /^---$/{p++; next} p>=2{print}' "$file")
-          
-            # cria a issue com o marcador
+
+            # cria a issue incluindo o marcador único
             gh issue create --title "$title" \
-              --body "${body}\n\nFile: $file"
+              --body "${body}\n\n@Origem-issue: $file"
           done
+
+          # commit e push direto na main
+          if ! git diff --cached --quiet; then
+            git commit -m "Mark templates with @Origem-issue"
+            git push https://x-access-token:${PUSH_TOKEN}@github.com/${{ github.repository }} HEAD:main
+          fi
