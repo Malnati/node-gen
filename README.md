@@ -1,6 +1,6 @@
 # Node.js Project Generator
 
-Este repositório contém um conjunto de geradores TypeScript para criar a estrutura de um projeto NestJS completo, incluindo módulos, controladores, serviços, entidades TypeORM, DTOs e arquivos de configuração. AI
+Este repositório contém um conjunto de geradores TypeScript para criar a estrutura de um projeto NestJS completo, incluindo módulos, controladores, serviços, entidades TypeORM, DTOs e arquivos de configuração. 
 
 ## Instalação
 
