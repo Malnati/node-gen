@@ -127,8 +127,33 @@ Isso iniciará o servidor NestJS usando as configurações geradas.
 
 ## Customização de Templates
 
-Os geradores utilizam a biblioteca [EJS](https://ejs.co/) para renderizar os arquivos finais. Os modelos podem ser encontrados no diretório `templates/` com a extensão `.template.ts`.  
+Os geradores utilizam a biblioteca [EJS](https://ejs.co/) para renderizar os arquivos finais. Os modelos podem ser encontrados no diretório `templates/` com a extensão `.template.ts`.
 Edite esses arquivos para personalizar o código gerado de acordo com as suas necessidades.
+
+## Cobertura dos Templates
+
+Todos os arquivos presentes em `templates/` possuem um gerador correspondente e
+são acionados pelo `switch` em `src/main.ts`. A tabela abaixo mostra cada
+template, o gerador que o utiliza e o componente que ativa esse gerador.
+
+| Template | Gerador | Componente |
+|----------|---------|------------|
+| `app-module.template.ts` | `AppModuleGenerator` | `app-module` |
+| `column.template.ts` | `TypeORMEntityGenerator` | `entities` |
+| `controller.template.ts` | `ControllerGenerator` | `controllers` |
+| `datasource.template.ts` | `DataSourceGenerator` | `datasource` |
+| `dto.template.ts` | `DTOGenerator` | `dtos` |
+| `entity.template.ts` | `TypeORMEntityGenerator` | `entities` |
+| `interface.template.ts` | `InterfaceGenerator` | `interfaces` |
+| `main.template.ts` | `MainFileGenerator` | `main` |
+| `module.template.ts` | `ModuleGenerator` | `modules` |
+| `readme.template.ts` | `ReadmeGenerator` | `readme` |
+| `relation.template.ts` | `TypeORMEntityGenerator` | `entities` |
+| `service.ejs` | `ServiceGenerator` | `services` |
+
+Todas as entradas da tabela acima estão devidamente cobertas no arquivo
+`src/main.ts`, garantindo que nenhum template fique sem uso durante a geração
+dos códigos.
 
 ---
 
