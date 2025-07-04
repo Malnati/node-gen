@@ -33,26 +33,20 @@ jobs:
           set -e
           for file in .github/ISSUE/*.md; do
             [ -f "$file" ] || continue
-
-            # se não houver #UUID: <UUID> na última linha, gera e anexa
-            if ! grep -Eq '^#UUID: [0-9a-fA-F-]{36}$' "$file"; then
-              uuid=$(node -e "console.log(require('crypto').randomUUID())")
-              printf '\n#UUID: %s\n' "$uuid" >> "$file"
-
-              git config user.name "github-actions[bot]"
-              git config user.email "github-actions[bot]@users.noreply.github.com"
-              git add "$file"
-
-              title=$(grep '^name:' "$file" \
-                | sed -e 's/^name:[[:space:]]*//' -e 's/"//g' -e "s/'//g")
-              body=$(awk 'BEGIN {p=0} /^---$/ {p++; next} p>=2 {print}' "$file")
-
-              gh issue create --title "$title" \
-                --body "${body}\n\n#UUID: ${uuid}"
+          
+            # se já existe issue cujo body contém o caminho, pula
+            if gh issue list --limit 100 --json body \
+                 --jq ".[] | select(.body | contains(\"$file\"))" \
+               | grep -q .; then
+              echo "Issue já criada para $file"
+              continue
             fi
+          
+            title=$(grep '^name:' "$file" \
+              | sed -e 's/^name:[[:space:]]*//' -e 's/"//g' -e "s/'//g")
+            body=$(awk 'BEGIN{p=0} /^---$/{p++; next} p>=2{print}' "$file")
+          
+            gh issue create \
+              --title "$title" \
+              --body "${body}\n\nFile: $file"
           done
-
-          if ! git diff --cached --quiet; then
-            git commit -m "Add #UUID marker to issue templates"
-            git push https://x-access-token:${PUSH_TOKEN}@github.com/${{ github.repository }} HEAD:main
-          fi
