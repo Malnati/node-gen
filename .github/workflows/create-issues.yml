@@ -23,6 +23,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20.x'
+        # Os runners do Ubuntu já incluem gh e uuidgen, então não é necessário instalar
       - name: Add UUID to templates
         env:
           BEFORE: ${{ github.event.before }}
@@ -30,19 +31,34 @@ jobs:
           set -e
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
+          # Se BEFORE estiver vazio, este é o primeiro commit disponível para o
+          # workflow (por exemplo em execução manual). Nesse caso é preciso varrer
+          # todos os templates de issue do repositório.
           if [ -z "$BEFORE" ]; then
             files=$(git ls-files '.github/ISSUE/*.md')
+            echo "BEFORE not set, processing all templates: $files"
           else
+            # Quando BEFORE está definido, consideramos apenas os templates
+            # alterados neste push e comparamos com o commit anterior.
             files=$(git diff --name-only "$BEFORE" "${{ github.sha }}" -- '.github/ISSUE/*.md')
+            echo "BEFORE=$BEFORE -> changed templates: $files"
           fi
           changed=false
           for file in $files; do
             [ -f "$file" ] || continue
+            # Gera um UUID com uuidgen quando disponível; caso contrário usa
+            # o módulo crypto do Node.js.
+            uuid=$(command -v uuidgen >/dev/null && uuidgen || node -e "console.log(require('crypto').randomUUID())")
+            echo "Generated UUID $uuid for $file"
             if grep -q '^uuid:' "$file"; then
-              continue
+                # Substitui a entrada uuid existente
+              sed -i "s/^uuid:.*/uuid: $uuid/" "$file"
+              echo "Replaced uuid in $file"
+            else
+                # Insere o uuid logo abaixo da linha de assignees
+              sed -i "/^assignees:/a uuid: $uuid" "$file"
+              echo "Inserted uuid in $file"
             fi
-            uuid=$(uuidgen)
-            sed -i "/^assignees:/a uuid: $uuid" "$file"
             git add "$file"
             changed=true
           done
@@ -57,23 +73,39 @@ jobs:
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
           BEFORE="${{ github.event.before }}"
+          # Detecta quais templates mudaram neste push. Se BEFORE estiver vazio
+          # listamos todos; caso contrário, comparamos com o commit anterior.
           if [ -z "$BEFORE" ]; then
             files=$(git ls-files '.github/ISSUE/*.md')
+            echo "BEFORE not set, creating issues for all templates: $files"
           else
             files=$(git diff --name-only "$BEFORE" "${{ github.sha }}" -- '.github/ISSUE/*.md')
+            echo "BEFORE=$BEFORE -> changed templates for issue creation: $files"
           fi
           for file in $files; do
             [ -f "$file" ] || continue
             echo "Processing $file"
+            # Extrai o título do template de issue
             title=$(grep '^name:' "$file" | head -n1 | sed 's/^name:[[:space:]]*//' | tr -d '"')
+            echo "title=$title"
+            # Normaliza o título para uso no nome da branch
             sanitized=$(echo "$title" | tr '[:upper:]' '[:lower:]' | tr ' ' '-' | tr -cd '[:alnum:]-')
+            echo "sanitized=$sanitized"
+            # Extrai metadados adicionais
             labels=$(grep '^labels:' "$file" | head -n1 | sed 's/^labels:[[:space:]]*//' | tr -d '"')
+            echo "labels=$labels"
             assignees=$(grep '^assignees:' "$file" | head -n1 | sed 's/^assignees:[[:space:]]*//' | tr -d "'")
+            echo "assignees=$assignees"
             uuid=$(grep '^uuid:' "$file" | head -n1 | sed 's/^uuid:[[:space:]]*//')
+            echo "uuid=$uuid"
+            # Obtém o corpo após o frontmatter
             body=$(awk 'BEGIN{section=0} /^---$/{section++; next} section>=2 {print}' "$file")
             body="$body\n\nUUID: $uuid"
+            # Cria a issue e captura sua URL
             issue_url=$(gh issue create --title "$title" --body "$body" ${labels:+--label "$labels"} ${assignees:+--assignee "$assignees"})
+            echo "Created issue at $issue_url"
             issue_number=$(basename "$issue_url")
+            echo "issue_number=$issue_number"
             branch="issue-$issue_number-$sanitized"
             git checkout -b "$branch"
             git commit --allow-empty -m "Start work on #$issue_number"
