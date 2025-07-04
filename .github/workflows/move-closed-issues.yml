@@ -1,0 +1,41 @@
+name: Move Completed Issues
+
+on:
+  issues:
+    types: [closed]
+  workflow_dispatch:
+
+jobs:
+  move-markdown:
+    permissions:
+      contents: write
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+      - name: Move markdown to DONE
+        env:
+          ISSUE_BODY: ${{ github.event.issue.body }}
+        run: |
+          set -e
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          uuid=$(echo "$ISSUE_BODY" | grep -Eo '[0-9a-fA-F-]{36}' | head -n1 || true)
+          if [ -z "$uuid" ]; then
+            echo "No UUID found in issue body"
+            exit 0
+          fi
+          file=$(grep -rl "$uuid" '.github/ISSUE' || true)
+          if [ -n "$file" ]; then
+            mkdir -p .github/DONE
+            git mv "$file" .github/DONE/
+            git commit -m "Move markdown for closed issue $uuid"
+            git push
+          else
+            echo "No markdown file found for UUID $uuid"
+          fi
