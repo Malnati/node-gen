@@ -42,7 +42,6 @@ jobs:
           changed=false
           for file in $files; do
             [ -f "$file" ] || continue
-            # only skip if a valid 36-character UUID already exists
             if grep -Eq '^uuid:[[:space:]]*[0-9a-fA-F-]{36}$' "$file"; then
               continue
             fi
