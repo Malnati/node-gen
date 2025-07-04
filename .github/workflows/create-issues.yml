@@ -56,8 +56,8 @@ jobs:
               | sed -E 's/^name:[[:space:]]*//; s/^"//; s/"$//; s/^'\''//; s/'\''$//')
             body=$(awk 'BEGIN{p=0} /^---$/{p++; next} p>=2{print}' "$file")
 
-            # cria a issue incluindo o marcador único (com apenas uma quebra de linha)
+            # cria a issue incluindo o marcador único (uma quebra de linha antes)
             gh issue create \
               --title "$title" \
-              --body "${body}\n@Origem-issue: $file"
+              --body "$(printf '%s\n@Origem-issue: %s' "$body" "$file")"
           done
