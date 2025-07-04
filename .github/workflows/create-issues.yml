@@ -15,6 +15,18 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Merge check
+        run: |
+          set -e
+          # Workflow só executa quando um PR é mergeado na main.
+          # No GitHub, quando um PR é encerrado com:
+          # 	•	Merge normal
+          # 	•	Squash merge
+          # 	•	Rebase and merge
+          if [ "${{ github.event.pull_request.merged }}" != "true" ]; then
+            echo "Pull request was closed without merge. Exiting."
+            exit 0
+          fi
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
