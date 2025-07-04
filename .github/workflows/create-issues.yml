@@ -10,8 +10,8 @@ jobs:
   create-issues:
     if: ${{ github.event.pull_request.merged == true }}
     permissions:
-      issues: write
       contents: write
+      issues: write
       pull-requests: write
     runs-on: ubuntu-latest
 
@@ -31,27 +31,31 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -e
-          templates=(.github/ISSUE/*.md)
-          for file in "${templates[@]}"; do
+          for file in .github/ISSUE/*.md; do
             [ -f "$file" ] || continue
-            if ! grep -q '^uuid:' "$file"; then
+            # verifica marca #UUID: <UUID> na última linha
+            if ! grep -Eq '^#UUID: [0-9a-fA-F-]{36}$' "$file"; then
               uuid=$(node -e "console.log(require('crypto').randomUUID())")
-              sed -i "/^assignees:/a uuid: $uuid" "$file"
+              printf '\n#UUID: %s\n' "$uuid" >> "$file"
               git add "$file"
-              title=$(grep '^name:' "$file" | sed 's/^name:[[:space:]]*//' | sed "s/[\"']//g")
+
+              title=$(grep '^name:' "$file" \
+                | sed 's/^name:[[:space:]]*//;s/[\"']//g')
               body=$(awk 'BEGIN{p=0} /^---$/{p++; next} p>=2{print}' "$file")
-              gh issue create --title "$title" --body "${body}\n\nUUID: ${uuid}"
+
+              gh issue create --title "$title" \
+                --body "${body}\n\n#UUID: ${uuid}"
             fi
           done
 
           if ! git diff --cached --quiet; then
             branch="uuid-update-${{ github.run_id }}"
             git checkout -b "$branch"
-            git commit -m "Add UUID to issue templates"
+            git commit -m "Add #UUID marker to issue templates"
             git push origin "$branch"
             gh pr create \
-              --title "Add UUID to issue templates" \
-              --body "Inclui UUID em templates para criação de issues" \
-              --head "$branch" \
-              --base main
+              --title "Add #UUID to issue templates" \
+              --body  "Inclui marca #UUID em templates para criação de issues" \
+              --head  "$branch" \
+              --base  main
           fi
