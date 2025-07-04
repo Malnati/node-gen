@@ -3,6 +3,7 @@ name: "Improve readme.template.ts"
 about: "Enhance the README template with best practices"
 labels: enhancement
 assignees: ""
+uuid: 
 ---
 
 ## Summary
