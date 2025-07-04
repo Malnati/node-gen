@@ -1,94 +1,136 @@
 import { Injectable, Logger, NotFoundException } from "@nestjs/common";
+import { Repository } from "typeorm";
 import { DataSourceService } from "../config/datasource.service";
 import { <%= entityName %>Entity } from "@app/entities/<%= toSnakeCase(entityName) %>";
 import { <%= entityName %>QueryDTO, <%= entityName %>PersistDTO } from "./<%= kebabCaseName %>.dto";
 <%- imports %>
 
 @Injectable()
+/**
+ * Service responsible for managing <%= entityName %> entities.
+ */
 export class <%= entityName %>Service {
   private readonly logger = new Logger(<%= entityName %>Service.name);
+  /** Repository for database access */
+  private repository: Repository<<%= entityName %>Entity>;
 
-  constructor(private dataSourceService: DataSourceService) {}
+  constructor(private dataSourceService: DataSourceService) {
+    this.repository = this.dataSourceService
+      .getDataSource()
+      .getRepository(<%= entityName %>Entity);
+  }
 
+  /**
+   * Creates a new <%= entityName %>.
+   * @param dto payload used to persist the entity
+   */
   async create(dto: <%= entityName %>PersistDTO): Promise<<%= entityName %>QueryDTO> {
     this.logger.log(`Creating <%= entityName.toLowerCase() %>`);
-    const newEntity = new <%= entityName %>Entity();
-    <%- createUpdateAssignments %>
+    try {
+      const newEntity = new <%= entityName %>Entity();
+      <%- createUpdateAssignments %>
 
-    <%- relationCheckAndAssignment %>
+      // Validate and assign related entities
+      <%- relationCheckAndAssignment %>
 
-    const savedEntity = await this.dataSourceService
-      .getDataSource()
-      .getRepository(<%= entityName %>Entity)
-      .save(newEntity);
+      const savedEntity = await this.repository.manager.transaction(async manager =>
+        manager.getRepository(<%= entityName %>Entity).save(newEntity)
+      );
 
-    return this.toDTO(savedEntity);
+      return this.toDTO(savedEntity);
+    } catch (error) {
+      this.logger.error(`Error creating <%= entityName.toLowerCase() %>: ${error.message}`);
+      throw error;
+    }
   }
 
+  /**
+   * Finds a <%= entityName %> by external ID.
+   * @param external_id identifier of the entity
+   * @throws NotFoundException when entity does not exist
+   */
   async findByExternalId(external_id: string): Promise<<%= entityName %>QueryDTO> {
     this.logger.log(`Finding <%= entityName.toLowerCase() %> with External ID: ${external_id}`);
-    const entity = await this.dataSourceService
-      .getDataSource()
-      .getRepository(<%= entityName %>Entity)
-      .findOne({
-        where: { external_id }
-      });
+    try {
+      const entity = await this.repository.findOne({ where: { external_id } });
 
-    if (!entity) {
-      throw new NotFoundException("<%= entityName %> not found");
+      if (!entity) {
+        throw new NotFoundException("<%= entityName %> not found");
+      }
+
+      return this.toDTO(entity);
+    } catch (error) {
+      this.logger.error(`Error finding <%= entityName.toLowerCase() %>: ${error.message}`);
+      throw error;
     }
-
-    return this.toDTO(entity);
   }
 
+  /**
+   * Retrieves all <%= entityName %> records.
+   */
   async findAll(): Promise<<%= entityName %>QueryDTO[]> {
     this.logger.log("Finding all <%= entityName.toLowerCase() %>s");
-    const entities = await this.dataSourceService
-      .getDataSource()
-      .getRepository(<%= entityName %>Entity)
-      .find();
-    return entities.map((entity: <%= entityName %>Entity) => this.toDTO(entity));
+    try {
+      const entities = await this.repository.find();
+      return entities.map((entity: <%= entityName %>Entity) => this.toDTO(entity));
+    } catch (error) {
+      this.logger.error(`Error listing <%= entityName.toLowerCase() %>s: ${error.message}`);
+      throw error;
+    }
   }
 
+  /**
+   * Updates a <%= entityName %> identified by external ID.
+   * @param external_id identifier of the entity
+   * @param dto payload with updated values
+   */
   async updateByExternalId(external_id: string, dto: <%= entityName %>PersistDTO): Promise<<%= entityName %>QueryDTO> {
     this.logger.log(`Updating <%= entityName.toLowerCase() %> with External ID: ${external_id}`);
-    let entity = await this.dataSourceService
-      .getDataSource()
-      .getRepository(<%= entityName %>Entity)
-      .findOne({ where: { external_id } });
+    try {
+      let entity = await this.repository.findOne({ where: { external_id } });
 
-    if (!entity) {
-      throw new NotFoundException("<%= entityName %> not found");
+      if (!entity) {
+        throw new NotFoundException("<%= entityName %> not found");
+      }
+      <%- updateAssignments %>
+
+      // Validate and assign related entities
+      <%- relationUpdateAndAssignment %>
+
+      const updatedEntity = await this.repository.manager.transaction(async manager =>
+        manager.getRepository(<%= entityName %>Entity).save(entity)
+      );
+
+      return this.toDTO(updatedEntity);
+    } catch (error) {
+      this.logger.error(`Error updating <%= entityName.toLowerCase() %>: ${error.message}`);
+      throw error;
     }
-    <%- updateAssignments %>
-
-    <%- relationUpdateAndAssignment %>
-
-    const updatedEntity = await this.dataSourceService
-      .getDataSource()
-      .getRepository(<%= entityName %>Entity)
-      .save(entity);
-
-    return this.toDTO(updatedEntity);
   }
 
+  /**
+   * Deletes a <%= entityName %> by external ID.
+   * @param external_id identifier of the entity
+   */
   async deleteByExternalId(external_id: string): Promise<void> {
     this.logger.log(`Deleting <%= entityName.toLowerCase() %> with External ID: ${external_id}`);
-    const entity = await this.dataSourceService
-      .getDataSource()
-      .getRepository(<%= entityName %>Entity)
-      .findOne({ where: { external_id } });
+    try {
+      const entity = await this.repository.findOne({ where: { external_id } });
 
-    if (!entity) {
-      throw new NotFoundException("<%= entityName %> not found");
+      if (!entity) {
+        throw new NotFoundException("<%= entityName %> not found");
+      }
+
+      await this.repository.softDelete({ external_id: entity.external_id });
+    } catch (error) {
+      this.logger.error(`Error deleting <%= entityName.toLowerCase() %>: ${error.message}`);
+      throw error;
     }
-
-    await this.dataSourceService
-      .getDataSource()
-      .getRepository(<%= entityName %>Entity)
-      .softDelete({ external_id: entity.external_id });
   }
 
+  /**
+   * Maps an entity instance to its DTO representation.
+   */
   private toDTO(entity: <%= entityName %>Entity): <%= entityName %>QueryDTO {
     this.logger.log(`Mapping entity to DTO: ${entity.external_id}`);
     const dto = new <%= entityName %>QueryDTO();
