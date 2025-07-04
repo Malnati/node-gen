@@ -12,6 +12,7 @@ export interface Column {
 
 export interface Table {
   tableName: string;
+  tableComment?: string | null;
   columns: Column[];
   relations: Relation[];
 }
