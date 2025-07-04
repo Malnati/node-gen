@@ -2,7 +2,7 @@
 name: "Improve service.template.ts"
 about: "Enhance the service template with best practices"
 labels: enhancement
-assignees: ''
+assignees: 'Malnati'
 ---
 
 ## Summary
