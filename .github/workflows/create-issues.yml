@@ -23,10 +23,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20.x'
-      - name: Install gh and uuidgen
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y gh uuid-runtime
+      # Ubuntu runners already include gh and uuidgen, so no install step needed
       - name: Add UUID to templates
         env:
           BEFORE: ${{ github.event.before }}
@@ -42,11 +39,12 @@ jobs:
           changed=false
           for file in $files; do
             [ -f "$file" ] || continue
-            if grep -q '^uuid:' "$file"; then
-              continue
-            fi
             uuid=$(command -v uuidgen >/dev/null && uuidgen || node -e "console.log(require('crypto').randomUUID())")
-            sed -i "/^assignees:/a uuid: $uuid" "$file"
+            if grep -q '^uuid:' "$file"; then
+              sed -i "s/^uuid:.*/uuid: $uuid/" "$file"
+            else
+              sed -i "/^assignees:/a uuid: $uuid" "$file"
+            fi
             git add "$file"
             changed=true
           done
