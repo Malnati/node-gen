@@ -12,7 +12,6 @@ jobs:
     permissions:
       contents: write
       issues: write
-      pull-requests: write
     runs-on: ubuntu-latest
 
     steps:
@@ -29,13 +28,19 @@ jobs:
       - name: Process issue templates
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PUSH_TOKEN: ${{ secrets.PUSH_TOKEN }}
         run: |
           set -e
           for file in .github/ISSUE/*.md; do
             [ -f "$file" ] || continue
+
+            # se não houver #UUID: <UUID> na última linha, gera e anexa
             if ! grep -Eq '^#UUID: [0-9a-fA-F-]{36}$' "$file"; then
               uuid=$(node -e "console.log(require('crypto').randomUUID())")
               printf '\n#UUID: %s\n' "$uuid" >> "$file"
+
+              git config user.name "github-actions[bot]"
+              git config user.email "github-actions[bot]@users.noreply.github.com"
               git add "$file"
 
               title=$(grep '^name:' "$file" \
@@ -48,15 +53,6 @@ jobs:
           done
 
           if ! git diff --cached --quiet; then
-            branch="uuid-update-${{ github.run_id }}"
-            git checkout -b "$branch"
-            git config user.name "github-actions[bot]"
-            git config user.email "github-actions[bot]@users.noreply.github.com"
             git commit -m "Add #UUID marker to issue templates"
-            git push origin "$branch"
-            gh pr create \
-              --title "Add #UUID to issue templates" \
-              --body  "Inclui marca #UUID em templates para criação de issues" \
-              --head  "$branch" \
-              --base  main
+            git push https://x-access-token:${PUSH_TOKEN}@github.com/${{ github.repository }} HEAD:main
           fi
