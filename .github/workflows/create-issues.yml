@@ -33,6 +33,7 @@ jobs:
           set -e
           for file in .github/ISSUE/*.md; do
             [ -f "$file" ] || continue
+
             # verifica marca #UUID: <UUID> na última linha
             if ! grep -Eq '^#UUID: [0-9a-fA-F-]{36}$' "$file"; then
               uuid=$(node -e "console.log(require('crypto').randomUUID())")
@@ -40,8 +41,8 @@ jobs:
               git add "$file"
 
               title=$(grep '^name:' "$file" \
-                | sed 's/^name:[[:space:]]*//;s/[\"']//g')
-              body=$(awk 'BEGIN{p=0} /^---$/{p++; next} p>=2{print}' "$file")
+                | sed -e 's/^name:[[:space:]]*//' -e 's/"//g' -e "s/'//g")
+              body=$(awk 'BEGIN {p=0} /^---$/ {p++; next} p>=2 {print}' "$file")
 
               gh issue create --title "$title" \
                 --body "${body}\n\n#UUID: ${uuid}"
