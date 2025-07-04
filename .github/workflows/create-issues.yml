@@ -40,7 +40,7 @@ jobs:
             sanitized=$(echo "$title" | tr '[:upper:]' '[:lower:]' | tr ' ' '-' | tr -cd '[:alnum:]-')
             labels=$(grep '^labels:' "$file" | head -n1 | sed 's/^labels:[[:space:]]*//' | tr -d '"')
             assignees=$(grep '^assignees:' "$file" | head -n1 | sed 's/^assignees:[[:space:]]*//' | tr -d "'")
-            body=$(awk 'BEGIN{in=0} /^---$/{in++; next} in>=2 {print}' "$file")
+            body=$(awk 'BEGIN{section=0} /^---$/{section++; next} section>=2 {print}' "$file")
             issue_url=$(gh issue create --title "$title" --body "$body" ${labels:+--label "$labels"} ${assignees:+--assignee "$assignees"})
             issue_number=$(basename "$issue_url")
             branch="issue-$issue_number-$sanitized"
