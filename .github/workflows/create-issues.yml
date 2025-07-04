@@ -1,14 +1,14 @@
 name: Create Issues from Markdown
 
 on:
-  push:
+  pull_request:
+    types: [closed]
     branches:
       - main
-    paths:
-      - '.github/ISSUE/*.md'
 
 jobs:
   create-issues:
+    if: ${{ github.event.pull_request.merged == true }}
     permissions:
       issues: write
       contents: write
@@ -25,31 +25,36 @@ jobs:
         with:
           node-version: '20.x'
 
-      - name: Ensure UUID and create issues
+      - name: Process issue templates
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -e
-          files=$(git diff --name-only HEAD^ HEAD -- '.github/ISSUE/*.md')
-          for file in $files; do
+          # Lista todos os templates Markdown
+          templates=(.github/ISSUE/*.md)
+          for file in "${templates[@]}"; do
             [ -f "$file" ] || continue
-
-            # Insere UUID se faltar
+            # Se não há UUID, gera e insere
             if ! grep -q '^uuid:' "$file"; then
               uuid=$(node -e "console.log(require('crypto').randomUUID())")
               sed -i "/^assignees:/a uuid: $uuid" "$file"
               git add "$file"
+              # Extrai título e corpo
+              title=$(grep '^name:' "$file" | sed 's/^name:[[:space:]]*//;s/[\"']//g')
+              body=$(awk 'BEGIN{p=0} /^---$/{p++; next} p>=2{print}' "$file")
+              # Cria issue com o mesmo UUID
+              gh issue create --title "$title" --body "${body}\n\nUUID: ${uuid}"
             fi
-
-            # Extrai título e corpo
-            title=$(grep '^name:' "$file" | sed 's/^name:[[:space:]]*//;s/\"//g')
-            body=$(awk 'BEGIN{p=0} /^---$/{p++; next} p>=2{print}' "$file")
-            uuid=$(grep '^uuid:' "$file" | sed 's/^uuid:[[:space:]]*//')
-
-            # Cria a issue
-            gh issue create --title "$title" --body "$body\n\nUUID: $uuid"
           done
-
-          # Se houve alterações no frontmatter, comita e envia
-          git commit -m "Add UUID and create issues" || echo "Nothing to commit"
-          git push origin main
+          # Se houve inserções de UUID, cria branch e PR para aplicar no main
+          if ! git diff --cached --quiet; then
+            branch="uuid-update-${{ github.run_id }}"
+            git checkout -b "$branch"
+            git commit -m "Add UUID to issue templates"
+            git push origin "$branch"
+            gh pr create \
+              --title "Add UUID to issue templates" \
+              --body "Inclui UUID em templates para criação de issues" \
+              --head "$branch" \
+              --base main
+          fi
