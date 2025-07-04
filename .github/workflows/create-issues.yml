@@ -14,6 +14,7 @@ jobs:
       contents: write
       pull-requests: write
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -30,23 +31,19 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -e
-          # Lista todos os templates Markdown
           templates=(.github/ISSUE/*.md)
           for file in "${templates[@]}"; do
             [ -f "$file" ] || continue
-            # Se não há UUID, gera e insere
             if ! grep -q '^uuid:' "$file"; then
               uuid=$(node -e "console.log(require('crypto').randomUUID())")
               sed -i "/^assignees:/a uuid: $uuid" "$file"
               git add "$file"
-              # Extrai título e corpo
-              title=$(grep '^name:' "$file" | sed 's/^name:[[:space:]]*//;s/[\"']//g')
+              title=$(grep '^name:' "$file" | sed 's/^name:[[:space:]]*//' | sed "s/[\"']//g")
               body=$(awk 'BEGIN{p=0} /^---$/{p++; next} p>=2{print}' "$file")
-              # Cria issue com o mesmo UUID
               gh issue create --title "$title" --body "${body}\n\nUUID: ${uuid}"
             fi
           done
-          # Se houve inserções de UUID, cria branch e PR para aplicar no main
+
           if ! git diff --cached --quiet; then
             branch="uuid-update-${{ github.run_id }}"
             git checkout -b "$branch"
