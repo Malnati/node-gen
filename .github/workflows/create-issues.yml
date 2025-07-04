@@ -34,19 +34,21 @@ jobs:
           for file in .github/ISSUE/*.md; do
             [ -f "$file" ] || continue
           
-            # se já existe issue cujo body contém o caminho, pula
-            if gh issue list --limit 100 --json body \
-                 --jq ".[] | select(.body | contains(\"$file\"))" \
-               | grep -q .; then
-              echo "Issue já criada para $file"
+            # pular se já tiver File: <caminho> na última linha
+            if grep -Eq '^File: '"$file"'$' "$file"; then
+              echo "Já processado: $file"
               continue
             fi
           
-            title=$(grep '^name:' "$file" \
-              | sed -e 's/^name:[[:space:]]*//' -e 's/"//g' -e "s/'//g")
+            # anexa marcador no fim do arquivo
+            printf '\nFile: %s\n' "$file" >> "$file"
+            git add "$file"
+          
+            # extrai título e corpo
+            title=$(grep '^name:' "$file" | sed -e 's/^name:[[:space:]]*//' -e 's/"//g' -e "s/'//g")
             body=$(awk 'BEGIN{p=0} /^---$/{p++; next} p>=2{print}' "$file")
           
-            gh issue create \
-              --title "$title" \
+            # cria a issue com o marcador
+            gh issue create --title "$title" \
               --body "${body}\n\nFile: $file"
           done
