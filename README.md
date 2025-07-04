@@ -13,7 +13,7 @@ Para instalar todas as dependências necessárias, execute o comando:
 npm install -g @codegenerator/node-gen
 ```
 
-## Uso
+## Uso:
 
 Este repositório contém vários geradores para criar diferentes partes de um projeto NestJS. Aqui está uma breve descrição de cada gerador:
 
