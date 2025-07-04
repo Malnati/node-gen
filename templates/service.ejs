@@ -8,6 +8,9 @@ import { <%= entityName %>QueryDTO, <%= entityName %>PersistDTO } from "./<%= ke
 @Injectable()
 /**
  * Service responsible for managing <%= entityName %> entities.
+ *
+ * Provides CRUD operations and mapping helpers for
+ * `@app/entities/<%= toSnakeCase(entityName) %>` objects.
  */
 export class <%= entityName %>Service {
   private readonly logger = new Logger(<%= entityName %>Service.name);
@@ -22,7 +25,10 @@ export class <%= entityName %>Service {
 
   /**
    * Creates a new <%= entityName %>.
-   * @param dto payload used to persist the entity
+   *
+   * @param dto Payload used to persist the entity.
+   * @returns Persisted <%= entityName %> data.
+   * @throws Error When the insert operation fails.
    */
   async create(dto: <%= entityName %>PersistDTO): Promise<<%= entityName %>QueryDTO> {
     this.logger.log(`Creating <%= entityName.toLowerCase() %>`);
@@ -46,8 +52,11 @@ export class <%= entityName %>Service {
 
   /**
    * Finds a <%= entityName %> by external ID.
-   * @param external_id identifier of the entity
-   * @throws NotFoundException when entity does not exist
+   *
+   * @param external_id Identifier of the entity.
+   * @returns Corresponding <%= entityName %> data.
+   * @throws NotFoundException When the entity does not exist.
+   * @throws Error When the lookup fails.
    */
   async findByExternalId(external_id: string): Promise<<%= entityName %>QueryDTO> {
     this.logger.log(`Finding <%= entityName.toLowerCase() %> with External ID: ${external_id}`);
@@ -67,6 +76,9 @@ export class <%= entityName %>Service {
 
   /**
    * Retrieves all <%= entityName %> records.
+   *
+   * @returns Array of <%= entityName %> DTOs.
+   * @throws Error When the query fails.
    */
   async findAll(): Promise<<%= entityName %>QueryDTO[]> {
     this.logger.log("Finding all <%= entityName.toLowerCase() %>s");
@@ -81,8 +93,12 @@ export class <%= entityName %>Service {
 
   /**
    * Updates a <%= entityName %> identified by external ID.
-   * @param external_id identifier of the entity
-   * @param dto payload with updated values
+   *
+   * @param external_id Identifier of the entity.
+   * @param dto Payload with updated values.
+   * @returns Updated <%= entityName %> data.
+   * @throws NotFoundException When the entity does not exist.
+   * @throws Error When the update fails.
    */
   async updateByExternalId(external_id: string, dto: <%= entityName %>PersistDTO): Promise<<%= entityName %>QueryDTO> {
     this.logger.log(`Updating <%= entityName.toLowerCase() %> with External ID: ${external_id}`);
@@ -110,7 +126,10 @@ export class <%= entityName %>Service {
 
   /**
    * Deletes a <%= entityName %> by external ID.
-   * @param external_id identifier of the entity
+   *
+   * @param external_id Identifier of the entity.
+   * @throws NotFoundException When the entity does not exist.
+   * @throws Error When the delete fails.
    */
   async deleteByExternalId(external_id: string): Promise<void> {
     this.logger.log(`Deleting <%= entityName.toLowerCase() %> with External ID: ${external_id}`);
@@ -130,6 +149,9 @@ export class <%= entityName %>Service {
 
   /**
    * Maps an entity instance to its DTO representation.
+   *
+   * @param entity Entity being converted.
+   * @returns The corresponding DTO.
    */
   private toDTO(entity: <%= entityName %>Entity): <%= entityName %>QueryDTO {
     this.logger.log(`Mapping entity to DTO: ${entity.external_id}`);
