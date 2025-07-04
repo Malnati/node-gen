@@ -36,7 +36,6 @@ jobs:
       - name: Process issue templates
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          PUSH_TOKEN: ${{ secrets.PUSH_TOKEN }}
         run: |
           set -e
 
@@ -57,8 +56,8 @@ jobs:
               | sed -E 's/^name:[[:space:]]*//; s/^"//; s/"$//; s/^'\''//; s/'\''$//')
             body=$(awk 'BEGIN{p=0} /^---$/{p++; next} p>=2{print}' "$file")
 
-            # cria a issue incluindo o marcador único
+            # cria a issue incluindo o marcador único (com apenas uma quebra de linha)
             gh issue create \
               --title "$title" \
-              --body "${body}\n\n@Origem-issue: $file"
+              --body "${body}\n@Origem-issue: $file"
           done
