@@ -40,7 +40,7 @@ jobs:
           set -e
 
           # lista bodies das issues existentes
-          existing=$(gh issue list --limit 1000 --json body --jq '.[] .body')
+          existing=$(gh issue list --limit 1000 --state all --json body --jq '.[] .body')
 
           for file in .github/ISSUE/*.md; do
             [ -f "$file" ] || continue
