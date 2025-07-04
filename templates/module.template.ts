@@ -1,19 +1,25 @@
-import { Module } from "@nestjs/common";
-import { HttpModule } from "@nestjs/axios";
-import { {{entityName}}Service } from "./{{kebabCaseName}}.service";
-import { EnvironmentModule } from "../config/environment.module";
-import { {{entityName}}Controller } from "./{{kebabCaseName}}.controller";
-import { JwtAuthGuardModule } from "../middleware/jwt-auth.guard.module";
-import { JwtAuthGuard } from "../middleware/jwt-auth.guard";
+// src/app/{{kebabCaseName}}/{{kebabCaseName}}.module.ts
+
+import { Module } from "@nestjs/common"; // Define os módulos do NestJS
+import { HttpModule } from "@nestjs/axios"; // Permite realizar chamadas HTTP
+import { {{entityName}}Service } from "./{{kebabCaseName}}.service"; // Lógica de negócio de {{entityName}}
+import { EnvironmentModule } from "../config/environment.module"; // Acesso às configurações de ambiente
+import { {{entityName}}Controller } from "./{{kebabCaseName}}.controller"; // Controlador das rotas de {{entityName}}
+import { JwtAuthGuardModule } from "../middleware/jwt-auth.guard.module"; // Módulo com as dependências do JwtAuthGuard
+import { JwtAuthGuard } from "../middleware/jwt-auth.guard"; // Guarda de autenticação JWT
 
 @Module({
   imports: [
     HttpModule,
-    EnvironmentModule, // Importa o EnvironmentModule para usar o EnvironmentService e o DataSourceService
-    JwtAuthGuardModule, // Importa o JwtAuthGuardModule para usar o JwtAuthGuard
+    EnvironmentModule,
+    JwtAuthGuardModule,
   ],
   providers: [{{entityName}}Service, JwtAuthGuard], // Registra-os como um provedores para ser utilizado por este módulo
   exports: [{{entityName}}Service], // Exporta o {{entityName}}Service para que possa ser injetado em outros módulos
   controllers: [{{entityName}}Controller],
 })
+/**
+ * Módulo responsável por organizar as dependências e o controlador
+ * relacionados à entidade {{entityName}}.
+ */
 export class {{entityName}}Module {}
