@@ -104,6 +104,22 @@ Após a execução do script, a estrutura do projeto gerado será semelhante a e
 │       └── version.module.ts
 ```
 
+### Exemplo de DTO Gerado
+
+```ts
+import { IsNotEmpty, IsString } from 'class-validator'
+import { ApiProperty } from '@nestjs/swagger'
+import { IExampleQueryDTO, IExamplePersistDTO } from './example.interface'
+
+/** DTO usado para consultas de Example. */
+export class ExampleQueryDTO implements IExampleQueryDTO {
+  @IsNotEmpty()
+  @IsString()
+  @ApiProperty({ example: 'exemplo', description: 'Nome do exemplo.' })
+  name: string
+}
+```
+
 ## Executando o Projeto Gerado
 
 Para executar o projeto gerado, use os seguintes comandos:

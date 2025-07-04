@@ -41,44 +41,56 @@ export class DTOGenerator {
   }
 
   private generateDTOContent(entityName: string, columns: Column[], relations: Relation[]): string {
-    const queryDto = this.generateQueryDTO(entityName, columns, relations);
-    const persistDto = this.generatePersistDTO(entityName, columns, relations);
+    const usedValidators = new Set<string>();
+    const queryDto = this.generateQueryDTO(entityName, columns, relations, usedValidators);
+    const persistDto = this.generatePersistDTO(entityName, columns, relations, usedValidators);
+
+    const validatorsImport = usedValidators.size
+      ? `import { ${Array.from(usedValidators).sort().join(', ')} } from "class-validator";`
+      : '';
 
     return loadTemplate('dto.template.ts', {
       entityName,
       kebabCaseName: toKebabCase(entityName),
       queryDto,
       persistDto,
+      validatorsImport,
     });
   }
 
-  private generateQueryDTO(entityName: string, columns: Column[], relations: Relation[]): string {
+  private generateQueryDTO(entityName: string, columns: Column[], relations: Relation[], usedValidators: Set<string>): string {
     const properties = columns
       .filter(col => this.shouldIncludeColumn(col))
-      .map(col => this.generateProperty(col, true))
+      .map(col => this.generateProperty(col, true, usedValidators))
       .concat(relations.map(rel => this.generateRelationProperty(rel)))
       .join('\n  ');
 
-    return `export class ${entityName}QueryDTO implements I${entityName}QueryDTO {
+    return `/**
+ * DTO usado para consultas de ${entityName}.
+ */
+export class ${entityName}QueryDTO implements I${entityName}QueryDTO {
   ${properties}
 }`;
   }
 
-  private generatePersistDTO(entityName: string, columns: Column[], relations: Relation[]): string {
+  private generatePersistDTO(entityName: string, columns: Column[], relations: Relation[], usedValidators: Set<string>): string {
     const properties = columns
       .filter(col => this.shouldIncludeColumn(col))
-      .map(col => this.generateProperty(col, false))
+      .map(col => this.generateProperty(col, false, usedValidators))
       .concat(relations.map(rel => this.generateRelationProperty(rel)))
       .join('\n  ');
 
-    return `export class ${entityName}PersistDTO implements I${entityName}PersistDTO {
+    return `/**
+ * DTO utilizado para criação/atualização de ${entityName}.
+ */
+export class ${entityName}PersistDTO implements I${entityName}PersistDTO {
   ${properties}
 }`;
   }
 
-  private generateProperty(column: Column, isQuery: boolean): string {
+  private generateProperty(column: Column, isQuery: boolean, usedValidators: Set<string>): string {
     const type = this.mapType(column.dataType);
-    const validationDecorators = this.generateValidationDecorators(column);
+    const validationDecorators = this.generateValidationDecorators(column, usedValidators);
     
     const example = this.getExampleForColumn(column);
     const apiProperty = `@ApiProperty({
@@ -98,27 +110,34 @@ export class DTOGenerator {
   ${relationName}_eid: string;`;
   }
 
-  private generateValidationDecorators(column: Column): string {
-    const decorators = [];
+  private generateValidationDecorators(column: Column, usedValidators: Set<string>): string {
+    const decorators: string[] = [];
 
     if (column.isNullable) {
       decorators.push('@IsOptional()');
+      usedValidators.add('IsOptional');
     } else {
       decorators.push('@IsNotEmpty()');
+      usedValidators.add('IsNotEmpty');
     }
 
     const mappedType = this.mapType(column.dataType);
     if (mappedType === 'string') {
       decorators.push('@IsString()');
+      usedValidators.add('IsString');
       if (column.characterMaximumLength) {
         decorators.push(`@MaxLength(${column.characterMaximumLength})`);
+        usedValidators.add('MaxLength');
       }
     } else if (mappedType === 'number') {
       decorators.push('@IsNumber()');
+      usedValidators.add('IsNumber');
     } else if (mappedType === 'Date') {
       decorators.push('@IsDate()');
+      usedValidators.add('IsDate');
     } else if (mappedType === 'UUID') {
       decorators.push('@IsUUID()');
+      usedValidators.add('IsUUID');
     }
 
     return decorators.join('\n  ') + '\n  ';
