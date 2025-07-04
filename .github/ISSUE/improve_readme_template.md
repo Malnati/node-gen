@@ -8,7 +8,7 @@ uuid:
 
 ## Summary
 
-`templates/readme.template.ts` currently focuses on database documentation but lacks comments, badges and a usage section.
+`templates/readme.template.ts` - currently focuses on database documentation but lacks comments, badges and a usage section.
 
 ## Proposed Enhancements
 
