@@ -23,10 +23,11 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20.x'
-      # Ubuntu runners already include gh and uuidgen, so no install step needed
+        # Os runners do Ubuntu já incluem gh e uuidgen, então não é necessário instalar
       - name: Add UUID to templates
         env:
           BEFORE: ${{ github.event.before }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -e
           git config user.name "github-actions"
@@ -63,7 +64,13 @@ jobs:
             changed=true
           done
           if [ "$changed" = true ]; then
-            git commit -m "Add UUID to issue templates" && git push
+            branch="uuid-update-$GITHUB_RUN_ID"
+            echo "Opening PR on branch $branch"
+            git checkout -b "$branch"
+            git commit -m "Add UUID to issue templates"
+            git push origin "$branch"
+            gh pr create --title "Add UUID to issue templates" --body "Atualiza templates de issue com uuid" --head "$branch" --base main
+            git checkout main
           fi
       - name: Create issues and PRs
         env:
