@@ -2,6 +2,8 @@ name: Create Issues from Markdown
 
 on:
   push:
+    branches:
+      - main
     paths:
       - '.github/ISSUE/*.md'
   workflow_dispatch:
@@ -21,6 +23,32 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20.x'
+      - name: Add UUID to templates
+        env:
+          BEFORE: ${{ github.event.before }}
+        run: |
+          set -e
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          if [ -z "$BEFORE" ]; then
+            files=$(git ls-files '.github/ISSUE/*.md')
+          else
+            files=$(git diff --name-only "$BEFORE" "${{ github.sha }}" -- '.github/ISSUE/*.md')
+          fi
+          changed=false
+          for file in $files; do
+            [ -f "$file" ] || continue
+            if grep -q '^uuid:' "$file"; then
+              continue
+            fi
+            uuid=$(uuidgen)
+            sed -i "/^assignees:/a uuid: $uuid" "$file"
+            git add "$file"
+            changed=true
+          done
+          if [ "$changed" = true ]; then
+            git commit -m "Add UUID to issue templates" && git push
+          fi
       - name: Create issues and PRs
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -35,12 +63,15 @@ jobs:
             files=$(git diff --name-only "$BEFORE" "${{ github.sha }}" -- '.github/ISSUE/*.md')
           fi
           for file in $files; do
+            [ -f "$file" ] || continue
             echo "Processing $file"
             title=$(grep '^name:' "$file" | head -n1 | sed 's/^name:[[:space:]]*//' | tr -d '"')
             sanitized=$(echo "$title" | tr '[:upper:]' '[:lower:]' | tr ' ' '-' | tr -cd '[:alnum:]-')
             labels=$(grep '^labels:' "$file" | head -n1 | sed 's/^labels:[[:space:]]*//' | tr -d '"')
             assignees=$(grep '^assignees:' "$file" | head -n1 | sed 's/^assignees:[[:space:]]*//' | tr -d "'")
+            uuid=$(grep '^uuid:' "$file" | head -n1 | sed 's/^uuid:[[:space:]]*//')
             body=$(awk 'BEGIN{section=0} /^---$/{section++; next} section>=2 {print}' "$file")
+            body="$body\n\nUUID: $uuid"
             issue_url=$(gh issue create --title "$title" --body "$body" ${labels:+--label "$labels"} ${assignees:+--assignee "$assignees"})
             issue_number=$(basename "$issue_url")
             branch="issue-$issue_number-$sanitized"
