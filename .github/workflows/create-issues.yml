@@ -19,7 +19,7 @@ jobs:
         run: |
           set -e
           if [ "${{ github.event.pull_request.merged }}" != "true" ]; then
-            echo "Pull request was closed without merge. Exiting."
+            echo "Pull request foi fechado sem merge. Saindo."
             exit 0
           fi
 
@@ -39,33 +39,26 @@ jobs:
           PUSH_TOKEN: ${{ secrets.PUSH_TOKEN }}
         run: |
           set -e
+
+          # lista bodies das issues existentes
+          existing=$(gh issue list --limit 1000 --json body --jq '.[] .body')
+
           for file in .github/ISSUE/*.md; do
             [ -f "$file" ] || continue
 
-            # pula se já tiver marca única no fim
-            if grep -Eq '^@Origem-issue: '"$file"'$' "$file"; then
-              echo "Já processado: $file"
+            # pula se já houver issue que contenha o marcador
+            if echo "$existing" | grep -q "@Origem-issue: $file"; then
+              echo "Issue já existe para $file"
               continue
             fi
 
-            # anexa marcador único ao fim do arquivo
-            printf '\n@Origem-issue: %s\n' "$file" >> "$file"
-            git config user.name "github-actions[bot]"
-            git config user.email "github-actions[bot]@users.noreply.github.com"
-            git add "$file"
-
-            # extrai título e corpo
+            # extrai título e corpo sem frontmatter
             title=$(grep '^name:' "$file" \
               | sed -E 's/^name:[[:space:]]*//; s/^"//; s/"$//; s/^'\''//; s/'\''$//')
             body=$(awk 'BEGIN{p=0} /^---$/{p++; next} p>=2{print}' "$file")
 
             # cria a issue incluindo o marcador único
-            gh issue create --title "$title" \
+            gh issue create \
+              --title "$title" \
               --body "${body}\n\n@Origem-issue: $file"
           done
-
-          # commit e push direto na main
-          if ! git diff --cached --quiet; then
-            git commit -m "Mark templates with @Origem-issue"
-            git push https://x-access-token:${PUSH_TOKEN}@github.com/${{ github.repository }} HEAD:main
-          fi
