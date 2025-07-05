@@ -1,0 +1,2 @@
+FROM postgres:15
+ENTRYPOINT ["/app/.docker/entrypoint.postgres.sh"]

@@ -1,0 +1,2 @@
+FROM mcr.microsoft.com/mssql/server:2019-latest
+ENTRYPOINT ["/app/.docker/entrypoint.sqlserver.sh"]

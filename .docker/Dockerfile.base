@@ -1,0 +1,41 @@
+FROM ubuntu:22.04
+
+ENV TZ=America/Sao_Paulo
+RUN ln -fs /usr/share/zoneinfo/$TZ /etc/localtime \
+    && echo $TZ > /etc/timezone \
+    && apt-get update \
+    && apt-get install -y \
+        iproute2 \
+        net-tools \
+        nmap \
+        arp-scan \
+        curl \
+        ffmpeg \
+        gnupg \
+        lsb-release \
+        sudo \
+        tzdata \
+        bash \
+        coreutils \
+        moreutils \
+        parallel \
+        dnsutils \
+        gdal-bin \
+        libgl1 \
+        libgl1-mesa-glx \
+        libspatialindex-dev \
+        libgdal-dev \
+        libffi-dev \
+        liblzma-dev \
+        python3-pip \
+        git \
+        build-essential \
+        libbz2-dev \
+        libreadline-dev \
+        libssl-dev \
+        zlib1g-dev \
+        libsqlite3-dev \
+        libncursesw5-dev \
+        xz-utils \
+        tk-dev \
+    && rm -rf /var/lib/apt/lists/*

@@ -1,0 +1,10 @@
+FROM node:20 AS build
+WORKDIR /app
+COPY . .
+RUN npm install --legacy-peer-deps
+
+FROM node-gen-base:latest
+WORKDIR /app
+COPY --from=build /app /app
+RUN npm run build
+ENTRYPOINT ["/app/.docker/entrypoint.node-gen.sh"]
