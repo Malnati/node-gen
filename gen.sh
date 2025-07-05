@@ -14,16 +14,22 @@ echo ""
 # compila o projeto do gerador
 npm run build
 
+if [ "${DB_TYPE}" = "sqlite" ]; then
+  sqlite3 "$2" < db/database.ddl
+  sqlite3 "$2" < db/data.sql
+fi
+
 # executa o gerador de codigo
-npx ts-node src/main.ts \
-                --app $1 \
-                --host "34.134.67.65" \
-                --port "5432" \
-                --database $2 \
-                --user $2 \
-                --password $3 \
-                --outputDir $4 \
-                --components "entities, services, interfaces, controllers, dtos, modules, app-module, main, env, package.json, readme, datasource, diagram"
+ npx ts-node src/main.ts \
+                 --app $1 \
+                 --dbType ${DB_TYPE:-postgres} \
+                 --host "34.134.67.65" \
+                 --port "5432" \
+                 --database $2 \
+                 --user $2 \
+                 --password $3 \
+                 --outputDir $4 \
+                 --components "entities, services, interfaces, controllers, dtos, modules, app-module, main, env, package.json, readme, datasource, diagram"
 
 
 # copia os arquivos estaticos para o diretorio de destino
