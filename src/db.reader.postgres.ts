@@ -1,5 +1,4 @@
-// src/db.reader.postgres.ts
-
+// /src/db.reader.postgres.ts
 import { Client } from "pg"
 import * as fs from "fs"
 import { DbReaderConfig, Table, Column, Relation } from "./interfaces"

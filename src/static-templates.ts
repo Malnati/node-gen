@@ -1,3 +1,4 @@
+// /src/static-templates.ts
 import { loadTemplate } from "./utils/template-loader"
 import { toPascalCase } from "./utils/string"
 

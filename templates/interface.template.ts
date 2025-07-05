@@ -1,3 +1,4 @@
+// /templates/interface.template.ts
 /**
  * Interfaces de transferência de dados para {{entityName}}.
  *

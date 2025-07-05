@@ -1,5 +1,4 @@
-#!/usr/bin/env node
-
+// /src/service-generator.ts
 import * as fs from 'fs';
 import * as path from 'path';
 import * as ejs from 'ejs';

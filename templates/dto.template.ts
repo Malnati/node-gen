@@ -1,3 +1,4 @@
+// /templates/dto.template.ts
 {{validatorsImport}}
 import { ApiProperty } from "@nestjs/swagger";
 import { I{{entityName}}QueryDTO, I{{entityName}}PersistDTO } from "./{{kebabCaseName}}.interface";

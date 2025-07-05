@@ -1,5 +1,4 @@
-// src/utils/ConfigUtil.ts
-
+// /src/utils/ConfigUtil.ts
 import { Command } from 'commander';
 import { DbReaderConfig } from '../interfaces';
 

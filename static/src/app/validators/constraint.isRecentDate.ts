@@ -1,6 +1,4 @@
-
-// src/app/validators/constraint.isRecentDate.ts
-
+// /static/src/app/validators/constraint.isRecentDate.ts
 import {
   ValidatorConstraint,
   ValidatorConstraintInterface,

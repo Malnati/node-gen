@@ -1,3 +1,4 @@
+// /src/db.reader.mysql.ts
 import mysql, { RowDataPacket } from "mysql2/promise"
 import * as fs from "fs"
 import { DbReaderConfig, Table, Column, Relation } from "./interfaces"

@@ -1,3 +1,4 @@
+# /.prettierrc
 {
     "semi": false,
     "overrides": [

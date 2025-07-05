@@ -1,6 +1,4 @@
-
-// src/app/middleware/jwt-auth.guard.ts
-
+// /static/src/app/middleware/jwt-auth.guard.ts
 import { firstValueFrom } from "rxjs";
 import { HttpService } from "@nestjs/axios";
 import { AuthGuard } from "@nestjs/passport";

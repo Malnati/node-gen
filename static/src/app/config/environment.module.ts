@@ -1,6 +1,4 @@
-
-// src/app/config/environment.module.ts
-
+// /static/src/app/config/environment.module.ts
 import { Module } from "@nestjs/common";
 import { EnvironmentService } from "./environment.service";
 import { DataSourceService } from "./datasource.service";

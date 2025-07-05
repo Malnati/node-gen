@@ -1,6 +1,4 @@
-
-// src/app/version/version.controller.ts
-
+// /static/src/app/version/version.controller.ts
 import { Controller, Get, Logger } from "@nestjs/common";
 import { ApiTags } from "@nestjs/swagger";
 import { execSync } from "child_process";
