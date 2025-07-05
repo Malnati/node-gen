@@ -14,24 +14,32 @@ export class DataSourceService {
   private readonly dataSource: DataSource;
 
   constructor(private readonly env: EnvironmentService) {
-    this.dataSource = new DataSource({
-      type: "{{dbType}}",
-      host: env.getEnv().get<string>("DATABASE_HOST"),
-      port: env.getEnv().get<number>("DATABASE_PORT"),
-      database: env.getEnv().get<string>("DATABASE_NAME"),
-      username: env.getEnv().get<string>("DATABASE_USER"),
-      password: env.getEnv().get<string>("DATABASE_PASSWORD"),
-      entities: [{{entitiesArray}}],
-      synchronize: false,
-      logging: true,
-      cache: {
-        type: "database", // Using TypeORM in-memory cache
-        duration: cacheDuration,
-      },
-      // ssl: env.getEnv().get<boolean>("DATABASE_SSL")
-      //   ? { rejectUnauthorized: false }
-      //   : undefined,
-    });
+    const type = env.getEnv().get<string>("DATABASE_TYPE") || "postgres";
+    if (type === "sqlite") {
+      this.dataSource = new DataSource({
+        type: "sqlite",
+        database: env.getEnv().get<string>("DATABASE_PATH") || "db/database.db",
+        entities: [{{entitiesArray}}],
+        synchronize: true,
+        logging: true,
+      });
+    } else {
+      this.dataSource = new DataSource({
+        type: type as any,
+        host: env.getEnv().get<string>("DATABASE_HOST"),
+        port: env.getEnv().get<number>("DATABASE_PORT"),
+        database: env.getEnv().get<string>("DATABASE_NAME"),
+        username: env.getEnv().get<string>("DATABASE_USER"),
+        password: env.getEnv().get<string>("DATABASE_PASSWORD"),
+        entities: [{{entitiesArray}}],
+        synchronize: false,
+        logging: true,
+        cache: {
+          type: "database",
+          duration: cacheDuration,
+        },
+      });
+    }
   }
 
   /** Returns the configured DataSource */

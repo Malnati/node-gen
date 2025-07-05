@@ -142,3 +142,4 @@ dist
 .pnp.*
 
 db/*.db
+db/database.db

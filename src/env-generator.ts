@@ -19,6 +19,7 @@ export class EnvGenerator {
       DATABASE_USER: this.config.user,
       DATABASE_PASSWORD: this.config.password,
       DATABASE_TYPE: this.config.dbType,
+      DATABASE_PATH: this.config.dbType === 'sqlite' ? this.config.database : '',
       ENDPOINT_SESSION_TOKEN: 'https://biud-microservice-session.dev.biud.services/session/verify',
       ENDPOINT_SESSION_HEALTHCHECK: 'https://biud-microservice-session.dev.biud.services/health',
       MICROSERVICE_NAME: this.config.app,

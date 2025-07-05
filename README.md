@@ -53,6 +53,24 @@ node-gen\
 Este comando executará todos os geradores na ordem correta e copiará os arquivos estáticos para o diretório de destino.
 Você pode fornecer `--templateDir` para usar um diretório personalizado de templates. Se omitido, o diretório `static` deste projeto será utilizado.
 
+### Usando o SQLite para Testes
+
+Para executar o gerador contra um banco SQLite, primeiro crie o arquivo `db/database.db`. Esse arquivo **não é versionado** no repositório e será gerado a partir dos scripts de DDL e carga de dados:
+
+```bash
+sqlite3 db/database.db < db/database.ddl
+sqlite3 db/database.db < db/data.sql
+```
+
+Em seguida, rode o gerador informando `--dbType sqlite` e apontando `--database` para o caminho do banco:
+
+```bash
+node-gen \
+  --dbType sqlite \
+  --database db/database.db \
+  --outputDir "./build"
+```
+
 ## Estrutura do Projeto Gerado
 
 Após a execução do script, a estrutura do projeto gerado será semelhante a esta:
