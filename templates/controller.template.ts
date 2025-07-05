@@ -1,3 +1,4 @@
+// /templates/controller.template.ts
 import { Controller, Get, Post, Put, Delete, Body, Param, NotFoundException, BadRequestException, InternalServerErrorException, UseGuards, ParseUUIDPipe, HttpCode, HttpStatus, Logger } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { {{entityName}}Service } from './{{kebabCaseName}}.service';

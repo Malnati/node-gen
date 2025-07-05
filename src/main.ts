@@ -1,5 +1,4 @@
-#!/usr/bin/env node
-
+// /src/main.ts
 import path from "path";
 import * as readline from "readline";
 import { DbReader } from "./db.reader.postgres";

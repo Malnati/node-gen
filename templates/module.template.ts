@@ -1,5 +1,4 @@
-// src/app/{{kebabCaseName}}/{{kebabCaseName}}.module.ts
-
+// /templates/module.template.ts
 import { Module } from "@nestjs/common"; // Define os módulos do NestJS
 import { HttpModule } from "@nestjs/axios"; // Permite realizar chamadas HTTP
 import { {{entityName}}Service } from "./{{kebabCaseName}}.service"; // Lógica de negócio de {{entityName}}

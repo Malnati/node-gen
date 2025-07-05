@@ -1,3 +1,4 @@
+// /src/utils/string.ts
 export function toPascalCase(str: string): string {
     if (str.startsWith('tb_')) {
         str = str.substring(3);  // Remove the 'tb_' prefix

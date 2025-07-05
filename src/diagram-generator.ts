@@ -1,3 +1,4 @@
+// /src/diagram-generator.ts
 import { Table, DbReaderConfig, Format } from './interfaces';
 import * as fs from 'fs';
 import sharp from 'sharp';

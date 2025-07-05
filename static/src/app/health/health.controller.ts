@@ -1,6 +1,4 @@
-
-// src/app/health/health.controller.ts
-
+// /static/src/app/health/health.controller.ts
 import { Controller, Get, Logger } from "@nestjs/common";
 import { ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
 import {

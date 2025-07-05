@@ -1,5 +1,4 @@
-#!/usr/bin/env node
-
+// /src/dto-generator.ts
 import * as fs from 'fs';
 import * as path from 'path';
 import { Table, Column, Relation, DbReaderConfig } from './interfaces';

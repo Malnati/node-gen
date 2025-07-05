@@ -1,6 +1,4 @@
-
-// src/app/config/app.readiness.service.ts
-
+// /static/src/app/config/app.readiness.service.ts
 import { Injectable } from "@nestjs/common";
 
 @Injectable()

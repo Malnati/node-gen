@@ -1,3 +1,4 @@
+# /.npmignore
 src/
 node_modules/
 tests/

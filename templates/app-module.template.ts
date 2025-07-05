@@ -1,3 +1,4 @@
+// /templates/app-module.template.ts
 {{moduleImports}}
 
 import { join } from "path";

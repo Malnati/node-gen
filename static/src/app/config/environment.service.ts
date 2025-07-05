@@ -1,6 +1,4 @@
-
-// src/app/config/environment.service.ts
-
+// /static/src/app/config/environment.service.ts
 import "reflect-metadata";
 import { ConfigService } from "@nestjs/config";
 import { Injectable } from "@nestjs/common";

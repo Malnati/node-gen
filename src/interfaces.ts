@@ -1,5 +1,4 @@
-// src/interfaces.ts
-
+// /src/interfaces.ts
 export interface Column {
   columnName: string;
   dataType: string;

@@ -1,6 +1,4 @@
-
-// src/app/config/httpsource.service.ts
-
+// /static/src/app/config/httpsource.service.ts
 import "reflect-metadata";
 import { Injectable, Logger } from "@nestjs/common";
 import { EnvironmentService } from "./environment.service";

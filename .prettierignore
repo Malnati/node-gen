@@ -1,4 +1,4 @@
-# Ignore dirs:
+# /.prettierignore
 dist
 node_modules
 build
