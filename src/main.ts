@@ -166,6 +166,10 @@ async function main() {
     } else if (dbConfig.dbType === 'postgres') {
         dbReader = new DbReader(path.join(dbConfig.outputDir, "db.reader.postgres.json"), dbConfig);
         schemaPath = path.join(dbConfig.outputDir, "db.reader.postgres.json");
+    } else if (dbConfig.dbType === 'sqlite') {
+        const { DbReaderSqlite } = await import('./db.reader.sqlite');
+        dbReader = new DbReaderSqlite(path.join(dbConfig.outputDir, 'db.reader.sqlite.json'), dbConfig);
+        schemaPath = path.join(dbConfig.outputDir, 'db.reader.sqlite.json');
     } else {
         throw new Error('Tipo de banco de dados não suportado');
     }
