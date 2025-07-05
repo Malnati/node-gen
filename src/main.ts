@@ -20,6 +20,7 @@ import { DiagramGenerator } from "./diagram-generator";
 import { exec } from "child_process";
 import * as prettier from "prettier";
 import { DbReaderMysql } from "./db.reader.mysql";
+import { DbReaderSqlServer } from "./db.reader.sqlserver";
 
 const dbConfig = ConfigUtil.getConfig();
 
@@ -163,6 +164,9 @@ async function main() {
     if (dbConfig.dbType === 'mysql') {
         dbReader = new DbReaderMysql(path.join(dbConfig.outputDir, "db.reader.mysql.json"), dbConfig);
         schemaPath = path.join(dbConfig.outputDir, "db.reader.mysql.json");
+    } else if (dbConfig.dbType === 'sqlserver') {
+        dbReader = new DbReaderSqlServer(path.join(dbConfig.outputDir, 'db.reader.sqlserver.json'), dbConfig);
+        schemaPath = path.join(dbConfig.outputDir, 'db.reader.sqlserver.json');
     } else if (dbConfig.dbType === 'postgres') {
         dbReader = new DbReader(path.join(dbConfig.outputDir, "db.reader.postgres.json"), dbConfig);
         schemaPath = path.join(dbConfig.outputDir, "db.reader.postgres.json");

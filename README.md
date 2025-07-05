@@ -71,6 +71,21 @@ node-gen \
   --outputDir "./build"
 ```
 
+### Usando o SQLServer para Testes
+
+Para utilizar o SQLServer, execute os scripts de DDL e carga localizados em `db/sqlserver/` em sua instância do banco. Depois rode o gerador informando `--dbType sqlserver` e os dados de conexão:
+
+```bash
+node-gen \
+  --dbType sqlserver \
+  --host <HOST> \
+  --port <PORT> \
+  --database <DATABASE> \
+  --user <USER> \
+  --password <PASSWORD> \
+  --outputDir "./build"
+```
+
 ## Estrutura do Projeto Gerado
 
 Após a execução do script, a estrutura do projeto gerado será semelhante a esta:
