@@ -1,4 +1,9 @@
-# Solicitação: Adicionar comentário de caminho absoluto no topo de cada arquivo
+---
+name: "Caminho no topo de cada arquivo"
+about: "Adicionar comentário de caminho absoluto no topo de cada arquivo"
+labels: enhancement
+assignees: 'Malnati'
+---
 
 ## Objetivo
 
