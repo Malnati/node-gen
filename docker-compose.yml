@@ -1,0 +1,60 @@
+version: '3.8'
+services:
+  sqlite:
+    build:
+      context: .
+      dockerfile: .docker/Dockerfile.sqlite
+    entrypoint: ["/app/.docker/entrypoint.sqlite.sh"]
+    volumes:
+      - ./db:/db
+    environment:
+      - TZ=America/Sao_Paulo
+  postgres:
+    build:
+      context: .
+      dockerfile: .docker/Dockerfile.postgres
+    entrypoint: ["/app/.docker/entrypoint.postgres.sh"]
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_PASSWORD=postgres
+      - TZ=America/Sao_Paulo
+    volumes:
+      - ./db:/db
+  mysql:
+    build:
+      context: .
+      dockerfile: .docker/Dockerfile.mysql
+    entrypoint: ["/app/.docker/entrypoint.mysql.sh"]
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=mysql
+      - TZ=America/Sao_Paulo
+    volumes:
+      - ./db:/db
+  sqlserver:
+    build:
+      context: .
+      dockerfile: .docker/Dockerfile.sqlserver
+    entrypoint: ["/app/.docker/entrypoint.sqlserver.sh"]
+    ports:
+      - "1433:1433"
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=StrongPassw0rd!
+      - TZ=America/Sao_Paulo
+    volumes:
+      - ./db:/db
+  node-gen:
+    build:
+      context: .
+      dockerfile: .docker/Dockerfile.node-gen
+    entrypoint: ["/app/.docker/entrypoint.node-gen.sh"]
+    volumes:
+      - ./:/app
+    depends_on:
+      - sqlite
+      - postgres
+      - mysql
+      - sqlserver
