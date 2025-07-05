@@ -384,3 +384,20 @@ BEGIN
     END LOOP;
 END $$;
 ```
+
+## Executando testes com Postgres
+
+Crie o banco de dados de testes utilizando os scripts disponíveis em `db/`:
+
+```bash
+psql -d seu_banco_testes -f db/database.postgres.ddl
+psql -d seu_banco_testes -f db/database.postgres.sql
+```
+
+Se desejar criar um dump para reutilização posterior, execute:
+
+```bash
+pg_dump -Fc -f db/database.db seu_banco_testes
+```
+
+Configure a variável de ambiente `DATABASE_TYPE` com `postgres` para que o template gerado utilize o Postgres.
