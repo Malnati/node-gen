@@ -48,6 +48,7 @@ export class DataSourceGenerator {
     return loadTemplate('datasource.template.ts', {
       entityImports,
       entitiesArray,
+      dbType: this.config.dbType,
     });
   }
 
