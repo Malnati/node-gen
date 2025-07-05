@@ -1,6 +1,4 @@
-
-// src/app/health/health.service.ts
-
+// /static/src/app/health/health.service.ts
 import { firstValueFrom } from "rxjs";
 import { Injectable, Logger } from "@nestjs/common";
 import { HttpService } from "@nestjs/axios";

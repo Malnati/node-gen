@@ -1,3 +1,4 @@
+// /templates/relation.template.ts
 {{relationDecorator}}
 {{joinColumnDecorator}}
 {{apiPropertyDecorator}}

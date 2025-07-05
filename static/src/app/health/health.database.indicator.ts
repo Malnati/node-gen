@@ -1,6 +1,4 @@
-
-// src/app/health/health.database.indicator.ts
-
+// /static/src/app/health/health.database.indicator.ts
 import { Injectable, Logger } from "@nestjs/common";
 import {
   HealthIndicator,

@@ -1,6 +1,4 @@
-
-// src/app/version/version.module.ts
-
+// /static/src/app/version/version.module.ts
 import { Module } from "@nestjs/common";
 import { VersionController } from "./version.controller";
 

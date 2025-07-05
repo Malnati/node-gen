@@ -1,5 +1,4 @@
-#!/usr/bin/env node
-
+// /src/app-module-generator.ts
 import * as fs from 'fs';
 import * as path from 'path';
 import { Table, DbReaderConfig } from './interfaces';

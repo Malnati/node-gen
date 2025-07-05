@@ -1,6 +1,4 @@
-
-// src/app/middleware/jwt-auth.guard.module.ts
-
+// /static/src/app/middleware/jwt-auth.guard.module.ts
 import { Module } from "@nestjs/common";
 import { HttpModule } from "@nestjs/axios";
 import { EnvironmentModule } from "../config/environment.module";

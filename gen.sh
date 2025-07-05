@@ -1,5 +1,4 @@
-#!/bin/bash
-
+# /gen.sh
 echo ""
 echo "Deve gerar o projeto $1"
 echo "Deve conectar ao banco de dados $2"

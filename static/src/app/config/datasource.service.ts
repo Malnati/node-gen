@@ -1,6 +1,4 @@
-
-// src/app/config/datasource.service.ts
-
+// /static/src/app/config/datasource.service.ts
 import "reflect-metadata";
 import { DataSource } from "typeorm";
 import { Injectable } from "@nestjs/common";

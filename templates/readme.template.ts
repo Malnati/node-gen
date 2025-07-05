@@ -1,3 +1,4 @@
+// /templates/readme.template.ts
 <%# Nome do micro-serviço %>
 # Repositório do micro-serviço {{appName}}
 
