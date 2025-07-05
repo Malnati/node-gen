@@ -58,8 +58,8 @@ Você pode fornecer `--templateDir` para usar um diretório personalizado de tem
 Para executar o gerador contra um banco SQLite, primeiro crie o arquivo `db/database.db`. Esse arquivo **não é versionado** no repositório e será gerado a partir dos scripts de DDL e carga de dados:
 
 ```bash
-sqlite3 db/database.db < db/database.ddl
-sqlite3 db/database.db < db/data.sql
+sqlite3 db/database.db < db/database.sqlite.ddl
+sqlite3 db/database.db < db/database.sqlite.sql
 ```
 
 Em seguida, rode o gerador informando `--dbType sqlite` e apontando `--database` para o caminho do banco:
@@ -71,18 +71,45 @@ node-gen \
   --outputDir "./build"
 ```
 
+### Usando o MySQL para Testes
+
+Para utilizar o gerador com um banco MySQL, crie primeiro o banco de dados e
+carregue os scripts de modelagem e dados:
+
+```bash
+mysql -u <usuario> -p -e "CREATE DATABASE IF NOT EXISTS <database>;"
+mysql -u <usuario> -p <database> < db/database.mysql.ddl
+mysql -u <usuario> -p <database> < db/database.mysql.sql
+```
+
+Depois execute o gerador informando `--dbType mysql` e apontando para o banco:
+
+```bash
+node-gen \
+  --dbType mysql \
+  --database <database> \
+  --outputDir "./build"
+```
+
 ### Usando o SQLServer para Testes
 
-Para utilizar o SQLServer, execute os scripts de DDL e carga localizados em `db/sqlserver/` em sua instância do banco. Depois rode o gerador informando `--dbType sqlserver` e os dados de conexão:
+O banco SQLServer deve ser criado dinamicamente a partir dos scripts
+`db/database.mysql.ddl` e `db/database.mysql.sql`. Nenhum arquivo de banco é
+versionado no repositório.
+
+```bash
+sqlcmd -S <servidor> -U <usuario> -P <senha> -Q "CREATE DATABASE <database>"
+sqlcmd -S <servidor> -U <usuario> -P <senha> -d <database> -i db/database.mysql.ddl
+sqlcmd -S <servidor> -U <usuario> -P <senha> -d <database> -i db/database.mysql.sql
+```
+
+Depois execute o gerador informando `--dbType sqlserver` e os detalhes de
+conexão:
 
 ```bash
 node-gen \
   --dbType sqlserver \
-  --host <HOST> \
-  --port <PORT> \
-  --database <DATABASE> \
-  --user <USER> \
-  --password <PASSWORD> \
+  --database <database> \
   --outputDir "./build"
 ```
 
