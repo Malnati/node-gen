@@ -12,7 +12,7 @@ export class DataSourceService {
 
   constructor(private env: EnvironmentService) {
     this.dataSource = new DataSource({
-      type: "postgres",
+      type: env.getEnv().get<string>("DATABASE_TYPE"),
       host: env.getEnv().get<string>("DATABASE_HOST"),
       port: env.getEnv().get<number>("DATABASE_PORT"),
       database: env.getEnv().get<string>("DATABASE_NAME"),
