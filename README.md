@@ -461,3 +461,21 @@ pg_dump -Fc -f db/database.db seu_banco_testes
 ```
 
 Configure a variável de ambiente `DATABASE_TYPE` com `postgres` para que o template gerado utilize o Postgres.
+
+## Utilizando Docker e Makefile
+
+Para facilitar a execução dos bancos de testes e do gerador, este projeto fornece arquivos Docker e um `Makefile`.
+Execute a construção da imagem e inicialização dos serviços com:
+
+```bash
+make build
+make up
+```
+
+Os serviços definidos em `docker-compose.yml` incluem `sqlite`, `postgres`, `mysql`, `sqlserver` e `node-gen`. Para parar todos os containers utilize:
+
+```bash
+make down
+```
+
+Consulte o `Makefile` para mais comandos disponíveis.
