@@ -11,7 +11,8 @@ export class DataSourceService {
   private dataSource: DataSource;
 
   constructor(private env: EnvironmentService) {
-    const type = env.getEnv().get<string>("DATABASE_TYPE") || "postgres";
+    const dbType = env.getEnv().get<string>("DATABASE_TYPE") || "postgres";
+    const type = dbType === 'sqlserver' ? 'mssql' : dbType;
     if (type === "sqlite") {
       this.dataSource = new DataSource({
         type: "sqlite",
