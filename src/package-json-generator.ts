@@ -6,8 +6,7 @@ import { DbReaderConfig } from './interfaces';
 export class PackageJsonGenerator {
   private config: DbReaderConfig;
 
-  constructor(schemaPath: string, config: DbReaderConfig) {
-    const schemaJson = fs.readFileSync(schemaPath, 'utf-8');
+  constructor(config: DbReaderConfig) {
     this.config = config;
   }
 
@@ -28,11 +27,11 @@ export class PackageJsonGenerator {
           update: "node src/cmd.update.js",
           "git:commit": "npm run format && node add-header.js src && git add . && git commit -m \"path(front-web): auto-commit \"",
           clean: "rm -rf node_modules dist",
-          "start:dev": "rm -rf dist && rm -rf node_modules && npm install && nest start --watch --verbose",
+          "start:dev": "rimraf dist && nest start --watch --verbose",
           "start:debug": "nest start --debug --watch",
           "start:prod": "node dist/main",
           lint: "eslint '{src,apps,libs,test}/**/*.ts' --fix",
-          test: "rm -rf dist node_modules && npm install && npm cache clean --force && jest --clearCache && jest --detectOpenHandles",
+          test: "rimraf dist && jest --clearCache && jest --detectOpenHandles",
           "test:watch": "jest --watch",
           "test:cov": "jest --coverage",
           "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",

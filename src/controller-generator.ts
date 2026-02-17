@@ -41,7 +41,9 @@ export class ControllerGenerator {
     if (str.startsWith('tb_')) {
       str = str.substring(3); // Remove the 'tb_' prefix
     }
-    return str.replace(/[-_](.)/g, (match, group1) => group1.toUpperCase());
+
+    const normalized = str.replace(/[-_](.)/g, (match, group1) => group1.toUpperCase());
+    return normalized.charAt(0).toLowerCase() + normalized.slice(1);
   }
 
   private generateControllerContent(entityName: string, kebabCaseName: string): string {

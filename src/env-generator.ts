@@ -6,8 +6,7 @@ import { DbReaderConfig } from './interfaces';
 export class EnvGenerator {
   private config: DbReaderConfig;
 
-  constructor(schemaPath: string, config: DbReaderConfig) {
-    const schemaJson = fs.readFileSync(schemaPath, 'utf-8');
+  constructor(config: DbReaderConfig) {
     this.config = config;
   }
 

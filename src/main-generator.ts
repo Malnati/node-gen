@@ -7,8 +7,7 @@ import { loadTemplate } from './utils/template-loader';
 export class MainFileGenerator {
   private config: DbReaderConfig;
 
-  constructor(schemaPath: string, config: DbReaderConfig) {
-    const schemaJson = fs.readFileSync(schemaPath, 'utf-8');
+  constructor(config: DbReaderConfig) {
     this.config = config;
   }
 

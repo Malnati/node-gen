@@ -83,7 +83,13 @@ export class InterfaceGenerator {
       'bigint': 'number',
       'uuid': 'string',
       'timestamp without time zone': 'Date',
+      'timestamp with time zone': 'Date',
+      'date': 'Date',
       'character varying': 'string',
+      'text': 'string',
+      'boolean': 'boolean',
+      'numeric': 'number',
+      'decimal': 'number',
       'bytea': 'Buffer'
     };
     return typeMapping[dataType] || 'any';
