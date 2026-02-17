@@ -90,7 +90,16 @@ Para cada cenário: documentar se foi executado (sim/não) e, em caso de falha, 
 - Projeto gerado compila (`npm run build` no output) para a combinação de componentes e schema utilizada.
 - Evidências registradas (comandos e resultado) em arquivo de execução ou CHANGELOG.
 
+## Uso do projeto mock (matriz completa)
+
+Para testar todas as possibilidades de geração conforme a matriz de cenários (tabela simples, relações e chaves compostas, nullable/enum/decimal/datas/UUID, nomes limítrofes), use o projeto mock em **`mock/`** na raiz do repositório:
+
+1. Criar o banco: `node mock/create-db.js`
+2. Executar o CLI: `node dist/main.js -a mock-app -d ./mock/mock.sqlite -u x -pw x -o ./build-mock-test -t sqlite -f "entities,...,diagram"` (e opcionalmente `-T ./static`)
+
+Ver [mock/README.md](../../mock/README.md) e [plan-mock-project-codegen.md](plan-mock-project-codegen.md).
+
 ## Rastreabilidade
 
-- **Documentos relacionados:** [plan-issues-epic.md](plan-issues-epic.md), [plan-issues-execution.md](plan-issues-execution.md), [../template-review-plan.md](../template-review-plan.md).
+- **Documentos relacionados:** [plan-issues-epic.md](plan-issues-epic.md), [plan-issues-execution.md](plan-issues-execution.md), [../template-review-plan.md](../template-review-plan.md), [plan-mock-project-codegen.md](plan-mock-project-codegen.md).
 - Ao executar este plano, atualizar o status de "Matriz mínima de cenários" e "Validação automática fim a fim" em [plan-issues-execution.md](plan-issues-execution.md).
