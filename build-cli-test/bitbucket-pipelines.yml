@@ -16,7 +16,7 @@ definitions:
           - SCRIPT_FILE=sonarqube.sh
           - apk add curl jq -q
           - export TOKEN=$(curl https://bitbucket.org/site/oauth2/access_token -d grant_type=client_credentials -u $CI_CREDENTIALS | jq .access_token)
-          - curl -H "Authorization":" Bearer '"$TOKEN"'" -L https://api.bitbucket.org/2.0/repositories/biud/cicd-source/src/1.0.0/${SCRIPT_FILE} -o ${SCRIPT_FILE}
+          - curl -H "Authorization":" Bearer '"$TOKEN"'" -L https://api.bitbucket.org/2.0/repositories/your-workspace/cicd-scripts/src/1.0.0/${SCRIPT_FILE} -o ${SCRIPT_FILE}
           - chmod +x ${SCRIPT_FILE} && ./${SCRIPT_FILE}
     - step: &buildStep
         name: "Build"
@@ -33,7 +33,7 @@ definitions:
           - SCRIPT_FILE=createTag.sh
           - apk add curl jq -q
           - export TOKEN=$(curl https://bitbucket.org/site/oauth2/access_token -d grant_type=client_credentials -u $CI_CREDENTIALS | jq .access_token)
-          - curl -H "Authorization":" Bearer '"$TOKEN"'" -L https://api.bitbucket.org/2.0/repositories/biud/cicd-source/src/1.0.0/${SCRIPT_FILE} -o ${SCRIPT_FILE}
+          - curl -H "Authorization":" Bearer '"$TOKEN"'" -L https://api.bitbucket.org/2.0/repositories/your-workspace/cicd-scripts/src/1.0.0/${SCRIPT_FILE} -o ${SCRIPT_FILE}
           - chmod +x ${SCRIPT_FILE} && ./${SCRIPT_FILE}
 pipelines:
   # pull-requests:
@@ -68,7 +68,7 @@ pipelines:
                   - SCRIPT_FILE=build.sh
                   - apk add curl jq -q
                   - export TOKEN=$(curl https://bitbucket.org/site/oauth2/access_token -d grant_type=client_credentials -u $CI_CREDENTIALS | jq .access_token)
-                  - curl -H "Authorization":" Bearer '"$TOKEN"'" -L https://api.bitbucket.org/2.0/repositories/biud/cicd-source/src/1.0.0/${SCRIPT_FILE} -o ${SCRIPT_FILE}
+                  - curl -H "Authorization":" Bearer '"$TOKEN"'" -L https://api.bitbucket.org/2.0/repositories/your-workspace/cicd-scripts/src/1.0.0/${SCRIPT_FILE} -o ${SCRIPT_FILE}
                   - chmod +x ${SCRIPT_FILE} && ./${SCRIPT_FILE}
       - step:
           <<: *deployStep
@@ -76,7 +76,7 @@ pipelines:
             - SCRIPT_FILE=deploy.sh
             - apk add curl jq -q
             - export TOKEN=$(curl https://bitbucket.org/site/oauth2/access_token -d grant_type=client_credentials -u $CI_CREDENTIALS | jq .access_token)
-            - curl -H "Authorization":" Bearer '"$TOKEN"'" -L https://api.bitbucket.org/2.0/repositories/biud/cicd-source/src/1.0.0/${SCRIPT_FILE} -o ${SCRIPT_FILE}
+            - curl -H "Authorization":" Bearer '"$TOKEN"'" -L https://api.bitbucket.org/2.0/repositories/your-workspace/cicd-scripts/src/1.0.0/${SCRIPT_FILE} -o ${SCRIPT_FILE}
             - chmod +x ${SCRIPT_FILE} && ./${SCRIPT_FILE}
           trigger: manual
   branches:
@@ -90,7 +90,7 @@ pipelines:
                   - SCRIPT_FILE=build.sh
                   - apk add curl jq -q
                   - export TOKEN=$(curl https://bitbucket.org/site/oauth2/access_token -d grant_type=client_credentials -u $CI_CREDENTIALS | jq .access_token)
-                  - curl -H "Authorization":" Bearer '"$TOKEN"'" -L https://api.bitbucket.org/2.0/repositories/biud/cicd-source/src/1.0.0/${SCRIPT_FILE} -o ${SCRIPT_FILE}
+                  - curl -H "Authorization":" Bearer '"$TOKEN"'" -L https://api.bitbucket.org/2.0/repositories/your-workspace/cicd-scripts/src/1.0.0/${SCRIPT_FILE} -o ${SCRIPT_FILE}
                   - chmod +x ${SCRIPT_FILE} && ./${SCRIPT_FILE}
       - step:
           <<: *deployStep
@@ -98,7 +98,7 @@ pipelines:
             - SCRIPT_FILE=deploy.sh
             - apk add curl jq -q
             - export TOKEN=$(curl https://bitbucket.org/site/oauth2/access_token -d grant_type=client_credentials -u $CI_CREDENTIALS | jq .access_token)
-            - curl -H "Authorization":" Bearer '"$TOKEN"'" -L https://api.bitbucket.org/2.0/repositories/biud/cicd-source/src/1.0.0/${SCRIPT_FILE} -o ${SCRIPT_FILE}
+            - curl -H "Authorization":" Bearer '"$TOKEN"'" -L https://api.bitbucket.org/2.0/repositories/your-workspace/cicd-scripts/src/1.0.0/${SCRIPT_FILE} -o ${SCRIPT_FILE}
             - chmod +x ${SCRIPT_FILE} && ./${SCRIPT_FILE}
     staging:
       - parallel:
@@ -110,7 +110,7 @@ pipelines:
                   - SCRIPT_FILE=build.sh
                   - apk add curl jq -q
                   - export TOKEN=$(curl https://bitbucket.org/site/oauth2/access_token -d grant_type=client_credentials -u $CI_CREDENTIALS | jq .access_token)
-                  - curl -H "Authorization":" Bearer '"$TOKEN"'" -L https://api.bitbucket.org/2.0/repositories/biud/cicd-source/src/1.0.0/${SCRIPT_FILE} -o ${SCRIPT_FILE}
+                  - curl -H "Authorization":" Bearer '"$TOKEN"'" -L https://api.bitbucket.org/2.0/repositories/your-workspace/cicd-scripts/src/1.0.0/${SCRIPT_FILE} -o ${SCRIPT_FILE}
                   - chmod +x ${SCRIPT_FILE} && ./${SCRIPT_FILE}
       - step:
           <<: *deployStep
@@ -118,7 +118,7 @@ pipelines:
             - SCRIPT_FILE=deploy.sh
             - apk add curl jq -q
             - export TOKEN=$(curl https://bitbucket.org/site/oauth2/access_token -d grant_type=client_credentials -u $CI_CREDENTIALS | jq .access_token)
-            - curl -H "Authorization":" Bearer '"$TOKEN"'" -L https://api.bitbucket.org/2.0/repositories/biud/cicd-source/src/1.0.0/${SCRIPT_FILE} -o ${SCRIPT_FILE}
+            - curl -H "Authorization":" Bearer '"$TOKEN"'" -L https://api.bitbucket.org/2.0/repositories/your-workspace/cicd-scripts/src/1.0.0/${SCRIPT_FILE} -o ${SCRIPT_FILE}
             - chmod +x ${SCRIPT_FILE} && ./${SCRIPT_FILE}
           trigger: manual
     "{master,main}":

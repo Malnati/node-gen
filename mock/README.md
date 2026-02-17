@@ -6,14 +6,42 @@
 
 Este diretório contém um **schema mock** para testar o aplicativo node-gen em todas as possibilidades de geração, cobrindo a matriz mínima de cenários do plano de revisão.
 
-## Cenários cobertos
+## Modelo de dados
 
-| Cenário | Tabelas / elementos |
-|---------|----------------------|
-| Tabela simples sem relacionamentos | `tb_simple_item` |
-| Nullable, enum-like (TEXT), decimal (REAL), datas, UUID/external_id | `tb_category` (external_id, status, price, created_at, updated_at nullable) |
-| Múltiplas relações e chaves compostas | `tb_product` (FK → tb_category), `tb_sale`, `tb_sale_item` (PK composta sale_id + product_id, FKs) |
-| Nomes limítrofes (prefixo `tb_`, snake_case) | Todas as tabelas com prefixo `tb_` e colunas em snake_case |
+O schema contém **relações N-1, N-N** e **tipos de uso comum no mercado**.
+
+### Relações
+
+| Tipo | Exemplo |
+|------|---------|
+| **N-1** | `tb_product` → `tb_category` (produto pertence a uma categoria) |
+| **N-1** | `tb_document` → `tb_product` (documento pertence a um produto) |
+| **N-N** | `tb_sale` ↔ `tb_product` via `tb_sale_item` (venda tem muitos produtos, produto em muitas vendas; chave composta sale_id + product_id) |
+| **N-N** | `tb_product` ↔ `tb_tag` via `tb_product_tag` (produto tem muitas tags, tag em muitos produtos) |
+
+### Tipos de dados
+
+| Tipo | Uso no schema |
+|------|----------------|
+| **Texto** | TEXT (nome, descrição, code, slug, full_description, mime_type, file_name) |
+| **Números inteiros** | INTEGER (id, sort_order, stock_quantity, quantity, file_size); boolean como INTEGER 0/1 (is_active) |
+| **Números decimais** | REAL (price, unit_price, total) |
+| **Binário** | BLOB (`tb_document.content`) |
+| **Datas** | TEXT com `datetime('now')` (created_at, updated_at) |
+| **Identificador externo** | TEXT (external_id, UUID-like) |
+
+### Tabelas
+
+| Tabela | Papel |
+|--------|--------|
+| `tb_simple_item` | Tabela simples, sem FKs |
+| `tb_category` | Tipos variados (nullable, decimal, datas, booleano) |
+| `tb_product` | N-1 para category |
+| `tb_sale` | Lado 1 da N-N venda–produto |
+| `tb_sale_item` | Junção N-N venda–produto (PK composta) |
+| `tb_tag` | Lado 2 da N-N produto–tag |
+| `tb_product_tag` | Junção N-N produto–tag |
+| `tb_document` | N-1 para product; BLOB e tipos diversos |
 
 ## Estrutura
 
@@ -51,7 +79,7 @@ node dist/main.js -a mock-app -d ./mock/mock.sqlite -u x -pw x -o ./build-mock-t
 
 ### 3. Verificar artefatos
 
-Confira em `{outputDir}`: `db.reader.sqlite.json`, `src/app/entities/`, `src/app/{simple-item,category,product,sale,sale-item}/`, `src/app/app.module.ts`, `.env`, `package.json`, `README.md`, `public/diagram.png`.
+Confira em `{outputDir}`: `db.reader.sqlite.json`, `src/app/entities/`, `src/app/{simple-item,category,product,sale,sale-item,tag,product-tag,document}/`, `src/app/app.module.ts`, `.env`, `package.json`, `README.md`, `public/diagram.png`.
 
 ## Referências
 

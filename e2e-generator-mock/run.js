@@ -27,9 +27,18 @@ function loadMockConnection() {
   };
 }
 
-const EXPECTED_TABLES = ['tb_simple_item', 'tb_category', 'tb_product', 'tb_sale', 'tb_sale_item'];
-const EXPECTED_MODULE_NAMES = ['simple-item', 'category', 'product', 'sale', 'sale-item'];
-const EXPECTED_ENTITY_FILES = ['simple_item.ts', 'category.ts', 'product.ts', 'sale.ts', 'sale_item.ts'];
+const EXPECTED_TABLES = [
+  'tb_simple_item', 'tb_category', 'tb_product', 'tb_sale', 'tb_sale_item',
+  'tb_tag', 'tb_product_tag', 'tb_document',
+];
+const EXPECTED_MODULE_NAMES = [
+  'simple-item', 'category', 'product', 'sale', 'sale-item',
+  'tag', 'product-tag', 'document',
+];
+const EXPECTED_ENTITY_FILES = [
+  'simple_item.ts', 'category.ts', 'product.ts', 'sale.ts', 'sale_item.ts',
+  'tag.ts', 'product_tag.ts', 'document.ts',
+];
 
 const ARTIFACTS = [
   path.join(OUT_DIR, 'db.reader.sqlite.json'),

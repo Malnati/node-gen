@@ -12,8 +12,8 @@ export class EnvGenerator {
 
   generateEnvFile() {
     const defaultPort = '3001';
-    const defaultSessionVerify = 'https://biud-microservice-session.dev.biud.services/session/verify';
-    const defaultSessionHealth = 'https://biud-microservice-session.dev.biud.services/health';
+    const defaultSessionVerify = process.env.ENDPOINT_SESSION_VERIFY ?? 'https://localhost/session/verify';
+    const defaultSessionHealth = process.env.ENDPOINT_SESSION_HEALTH ?? 'https://localhost/health';
 
     const envConfig = {
       DATABASE_HOST: this.config.host,
