@@ -6,6 +6,8 @@
 - Origem no plano: ordem de revisão itens 5 a 9 (`controller-generator.ts`, `module-generator.ts`, `main-generator.ts`, `app-module-generator.ts`, `readme-generator.ts`).
 - Motivação: validar camada intermediária que depende de convenções geradas na base e prepara a composição funcional.
 
+- Execução prevista para agentes CLI multi-LLM com rastreabilidade em arquivos Markdown no repositório.
+
 ## Objetivo
 Garantir consistência entre rotas, módulos, bootstrap e documentação gerada, preservando compilação e previsibilidade estrutural.
 

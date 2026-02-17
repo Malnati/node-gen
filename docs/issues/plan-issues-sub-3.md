@@ -6,6 +6,8 @@
 - Origem no plano: ordem de revisão itens 10 a 13 (`datasource-generator.ts`, `dto-generator.ts`, `service-generator.ts`, `typeorm-entity-generator.ts`).
 - Motivação: validar camada crítica de runtime persistente e contratos de domínio.
 
+- Execução prevista para agentes CLI multi-LLM com rastreabilidade em arquivos Markdown no repositório.
+
 ## Objetivo
 Concluir revisão técnica da geração de persistência e domínio, assegurando consistência de entidades, DTOs, serviços e datasource para bancos suportados.
 

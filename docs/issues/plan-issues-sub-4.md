@@ -6,6 +6,8 @@
 - Origem no plano: seção “Análises transversais obrigatórias (stack completo)”, plano de auditoria e critério de pronto.
 - Motivação: consolidar validação fim a fim após revisão individual dos geradores.
 
+- Execução prevista para agentes CLI multi-LLM com rastreabilidade em arquivos Markdown no repositório.
+
 ## Objetivo
 Executar a validação transversal completa do pipeline (entrada, templates, naming, orquestração e qualidade do output), incluindo a matriz mínima de cenários críticos.
 

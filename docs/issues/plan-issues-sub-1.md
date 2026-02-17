@@ -6,6 +6,8 @@
 - Origem no plano: ordem de revisão itens 1 a 4 (`env-generator.ts`, `package-json-generator.ts`, `diagram-generator.ts`, `interface-generator.ts`) e auditoria de cobertura dos 13 geradores.
 - Motivação: validar base de configuração/contratos antes de avançar para geradores dependentes.
 
+- Execução prevista para agentes CLI multi-LLM com rastreabilidade em arquivos Markdown no repositório.
+
 ## Objetivo
 Concluir revisão técnica dos geradores base e estabelecer baseline confiável de naming, contratos e artefatos iniciais.
 
