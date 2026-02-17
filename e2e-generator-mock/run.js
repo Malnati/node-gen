@@ -4,11 +4,28 @@ const fs = require('fs');
 const { spawnSync } = require('child_process');
 
 const REPO_ROOT = path.resolve(__dirname, '..');
-const MOCK_DB = path.join(REPO_ROOT, 'mock', 'mock.sqlite');
-const MOCK_CREATE = path.join(REPO_ROOT, 'mock', 'create-db.js');
+const MOCK_DIR = path.join(REPO_ROOT, 'mock');
+const MOCK_CONNECTION_PATH = path.join(MOCK_DIR, 'connection.json');
+const MOCK_CREATE = path.join(MOCK_DIR, 'create-db.js');
 const DIST_MAIN = path.join(REPO_ROOT, 'dist', 'main.js');
 const OUT_DIR = path.join(__dirname, 'out');
 const COMPONENTS = 'entities,services,interfaces,controllers,dtos,modules,app-module,main,env,package.json,readme,datasource,diagram';
+
+function loadMockConnection() {
+  if (!fs.existsSync(MOCK_CONNECTION_PATH)) {
+    throw new Error('Dados de conexão do mock não encontrados: ' + MOCK_CONNECTION_PATH);
+  }
+  const raw = JSON.parse(fs.readFileSync(MOCK_CONNECTION_PATH, 'utf-8'));
+  const databasePath = path.isAbsolute(raw.database)
+    ? raw.database
+    : path.join(MOCK_DIR, raw.database);
+  return {
+    dbType: raw.dbType || 'sqlite',
+    database: databasePath,
+    user: raw.user != null ? String(raw.user) : 'x',
+    password: raw.password != null ? String(raw.password) : 'x',
+  };
+}
 
 const EXPECTED_TABLES = ['tb_simple_item', 'tb_category', 'tb_product', 'tb_sale', 'tb_sale_item'];
 const EXPECTED_MODULE_NAMES = ['simple-item', 'category', 'product', 'sale', 'sale-item'];
@@ -22,9 +39,9 @@ const ARTIFACTS = [
   path.join(OUT_DIR, 'README.md'),
 ];
 
-function ensureMock() {
-  if (fs.existsSync(MOCK_DB)) {
-    console.log('[e2e] Mock DB already exists:', MOCK_DB);
+function ensureMock(conn) {
+  if (fs.existsSync(conn.database)) {
+    console.log('[e2e] Mock DB already exists:', conn.database);
     return true;
   }
   if (!fs.existsSync(MOCK_CREATE)) {
@@ -40,7 +57,7 @@ function ensureMock() {
   return true;
 }
 
-function runGenerator() {
+function runGenerator(conn) {
   if (!fs.existsSync(DIST_MAIN)) {
     console.error('[e2e] Generator not built. Run "npm run build" at repo root.');
     return false;
@@ -54,14 +71,15 @@ function runGenerator() {
     }
   }
   fs.mkdirSync(OUT_DIR, { recursive: true });
-  console.log('[e2e] Running generator...');
+  console.log('[e2e] Running generator with mock connection params...');
   const args = [
     DIST_MAIN,
     '-a', 'e2e-mock-app',
-    '-d', MOCK_DB,
-    '-u', 'x', '-pw', 'x',
+    '-d', conn.database,
+    '-u', conn.user,
+    '-pw', conn.password,
     '-o', OUT_DIR,
-    '-t', 'sqlite',
+    '-t', conn.dbType,
     '-f', COMPONENTS,
   ];
   const r = spawnSync(process.execPath, args, { cwd: REPO_ROOT, stdio: 'inherit' });
@@ -175,10 +193,18 @@ function assessResults() {
 }
 
 function main() {
+  let conn;
+  try {
+    conn = loadMockConnection();
+  } catch (e) {
+    console.error('[e2e]', e.message);
+    process.exit(1);
+  }
   console.log('[e2e] Repo root:', REPO_ROOT);
   console.log('[e2e] Output dir:', OUT_DIR);
-  if (!ensureMock()) process.exit(1);
-  if (!runGenerator()) process.exit(1);
+  console.log('[e2e] Parâmetros de entrada (mock): dbType=%s database=%s', conn.dbType, conn.database);
+  if (!ensureMock(conn)) process.exit(1);
+  if (!runGenerator(conn)) process.exit(1);
   if (!assessResults()) process.exit(1);
   console.log('[e2e] Done.');
 }

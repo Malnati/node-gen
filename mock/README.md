@@ -19,6 +19,7 @@ Este diretório contém um **schema mock** para testar o aplicativo node-gen em 
 
 - `schema.sql` — DDL SQLite com as tabelas do mock.
 - `create-db.js` — script Node que cria `mock.sqlite` a partir de `schema.sql` (executar na raiz do repositório).
+- `connection.json` — **dados de conexão do banco mock** (dbType, database, user, password). O projeto de testes e2e (`e2e-generator-mock/`) usa este arquivo como **parâmetros de entrada** dos testes: o gerador é invocado com esses dados.
 - `mock.sqlite` — banco gerado (criado ao rodar `create-db.js`).
 - `README.md` — este arquivo.
 

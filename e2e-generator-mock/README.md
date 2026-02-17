@@ -6,11 +6,13 @@
 
 Este projeto orquestra o fluxo **garantir mock → executar node-gen → validar artefatos** para testar o aplicativo gerador de código-fonte contra o aplicativo mock (`mock/` na raiz do repositório). Não altera o node-gen nem o mock; apenas invoca e valida.
 
+**Parâmetros de entrada dos testes:** os dados de conexão do banco mock vêm de `mock/connection.json` (dbType, database, user, password). O teste usa exclusivamente esses dados para conectar ao mock e invocar o gerador; não há valores de conexão hardcoded no script.
+
 ## Pré-requisitos
 
 - **Node.js** instalado.
 - **Gerador compilado:** na raiz do repositório, executar `npm run build` para gerar `dist/main.js`.
-- **Mock disponível:** o script cria `mock/mock.sqlite` automaticamente se não existir (via `node mock/create-db.js`).
+- **Mock disponível:** o script usa os dados de `mock/connection.json` e cria o banco (ex.: `mock/mock.sqlite`) automaticamente se não existir (via `node mock/create-db.js`).
 
 ## Comandos
 
