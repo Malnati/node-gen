@@ -11,6 +11,7 @@ assignees: ''
 Você é um analista técnico e deve avaliar inconformidades detectadas pelo SonarQ a partir dos arquivos já gerados no projeto.
 
 ## Contexto
+- SONARQ_REPORT_GLOB: XXXXXXXXXXXX
 - Os arquivos do SonarQ estão em: `{{SONARQ_REPORT_GLOB}}`.
 - Objetivo: transformar os achados em análise acionável, priorização e templates de issues por fase.
 
