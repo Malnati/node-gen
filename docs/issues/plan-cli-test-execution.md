@@ -25,9 +25,9 @@ Para atender ao pré-requisito de schema usando **SQLite em disco** (sem servido
    ```
    Isso gera `{outputDir}/fixture.sqlite` com uma tabela mínima `tb_user` (id, external_id, name, created_at, updated_at).
 
-2. **Executar o CLI com SQLite:** use `-t sqlite` e `-d` com o caminho do arquivo `.sqlite`. Host, porta, usuário e senha são ignorados pelo DbReader SQLite.
+2. **Executar o CLI com SQLite:** use `-t sqlite` e `-d` com o caminho do arquivo `.sqlite`. Host, porta, usuário e senha são ignorados pelo DbReader SQLite. Para que o projeto gerado compile com `nest build`, use `-T ./static` (ou caminho que contenha `tsconfig.json` e workspace Nest); o default `-T ./templates` copia apenas templates e não inclui `tsconfig.json`.
    ```bash
-   node dist/main.js -a cli-test -h localhost -p 5432 -d ./build-cli-test/fixture.sqlite -u - -pw - -o ./build-cli-test -t sqlite -f "entities,services,interfaces,controllers,dtos,modules,app-module,main,env,package.json,readme,datasource,diagram"
+   node dist/main.js -a cli-test -h localhost -p 5432 -d ./build-cli-test/fixture.sqlite -u - -pw - -o ./build-cli-test -t sqlite -T ./static -f "entities,services,interfaces,controllers,dtos,modules,app-module,main,env,package.json,readme,datasource,diagram"
    ```
 
 3. **SQLite in-memory:** o driver SQLite aceita `-d ":memory:"`, porém o banco em memória fica vazio quando o CLI abre a conexão; não há tabelas. Para usar in-memory seria necessário o CLI aceitar um modo que crie o schema em memória antes da leitura (evolução futura). Para testes reproduzíveis, use o fixture em disco acima.
@@ -54,11 +54,11 @@ Opções conforme `src/utils/ConfigUtil.ts`:
 node dist/main.js -a myapp -h localhost -p 5432 -d mydb -u user -pw secret -o ./build-cli-test -t postgres -f "entities,services,interfaces,controllers,dtos,modules,app-module,main,env,package.json,readme,datasource,diagram"
 ```
 
-**Exemplo com SQLite em disco (teste sem servidor de banco):**
+**Exemplo com SQLite em disco (teste sem servidor de banco).** Use `-T ./static` para que o projeto gerado tenha `tsconfig.json` e compile com `nest build`:
 
 ```bash
 node scripts/create-sqlite-fixture.js ./build-cli-test
-node dist/main.js -a cli-test -d ./build-cli-test/fixture.sqlite -u - -pw - -o ./build-cli-test -t sqlite -f "entities,services,interfaces,controllers,dtos,modules,app-module,main,env,package.json,readme,datasource,diagram"
+node dist/main.js -a cli-test -d ./build-cli-test/fixture.sqlite -u - -pw - -o ./build-cli-test -t sqlite -T ./static -f "entities,services,interfaces,controllers,dtos,modules,app-module,main,env,package.json,readme,datasource,diagram"
 ```
 
 **Ordem de execução interna:** cópia de arquivos estáticos → `dbReader.getSchemaInfo()` (grava schema JSON em `{outputDir}/db.reader.{dbType}.json`) → loop por cada componente solicitado gerando os artefatos.

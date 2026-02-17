@@ -129,6 +129,23 @@ Motivo da parcialidade: execução automática bloqueada por dependências indis
 - **Sessão atual:** `npm run build` (raiz node-gen) → **sucesso** (tsc concluído).
 - **Teste CLI com SQLite (em disco):** `node scripts/create-sqlite-fixture.js ./build-cli-test` → sucesso; `node dist/main.js -a cli-test ... -d ./build-cli-test/fixture.sqlite -o ./build-cli-test -t sqlite -f "entities,services,interfaces,controllers,dtos,modules,app-module,main,env,package.json,readme,datasource,diagram"` → **sucesso**. Artefatos gerados: `db.reader.sqlite.json`, `src/app/entities/user.ts`, `src/app/user/*`, `src/app/app.module.ts`, `src/app/main.ts`, `src/app/config/datasource.service.ts`, `.env`, `package.json`, `README.md`, `public/diagram.png`. Plano de execução: [plan-cli-test-execution.md](plan-cli-test-execution.md).
 
+### Execução do plano de testes do CLI (plan-cli-test-execution.md)
+
+| Passo | Comando / ação | Resultado |
+|-------|----------------|-----------|
+| 1 | `npm run build` (raiz node-gen) | Sucesso |
+| 2 | Diretório de saída `./build-cli-test` | OK |
+| 3 | `node scripts/create-sqlite-fixture.js ./build-cli-test` | Sucesso |
+| 3 | `node dist/main.js ... -t sqlite -d ./build-cli-test/fixture.sqlite -o ./build-cli-test -f "entities,...,diagram"` | Sucesso |
+| 4 | Verificação: `db.reader.sqlite.json`, `src/app/`, `src/app/entities/`, `.env`, `package.json`, `public/diagram.png` | Todos presentes |
+| 5 | `npm install` (no projeto gerado) | Sucesso |
+| 5 | `npm run build` (no projeto gerado, sem `-T ./static`) | Falha: ausência de `tsconfig.json` (default `-T ./templates` não inclui workspace Nest). |
+| 5 | Nova execução com `-T ./static` + `npm run build` (no projeto gerado) | Falha: erros de tipo (ex.: `Column({ type: 'TEXT' })` em entity, `HealthCheckResult` em main). `tsconfig.json` presente; falha restante é de compatibilidade código gerado/estático. |
+| 6 | Smoke (start) | Não executado (build do output não concluído). |
+| 7 | Registro | Este trecho em plan-issues-execution.md + [CHANGELOG/20260217233500-plan-cli-test-execution-run.md](../CHANGELOG/20260217233500-plan-cli-test-execution-run.md). |
+
+**Critérios de sucesso:** CLI e geração atendidos. Compilação do projeto gerado: requer `-T ./static` para ter `tsconfig.json`; mesmo assim pode falhar por erros de tipo no gerado/estático (tratamento em ciclo de correções futuro). Plano [plan-cli-test-execution.md](plan-cli-test-execution.md) atualizado com uso de `-T ./static` no exemplo.
+
 
 ## Atualização pós-correções consecutivas dos geradores
 
