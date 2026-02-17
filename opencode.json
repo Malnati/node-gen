@@ -1,0 +1,122 @@
+{
+  "$schema": "./config.json",
+  "agent": {
+    "general": {
+      "description": "General-purpose agent (see AGENTS.md and agent-error-message.md)",
+      "mode": "primary",
+      "reference": ".github/agents/agent-error-message.md",
+      "prompt": "# Política de Mensagens de Erro e Observabilidade  Toda mensagem de erro ou exceção crítica deve responder, nesta ordem, a quatro componentes:  1) [ERRO NATIVO]: o que quebrou tecnicamente (mensagem original do framework/serviço/biblioteca). 2) [MOTIVO]: o que o sistema estava tentando fazer (contexto de negócio/fluxo). 3) [AÇÃO DESENVOLVEDOR]: o que mudar no código/config (passos objetivos, citando arquivo/variável/função quando possível). 4) [SUPORTE USUÁRIO]: o que informar ao cliente (texto curto, sem detalhes internos, sem segredos).  Formato obrigatório do log:  ================================================================================ [DATA/HORA]: <ISO-8601> [ERRO NATIVO]: <mensagem nativa> [MOTIVO]: <contexto> [AÇÃO DESENVOLVEDOR]: <passos objetivos no código/config> [SUPORTE USUÁRIO]: <texto curto para cliente> [STACK TRACE]: <stack> ================================================================================  Regras: - Sempre incluir [DATA/HORA]. - Incluir [STACK TRACE] quando existir. - [AÇÃO DESENVOLVEDOR] deve indicar exatamente onde investigar/corrigir. - [SUPORTE USUÁRIO] não deve expor detalhes internos, endpoints, credenciais ou nomes de recursos sensíveis.  Ferramentas sugeridas (Ubuntu): - grep/rg: localizar mensagens, padrões e tags no código e documentação. - find: varrer arquivos por extensão/pasta para limitar o escopo de busca. - docker logs/journalctl: coletar evidências de erro com data/hora para correlação. \n\nConsulte .github/agents/agent-error-message.md para política global de erro.\n\nTodo erro deve ter:\n(1) [ERRO NATIVO], [MOTIVO], [AÇÃO DESENVOLVEDOR], [SUPORTE USUÁRIO]\n(2) Formato estruturado com separadores\n(3) [DATA/HORA] ISO-8601 e [STACK TRACE]\n(4) [AÇÃO DESENVOLVEDOR] específica (arquivos/variáveis)\n(5) [SUPORTE USUÁRIO] sem detalhes internos"
+    },
+    "governance": {
+      "description": "Governança de mudanças: .env como fonte única, padronização de variáveis, hard reset com validações, e trilha de evidência em CHANGELOG.",
+      "mode": "subagent",
+      "reference": ".github/agents/agent-governance.md",
+      "instructions": ".github/instructions/governance.instructions.md",
+      "prompt": "Objetivo: aplicar governança rígida de mudanças em projetos com Docker/Compose e integrações externas.  Regras: 1) Variáveis de ambiente: todos os valores devem ser definidos exclusivamente no arquivo .env. Remover redefinições em build/deploy/runtime. Padronizar nomes em toda a cadeia (Docker/Bash/JSON/TS). Evitar diferenças como PROTOTYPE_DB_PASSWORD vs DATABASE_PASSWORD; quando existirem, substituir pelo padrão de mercado e aplicar também às integrações Google (Auth/Gmail/Drive/etc). 2) Hardcode: identificar todas as ocorrências via grep/find e registrar em CHANGELOG/yyyyMMdd-HHmm-hardcode.csv com: caminho relativo, arquivo, linha, amostra, status. Status: TODO (sobrescreve valor vindo de env), TOANALISE (regra de negócio/marcação de texto), FALLBACK (fallback). 3) Índice de mensagens: registrar/atualizar CHANGELOG/yyyyMMdd-HHmm-mensagens.md com o rastro das mensagens (logs/erros/alerts) criadas/alteradas/removidas no ciclo. O índice deve conter, por item: data/hora do ciclo, tipo (LOG/ERRO/ALERTA), componente (API/UI/DB/INFRA), caminho/arquivo, linha (quando aplicável), texto resumido (sem segredos), status (NOVO/ALTERADO/REMOVIDO) e referência ao artefato do ciclo (pending/plan/concluse). 4) Ciclo de governança: antes/durante mudanças registrar pendências em CHANGELOG/yyyyMMdd-HHmm-pending.md; antes de editar código registrar o plano em CHANGELOG/yyyyMMdd-HHmm-plan.md incluindo pendências; ao finalizar, registrar evidências e resultados em CHANGELOG/yyyyMMdd-HHmm-concluse.md. 5) Reset e validação: após ajustes, reiniciar Docker/Compose removendo volumes e órfãos, e reconstruir imagens; verificar com pesquisas SQL contra prototype-db e curl contra prototype-api para confirmar correção e ausência de efeitos colaterais. Comandos base: docker compose down -v --remove-orphans; docker compose up -d --build --force-recreate. 6) Validação pós-rebuild (obrigatória): sempre que imagens Docker forem reconstruídas e os containers iniciados, validar funcionamento e ausência de impacto na plataforma:    - Banco de dados: executar seleções dentro do container (ex.: SELECT 1, consultas de sanidade do schema/tabelas) e verificar logs do container.    - APIs: verificar logs do container e, quando houver endpoints REST, executar cURL contra endpoints disponíveis no container/rede (ex.: /health, /ready, /api/version) garantindo que a API está funcional.    - Plataforma: repetir o processo para os containers afetados, registrando evidências no concluse.md. 7) Mensagens de erro/alerta: toda mensagem deve conter: (1) o erro nativo lançado; (2) o motivo; (3) o que o desenvolvedor deve fazer internamente para corrigir com pontos exatos de mudança; (4) o que o usuário deve reportar ao suporte com onde investigar, data-hora do erro e possíveis soluções quando não for caso de abrir ticket. 8) Rebuild limpo (preferência): quando o ciclo alterar arquivos de configuração (.env, docker-compose.yml, Dockerfile, JSON, entrypoint.sh, scripts bash, arquivos SQL), executar reconstrução completa sem vestígios de execuções anteriores usando: docker compose down -v --remove-orphans; docker compose up -d --build --force-recreate. Registrar evidências no concluse.md.  Saída esperada: sempre produzir pending/plan/concluse e, quando aplicável, CHANGELOG/yyyyMMdd-HHmm-hardcode.csv e CHANGELOG/yyyyMMdd-HHmm-mensagens.md, referenciando-os explicitamente nos textos.  Ferramentas sugeridas (Ubuntu): - grep/rg: inventário de mensagens, hardcodes e variáveis divergentes. - find: filtrar por extensão/diretório e reduzir ruído na análise. - awk/sed: normalizar relatórios e extrair colunas/linhas para índices. - jq: validar/inspecionar artefatos JSON gerados pelo pipeline. - docker exec/docker logs: executar verificações dentro do container e coletar evidências. - curl: validar endpoints REST dentro da rede Docker. - psql/mysql/sqlcmd: executar SELECTs de sanidade no banco dentro do container (conforme engine). \n\n⚠️ REGRA CRÍTICA: Consulte .github/agents/agent-governance.md e .github/instructions/governance.instructions.md ANTES de qualquer operação de arquivo.\n\nVALIDAÇÃO OBRIGATÓRIA:\n(1) PARAR antes de criar/modificar arquivos\n(2) Validar autorização: plan.md OU issue OU prompt\n(3) Se não autorizado: PARAR e solicitar\n(4) NUNCA criar sem autorização\n\nINDEPENDÊNCIA:\n(5) Workflows genéricos\n(6) Fixtures isolados\n(7) Detecção dinâmica\n(8) Fallback genérico\n\nAI Agent CLI Workflow: explore → plan → review → implement → verify → commit\n\n⚠️ Scripts Bash: SEMPRE seguir agent-bash.md (NUNCA HEREDOC)"
+    },
+    "workflow_independence": {
+      "description": "Workflow independence validation (see agent-trigger-workflows.md). Follow agent-bash.md for any Bash scripts.",
+      "mode": "subagent",
+      "reference": ".github/agents/agent-trigger-workflows.md",
+      "prompt": "Consulte .github/agents/agent-trigger-workflows.md para políticas completas.\n\nFoco:\n(1) Análise de Dependências\n(2) Genericidade\n(3) Fallback Testing\n(4) Fixture Isolation\n(5) Dynamic Detection\n(6) Error Handling\n(7) Documentation\n\n⚠️ Scripts Bash: SEMPRE seguir agent-bash.md (NUNCA HEREDOC)"
+    },
+    "error_handling": {
+      "description": "Error handling and observability (see agent-error-message.md). Follow agent-bash.md for any Bash scripts.",
+      "mode": "subagent",
+      "reference": ".github/agents/agent-error-message.md",
+      "prompt": "Consulte .github/agents/agent-error-message.md para políticas completas.\n\nTodo erro deve ter:\n(1) [DATA/HORA] em ISO-8601\n(2) [ERRO NATIVO]\n(3) [MOTIVO]\n(4) [AÇÃO DESENVOLVEDOR]\n(5) [SUPORTE USUÁRIO]\n(6) [STACK TRACE] quando relevante\n\n⚠️ Scripts Bash: SEMPRE seguir agent-bash.md (NUNCA HEREDOC)"
+    },
+    "actions": {
+      "description": "GitHub Actions engineering agent (see agent-actions.md). ALWAYS follow agent-bash.md for Bash scripts.",
+      "mode": "subagent",
+      "reference": ".github/agents/agent-actions.md",
+      "prompt": "Consulte .github/agents/agent-actions.md para políticas completas.\n\nResumo:\n(1) Bash preferencial, não Python\n(2) Scripts inline, não .sh externos\n(3) Execução tripla: dispatch/call/CLI\n(4) Inputs com tipos e defaults\n(5) YAML explícito\n(6) set -euo pipefail\n(7) Actions versionadas\n(8) Formato JSON preferencial\n\n⚠️ CRÍTICO: Seguir agent-bash.md (NUNCA HEREDOC)"
+    },
+    "bash": {
+      "description": "Bash scripting engineering agent (see agent-bash.md). HEREDOC is STRICTLY PROHIBITED.",
+      "mode": "subagent",
+      "reference": ".github/agents/agent-bash.md",
+      "instructions": ".github/instructions/instructions.bash.md",
+      "prompt": "Consulte .github/agents/agent-bash.md e .github/instructions/instructions.bash.md para políticas completas.\n\n⚠️ PROIBIDO HEREDOC - Usar echo/printf/template files\n\nResumo:\n(1) Não usar Python\n(2) Preferir grep/sed vs awk\n(3) Ferramentas GNU padrão\n(4) curl para URLs\n(5) NUNCA HEREDOC (<<EOF, <<-EOF, <<'EOF')\n(6) JSON para dados\n(7) Markdown para docs\n(8) set -euo pipefail"
+    },
+    "docker_stack": {
+      "description": "Docker Stack engineering agent (see agent-docker-stack.md). ALWAYS follow agent-bash.md for entrypoint scripts.",
+      "mode": "subagent",
+      "reference": ".github/agents/agent-docker-stack.md",
+      "prompt": "Consulte .github/agents/agent-docker-stack.md para políticas completas.\n\nResumo:\n(1) Stack completo: compose/Dockerfile/entrypoint\n(2) Centralização no compose\n(3) Variáveis com defaults\n(4) Não ENV em Dockerfile\n(5) Rede global_net\n(6) Não .env/env_file\n(7) Volumes sintaxe longa\n(8) Compose sem version\n\n⚠️ entrypoint.sh: Seguir agent-bash.md (NUNCA HEREDOC)"
+    },
+    "yml_structure": {
+      "description": "YAML explicit structure agent (see agent-yml-structure.md)",
+      "mode": "subagent",
+      "reference": ".github/agents/agent-yml-structure.md",
+      "prompt": "Consulte .github/agents/agent-yml-structure.md para políticas completas.\n\nResumo:\n(1) Hierarquia 100% explícita\n(2) Não defaults implícitos\n(3) Não atalhos de sintaxe\n(4) Escopo explícito\n(5) Pinagem de versões\n(6) Gerar issues para violações"
+    }
+  },
+  "command": {
+    "gov/pending": {
+      "description": "Registrar/atualizar pendências (CHANGELOG/...-pending.md) antes e durante ciclos de rebuild/diagnóstico.",
+      "agent": "governance",
+      "template": "Crie/atualize CHANGELOG/yyyyMMdd-HHmm-pending.md com todas as pendências atuais. Inclua: (a) problemas observados (erros, alerts, falhas de auth/senha), (b) inconsistências de variáveis (nomes divergentes na cadeia), (c) itens detectados em logs, (d) vínculo com o inventário CHANGELOG/yyyyMMdd-HHmm-hardcode.csv quando houver, (e) vínculo com CHANGELOG/yyyyMMdd-HHmm-mensagens.md para rastrear mensagens criadas/alteradas no ciclo. Formato: lista priorizada + evidência (trechos de log, nomes exatos de vars e onde aparecem).\n\nCrie/atualize CHANGELOG/yyyyMMdd-HHmm-pending.md focado em independência de workflows e isolamento de fixtures. Inclua: (a) dependências específicas identificadas, (b) hardcodes para projetos/fixtures, (c) necessidades de workarounds em fixtures, (d) falhas em detecção dinâmica, (e) problemas com fallback genéricos. Formato: priorizado por impacto na genericidade do workflow."
+    },
+    "gov/plan": {
+      "description": "Gerar plano de mudança (CHANGELOG/...-plan.md) incorporando pendências e hardcode.csv, antes de editar código.",
+      "agent": "governance",
+      "template": "Crie CHANGELOG/yyyyMMdd-HHmm-plan.md considerando TODAS as pendências existentes, o índice CHANGELOG/yyyyMMdd-HHmm-hardcode.csv e o índice CHANGELOG/yyyyMMdd-HHmm-mensagens.md. O plano deve: (1) padronizar nomes de variáveis em toda a cadeia, (2) garantir .env como único ponto de valores, removendo redefinições em build/deploy/runtime, (3) definir exatamente quais arquivos serão alterados e por quê, (4) incluir rebuild limpo (docker compose down -v --remove-orphans; docker compose up -d --build --force-recreate) quando envolver credenciais/vars ou arquivos de configuração, (5) incluir validação pós-rebuild obrigatória: executar SELECTs dentro do(s) container(es) de banco e verificar docker logs; para APIs, verificar docker logs e executar cURL em endpoints REST disponíveis no container/rede; incluir critérios de aceite (sem erro e sem efeitos colaterais), (6) definir quais mensagens serão criadas/alteradas/removidas e garantir que o índice CHANGELOG/yyyyMMdd-HHmm-mensagens.md será atualizado junto com as mudanças.\n\nCrie CHANGELOG/yyyyMMdd-HHmm-plan.md focado em: (1) remoção de dependências específicas de workflows, (2) criação de workarounds dentro de fixtures quando necessário, (3) implementação de detecção dinâmica de projetos, (4) criação de fallbacks genéricos, (5) validação com múltiplos tipos de projetos, (6) documentação de limitações e escopo."
+    },
+    "gov/conclude": {
+      "description": "Registrar conclusão/verificações (CHANGELOG/...-concluse.md) após aplicar plano e validar.",
+      "agent": "governance",
+      "template": "Crie/atualize CHANGELOG/yyyyMMdd-HHmm-concluse.md descrevendo: (1) pendências corrigidas e como foram corrigidas, (2) quais padronizações de variáveis foram feitas e onde, (3) quais volumes/imagens foram recriados e por quê (incluindo comandos de rebuild limpo quando aplicável: docker compose down -v --remove-orphans; docker compose up -d --build --force-recreate), (4) evidências de verificação: SELECTs executados dentro do container do banco e verificação de docker logs; para APIs, verificação de docker logs e cURL em endpoints REST; (5) confirmação explícita de ausência de efeitos colaterais identificados, (6) referência explícita ao CHANGELOG/yyyyMMdd-HHmm-mensagens.md indicando quais mensagens ficaram NOVO/ALTERADO/REMOVIDO e onde foram aplicadas.\n\nCrie CHANGELOG/yyyyMMdd-HHmm-concluse.md documentando: (1) dependências específicas removidas, (2) workflows tornados genéricos, (3) workarounds criados em fixtures, (4) validação com múltiplos projetos, (5) fallback mechanisms implementados, (6) limitações documentadas, (7) evidências de independência."
+    },
+    "workflow/check": {
+      "description": "Validate workflow independence and generic behavior",
+      "agent": "workflow_independence",
+      "template": "Analise o workflow especificado seguindo as políticas de independência do agent-trigger-workflows.md e agent-actions.md: (1) identificar dependências hard-coded, (2) validar genericidade, (3) testar fallback mechanisms, (4) verificar isolamento de fixtures, (5) validar detecção dinâmica de ferramentas, (6) documentar limitações e escopo, (7) verificar exceções legítimas (deploy/CLI). Forneça recomendações para melhorar independência."
+    },
+    "fixture/isolate": {
+      "description": "Create isolated workarounds for specific fixture needs",
+      "agent": "workflow_independence",
+      "template": "Analise o fixture especificado e crie workarounds isolados dentro de seu diretório seguindo as políticas de isolamento do agent-trigger-workflows.md e agent-actions.md. Garanta que: (1) não afeta o repositório principal, (2) é auto-contido, (3) resolve necessidades específicas do projeto, (4) documenta suas dependências e limitações, (5) não viola princípios de independência de workflows."
+    },
+    "actions/review": {
+      "description": "Review GitHub Actions workflows structure, compliance, and independence",
+      "agent": "actions",
+      "template": "Analise os workflows em .github/workflows/ seguindo TODAS as premissas do agent-actions.md, incluindo independência de workflows: (1) Validar uso de Bash vs Python, (2) Verificar ausência de .sh externos, (3) Confirmar execução tripla (dispatch/call/CLI), (4) Validar parsing CLI centralizado, (5) Verificar inputs com tipos/defaults, (6) Validar estrutura YAML explícita, (7) Verificar set -euo pipefail, (8) Validar nomeação e documentação, (9) Verificar actions versionadas, (10) Validar independência de workflows (detecção dinâmica, fallback genérico, sem hard-coded paths), (11) Verificar exceções legítimas (deploy/CLI). Gerar relatório JSON em docs/review/NNNN-report-actions.json."
+    },
+    "bash/review": {
+      "description": "Review Bash scripting practices and compliance",
+      "agent": "bash",
+      "template": "Analise scripts Bash seguindo as premissas do agent-bash.md: (1) Verificar ausência de Python, (2) Validar uso de grep/sed vs awk, (3) Confirmar uso de ferramentas GNU, (4) Verificar uso de curl vs wget, (5) Validar ausência de HEREDOC, (6) Verificar formato JSON para dados, (7) Verificar formato Markdown para docs, (8) Validar set -euo pipefail. Gerar relatório JSON em docs/review/NNNN-report-bash.json."
+    },
+    "docker/review": {
+      "description": "Review Docker stack structure and compliance",
+      "agent": "docker_stack",
+      "template": "Analise estruturas Docker seguindo as premissas do agent-docker-stack.md: (1) Verificar stack completo por app, (2) Validar centralização no compose, (3) Verificar variáveis com defaults, (4) Confirmar ausência de ENV em Dockerfile, (5) Validar rede global_net, (6) Verificar ausência de .env/env_file, (7) Validar sintaxe longa de volumes, (8) Confirmar ausência de version. Gerar relatório em docs/review/NNNN-report-docker-stack.md."
+    },
+    "yaml/review": {
+      "description": "Review YAML structure and explicit hierarchy",
+      "agent": "yml_structure",
+      "template": "Analise arquivos YAML seguindo as premissas do agent-yml-structure.md: (1) Verificar hierarquia 100% explícita, (2) Validar ausência de defaults implícitos, (3) Confirmar ausência de atalhos que ocultam estrutura, (4) Verificar escopo explícito, (5) Validar pinagem de versões. Para cada violação, gerar issue GitHub documentando: regra violada, antes/depois, orientação de correção, arquivo/linha impactados."
+    },
+    "error/review": {
+      "description": "Review error handling implementation and observability",
+      "agent": "error_handling",
+      "template": "Analise tratamento de erros seguindo agent-error-message.md: (1) Verificar formato de 4 componentes, (2) Validar timestamps ISO-8601, (3) Confirmar uso de stderr, (4) Verificar separação dev/usuário, (5) Validar stack traces quando relevante, (6) Verificar logging estruturado. Gerar relatório JSON em docs/review/NNNN-report-error-handling.json."
+    },
+    "copilot/workflow": {
+      "description": "Guide through AI agent CLI workflow (explore → plan → review → implement → verify → commit)",
+      "agent": "governance",
+      "template": "Guie o usuário através do fluxo de agentes de IA via CLI seguindo .github/instructions/copilot-workflow.instructions.md:\n\n(1) EXPLORE: Ler arquivos relevantes sem modificar\n(2) PLAN: Criar plano estruturado com /plan\n(3) REVIEW: Validar plano e conformidade com governança\n(4) IMPLEMENT: Executar plano (SOMENTE se autorizado)\n(5) VERIFY: Rodar testes e validações\n(6) COMMIT: Finalizar com mensagem descritiva\n\n⚠️ Na fase REVIEW, validar OBRIGATORIAMENTE:\n- [ ] Arquivos em CHANGELOG/*-plan.md?\n- [ ] Issue aprovada?\n- [ ] Solicitação explícita?\n- [ ] Estrutura conforme agent-files-structure.md?\n\nSe não autorizado: PARAR e solicitar aprovação."
+    },
+    "gov/hardcode": {
+      "description": "Gerar/atualizar inventário de hardcode (CHANGELOG/...-hardcode.csv) e classificar TODO/TOANALISE/FALLBACK.",
+      "agent": "governance",
+      "template": "Identifique todas as ocorrências de hardcode no codebase usando grep e find e registre em CHANGELOG/yyyyMMdd-HHmm-hardcode.csv com: caminho relativo ao repositório, nome do arquivo, número de linha, amostra, status. Classifique cada ocorrência: TODO (sobrescreve valor vindo de env), TOANALISE (negócio/marcação de texto), FALLBACK (fallback). Depois, referencie explicitamente essas ocorrências nas pendências (pending.md) e no plano (plan.md)."
+    },
+    "gov/mensagens": {
+      "description": "Gerar/atualizar índice de mensagens do ciclo (CHANGELOG/...-mensagens.md) para rastrear logs/erros/alerts criados/alterados/removidos.",
+      "agent": "governance",
+      "template": "Crie/atualize CHANGELOG/yyyyMMdd-HHmm-mensagens.md inventariando mensagens (logs/erros/alerts) relevantes ao ciclo. Para cada item, registre: data/hora do ciclo, tipo (LOG/ERRO/ALERTA), componente (API/UI/DB/INFRA), caminho/arquivo, linha (quando aplicável), texto resumido (sem segredos), status (NOVO/ALTERADO/REMOVIDO) e referência ao pending/plan/concluse. Para levantar candidatos, use ferramentas Ubuntu como grep/rg e find, por exemplo: (1) localizar tags/padrões padronizados (ex.: \"[ERRO NATIVO]\", \"[MOTIVO]\", \"[AÇÃO DESENVOLVEDOR]\", \"[SUPORTE USUÁRIO]\") no repositório; (2) localizar mensagens de throw/exception e logs estruturados; (3) restringir buscas por pastas/extensões. O arquivo deve ser uma lista única e rastreável para o ciclo, e deve ser referenciado explicitamente nos arquivos pending/plan/concluse do mesmo timestamp."
+    }
+  }
+}
