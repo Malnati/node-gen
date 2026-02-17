@@ -40,9 +40,9 @@ export class ServiceGenerator {
         toSnakeCase,
         imports: this.generateImports(table.relations),
         createUpdateAssignments: this.generateCreateUpdateAssignments(table.columns),
-        relationCheckAndAssignment: this.generateRelationCheckAndAssignment(table.relations, entityName),
+        relationCheckAndAssignment: this.generateRelationCheckAndAssignment(table.relations),
         updateAssignments: this.generateUpdateAssignments(table.columns),
-        relationUpdateAndAssignment: this.generateRelationUpdateAndAssignment(table.relations, entityName),
+        relationUpdateAndAssignment: this.generateRelationUpdateAndAssignment(table.relations),
         toDTOAssignments: this.generateToDTOAssignments(table.columns),
         relationMappings: this.generateRelationMappings(table.relations),
       };
@@ -83,7 +83,7 @@ export class ServiceGenerator {
       .join('\n    ');
   }
 
-  private generateRelationCheckAndAssignment(relations: Relation[], entityName: string): string {
+  private generateRelationCheckAndAssignment(relations: Relation[]): string {
     return relations.map(rel => {
       const relatedEntityName = toPascalCase(rel.foreignTableName);
       const relationName = toSnakeCase(rel.columnName.replace('_id', ''));
@@ -100,7 +100,7 @@ export class ServiceGenerator {
     }).join('\n\n    ');
   }
 
-  private generateRelationUpdateAndAssignment(relations: Relation[], entityName: string): string {
+  private generateRelationUpdateAndAssignment(relations: Relation[]): string {
     return relations.map(rel => {
       const relatedEntityName = toPascalCase(rel.foreignTableName);
       const relationName = toSnakeCase(rel.columnName.replace('_id', ''));

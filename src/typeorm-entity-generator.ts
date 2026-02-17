@@ -42,9 +42,7 @@ export class TypeORMEntityGenerator {
 	}
 
 	private generateEntityContent(table: Table): string {
-		const primaryKeys = table.columns.filter((col) =>
-			col.columnName.includes("id"),
-		) // Identifica colunas de chave primária (exemplo simplificado)
+		const primaryKeys = table.columns.filter((col) => col.isPrimaryKey)
 
 		const columns = table.columns
 			.filter(
@@ -95,10 +93,11 @@ export class TypeORMEntityGenerator {
 		if (column.characterMaximumLength)
 			options.push(`length: ${column.characterMaximumLength}`)
 
-		let columnDecorator = `@Column({ type: '${typeMapping[column.dataType] || column.dataType}', ${options.join(", ")} })`
+		const columnOptions = [`type: '${typeMapping[column.dataType] || column.dataType}'`, ...options]
+		let columnDecorator = `@Column({ ${columnOptions.join(", ")} })`
 
 		if (isPrimaryKey) {
-			columnDecorator = `@PrimaryColumn({ type: '${typeMapping[column.dataType] || column.dataType}', ${options.join(", ")} })`
+			columnDecorator = `@PrimaryColumn({ ${columnOptions.join(", ")} })`
 		}
 
 		if (column.columnName === "created_at") {
@@ -113,7 +112,8 @@ export class TypeORMEntityGenerator {
 			columnDecorator = `@DeleteDateColumn()`
 		}
 
-		const apiPropertyDecorator = `@ApiProperty({ description: "${column.columnComment || ""}", ${typeOptions.join(", ")} })`
+		const apiPropertyOptions = [`description: "${column.columnComment || ""}"`, ...typeOptions]
+		const apiPropertyDecorator = `@ApiProperty({ ${apiPropertyOptions.join(", ")} })`
 
 		return columnTemplate(
 			columnDecorator,
