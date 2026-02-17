@@ -51,12 +51,6 @@ generateModules() {
     return str.replace(/_./g, match => match.charAt(1).toUpperCase()).replace(/^./, match => match.toUpperCase());
   }
 
-  private toCamelCase(str: string): string {
-    if (str.startsWith('tb_')) {
-      str = str.substring(3);  // Remove the 'tb_' prefix
-    }
-    return str.replace(/[-_](.)/g, (match, group1) => group1.toUpperCase());
-  }
 
   private toKebabCase(str: string): string {
     if (str.startsWith('tb_')) {

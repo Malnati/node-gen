@@ -17,8 +17,6 @@ import { ReadmeGenerator } from "./readme-generator";
 import { DataSourceGenerator } from "./datasource-generator";
 import fs from 'fs-extra';
 import { DiagramGenerator } from "./diagram-generator";
-import { exec } from "child_process";
-import * as prettier from "prettier";
 import { DbReaderMysql } from "./db.reader.mysql";
 import { DbReaderSqlServer } from "./db.reader.sqlserver";
 
@@ -64,100 +62,8 @@ async function copyStaticFiles(destDir: string, templateDir?: string) {
     }
 }
 
-async function getAllFiles(dirPath: string, arrayOfFiles: string[] = []): Promise<string[]> {
-    const files = await fs.promises.readdir(dirPath);
-
-    for (const file of files) {
-        const fullPath = path.join(dirPath, file);
-        const stat = await fs.promises.stat(fullPath);
-
-        if (stat.isDirectory()) {
-            arrayOfFiles = await getAllFiles(fullPath, arrayOfFiles);
-        } else if (/\.(js|ts|json|css|html|md)$/.test(file)) {
-            arrayOfFiles.push(fullPath);
-        }
-    }
-
-    return arrayOfFiles;
-}
-
-async function removeNodeModules(dirPath: string) {
-    const nodeModulesPath = path.join(dirPath, 'node_modules');
-    try {
-        if (fs.existsSync(nodeModulesPath)) {
-            await fs.promises.rm(nodeModulesPath, { recursive: true, force: true });
-            console.log('Diretório node_modules removido com sucesso.');
-        } else {
-            console.log('Nenhum diretório node_modules encontrado para remover.');
-        }
-    } catch (err) {
-        console.error('Erro ao remover o diretório node_modules:', err);
-    }
-}
-
-async function formatFiles(destDir: string) {
-    try {
-        const configFile = await prettier.resolveConfigFile(destDir);
-
-        const options = {
-            config: configFile,
-            ignorePath: path.join(destDir, '.prettierignore'),
-            editorconfig: true,
-        };
-
-        const files = await getAllFiles(destDir);
-
-        for (const filePath of files) {
-            const content = await fs.promises.readFile(filePath, 'utf8');
-            const formatted = await prettier.format(content, { ...options, filepath: filePath });
-            await fs.promises.writeFile(filePath, formatted);
-        }
-
-        console.log('Arquivos gerados formatados com sucesso.');
-    } catch (err) {
-        console.error('Erro ao formatar arquivos gerados:', err);
-    }
-}
-
-async function runNpmInstall(directory: string): Promise<void> {
-    console.log('Instalando dependências via npm install...');
-    return new Promise((resolve, reject) => {
-        exec('npm install', { cwd: directory }, (error, stdout, stderr) => {
-            if (error) {
-                console.error(`Erro ao executar npm install: ${error.message}`);
-                reject(error);
-            }
-            if (stderr) {
-                console.error(`stderr: ${stderr}`);
-            }
-            console.log(`stdout: ${stdout}`);
-            console.log('Dependências instaladas com sucesso.');
-            resolve();
-        });
-    });
-}
-async function runPrettier(directory: string): Promise<void> {
-    console.log('Rodando prettier...');
-    return new Promise((resolve, reject) => {
-        exec('npx prettier --write "src/app/**/*.ts"', { cwd: directory }, (error, stdout, stderr) => {
-            if (error) {
-                console.error(`Erro ao executar prettier: ${error.message}`);
-                reject(error);
-            }
-            if (stderr) {
-                console.error(`stderr: ${stderr}`);
-            }
-            console.log(`stdout: ${stdout}`);
-            console.log('prettier executado com sucesso.');
-            resolve();
-        });
-    });
-}
-
 async function main() {
     await copyStaticFiles(dbConfig.outputDir, dbConfig.templateDir);
-	await removeNodeModules(dbConfig.outputDir);
-	await formatFiles(dbConfig.outputDir);
     let schemaPath;
 
     let dbReader;
@@ -193,87 +99,96 @@ async function main() {
         .map((c) => c.trim().toLowerCase());
     }
 
-    const promises = components.map(async (component) => {
+    for (const component of components) {
         if (component) {
             console.log(`Executando comando para ${component}`);
             switch (component) {
                 case "entities": {
                     const entityGenerator = new TypeORMEntityGenerator(schemaPath, dbConfig);
-                    return entityGenerator.generateEntities();
+                    await entityGenerator.generateEntities();
+                    break;
                 }
 
                 case "services": {
                     const serviceGenerator = new ServiceGenerator(schemaPath, dbConfig);
-                    return serviceGenerator.generateServices();
+                    await serviceGenerator.generateServices();
+                    break;
                 }
 
                 case "interfaces": {
                     const interfaceGenerator = new InterfaceGenerator(schemaPath, dbConfig);
-                    return interfaceGenerator.generateInterfaces();
+                    await interfaceGenerator.generateInterfaces();
+                    break;
                 }
 
                 case "controllers": {
                     const controllersGenerator = new ControllerGenerator(schemaPath, dbConfig);
-                    return controllersGenerator.generateControllers();
+                    await controllersGenerator.generateControllers();
+                    break;
                 }
 
                 case "dtos": {
                     const dtosGenerator = new DTOGenerator(schemaPath, dbConfig);
-                    return dtosGenerator.generateDTOs();
+                    await dtosGenerator.generateDTOs();
+                    break;
                 }
 
                 case "modules": {
                     const modulesGenerator = new ModuleGenerator(schemaPath, dbConfig);
-                    return modulesGenerator.generateModules();
+                    await modulesGenerator.generateModules();
+                    break;
                 }
 
                 case "app-module": {
                     const appModuleGenerator = new AppModuleGenerator(schemaPath, dbConfig);
-                    return appModuleGenerator.generateAppModule();
+                    await appModuleGenerator.generateAppModule();
+                    break;
                 }
 
                 case "main": {
-                    const mainGenerator = new MainFileGenerator(schemaPath, dbConfig);
-                    return mainGenerator.generateMainFile();
+                    const mainGenerator = new MainFileGenerator(dbConfig);
+                    await mainGenerator.generateMainFile();
+                    break;
                 }
 
                 case "env": {
-                    const envGenerator = new EnvGenerator(schemaPath, dbConfig);
-                    return envGenerator.generateEnvFile();
+                    const envGenerator = new EnvGenerator(dbConfig);
+                    await envGenerator.generateEnvFile();
+                    break;
                 }
 
                 case "package.json": {
-                    const packageJsonGenerator = new PackageJsonGenerator(schemaPath, dbConfig);
-                    return packageJsonGenerator.generatePackageJsonFile();
+                    const packageJsonGenerator = new PackageJsonGenerator(dbConfig);
+                    await packageJsonGenerator.generatePackageJsonFile();
+                    break;
                 }
 
                 case "readme": {
                     const readmeGenerator = new ReadmeGenerator(schemaPath, dbConfig);
-                    return readmeGenerator.generateReadme();
+                    await readmeGenerator.generateReadme();
+                    break;
                 }
 
                 case "datasource": {
                     const dsGenerator = new DataSourceGenerator(schemaPath, dbConfig);
-                    return dsGenerator.generateDataSourceFile();
+                    await dsGenerator.generateDataSourceFile();
+                    break;
                 }
 
                 case "diagram": {
                     const diagramGenerator = new DiagramGenerator(schemaPath, dbConfig);
-                    return diagramGenerator.generateDiagram();
+                    await diagramGenerator.generateDiagram();
+                    break;
                 }
 
                 default: {
                     console.log(`Componente ${component} não reconhecido.`);
-                    return Promise.resolve();
+                    break;
                 }
             }
         }
-    });
+    }
 
-    await Promise.all(promises);
-
-    await runNpmInstall(dbConfig.outputDir);
-    await runPrettier(dbConfig.outputDir);
 }
 
 main();

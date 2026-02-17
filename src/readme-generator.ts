@@ -37,7 +37,7 @@ export class ReadmeGenerator {
 
     return `## Tabela \`public.${table.tableName}\`
 
-Tabela que armazena informações sobre ${table.tableName.replace('tb_', '').replace('_', ' ')}.
+Tabela que armazena informações sobre ${table.tableName.replace(/^tb_/, '').replace(/_/g, ' ')}.
 
 ### Estrutura da Tabela
 
@@ -70,7 +70,13 @@ ${columnComments}`;
       'bigint': 'int8',
       'uuid': 'uuid',
       'timestamp without time zone': 'timestamp',
+      'timestamp with time zone': 'timestamptz',
+      'date': 'date',
       'character varying': 'varchar',
+      'text': 'text',
+      'boolean': 'bool',
+      'numeric': 'numeric',
+      'decimal': 'decimal',
       'bytea': 'bytea'
     };
     return typeMapping[dataType] || dataType;

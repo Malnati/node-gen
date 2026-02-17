@@ -60,7 +60,7 @@ export class DTOGenerator {
   private generateQueryDTO(entityName: string, columns: Column[], relations: Relation[], usedValidators: Set<string>): string {
     const properties = columns
       .filter(col => this.shouldIncludeColumn(col))
-      .map(col => this.generateProperty(col, true, usedValidators))
+      .map(col => this.generateProperty(col, usedValidators))
       .concat(relations.map(rel => this.generateRelationProperty(rel)))
       .join('\n  ');
 
@@ -75,7 +75,7 @@ export class ${entityName}QueryDTO implements I${entityName}QueryDTO {
   private generatePersistDTO(entityName: string, columns: Column[], relations: Relation[], usedValidators: Set<string>): string {
     const properties = columns
       .filter(col => this.shouldIncludeColumn(col))
-      .map(col => this.generateProperty(col, false, usedValidators))
+      .map(col => this.generateProperty(col, usedValidators))
       .concat(relations.map(rel => this.generateRelationProperty(rel)))
       .join('\n  ');
 
@@ -87,7 +87,7 @@ export class ${entityName}PersistDTO implements I${entityName}PersistDTO {
 }`;
   }
 
-  private generateProperty(column: Column, isQuery: boolean, usedValidators: Set<string>): string {
+  private generateProperty(column: Column, usedValidators: Set<string>): string {
     const type = this.mapType(column.dataType);
     const validationDecorators = this.generateValidationDecorators(column, usedValidators);
     
@@ -121,6 +121,11 @@ export class ${entityName}PersistDTO implements I${entityName}PersistDTO {
     }
 
     const mappedType = this.mapType(column.dataType);
+    if (column.dataType === 'uuid') {
+      decorators.push('@IsUUID()');
+      usedValidators.add('IsUUID');
+    }
+
     if (mappedType === 'string') {
       decorators.push('@IsString()');
       usedValidators.add('IsString');
@@ -134,9 +139,6 @@ export class ${entityName}PersistDTO implements I${entityName}PersistDTO {
     } else if (mappedType === 'Date') {
       decorators.push('@IsDate()');
       usedValidators.add('IsDate');
-    } else if (mappedType === 'UUID') {
-      decorators.push('@IsUUID()');
-      usedValidators.add('IsUUID');
     }
 
     return decorators.join('\n  ') + '\n  ';
