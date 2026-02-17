@@ -13,7 +13,7 @@
 ## Conteúdo do plano
 - Objetivo: projeto mock que cubra a matriz mínima de cenários (tabela simples; relações e chaves compostas; nullable/enum/decimal/datas/UUID; nomes limítrofes) e permita testar todos os componentes e tipos de banco (SQLite preferido).
 - Escopo: schema mock, meio de obter schema (SQLite em disco), documentação de uso, integração com plan-cli-test-execution; sem alterar geradores.
-- Proposta de estrutura: `fixtures/mock-codegen/` (ou `db/mock-codegen/`) com DDL, script de criação do SQLite e README.
+- Proposta de estrutura: diretório `mock/` na raiz do repositório, com DDL, script de criação do SQLite e README.
 - Tarefas técnicas em 5 itens; critérios de sucesso e riscos descritos no plano.
 
 ## Resultado resumido

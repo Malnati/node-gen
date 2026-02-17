@@ -44,11 +44,11 @@ Criar um **projeto mock** dedicado a testar o aplicativo node-gen em **todas as 
 
 ## Proposta de estrutura do projeto mock
 
-- **Localização sugerida:** `fixtures/mock-codegen/` (ou `db/mock-codegen/` se preferir manter junto aos DDL existentes).
+- **Localização:** `mock/` na raiz do repositório.
 - **Conteúdo mínimo:**
   - **Schema:** um ou mais arquivos DDL que definam as tabelas que cobrem a matriz acima (ex.: `schema.sql` ou `01_simple.sql`, `02_relations.sql`, `03_types.sql`, `04_edge_names.sql`, ou um único DDL consolidado).
-  - **SQLite:** script ou instrução para criar um arquivo `.sqlite` a partir do DDL (ex.: extensão do `scripts/create-sqlite-fixture.js` ou novo script que execute os DDLs do mock).
-  - **README ou doc:** descrição das tabelas, dos cenários cobertos e dos comandos para (1) criar o banco mock e (2) rodar o node-gen contra ele (ex.: `-d <path>/mock.sqlite -o <out> -t sqlite -f "entities,...,diagram"`).
+  - **SQLite:** script ou instrução para criar um arquivo `.sqlite` a partir do DDL (ex.: extensão do `scripts/create-sqlite-fixture.js` ou novo script que execute os DDLs em `mock/`).
+  - **README ou doc:** descrição das tabelas, dos cenários cobertos e dos comandos para (1) criar o banco mock e (2) rodar o node-gen contra ele (ex.: `-d mock/mock.sqlite -o <out> -t sqlite -f "entities,...,diagram"`).
 - **Uso:** quem executa o [plan-cli-test-execution.md](plan-cli-test-execution.md) pode, em vez do fixture mínimo atual (`tb_user`), usar o mock completo para testar todas as possibilidades de geração; ou usar ambos (fixture mínimo para smoke, mock completo para matriz).
 
 ## Possibilidades de geração a exercitar
@@ -59,7 +59,7 @@ Criar um **projeto mock** dedicado a testar o aplicativo node-gen em **todas as 
 
 ## Tarefas técnicas (checklist do plano)
 
-1. Definir estrutura de diretório do mock (ex.: `fixtures/mock-codegen/`) e convenção de nomes dos arquivos (DDL, script de criação).
+1. Definir estrutura do diretório `mock/` na raiz do repositório e convenção de nomes dos arquivos (DDL, script de criação).
 2. Escrever DDL do schema que atenda aos quatro cenários da matriz (tabela simples; relações e chaves compostas; nullable/enum/decimal/datas/UUID; nomes limítrofes).
 3. Fornecer forma de criar o SQLite a partir do DDL (script Node ou comando documentado).
 4. Documentar no repositório: (a) objetivo do mock, (b) cenários cobertos, (c) comandos para criar o banco e rodar o CLI, (d) vínculo com plan-cli-test-execution e com a matriz do template-review-plan.
