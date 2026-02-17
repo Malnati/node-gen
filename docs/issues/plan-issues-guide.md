@@ -59,3 +59,33 @@ gh issue create --repo <repo> --title "$(sed -n '3p' docs/issues/plan-issues-sub
 - [ ] Referências cruzadas EPIC ↔ SUBs adicionadas.
 - [ ] Escopo das issues aderente ao `docs/template-review-plan.md`.
 - [ ] Evidências esperadas preservadas em todas as issues.
+
+## Prompt recomendado para executar as tarefas do EPIC + SUBs
+Use o texto abaixo (ajustando apenas o que estiver entre `<...>`):
+
+```text
+Implemente o plano definido em `docs/issues/plan-issues-epic.md`, `docs/issues/plan-issues-guide.md`, `docs/issues/plan-issues-sub-1.md`, `docs/issues/plan-issues-sub-2.md`, `docs/issues/plan-issues-sub-3.md` e `docs/issues/plan-issues-sub-4.md`.
+
+Regras de execução:
+1) Não expandir escopo; executar somente o que está definido nesses arquivos.
+2) Respeitar a ordem de dependência técnica: SUB 1 → SUB 2 → SUB 3 → SUB 4.
+3) Publicar EPIC e SUBs com os títulos/corpos exatamente dos arquivos `docs/issues/plan-issues-*.md`.
+4) Aplicar labels sugeridas no guia.
+5) Vincular todas as SUBs ao EPIC com referências cruzadas.
+6) Registrar evidências objetivas de execução e rastreabilidade.
+
+Entregáveis obrigatórios:
+- Lista de issues criadas (EPIC + SUBs) com links e IDs.
+- Matriz de dependências confirmando ordem de execução.
+- Lista de comandos executados e resultado (passou/falhou, com motivo objetivo em falhas).
+- Definição de pronto atendida item a item para EPIC e cada SUB.
+
+Se houver bloqueio de ambiente (ex.: ausência de `gh` ou integração GitHub indisponível),
+registre explicitamente o bloqueio, o impacto e os próximos passos para conclusão.
+```
+
+### Versão curta (para uso rápido)
+```text
+Execute integralmente o plano em `docs/issues/plan-issues-epic.md` + `docs/issues/plan-issues-sub-1.md` a `sub-4.md`, sem expandir escopo, respeitando a ordem SUB1→SUB2→SUB3→SUB4, criando e vinculando as issues com labels do guia e entregando evidências: links/IDs, comandos, resultados e definição de pronto item a item.
+```
+
