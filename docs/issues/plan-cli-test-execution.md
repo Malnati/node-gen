@@ -97,9 +97,9 @@ Para testar todas as possibilidades de geração conforme a matriz de cenários 
 1. Criar o banco: `node mock/create-db.js`
 2. Executar o CLI: `node dist/main.js -a mock-app -d ./mock/mock.sqlite -u x -pw x -o ./build-mock-test -t sqlite -f "entities,...,diagram"` (e opcionalmente `-T ./static`)
 
-Ver [mock/README.md](../../mock/README.md) e [plan-mock-project-codegen.md](plan-mock-project-codegen.md).
+Ver [mock/README.md](../../mock/README.md) e [plan-mock-project-codegen.md](plan-mock-project-codegen.md). Para um projeto na raiz que **automatize** esse fluxo (garantir mock → executar gerador → validar artefatos), ver [plan-test-project-generator-vs-mock.md](plan-test-project-generator-vs-mock.md).
 
 ## Rastreabilidade
 
-- **Documentos relacionados:** [plan-issues-epic.md](plan-issues-epic.md), [plan-issues-execution.md](plan-issues-execution.md), [../template-review-plan.md](../template-review-plan.md), [plan-mock-project-codegen.md](plan-mock-project-codegen.md).
+- **Documentos relacionados:** [plan-issues-epic.md](plan-issues-epic.md), [plan-issues-execution.md](plan-issues-execution.md), [../template-review-plan.md](../template-review-plan.md), [plan-mock-project-codegen.md](plan-mock-project-codegen.md), [plan-test-project-generator-vs-mock.md](plan-test-project-generator-vs-mock.md).
 - Ao executar este plano, atualizar o status de "Matriz mínima de cenários" e "Validação automática fim a fim" em [plan-issues-execution.md](plan-issues-execution.md).

@@ -80,5 +80,5 @@ Criar um **projeto mock** dedicado a testar o aplicativo node-gen em **todas as 
 
 ## Rastreabilidade
 
-- **Documentos relacionados:** [plan-cli-test-execution.md](plan-cli-test-execution.md), [template-review-plan.md](../template-review-plan.md), [plan-issues-execution.md](plan-issues-execution.md).
-- Ao implementar o mock ou executar testes com ele, registrar em CHANGELOG e, se aplicável, atualizar plan-issues-execution ou plan-cli-test-execution com o uso do mock.
+- **Documentos relacionados:** [plan-cli-test-execution.md](plan-cli-test-execution.md), [plan-test-project-generator-vs-mock.md](plan-test-project-generator-vs-mock.md), [template-review-plan.md](../template-review-plan.md), [plan-issues-execution.md](plan-issues-execution.md).
+- Ao implementar o mock ou executar testes com ele, registrar em CHANGELOG e, se aplicável, atualizar plan-issues-execution ou plan-cli-test-execution com o uso do mock. O plano [plan-test-project-generator-vs-mock.md](plan-test-project-generator-vs-mock.md) define um projeto na raiz para automatizar testes do gerador contra este mock.
