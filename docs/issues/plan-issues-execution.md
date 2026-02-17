@@ -20,12 +20,12 @@
 - Impacto: rastreabilidade ficou 100% no repositório via Markdown (sem tracker externo).
 
 ## Matriz de dependências e ordem de execução
-1. `[SUB] 1` (geradores base) — **executada**.
-2. `[SUB] 2` (intermediários) — **executada após SUB 1**.
-3. `[SUB] 3` (domínio/persistência) — **executada após SUB 2**.
-4. `[SUB] 4` (transversal + fechamento) — **executada após SUB 3**.
+1. `[SUB] 1` (geradores base) — **executada**. Registro: [execution-sub-1.md](execution-sub-1.md).
+2. `[SUB] 2` (intermediários) — **executada após SUB 1**. Registro: [execution-sub-2.md](execution-sub-2.md).
+3. `[SUB] 3` (domínio/persistência) — **executada após SUB 2**. Registro: [execution-sub-3.md](execution-sub-3.md).
+4. `[SUB] 4` (transversal + fechamento) — **executada após SUB 3**. Registro: [execution-sub-4.md](execution-sub-4.md).
 
-Status da ordem técnica: **Conforme** (sem quebra de dependência).
+Status da ordem técnica: **Conforme** (sem quebra de dependência). Vinculação EPIC ↔ SUBs: [plan-issues-epic.md](plan-issues-epic.md#vinculação-das-subs-registro-no-repositório).
 
 ## Consolidação por SUB
 
@@ -124,8 +124,9 @@ Motivo da parcialidade: execução automática bloqueada por dependências indis
 
 ## Comandos executados e resultado
 - `list_mcp_resources` → sem recursos MCP.
-- `npm run build` → falha (`TS2688: Cannot find type definition file for 'node'`).
-- `npm install` → falha (`403 Forbidden` em `registry.npmjs.org/mssql`).
+- `npm run build` (sessão anterior) → falha (`TS2688: Cannot find type definition file for 'node'`).
+- `npm install` (sessão anterior) → falha (`403 Forbidden` em `registry.npmjs.org/mssql`).
+- **Sessão atual:** `npm run build` (raiz node-gen) → **sucesso** (tsc concluído).
 
 
 ## Atualização pós-correções consecutivas dos geradores
@@ -157,4 +158,5 @@ Motivo da parcialidade: execução automática bloqueada por dependências indis
 
 ### Status de conformidade do plano
 - Cobertura de revisão e correções pontuais dos geradores: **Atendida**.
-- Conformidade plena com validação automática fim a fim: **Pendente de ambiente** (build ainda bloqueado por `TS2688` no ambiente atual).
+- Conformidade plena com validação automática fim a fim: **Build do gerador OK** (sessão atual: `npm run build` sucesso).
+- Correções consecutivas (env, interface, dto, diagram, readme) registradas em `CHANGELOG/20260217224500-consecutive-generators-fixes.md`.

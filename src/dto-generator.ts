@@ -139,6 +139,9 @@ export class ${entityName}PersistDTO implements I${entityName}PersistDTO {
     } else if (mappedType === 'Date') {
       decorators.push('@IsDate()');
       usedValidators.add('IsDate');
+    } else if (mappedType === 'boolean') {
+      decorators.push('@IsBoolean()');
+      usedValidators.add('IsBoolean');
     }
 
     return decorators.join('\n  ') + '\n  ';
@@ -147,11 +150,17 @@ export class ${entityName}PersistDTO implements I${entityName}PersistDTO {
   private getExampleForColumn(column: Column): string {
     if (column.dataType === 'uuid' || column.columnName.endsWith('_eid') || column.columnName === 'external_id') {
       return `"b2e293e5-4a4a-4b29-b9a4-4b2b4a4a4b2b"`;
-    } else if (column.dataType === 'integer' || column.dataType === 'bigint') {
+    }
+    if (column.dataType === 'integer' || column.dataType === 'bigint' || column.dataType === 'smallint' || column.dataType === 'numeric' || column.dataType === 'decimal') {
       return `12345`;
-    } else if (column.dataType === 'character varying') {
+    }
+    if (column.dataType === 'boolean' || column.dataType === 'bool') {
+      return `true`;
+    }
+    if (column.dataType === 'character varying' || column.dataType === 'varchar' || column.dataType === 'text') {
       return `"exemplo"`;
-    } else if (column.dataType.includes('timestamp')) {
+    }
+    if (column.dataType.includes('timestamp') || column.dataType === 'date' || column.dataType === 'timestamptz') {
       return `"2024-01-01T00:00:00Z"`;
     }
     return `"${column.columnDefault || 'exemplo'}"`;
@@ -171,12 +180,29 @@ export class ${entityName}PersistDTO implements I${entityName}PersistDTO {
   private mapType(dataType: string): string {
     const typeMapping: { [key: string]: string } = {
       'integer': 'number',
+      'smallint': 'number',
       'bigint': 'number',
+      'serial': 'number',
+      'bigserial': 'number',
+      'real': 'number',
+      'double precision': 'number',
+      'numeric': 'number',
+      'decimal': 'number',
       'uuid': 'string',
-      'timestamp without time zone': 'Date',
       'character varying': 'string',
-      'bytea': 'Buffer'
+      'varchar': 'string',
+      'char': 'string',
+      'text': 'string',
+      'boolean': 'boolean',
+      'bool': 'boolean',
+      'timestamp without time zone': 'Date',
+      'timestamp with time zone': 'Date',
+      'timestamptz': 'Date',
+      'date': 'Date',
+      'time': 'string',
+      'time with time zone': 'string',
+      'bytea': 'Buffer',
     };
-    return typeMapping[dataType] || 'any';
+    return typeMapping[dataType] ?? typeMapping[dataType.toLowerCase()] ?? 'any';
   }
 }
