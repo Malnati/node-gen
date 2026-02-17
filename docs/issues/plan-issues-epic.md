@@ -4,7 +4,7 @@
 
 ## Contexto
 - Origem: `docs/template-review-plan.md`.
-- Motivação: transformar o plano de revisão em execução rastreável por issues, cobrindo os 13 geradores TypeScript e as análises transversais obrigatórias.
+- Motivação: transformar o plano de revisão em execução rastreável por artefatos Markdown e/ou tracker externo, cobrindo os 13 geradores TypeScript e as análises transversais obrigatórias.
 
 ## Objetivo
 Executar a revisão técnica completa do pipeline de geração TypeScript com trilhas sequenciais, garantindo classificação final por gerador (`Aprovado`, `Aprovado com ressalvas`, `Reprovado`) e validação fim a fim do output.
@@ -20,7 +20,7 @@ Executar a revisão técnica completa do pipeline de geração TypeScript com tr
 - Expansão de escopo para componentes não citados no plano.
 
 ## Tarefas técnicas
-- [ ] Abrir e vincular as SUBs `[SUB] 1` a `[SUB] 4`.
+- [ ] Registrar e vincular as SUBs `[SUB] 1` a `[SUB] 4` no repositório (e no tracker externo quando aplicável).
 - [ ] Executar SUBs na ordem definida (base → intermediários → domínio/composição → orquestração e E2E).
 - [ ] Consolidar status por gerador conforme critério de pronto do plano.
 - [ ] Consolidar inconformidades com causa raiz, impacto, proposta de correção e evidência.
@@ -48,7 +48,7 @@ Executar a revisão técnica completa do pipeline de geração TypeScript com tr
 - Consolidação final com status dos 13 geradores e das análises transversais.
 
 ## Definição de pronto
-- [ ] SUBs abertas e vinculadas ao EPIC.
+- [ ] SUBs registradas e vinculadas ao EPIC.
 - [ ] Execução concluída na sequência técnica definida.
 - [ ] Cobertura integral do plano confirmada.
 - [ ] Evidências consolidadas e auditáveis.
