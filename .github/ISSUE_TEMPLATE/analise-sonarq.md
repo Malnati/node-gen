@@ -3,7 +3,7 @@ name: Análise do SonarQ
 about: Avaliar inconformidades detectadas pelo SonarQ a partir dos arquivos já gerados
   no projeto.
 title: Inconformidades detectadas pelo SonarQ
-labels: "\U0001F916 copilot, \U0001F4C4 documentation, \U0001F50E review"
+labels: ''
 assignees: ''
 
 ---

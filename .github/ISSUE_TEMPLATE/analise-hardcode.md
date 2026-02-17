@@ -2,7 +2,7 @@
 name: Análise de hardcode
 about: Avaliar inconformidades de hardcode a partir de um relatório JSON já gerado.
 title: Avalise de inconformidades de hardcode
-labels: "\U0001F916 copilot, \U0001F4C4 documentation, \U0001F50E review"
+labels: ''
 assignees: ''
 
 ---
