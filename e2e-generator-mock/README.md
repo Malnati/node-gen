@@ -36,9 +36,10 @@ cd e2e-generator-mock && npm run test
 
 1. **Garantir mock:** verifica se `mock/mock.sqlite` existe; caso contrário, executa `node mock/create-db.js` na raiz.
 2. **Executar gerador:** invoca `node dist/main.js` com `-d mock/mock.sqlite -o e2e-generator-mock/out -t sqlite` e todos os componentes (entities, services, interfaces, controllers, dtos, modules, app-module, main, env, package.json, readme, datasource, diagram).
-3. **Validar:** confere a existência de `db.reader.sqlite.json`, `src/app/app.module.ts`, `src/app/entities/*.ts`, `.env`, `package.json`, `README.md`. Falha se algum estiver ausente.
-
-Opcionalmente, após o script, é possível rodar `npm run build` dentro de `e2e-generator-mock/out/` para verificar compilação do projeto gerado (falhas de tipo são conhecidas e registradas em outros planos).
+3. **Aferir resultados:** valida os artefatos gerados e imprime um relatório (Aferição):
+   - **Obrigatórios:** existência de `db.reader.sqlite.json`, `src/app/app.module.ts`, `.env`, `package.json`, `README.md`; quantidade e nomes das entidades (5: simple_item, category, product, sale, sale_item); módulos por tabela (5 diretórios com service, controller, module); schema JSON com 5 tabelas.
+   - **Opcionais:** `public/diagram.png`; `npm run build` no output (o build do projeto gerado pode falhar por erros de tipo conhecidos; o teste não falha por isso).
+   - O script termina com **Resultado: OK** ou **FALHA** e código de saída 1 se algum check obrigatório falhar.
 
 ## Estrutura
 

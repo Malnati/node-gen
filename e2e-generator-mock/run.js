@@ -10,6 +10,10 @@ const DIST_MAIN = path.join(REPO_ROOT, 'dist', 'main.js');
 const OUT_DIR = path.join(__dirname, 'out');
 const COMPONENTS = 'entities,services,interfaces,controllers,dtos,modules,app-module,main,env,package.json,readme,datasource,diagram';
 
+const EXPECTED_TABLES = ['tb_simple_item', 'tb_category', 'tb_product', 'tb_sale', 'tb_sale_item'];
+const EXPECTED_MODULE_NAMES = ['simple-item', 'category', 'product', 'sale', 'sale-item'];
+const EXPECTED_ENTITY_FILES = ['simple_item.ts', 'category.ts', 'product.ts', 'sale.ts', 'sale_item.ts'];
+
 const ARTIFACTS = [
   path.join(OUT_DIR, 'db.reader.sqlite.json'),
   path.join(OUT_DIR, 'src', 'app', 'app.module.ts'),
@@ -68,24 +72,106 @@ function runGenerator() {
   return true;
 }
 
-function validate() {
-  const missing = [];
+function assessResults() {
+  const checks = [];
+  let requiredFailed = false;
+
   for (const p of ARTIFACTS) {
-    if (!fs.existsSync(p)) missing.push(p);
+    const pass = fs.existsSync(p);
+    if (!pass) requiredFailed = true;
+    checks.push({ name: path.relative(OUT_DIR, p) || p, pass, required: true });
   }
+
   const entitiesDir = path.join(OUT_DIR, 'src', 'app', 'entities');
-  if (!fs.existsSync(entitiesDir)) {
-    missing.push(entitiesDir + '/');
-  } else {
-    const entities = fs.readdirSync(entitiesDir).filter((f) => f.endsWith('.ts'));
-    if (entities.length === 0) missing.push(entitiesDir + '/*.ts');
+  const entityFiles = fs.existsSync(entitiesDir)
+    ? fs.readdirSync(entitiesDir).filter((f) => f.endsWith('.ts'))
+    : [];
+  const entityCountOk = entityFiles.length === EXPECTED_MODULE_NAMES.length;
+  if (!entityCountOk) requiredFailed = true;
+  checks.push({
+    name: `entities (esperado ${EXPECTED_MODULE_NAMES.length}, obtido ${entityFiles.length})`,
+    pass: entityCountOk,
+    required: true,
+  });
+
+  const expectedEntityNames = EXPECTED_ENTITY_FILES.slice().sort();
+  const actualEntityNames = entityFiles.slice().sort();
+  const namesOk =
+    expectedEntityNames.length === actualEntityNames.length &&
+    expectedEntityNames.every((e, i) => actualEntityNames[i] === e);
+  if (!namesOk) requiredFailed = true;
+  checks.push({
+    name: `nomes das entidades (${EXPECTED_ENTITY_FILES.join(', ')})`,
+    pass: namesOk,
+    required: true,
+  });
+
+  const appDir = path.join(OUT_DIR, 'src', 'app');
+  let modulesOk = true;
+  for (const mod of EXPECTED_MODULE_NAMES) {
+    const modDir = path.join(appDir, mod);
+    const hasService = fs.existsSync(path.join(modDir, mod + '.service.ts'));
+    const hasController = fs.existsSync(path.join(modDir, mod + '.controller.ts'));
+    const hasModule = fs.existsSync(path.join(modDir, mod + '.module.ts'));
+    if (!hasService || !hasController || !hasModule) modulesOk = false;
   }
-  if (missing.length > 0) {
-    console.error('[e2e] Missing artifacts:', missing);
-    return false;
+  if (!modulesOk) requiredFailed = true;
+  checks.push({
+    name: `módulos por tabela (${EXPECTED_MODULE_NAMES.length} dirs com service, controller, module)`,
+    pass: modulesOk,
+    required: true,
+  });
+
+  let schemaOk = false;
+  const schemaPath = path.join(OUT_DIR, 'db.reader.sqlite.json');
+  if (fs.existsSync(schemaPath)) {
+    try {
+      const parsed = JSON.parse(fs.readFileSync(schemaPath, 'utf-8'));
+      const tables = parsed.schema || [];
+      schemaOk = tables.length === EXPECTED_TABLES.length;
+      if (!schemaOk) requiredFailed = true;
+      checks.push({
+        name: `schema JSON (${tables.length} tabelas, esperado ${EXPECTED_TABLES.length})`,
+        pass: schemaOk,
+        required: true,
+      });
+    } catch (e) {
+      checks.push({ name: 'schema JSON (leitura)', pass: false, required: true });
+      requiredFailed = true;
+    }
   }
-  console.log('[e2e] All required artifacts present.');
-  return true;
+
+  let diagramOk = fs.existsSync(path.join(OUT_DIR, 'public', 'diagram.png'));
+  checks.push({ name: 'public/diagram.png', pass: diagramOk, required: false });
+
+  let buildOk = false;
+  if (fs.existsSync(path.join(OUT_DIR, 'package.json'))) {
+    const buildResult = spawnSync('npm', ['run', 'build'], {
+      cwd: OUT_DIR,
+      stdio: 'pipe',
+      timeout: 120000,
+    });
+    buildOk = buildResult.status === 0;
+    checks.push({
+      name: 'npm run build no output (opcional)',
+      pass: buildOk,
+      required: false,
+    });
+  }
+
+  console.log('[e2e] --- Aferição dos resultados ---');
+  for (const c of checks) {
+    const badge = c.pass ? 'OK' : 'FALHA';
+    const req = c.required ? '' : ' (opcional)';
+    console.log(`[e2e]   ${badge}: ${c.name}${req}`);
+  }
+  const requiredPassed = checks.filter((c) => c.required && c.pass).length;
+  const requiredTotal = checks.filter((c) => c.required).length;
+  console.log('[e2e] ---');
+  console.log(
+    `[e2e] Resultado: ${requiredFailed ? 'FALHA' : 'OK'} (obrigatórios ${requiredPassed}/${requiredTotal})`
+  );
+  return !requiredFailed;
 }
 
 function main() {
@@ -93,8 +179,8 @@ function main() {
   console.log('[e2e] Output dir:', OUT_DIR);
   if (!ensureMock()) process.exit(1);
   if (!runGenerator()) process.exit(1);
-  if (!validate()) process.exit(1);
-  console.log('[e2e] Done. Optional: run "npm run build" inside', OUT_DIR, 'to check compile.');
+  if (!assessResults()) process.exit(1);
+  console.log('[e2e] Done.');
 }
 
 main();
