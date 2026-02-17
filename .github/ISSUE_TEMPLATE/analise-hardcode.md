@@ -10,6 +10,7 @@ assignees: ''
 Você é um analista técnico e deve avaliar inconformidades de hardcode a partir de um relatório JSON já gerado.
 
 ## Contexto
+- HARDCODE_REPORT_PATH: XXXXXXXXXX
 - O relatório foi gerado por automação com regex e está em: `{{HARDCODE_REPORT_PATH}}`.
 - Objetivo: produzir análise acionável com priorização, plano em fases e templates de issues para execução.
 
