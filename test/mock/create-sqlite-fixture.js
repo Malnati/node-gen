@@ -1,4 +1,4 @@
-// scripts/create-sqlite-fixture.js
+// test/mock/create-sqlite-fixture.js
 const sqlite3 = require('sqlite3');
 const path = require('path');
 const fs = require('fs');

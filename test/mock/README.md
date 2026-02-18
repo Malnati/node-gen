@@ -47,6 +47,7 @@ O schema contém **relações N-1, N-N** e **tipos de uso comum no mercado**.
 
 - `schema.sql` — DDL SQLite com as tabelas do mock.
 - `create-db.js` — script Node que cria `mock.sqlite` a partir de `schema.sql` (executar na raiz do repositório).
+- `create-sqlite-fixture.js` — script Node que cria um SQLite mínimo (tabela `tb_user`) em um diretório informado; usado para o teste CLI em disco (ex.: `node test/mock/create-sqlite-fixture.js ./test/build-cli-test`). Ver [plan-cli-test-execution.md](../../docs/issues/plan-cli-test-execution.md).
 - `connection.json` — **dados de conexão do banco mock** (dbType, database, user, password). O projeto e2e (`test/e2e-generator-mock/`) usa este arquivo como **parâmetros de entrada** dos testes.
 - `mock.sqlite` — banco gerado (criado ao rodar `create-db.js`).
 - `README.md` — este arquivo.
