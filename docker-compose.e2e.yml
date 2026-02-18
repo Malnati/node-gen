@@ -14,6 +14,8 @@ services:
       retries: 10
     volumes:
       - ./test/e2e-generator-mock/projects/todo/db/schema.mysql.sql:/docker-entrypoint-initdb.d/01-schema.sql
+      - ./test/e2e-generator-mock/mysql-init/02-selling.sql:/docker-entrypoint-initdb.d/02-selling.sql
+      - ./test/e2e-generator-mock/mysql-init/03-schedule.sql:/docker-entrypoint-initdb.d/03-schedule.sql
   postgres:
     image: postgres:16-alpine
     environment:
@@ -26,7 +28,7 @@ services:
       timeout: 5s
       retries: 10
     volumes:
-      - ./test/e2e-generator-mock/projects/todo/db/schema.postgres.ddl:/docker-entrypoint-initdb.d/01-schema.sql
+      - ./test/e2e-generator-mock/pg-init:/docker-entrypoint-initdb.d
   sqlserver:
     image: mcr.microsoft.com/mssql/server:2022-latest
     environment:

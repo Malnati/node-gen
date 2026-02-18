@@ -6,7 +6,7 @@ const { spawnSync } = require('child_process');
 const REPO_ROOT = path.resolve(__dirname, '..', '..');
 const GEN_DIR = path.join(REPO_ROOT, 'gen');
 const MOCK_DIR = path.join(REPO_ROOT, 'test', 'e2e-generator-mock');
-const CONNECTION_DIR = path.join(MOCK_DIR, 'projects', 'todo', 'db');
+const PROJECTS_DIR = path.join(MOCK_DIR, 'projects');
 const MOCK_CREATE = path.join(MOCK_DIR, 'create-db.js');
 const DIST_MAIN = path.join(GEN_DIR, 'dist', 'main.js');
 const OUT_DIR_BASE = path.join(REPO_ROOT, 'output');
@@ -15,17 +15,53 @@ const COMPONENTS = 'entities,services,interfaces,controllers,dtos,modules,app-mo
 
 const CONNECTION_FILE_PATTERN = /^connection\.([a-z0-9]+)\.json$/;
 
-function discoverConnectionFiles() {
-  if (!fs.existsSync(CONNECTION_DIR)) {
+const PROJECT_EXPECTED = {
+  todo: {
+    tables: ['tb_simple_item', 'tb_category', 'tb_product', 'tb_sale', 'tb_sale_item', 'tb_tag', 'tb_product_tag', 'tb_document'],
+    moduleNames: ['simple-item', 'category', 'product', 'sale', 'sale-item', 'tag', 'product-tag', 'document'],
+    entityFiles: ['simple_item.ts', 'category.ts', 'product.ts', 'sale.ts', 'sale_item.ts', 'tag.ts', 'product_tag.ts', 'document.ts'],
+  },
+  selling: {
+    tables: ['tb_customer', 'tb_payment_method', 'tb_order', 'tb_order_line', 'tb_payment', 'tb_stock_movement', 'tb_customer_address'],
+    moduleNames: ['customer', 'payment-method', 'order', 'order-line', 'payment', 'stock-movement', 'customer-address'],
+    entityFiles: ['customer.ts', 'payment_method.ts', 'order.ts', 'order_line.ts', 'payment.ts', 'stock_movement.ts', 'customer_address.ts'],
+  },
+  schedule: {
+    tables: ['tb_resource', 'tb_slot', 'tb_recurrence_rule', 'tb_booking', 'tb_participant', 'tb_booking_participant', 'tb_booking_history'],
+    moduleNames: ['resource', 'slot', 'recurrence-rule', 'booking', 'participant', 'booking-participant', 'booking-history'],
+    entityFiles: ['resource.ts', 'slot.ts', 'recurrence_rule.ts', 'booking.ts', 'participant.ts', 'booking_participant.ts', 'booking_history.ts'],
+  },
+};
+
+function discoverProjects() {
+  if (!fs.existsSync(PROJECTS_DIR)) {
     return [];
   }
-  const entries = fs.readdirSync(CONNECTION_DIR, { withFileTypes: true });
+  const dirs = fs.readdirSync(PROJECTS_DIR, { withFileTypes: true });
+  const out = [];
+  for (const d of dirs) {
+    if (!d.isDirectory()) continue;
+    const connectionDir = path.join(PROJECTS_DIR, d.name, 'db');
+    if (!fs.existsSync(connectionDir)) continue;
+    const hasConnection = fs.readdirSync(connectionDir).some((f) => CONNECTION_FILE_PATTERN.test(f));
+    if (hasConnection && PROJECT_EXPECTED[d.name]) {
+      out.push(d.name);
+    }
+  }
+  return out.sort();
+}
+
+function discoverConnectionFiles(connectionDir) {
+  if (!fs.existsSync(connectionDir)) {
+    return [];
+  }
+  const entries = fs.readdirSync(connectionDir, { withFileTypes: true });
   const out = [];
   for (const e of entries) {
     if (!e.isFile() || !e.name.endsWith('.json')) continue;
     const m = e.name.match(CONNECTION_FILE_PATTERN);
     if (m) {
-      out.push({ dbType: m[1], path: path.join(CONNECTION_DIR, e.name) });
+      out.push({ dbType: m[1], path: path.join(connectionDir, e.name) });
     }
   }
   const allowed = process.env.E2E_DB_TYPES;
@@ -76,19 +112,6 @@ function loadMockConnection(connectionFilePath) {
   return conn;
 }
 
-const EXPECTED_TABLES = [
-  'tb_simple_item', 'tb_category', 'tb_product', 'tb_sale', 'tb_sale_item',
-  'tb_tag', 'tb_product_tag', 'tb_document',
-];
-const EXPECTED_MODULE_NAMES = [
-  'simple-item', 'category', 'product', 'sale', 'sale-item',
-  'tag', 'product-tag', 'document',
-];
-const EXPECTED_ENTITY_FILES = [
-  'simple_item.ts', 'category.ts', 'product.ts', 'sale.ts', 'sale_item.ts',
-  'tag.ts', 'product_tag.ts', 'document.ts',
-];
-
 function artifactsFor(dbType, outDir) {
   return [
     path.join(outDir, `db.reader.${dbType}.json`),
@@ -99,22 +122,48 @@ function artifactsFor(dbType, outDir) {
   ];
 }
 
-function ensureMock(conn) {
+function ensureMock(conn, project) {
   if (conn.dbType !== 'sqlite') {
     return true;
   }
-  if (fs.existsSync(conn.database)) {
-    console.log('[e2e] Mock DB already exists:', conn.database);
+  const dbPath = path.join(MOCK_DIR, project === 'todo' ? 'mock.sqlite' : `mock-${project}.sqlite`);
+  if (fs.existsSync(dbPath)) {
+    console.log('[e2e] Mock DB already exists:', dbPath);
     return true;
   }
-  if (!fs.existsSync(MOCK_CREATE)) {
-    console.error('[e2e] Mock create script not found:', MOCK_CREATE);
+  if (project === 'todo') {
+    if (!fs.existsSync(MOCK_CREATE)) {
+      console.error('[e2e] Mock create script not found:', MOCK_CREATE);
+      return false;
+    }
+    console.log('[e2e] Creating mock DB (todo)...');
+    const r = spawnSync(process.execPath, [MOCK_CREATE], { cwd: REPO_ROOT, stdio: 'inherit' });
+    if (r.status !== 0) {
+      console.error('[e2e] Failed to create mock DB');
+      return false;
+    }
+    return true;
+  }
+  const fixtureScript = path.join(PROJECTS_DIR, project, 'db', 'create-sqlite-fixture.js');
+  if (!fs.existsSync(fixtureScript)) {
+    console.error('[e2e] create-sqlite-fixture.js not found:', fixtureScript);
     return false;
   }
-  console.log('[e2e] Creating mock DB...');
-  const r = spawnSync(process.execPath, [MOCK_CREATE], { cwd: REPO_ROOT, stdio: 'inherit' });
+  console.log('[e2e] Creating mock DB (' + project + ')...');
+  const r = spawnSync(process.execPath, [fixtureScript, MOCK_DIR], { cwd: REPO_ROOT, stdio: 'inherit' });
   if (r.status !== 0) {
-    console.error('[e2e] Failed to create mock DB');
+    console.error('[e2e] Failed to create fixture');
+    return false;
+  }
+  const fixturePath = path.join(MOCK_DIR, 'fixture.sqlite');
+  if (!fs.existsSync(fixturePath)) {
+    console.error('[e2e] Fixture not found at', fixturePath);
+    return false;
+  }
+  try {
+    fs.renameSync(fixturePath, dbPath);
+  } catch (e) {
+    console.error('[e2e] Failed to rename fixture:', e.message);
     return false;
   }
   return true;
@@ -165,7 +214,13 @@ function runGenerator(conn, outDir, appName) {
   return true;
 }
 
-function assessResults(dbType, outDir) {
+function assessResults(dbType, outDir, project) {
+  const expected = PROJECT_EXPECTED[project];
+  if (!expected) {
+    console.error('[e2e] Unknown project for assessment:', project);
+    return false;
+  }
+  const { tables: EXPECTED_TABLES, moduleNames: EXPECTED_MODULE_NAMES, entityFiles: EXPECTED_ENTITY_FILES } = expected;
   const ARTIFACTS = artifactsFor(dbType, outDir);
   const checks = [];
   let requiredFailed = false;
@@ -278,41 +333,54 @@ function assessResults(dbType, outDir) {
 }
 
 function main() {
-  const connectionFiles = discoverConnectionFiles();
-  if (connectionFiles.length === 0) {
-    console.error('[e2e] Nenhum arquivo connection.<dbType>.json em:', CONNECTION_DIR);
+  const projects = discoverProjects();
+  if (projects.length === 0) {
+    console.error('[e2e] Nenhum projeto com connection.<dbType>.json em:', PROJECTS_DIR);
     process.exit(1);
   }
 
   console.log('[e2e] Repo root:', REPO_ROOT);
   console.log('[e2e] Output base:', OUT_DIR_BASE);
-  console.log('[e2e] App name:', E2E_APP_NAME);
   console.log('[e2e] Gen dir:', GEN_DIR);
-  console.log('[e2e] Conexões encontradas:', connectionFiles.map((c) => c.dbType).join(', '));
+  console.log('[e2e] Projetos:', projects.join(', '));
 
   let anyFailed = false;
-  for (const { dbType, path: connectionPath } of connectionFiles) {
-    console.log('[e2e] ========== dbType:', dbType, '==========');
-    let conn;
-    try {
-      conn = loadMockConnection(connectionPath);
-    } catch (e) {
-      console.error('[e2e]', e.message);
-      anyFailed = true;
+  for (const project of projects) {
+    const connectionDir = path.join(PROJECTS_DIR, project, 'db');
+    const connectionFiles = discoverConnectionFiles(connectionDir);
+    if (connectionFiles.length === 0) {
+      console.log('[e2e] Projeto', project, ': sem conexões, pulando.');
       continue;
     }
-    console.log('[e2e] Parâmetros (mock): dbType=%s database=%s', conn.dbType, conn.database);
-    if (!ensureMock(conn)) {
-      anyFailed = true;
-      continue;
-    }
-    const outDir = path.join(OUT_DIR_BASE, E2E_APP_NAME, dbType);
-    if (!runGenerator(conn, outDir, E2E_APP_NAME)) {
-      anyFailed = true;
-      continue;
-    }
-    if (!assessResults(dbType, outDir)) {
-      anyFailed = true;
+    console.log('[e2e] Projeto', project, 'conexões:', connectionFiles.map((c) => c.dbType).join(', '));
+
+    for (const { dbType, path: connectionPath } of connectionFiles) {
+      console.log('[e2e] ========== project:', project, 'dbType:', dbType, '==========');
+      let conn;
+      try {
+        conn = loadMockConnection(connectionPath);
+      } catch (e) {
+        console.error('[e2e]', e.message);
+        anyFailed = true;
+        continue;
+      }
+      if (conn.dbType === 'sqlite') {
+        conn.database = path.join(MOCK_DIR, project === 'todo' ? 'mock.sqlite' : `mock-${project}.sqlite`);
+      }
+      console.log('[e2e] Parâmetros (mock): dbType=%s database=%s', conn.dbType, conn.database);
+      if (!ensureMock(conn, project)) {
+        anyFailed = true;
+        continue;
+      }
+      const outDir = path.join(OUT_DIR_BASE, project, dbType);
+      const appName = project;
+      if (!runGenerator(conn, outDir, appName)) {
+        anyFailed = true;
+        continue;
+      }
+      if (!assessResults(dbType, outDir, project)) {
+        anyFailed = true;
+      }
     }
   }
 

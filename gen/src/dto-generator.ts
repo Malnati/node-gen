@@ -99,14 +99,26 @@ export class ${entityName}PersistDTO implements I${entityName}PersistDTO {
     return `${validationDecorators}${apiProperty}${toSnakeCase(column.columnName)}: ${type};`;
   }
 
+  private foreignTableHasExternalId(relation: Relation): boolean {
+    const foreign = this.schema.find((t) => t.tableName === relation.foreignTableName);
+    return !!foreign?.columns.some((c) => c.columnName === 'external_id');
+  }
+
   private generateRelationProperty(relation: Relation): string {
     const relationName = toSnakeCase(relation.columnName.replace('_id', ''));
+    const byEid = this.foreignTableHasExternalId(relation);
+    const propName = byEid ? `${relationName}_eid` : `${relationName}_id`;
+    const propType = byEid ? 'string' : 'number';
+    const example = byEid ? '"b2e293e5-4a4a-4b29-b9a4-4b2b4a4a4b2b"' : '1';
+    const desc = byEid
+      ? `ID externo relacionado com ${relation.foreignTableName}.`
+      : `ID relacionado com ${relation.foreignTableName}.`;
     return `
   @ApiProperty({
-    example: "b2e293e5-4a4a-4b29-b9a4-4b2b4a4a4b2b",
-    description: "ID externo relacionado com ${relation.foreignTableName}.",
+    example: ${example},
+    description: "${desc}",
   })
-  ${relationName}_eid: string;`;
+  ${propName}: ${propType};`;
   }
 
   private generateValidationDecorators(column: Column, usedValidators: Set<string>): string {

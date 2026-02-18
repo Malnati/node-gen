@@ -144,6 +144,7 @@ export class TypeORMEntityGenerator {
 			relationType,
 			relation.foreignTableName,
 			propertyName,
+			relation.columnName,
 			relationType === "ManyToOne" || relationType === "OneToOne",
 		)
 	}
@@ -164,6 +165,7 @@ export class TypeORMEntityGenerator {
 		})
 
 		const entityImports = table.relations
+			.filter((relation) => relation.foreignTableName !== table.tableName)
 			.map(
 				(relation) =>
 					`import { ${toPascalCase(relation.foreignTableName)}Entity } from './${removeTbPrefix(relation.foreignTableName)}';`,
