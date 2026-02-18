@@ -16,7 +16,6 @@ import { PackageJsonGenerator } from "./package-json-generator";
 import { ReadmeGenerator } from "./readme-generator";
 import { DataSourceGenerator } from "./datasource-generator";
 import fs from 'fs-extra';
-import { DiagramGenerator } from "./diagram-generator";
 import { DbReaderMysql } from "./db.reader.mysql";
 import { DbReaderSqlServer } from "./db.reader.sqlserver";
 
@@ -176,6 +175,7 @@ async function main() {
                 }
 
                 case "diagram": {
+                    const { DiagramGenerator } = await import("./diagram-generator");
                     const diagramGenerator = new DiagramGenerator(schemaPath, dbConfig);
                     await diagramGenerator.generateDiagram();
                     break;
