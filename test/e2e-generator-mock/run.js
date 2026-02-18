@@ -59,6 +59,12 @@ function loadMockConnection(connectionFilePath) {
       conn.port = parseInt(process.env.DB_POSTGRES_PORT, 10);
     }
   }
+  if (dbType === 'sqlserver') {
+    if (process.env.DB_SQLSERVER_HOST) conn.host = process.env.DB_SQLSERVER_HOST;
+    if (process.env.DB_SQLSERVER_PORT != null && process.env.DB_SQLSERVER_PORT !== '') {
+      conn.port = parseInt(process.env.DB_SQLSERVER_PORT, 10);
+    }
+  }
   return conn;
 }
 

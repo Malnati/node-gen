@@ -13,6 +13,11 @@ services:
       retries: 10
     volumes:
       - ./test/e2e-generator-mock/projects/todo/db/schema.postgres.ddl:/docker-entrypoint-initdb.d/01-schema.sql
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_SA_PASSWORD: "YourStrong@Passw0rd"
   e2e:
     build:
       context: .
@@ -20,11 +25,16 @@ services:
     image: node-gen-e2e:latest
     entrypoint: ["/app/.docker/entrypoint.e2e.sh"]
     environment:
-      E2E_DB_TYPES: sqlite,postgres
+      E2E_DB_TYPES: ${E2E_DB_TYPES:-sqlite,postgres}
       DB_POSTGRES_HOST: postgres
       DB_POSTGRES_PORT: "5432"
+      DB_SQLSERVER_HOST: sqlserver
+      DB_SQLSERVER_PORT: "1433"
+      DB_SQLSERVER_PASSWORD: "YourStrong@Passw0rd"
     volumes:
       - ./output:/app/output
     depends_on:
       postgres:
         condition: service_healthy
+      sqlserver:
+        condition: service_started

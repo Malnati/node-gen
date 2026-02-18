@@ -26,10 +26,14 @@ export class DbReaderSqlServer {
     try {
       console.log('Connected to the SQLServer database successfully.')
 
+      const currentDbResult = await pool.request().query('SELECT DB_NAME() AS name')
+      const currentDb = currentDbResult.recordset?.[0]?.name
+      console.log('SQLServer current database:', currentDb)
+
       const tablesResult = await pool
         .request()
-        .query(`SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = 'BASE TABLE' AND TABLE_CATALOG = '${this.config.database}'`)
-      const tables = tablesResult.recordset.map((row: any) => row.TABLE_NAME)
+        .query(`SELECT name AS TABLE_NAME FROM sys.tables WHERE type = 'U'`)
+      const tables = (tablesResult.recordset || []).map((row: any) => row.TABLE_NAME ?? row.table_name)
       const schemaInfo: Table[] = []
 
       for (const tableName of tables) {
