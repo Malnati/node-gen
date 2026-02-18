@@ -3,7 +3,7 @@ const sqlite3 = require('sqlite3');
 const path = require('path');
 const fs = require('fs');
 
-const outDir = process.argv[2] || path.join(process.cwd(), 'build-cli-test');
+const outDir = process.argv[2] || path.join(process.cwd(), 'output');
 const dbPath = path.join(outDir, 'fixture.sqlite');
 
 if (!fs.existsSync(outDir)) {

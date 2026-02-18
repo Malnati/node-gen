@@ -2,7 +2,6 @@
 .git
 node_modules
 gen/node_modules
-test/build-cli-test/node_modules
 output
 test/e2e-generator-mock/node_modules
 *.log

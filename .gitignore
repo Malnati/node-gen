@@ -42,7 +42,6 @@ jspm_packages/
 test/e2e-generator-mock/mock.sqlite
 test/db/database.db
 test/db/*.db
-test/build-cli-test/fixture.sqlite
 db/*.db
 
 # Validação curl (renderização capturada)

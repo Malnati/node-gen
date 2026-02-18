@@ -4,7 +4,7 @@
 
 ## Objetivo
 
-Criar um **projeto de testes** dedicado a **testar o aplicativo gerador de código-fonte (node-gen) contra o aplicativo mock**. O projeto deve orquestrar a execução do gerador usando o mock como entrada e validar o resultado (artefatos gerados e, quando aplicável, build do output). **Estrutura atual:** gerador em `gen/`, testes e mock em `test/` (ex.: `test/mock/`, `test/e2e-generator-mock/`, `test/build-cli-test/`).
+Criar um **projeto de testes** dedicado a **testar o aplicativo gerador de código-fonte (node-gen) contra o aplicativo mock**. O projeto deve orquestrar a execução do gerador usando o mock como entrada e validar o resultado (artefatos gerados e, quando aplicável, build do output). **Estrutura atual:** gerador em `gen/`, testes e mock em `test/` (ex.: `test/mock/`, `test/e2e-generator-mock/`); saída do gerador em `output/` na raiz.
 
 ## Contexto e referências
 

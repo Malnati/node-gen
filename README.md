@@ -8,8 +8,7 @@ Este repositório contém um conjunto de geradores TypeScript para criar a estru
 - **`gen/`** — aplicativo gerador (node-gen): `package.json`, `src/`, `static/`, `templates/`, `tsconfig.json`. Build com `cd gen && npm run build` ou, na raiz, `npm run build`.
 - **`test/`** — testes e mocks:
   - **`test/mock/`** — schema SQLite do mock (`schema.sql`).
-  - **`test/e2e-generator-mock/`** — testes e2e do gerador contra o mock; contém scripts de criação do banco, `connection.json` e `mock.sqlite`.
-  - **`test/build-cli-test/`** — output de exemplo do CLI (quando usado).
+  - **`test/e2e-generator-mock/`** — testes e2e do gerador contra o mock; contém scripts de criação do banco, `connection.json` e `mock.sqlite`. Saída do gerador (E2E e teste CLI) em `output/` na raiz.
 
 ## Instalação
 

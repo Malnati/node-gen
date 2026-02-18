@@ -10,7 +10,6 @@ Este diretório concentra os recursos de teste do gerador de código (`gen/`): m
 |-----------|-----------|
 | `mock/` | Schema SQLite do mock (`schema.sql`). Scripts de criação do banco e `mock.sqlite` ficam em `e2e-generator-mock/`. |
 | `e2e-generator-mock/` | Testes E2E: executa o gerador contra o mock e valida artefatos. Contém `connection.json`, `create-db.js`, `create-sqlite-fixture.js`, `mock.sqlite` (gerado). Saída do gerador em `output/` na raiz do repositório. |
-| `build-cli-test/` | Projeto Nest gerado (fixture) para testes manuais e unitários do código gerado. |
 | `db/` | DDL e dados de exemplo para PostgreSQL, MySQL, SQLite e SQL Server (referência e testes por dialeto). |
 
 ## Pré-requisitos
@@ -71,31 +70,26 @@ node test/e2e-generator-mock/create-db.js
 
 Gera `test/e2e-generator-mock/mock.sqlite` a partir de `test/mock/schema.sql`.
 
-### 3. Testes unitários do projeto gerado (build-cli-test)
+### 3. Testes unitários do projeto gerado (opcional)
 
-O projeto em `test/build-cli-test/` é um Nest gerado; você pode rodar os testes Jest dele:
+Após `make e2e-run` ou após gerar manualmente para `output/`, o projeto Nest gerado fica em `output/` na raiz. Para rodar os testes Jest dele:
 
 ```bash
-cd test/build-cli-test
+cd output
 npm install
 npm test
 ```
 
-Cobertura:
-
-```bash
-npm run test:cov
-```
+Cobertura: `npm run test:cov`.
 
 ## Ordem sugerida
 
 1. `npm run build` (raiz) — compila o gerador.
 2. `node test/e2e-generator-mock/create-db.js` (raiz) — cria o mock, se ainda não existir.
-3. `npm run test:e2e` (raiz) — executa o E2E do gerador contra o mock.
-4. Opcional: `cd test/build-cli-test && npm install && npm test` — testes do projeto gerado.
+3. `npm run test:e2e` (raiz) — executa o E2E do gerador contra o mock (saída em `output/`).
+4. Opcional: `cd output && npm install && npm test` — testes do projeto gerado.
 
 ## Referências
 
 - **E2E:** [test/e2e-generator-mock/README.md](e2e-generator-mock/README.md)
 - **Mock:** [test/mock/README.md](mock/README.md)
-- **Projeto gerado (fixture):** [test/build-cli-test/README.md](build-cli-test/README.md)
