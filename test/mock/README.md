@@ -45,12 +45,10 @@ O schema contém **relações N-1, N-N** e **tipos de uso comum no mercado**.
 
 ## Estrutura
 
-- `schema.sql` — DDL SQLite com as tabelas do mock.
-- `create-db.js` — script Node que cria `mock.sqlite` a partir de `schema.sql` (executar na raiz do repositório).
-- `create-sqlite-fixture.js` — script Node que cria um SQLite mínimo (tabela `tb_user`) em um diretório informado; usado para o teste CLI em disco (ex.: `node test/mock/create-sqlite-fixture.js ./test/build-cli-test`). Ver [plan-cli-test-execution.md](../../docs/issues/plan-cli-test-execution.md).
-- `connection.json` — **dados de conexão do banco mock** (dbType, database, user, password). O projeto e2e (`test/e2e-generator-mock/`) usa este arquivo como **parâmetros de entrada** dos testes.
-- `mock.sqlite` — banco gerado (criado ao rodar `create-db.js`).
+- `schema.sql` — DDL SQLite com as tabelas do mock (usado por `test/e2e-generator-mock/create-db.js`).
 - `README.md` — este arquivo.
+
+Scripts de criação do banco, dados de conexão e o arquivo `mock.sqlite` ficam em **`test/e2e-generator-mock/`**. Ver [test/e2e-generator-mock/README.md](../e2e-generator-mock/README.md).
 
 ## Comandos
 
@@ -59,17 +57,17 @@ O schema contém **relações N-1, N-N** e **tipos de uso comum no mercado**.
 Na raiz do repositório:
 
 ```bash
-node test/mock/create-db.js
+node test/e2e-generator-mock/create-db.js
 ```
 
-Gera `test/mock/mock.sqlite`.
+Gera `test/e2e-generator-mock/mock.sqlite` (usa `test/mock/schema.sql`).
 
 ### 2. Rodar o node-gen contra o mock
 
 Na raiz do repositório, com o gerador compilado (`npm run build` em `gen/` ou na raiz):
 
 ```bash
-cd gen && node dist/main.js -a mock-app -d ../test/mock/mock.sqlite -u x -pw x -o ../test/build-mock-test -t sqlite -f "entities,services,interfaces,controllers,dtos,modules,app-module,main,env,package.json,readme,datasource,diagram"
+cd gen && node dist/main.js -a mock-app -d ../test/e2e-generator-mock/mock.sqlite -u x -pw x -o ../test/build-mock-test -t sqlite -f "entities,services,interfaces,controllers,dtos,modules,app-module,main,env,package.json,readme,datasource,diagram"
 ```
 
 ### 3. Verificar artefatos

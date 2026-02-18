@@ -15,6 +15,6 @@ build-mock-test
 coverage
 .nyc_output
 *.sqlite
-test/mock/mock.sqlite
+test/e2e-generator-mock/mock.sqlite
 test/db/*.db
 render.html

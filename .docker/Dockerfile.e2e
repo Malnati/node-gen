@@ -18,6 +18,6 @@ COPY . .
 RUN cd gen && npm install --legacy-peer-deps && npm run build
 
 ENV NODE_PATH=/app/gen/node_modules
-RUN node test/mock/create-db.js
+RUN node test/e2e-generator-mock/create-db.js
 
 ENTRYPOINT ["/app/.docker/entrypoint.e2e.sh"]

@@ -9,7 +9,7 @@ Criar um **projeto de testes** dedicado a **testar o aplicativo gerador de códi
 ## Contexto e referências
 
 - **Gerador:** node-gen em `gen/` (CLI em `gen/dist/main.js`, build com `npm run build` em `gen/` ou na raiz).
-- **Mock:** projeto em `test/mock/`: schema em `test/mock/schema.sql`, banco em `test/mock/mock.sqlite` (criado por `node test/mock/create-db.js`). Ver [test/mock/README.md](../../test/mock/README.md) e [plan-mock-project-codegen.md](plan-mock-project-codegen.md).
+- **Mock:** schema em `test/mock/schema.sql`; banco e scripts em `test/e2e-generator-mock/` (`mock.sqlite` criado por `node test/e2e-generator-mock/create-db.js`). Ver [test/mock/README.md](../../test/mock/README.md) e [plan-mock-project-codegen.md](plan-mock-project-codegen.md).
 - **Teste manual do CLI:** [plan-cli-test-execution.md](plan-cli-test-execution.md) descreve passos manuais; o novo projeto automatiza e reproduz o fluxo “mock → gerador → validação”.
 
 ## Escopo
@@ -17,8 +17,8 @@ Criar um **projeto de testes** dedicado a **testar o aplicativo gerador de códi
 ### Entra
 
 - Definir e implementar um **projeto de testes** em `test/` (ex.: `test/e2e-generator-mock/`) que:
-  1. **Prepare o mock:** garantir que o banco mock existe (executar `node test/mock/create-db.js` se necessário ou verificar existência de `test/mock/mock.sqlite`).
-  2. **Execute o gerador:** invocar o CLI do node-gen (`gen/dist/main.js`) com o mock como fonte (ex.: `-d test/mock/mock.sqlite -t sqlite -o <output dedicado>`) e com a lista completa de componentes.
+  1. **Prepare o mock:** garantir que o banco mock existe (executar `node test/e2e-generator-mock/create-db.js` se necessário ou verificar existência de `test/e2e-generator-mock/mock.sqlite`).
+  2. **Execute o gerador:** invocar o CLI do node-gen (`gen/dist/main.js`) com o mock como fonte (ex.: `-d test/e2e-generator-mock/mock.sqlite -t sqlite -o <output dedicado>`) e com a lista completa de componentes.
   3. **Valide o resultado:** verificar existência dos artefatos esperados (ex.: `db.reader.sqlite.json`, `src/app/entities/*.ts`, módulos por tabela, `.env`, `package.json`, `README.md`, `public/diagram.png`) e, opcionalmente, executar `npm run build` no projeto gerado e registrar sucesso/falha.
   4. **Seja reproduzível:** scripts ou comandos documentados (npm scripts, Node, ou Makefile conforme convenções do repo) para rodar o fluxo completo.
 - Documentar no próprio projeto: objetivo, pré-requisitos (build do node-gen, Node instalado), comandos para rodar os testes e vínculo com o mock e com o plan-cli-test-execution.
@@ -35,15 +35,15 @@ Criar um **projeto de testes** dedicado a **testar o aplicativo gerador de códi
 - **Localização:** diretório em **`test/`** (ex.: `test/e2e-generator-mock/`).
 - **Conteúdo mínimo sugerido:**
   - **package.json:** nome do projeto, scripts (ex.: `test` ou `run` que executem o fluxo: criar mock DB → rodar node-gen → validar artefatos).
-  - **Scripts de teste:** um ou mais scripts que: (1) garantam `test/mock/mock.sqlite` (chamada a `node test/mock/create-db.js` ou checagem), (2) chamem `gen/dist/main.js` com `-d test/mock/mock.sqlite -o <out>` (caminhos a partir da raiz do repo), (3) verifiquem presença dos artefatos esperados no output.
+  - **Scripts de teste:** um ou mais scripts que: (1) garantam `test/e2e-generator-mock/mock.sqlite` (chamada a `node test/e2e-generator-mock/create-db.js` ou checagem), (2) chamem `gen/dist/main.js` com `-d test/e2e-generator-mock/mock.sqlite -o <out>` (caminhos a partir da raiz do repo), (3) verifiquem presença dos artefatos esperados no output.
   - **Diretório de output:** subdiretório dentro do projeto (ex.: `test/e2e-generator-mock/out/`).
   - **README.md:** objetivo, pré-requisitos (build do node-gen em `gen/`), comandos e referências (test/mock, plan-cli-test-execution, plan-mock-project-codegen).
 
 ## Fluxo de teste (resumo)
 
 1. Em `gen/` ou na raiz: `npm run build` (node-gen) se ainda não compilado.
-2. Garantir mock: `node test/mock/create-db.js` (ou verificar `test/mock/mock.sqlite`).
-3. Executar gerador: `node gen/dist/main.js -a <app> -d test/mock/mock.sqlite -o <outputDir> -t sqlite -f "entities,...,diagram"` (a partir da raiz; ou `cd gen && node dist/main.js ...` com caminhos relativos a `gen/`).
+2. Garantir mock: `node test/e2e-generator-mock/create-db.js` (ou verificar `test/e2e-generator-mock/mock.sqlite`).
+3. Executar gerador: `node gen/dist/main.js -a <app> -d test/e2e-generator-mock/mock.sqlite -o <outputDir> -t sqlite -f "entities,...,diagram"` (a partir da raiz; ou `cd gen && node dist/main.js ...` com caminhos relativos a `gen/`).
 4. Validar: existência de schema JSON, entidades, módulos por tabela, env, package.json, readme, datasource, diagram; opcionalmente `npm run build` em `<outputDir>`.
 5. Registrar resultado (sucesso/falha) em saída do script ou em relatório (ex.: console, arquivo de resultado).
 
@@ -66,7 +66,7 @@ Criar um **projeto de testes** dedicado a **testar o aplicativo gerador de códi
 
 ## Riscos e dependências
 
-- **Dependência:** node-gen compilado (`gen/dist/`) e mock disponível (`test/mock/schema.sql`, `test/mock/create-db.js`). O projeto de teste assume execução a partir da raiz do repositório (caminhos para `gen/` e `test/mock/`).
+- **Dependência:** node-gen compilado (`gen/dist/`) e mock disponível (`test/mock/schema.sql`, `test/e2e-generator-mock/create-db.js`). O projeto de teste assume execução a partir da raiz do repositório (caminhos para `gen/` e `test/e2e-generator-mock/`).
 - **Risco:** paths relativos podem quebrar se o script for executado de outro diretório; documentar que a execução deve ser feita a partir da raiz ou do próprio projeto com caminhos explícitos.
 - **Risco:** build do projeto gerado pode falhar (já conhecido); o projeto de teste deve registrar falha sem bloquear a existência da evidência de geração.
 

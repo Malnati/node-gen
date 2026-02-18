@@ -8,8 +8,8 @@ Este diretório concentra os recursos de teste do gerador de código (`gen/`): m
 
 | Diretório | Descrição |
 |-----------|-----------|
-| `mock/` | Schema SQLite e script para criar o banco mock (`mock.sqlite`). Usado como entrada pelos testes E2E. |
-| `e2e-generator-mock/` | Testes E2E: executa o gerador contra o mock e valida artefatos gerados. Saída em `e2e-generator-mock/out/`. |
+| `mock/` | Schema SQLite do mock (`schema.sql`). Scripts de criação do banco e `mock.sqlite` ficam em `e2e-generator-mock/`. |
+| `e2e-generator-mock/` | Testes E2E: executa o gerador contra o mock e valida artefatos. Contém `connection.json`, `create-db.js`, `create-sqlite-fixture.js`, `mock.sqlite` (gerado). Saída em `e2e-generator-mock/out/`. |
 | `build-cli-test/` | Projeto Nest gerado (fixture) para testes manuais e unitários do código gerado. |
 | `db/` | DDL e dados de exemplo para PostgreSQL, MySQL, SQLite e SQL Server (referência e testes por dialeto). |
 
@@ -42,7 +42,7 @@ node test/e2e-generator-mock/run.js
 cd test/e2e-generator-mock && node run.js
 ```
 
-Se `test/mock/mock.sqlite` não existir, o script executa `node test/mock/create-db.js` antes de rodar o gerador.
+Se `test/e2e-generator-mock/mock.sqlite` não existir, o script executa `node test/e2e-generator-mock/create-db.js` antes de rodar o gerador.
 
 **Via Docker (evita problemas de arquitetura com sqlite3/sharp):**
 
@@ -66,10 +66,10 @@ O ambiente usa `docker-compose.e2e.yml` e `.docker/Dockerfile.e2e` (Node 20, gen
 Para (re)criar apenas o banco mock, na raiz:
 
 ```bash
-node test/mock/create-db.js
+node test/e2e-generator-mock/create-db.js
 ```
 
-Gera `test/mock/mock.sqlite` a partir de `test/mock/schema.sql`.
+Gera `test/e2e-generator-mock/mock.sqlite` a partir de `test/mock/schema.sql`.
 
 ### 3. Testes unitários do projeto gerado (build-cli-test)
 
@@ -90,7 +90,7 @@ npm run test:cov
 ## Ordem sugerida
 
 1. `npm run build` (raiz) — compila o gerador.
-2. `node test/mock/create-db.js` (raiz) — cria o mock, se ainda não existir.
+2. `node test/e2e-generator-mock/create-db.js` (raiz) — cria o mock, se ainda não existir.
 3. `npm run test:e2e` (raiz) — executa o E2E do gerador contra o mock.
 4. Opcional: `cd test/build-cli-test && npm install && npm test` — testes do projeto gerado.
 

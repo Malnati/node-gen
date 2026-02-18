@@ -127,7 +127,7 @@ Motivo da parcialidade: execução automática bloqueada por dependências indis
 - `npm run build` (sessão anterior) → falha (`TS2688: Cannot find type definition file for 'node'`).
 - `npm install` (sessão anterior) → falha (`403 Forbidden` em `registry.npmjs.org/mssql`).
 - **Sessão atual:** `npm run build` (raiz node-gen) → **sucesso** (tsc concluído).
-- **Teste CLI com SQLite (em disco):** `node test/mock/create-sqlite-fixture.js ./build-cli-test` → sucesso; `node dist/main.js -a cli-test ... -d ./build-cli-test/fixture.sqlite -o ./build-cli-test -t sqlite -f "entities,services,interfaces,controllers,dtos,modules,app-module,main,env,package.json,readme,datasource,diagram"` → **sucesso**. Artefatos gerados: `db.reader.sqlite.json`, `src/app/entities/user.ts`, `src/app/user/*`, `src/app/app.module.ts`, `src/app/main.ts`, `src/app/config/datasource.service.ts`, `.env`, `package.json`, `README.md`, `public/diagram.png`. Plano de execução: [plan-cli-test-execution.md](plan-cli-test-execution.md).
+- **Teste CLI com SQLite (em disco):** `node test/e2e-generator-mock/create-sqlite-fixture.js ./build-cli-test` → sucesso; `node dist/main.js -a cli-test ... -d ./build-cli-test/fixture.sqlite -o ./build-cli-test -t sqlite -f "entities,services,interfaces,controllers,dtos,modules,app-module,main,env,package.json,readme,datasource,diagram"` → **sucesso**. Artefatos gerados: `db.reader.sqlite.json`, `src/app/entities/user.ts`, `src/app/user/*`, `src/app/app.module.ts`, `src/app/main.ts`, `src/app/config/datasource.service.ts`, `.env`, `package.json`, `README.md`, `public/diagram.png`. Plano de execução: [plan-cli-test-execution.md](plan-cli-test-execution.md).
 
 ### Execução do plano de testes do CLI (plan-cli-test-execution.md)
 
@@ -135,7 +135,7 @@ Motivo da parcialidade: execução automática bloqueada por dependências indis
 |-------|----------------|-----------|
 | 1 | `npm run build` (raiz node-gen) | Sucesso |
 | 2 | Diretório de saída `./build-cli-test` | OK |
-| 3 | `node test/mock/create-sqlite-fixture.js ./build-cli-test` | Sucesso |
+| 3 | `node test/e2e-generator-mock/create-sqlite-fixture.js ./build-cli-test` | Sucesso |
 | 3 | `node dist/main.js ... -t sqlite -d ./build-cli-test/fixture.sqlite -o ./build-cli-test -f "entities,...,diagram"` | Sucesso |
 | 4 | Verificação: `db.reader.sqlite.json`, `src/app/`, `src/app/entities/`, `.env`, `package.json`, `public/diagram.png` | Todos presentes |
 | 5 | `npm install` (no projeto gerado) | Sucesso |

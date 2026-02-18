@@ -7,8 +7,8 @@ Este repositório contém um conjunto de geradores TypeScript para criar a estru
 
 - **`gen/`** — aplicativo gerador (node-gen): `package.json`, `src/`, `static/`, `templates/`, `tsconfig.json`. Build com `cd gen && npm run build` ou, na raiz, `npm run build`.
 - **`test/`** — testes e mocks:
-  - **`test/mock/`** — schema e banco mock para testes de geração (N-1, N-N, tipos diversos).
-  - **`test/e2e-generator-mock/`** — testes e2e do gerador contra o mock.
+  - **`test/mock/`** — schema SQLite do mock (`schema.sql`).
+  - **`test/e2e-generator-mock/`** — testes e2e do gerador contra o mock; contém scripts de criação do banco, `connection.json` e `mock.sqlite`.
   - **`test/build-cli-test/`** — output de exemplo do CLI (quando usado).
 
 ## Instalação
@@ -63,11 +63,11 @@ Você pode fornecer `--templateDir` para usar um diretório personalizado de tem
 
 ### Usando o SQLite para Testes
 
-Para executar o gerador contra um banco SQLite, use o mock em `test/mock/` (criar com `node test/mock/create-db.js`) ou o arquivo `test/db/database.db` a partir dos scripts em `test/db/`. Exemplo com o mock:
+Para executar o gerador contra um banco SQLite, use o mock (criar com `node test/e2e-generator-mock/create-db.js`) ou o arquivo `test/db/database.db` a partir dos scripts em `test/db/`. Exemplo com o mock:
 
 ```bash
-node test/mock/create-db.js
-cd gen && node dist/main.js -a myapp -d ../test/mock/mock.sqlite -u x -pw x -o ../build -t sqlite -f "entities,services,interfaces,controllers,dtos,modules,app-module,main,env,package.json,readme,datasource,diagram"
+node test/e2e-generator-mock/create-db.js
+cd gen && node dist/main.js -a myapp -d ../test/e2e-generator-mock/mock.sqlite -u x -pw x -o ../build -t sqlite -f "entities,services,interfaces,controllers,dtos,modules,app-module,main,env,package.json,readme,datasource,diagram"
 ```
 
 Ou, na raiz, após `npm run build`: `node gen/dist/main.js ...` com os mesmos parâmetros.

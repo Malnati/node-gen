@@ -5,7 +5,7 @@ const { spawnSync } = require('child_process');
 
 const REPO_ROOT = path.resolve(__dirname, '..', '..');
 const GEN_DIR = path.join(REPO_ROOT, 'gen');
-const MOCK_DIR = path.join(REPO_ROOT, 'test', 'mock');
+const MOCK_DIR = path.join(REPO_ROOT, 'test', 'e2e-generator-mock');
 const MOCK_CONNECTION_PATH = path.join(MOCK_DIR, 'connection.json');
 const MOCK_CREATE = path.join(MOCK_DIR, 'create-db.js');
 const DIST_MAIN = path.join(GEN_DIR, 'dist', 'main.js');
