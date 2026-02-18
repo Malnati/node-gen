@@ -174,12 +174,21 @@ function assessResults() {
 
   let buildOk = false;
   if (fs.existsSync(path.join(OUT_DIR, 'package.json'))) {
-    const buildResult = spawnSync('npm', ['run', 'build'], {
+    const installResult = spawnSync('npm', ['install', '--legacy-peer-deps'], {
       cwd: OUT_DIR,
       stdio: 'pipe',
-      timeout: 120000,
+      timeout: 180000,
     });
-    buildOk = buildResult.status === 0;
+    if (installResult.status !== 0) {
+      buildOk = false;
+    } else {
+      const buildResult = spawnSync('npm', ['run', 'build'], {
+        cwd: OUT_DIR,
+        stdio: 'pipe',
+        timeout: 120000,
+      });
+      buildOk = buildResult.status === 0;
+    }
     checks.push({
       name: 'npm run build no output (opcional)',
       pass: buildOk,
