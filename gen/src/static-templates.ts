@@ -38,19 +38,20 @@ export const columnTemplate = (
 export const relationTemplate = (
 	relationType: "ManyToOne" | "OneToOne" | "OneToMany" | "ManyToMany",
 	foreignTableName: string,
-	columnName: string,
+	propertyName: string,
+	joinColumnDbName: string,
 	joinColumn: boolean = true,
 ) => {
 	const relationDecorator = `@${relationType}(() => ${toPascalCase(foreignTableName)}Entity)`
 	const joinColumnDecorator = joinColumn
-		? `@JoinColumn({ name: '${columnName}' })`
+		? `@JoinColumn({ name: '${joinColumnDbName}' })`
 		: ""
 	const apiPropertyDecorator = `@ApiProperty({ description: "Relacionamento com ${foreignTableName}." })`
 	return loadTemplate("relation.template.ts", {
 		relationDecorator,
 		joinColumnDecorator,
 		apiPropertyDecorator,
-		columnName,
+		columnName: propertyName,
 		relationEntity: toPascalCase(foreignTableName),
 		arraySuffix:
 			relationType === "OneToMany" || relationType === "ManyToMany"

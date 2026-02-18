@@ -5,93 +5,207 @@ const { spawnSync } = require('child_process');
 
 const REPO_ROOT = path.resolve(__dirname, '..', '..');
 const GEN_DIR = path.join(REPO_ROOT, 'gen');
-const MOCK_DIR = path.join(REPO_ROOT, 'test', 'mock');
-const MOCK_CONNECTION_PATH = path.join(MOCK_DIR, 'connection.json');
+const MOCK_DIR = path.join(REPO_ROOT, 'test', 'e2e-generator-mock');
+const PROJECTS_DIR = path.join(MOCK_DIR, 'projects');
 const MOCK_CREATE = path.join(MOCK_DIR, 'create-db.js');
 const DIST_MAIN = path.join(GEN_DIR, 'dist', 'main.js');
-const OUT_DIR = path.join(__dirname, 'out');
-const COMPONENTS = 'entities,services,interfaces,controllers,dtos,modules,app-module,main,env,package.json,readme,datasource,diagram';
+const OUT_DIR_BASE = path.join(REPO_ROOT, 'output');
+const E2E_APP_NAME = process.env.E2E_APP_NAME || 'e2e-mock-app';
+const COMPONENTS = 'entities,services,interfaces,controllers,dtos,modules,app-module,main,env,package.json,readme,datasource';
 
-function loadMockConnection() {
-  if (!fs.existsSync(MOCK_CONNECTION_PATH)) {
-    throw new Error('Dados de conexão do mock não encontrados: ' + MOCK_CONNECTION_PATH);
+const CONNECTION_FILE_PATTERN = /^connection\.([a-z0-9]+)\.json$/;
+
+const PROJECT_EXPECTED = {
+  todo: {
+    tables: ['tb_simple_item', 'tb_category', 'tb_product', 'tb_sale', 'tb_sale_item', 'tb_tag', 'tb_product_tag', 'tb_document'],
+    moduleNames: ['simple-item', 'category', 'product', 'sale', 'sale-item', 'tag', 'product-tag', 'document'],
+    entityFiles: ['simple_item.ts', 'category.ts', 'product.ts', 'sale.ts', 'sale_item.ts', 'tag.ts', 'product_tag.ts', 'document.ts'],
+  },
+  selling: {
+    tables: ['tb_customer', 'tb_payment_method', 'tb_order', 'tb_order_line', 'tb_payment', 'tb_stock_movement', 'tb_customer_address'],
+    moduleNames: ['customer', 'payment-method', 'order', 'order-line', 'payment', 'stock-movement', 'customer-address'],
+    entityFiles: ['customer.ts', 'payment_method.ts', 'order.ts', 'order_line.ts', 'payment.ts', 'stock_movement.ts', 'customer_address.ts'],
+  },
+  schedule: {
+    tables: ['tb_resource', 'tb_slot', 'tb_recurrence_rule', 'tb_booking', 'tb_participant', 'tb_booking_participant', 'tb_booking_history'],
+    moduleNames: ['resource', 'slot', 'recurrence-rule', 'booking', 'participant', 'booking-participant', 'booking-history'],
+    entityFiles: ['resource.ts', 'slot.ts', 'recurrence_rule.ts', 'booking.ts', 'participant.ts', 'booking_participant.ts', 'booking_history.ts'],
+  },
+};
+
+function discoverProjects() {
+  if (!fs.existsSync(PROJECTS_DIR)) {
+    return [];
   }
-  const raw = JSON.parse(fs.readFileSync(MOCK_CONNECTION_PATH, 'utf-8'));
-  const databasePath = path.isAbsolute(raw.database)
-    ? raw.database
-    : path.join(MOCK_DIR, raw.database);
-  return {
-    dbType: raw.dbType || 'sqlite',
+  const dirs = fs.readdirSync(PROJECTS_DIR, { withFileTypes: true });
+  const out = [];
+  for (const d of dirs) {
+    if (!d.isDirectory()) continue;
+    const connectionDir = path.join(PROJECTS_DIR, d.name, 'db');
+    if (!fs.existsSync(connectionDir)) continue;
+    const hasConnection = fs.readdirSync(connectionDir).some((f) => CONNECTION_FILE_PATTERN.test(f));
+    if (hasConnection && PROJECT_EXPECTED[d.name]) {
+      out.push(d.name);
+    }
+  }
+  return out.sort();
+}
+
+function discoverConnectionFiles(connectionDir) {
+  if (!fs.existsSync(connectionDir)) {
+    return [];
+  }
+  const entries = fs.readdirSync(connectionDir, { withFileTypes: true });
+  const out = [];
+  for (const e of entries) {
+    if (!e.isFile() || !e.name.endsWith('.json')) continue;
+    const m = e.name.match(CONNECTION_FILE_PATTERN);
+    if (m) {
+      out.push({ dbType: m[1], path: path.join(connectionDir, e.name) });
+    }
+  }
+  const allowed = process.env.E2E_DB_TYPES;
+  const list = allowed
+    ? out.filter((c) => allowed.split(',').map((s) => s.trim().toLowerCase()).includes(c.dbType.toLowerCase()))
+    : out;
+  return list.sort((a, b) => a.dbType.localeCompare(b.dbType));
+}
+
+function loadMockConnection(connectionFilePath) {
+  if (!fs.existsSync(connectionFilePath)) {
+    throw new Error('Arquivo de conexão não encontrado: ' + connectionFilePath);
+  }
+  const raw = JSON.parse(fs.readFileSync(connectionFilePath, 'utf-8'));
+  const baseDir = path.dirname(connectionFilePath);
+  const dbType = raw.dbType || 'sqlite';
+  const databasePath = dbType === 'sqlite'
+    ? (path.isAbsolute(raw.database) ? raw.database : path.resolve(baseDir, raw.database))
+    : raw.database;
+  const conn = {
+    dbType,
     database: databasePath,
     user: raw.user != null ? String(raw.user) : 'x',
     password: raw.password != null ? String(raw.password) : 'x',
+    host: raw.host != null ? String(raw.host) : '',
+    port: raw.port != null ? Number(raw.port) : null,
   };
+  if (dbType === 'postgres') {
+    if (process.env.DB_POSTGRES_HOST) conn.host = process.env.DB_POSTGRES_HOST;
+    if (process.env.DB_POSTGRES_PORT != null && process.env.DB_POSTGRES_PORT !== '') {
+      conn.port = parseInt(process.env.DB_POSTGRES_PORT, 10);
+    }
+  }
+  if (dbType === 'mysql') {
+    if (process.env.DB_MYSQL_HOST) conn.host = process.env.DB_MYSQL_HOST;
+    if (process.env.DB_MYSQL_PORT != null && process.env.DB_MYSQL_PORT !== '') {
+      conn.port = parseInt(process.env.DB_MYSQL_PORT, 10);
+    }
+    if (process.env.DB_MYSQL_USER) conn.user = process.env.DB_MYSQL_USER;
+    if (process.env.DB_MYSQL_PASSWORD) conn.password = process.env.DB_MYSQL_PASSWORD;
+  }
+  if (dbType === 'sqlserver') {
+    if (process.env.DB_SQLSERVER_HOST) conn.host = process.env.DB_SQLSERVER_HOST;
+    if (process.env.DB_SQLSERVER_PORT != null && process.env.DB_SQLSERVER_PORT !== '') {
+      conn.port = parseInt(process.env.DB_SQLSERVER_PORT, 10);
+    }
+  }
+  return conn;
 }
 
-const EXPECTED_TABLES = [
-  'tb_simple_item', 'tb_category', 'tb_product', 'tb_sale', 'tb_sale_item',
-  'tb_tag', 'tb_product_tag', 'tb_document',
-];
-const EXPECTED_MODULE_NAMES = [
-  'simple-item', 'category', 'product', 'sale', 'sale-item',
-  'tag', 'product-tag', 'document',
-];
-const EXPECTED_ENTITY_FILES = [
-  'simple_item.ts', 'category.ts', 'product.ts', 'sale.ts', 'sale_item.ts',
-  'tag.ts', 'product_tag.ts', 'document.ts',
-];
+function artifactsFor(dbType, outDir) {
+  return [
+    path.join(outDir, `db.reader.${dbType}.json`),
+    path.join(outDir, 'src', 'app', 'app.module.ts'),
+    path.join(outDir, '.env'),
+    path.join(outDir, 'package.json'),
+    path.join(outDir, 'README.md'),
+  ];
+}
 
-const ARTIFACTS = [
-  path.join(OUT_DIR, 'db.reader.sqlite.json'),
-  path.join(OUT_DIR, 'src', 'app', 'app.module.ts'),
-  path.join(OUT_DIR, '.env'),
-  path.join(OUT_DIR, 'package.json'),
-  path.join(OUT_DIR, 'README.md'),
-];
-
-function ensureMock(conn) {
-  if (fs.existsSync(conn.database)) {
-    console.log('[e2e] Mock DB already exists:', conn.database);
+function ensureMock(conn, project) {
+  if (conn.dbType !== 'sqlite') {
     return true;
   }
-  if (!fs.existsSync(MOCK_CREATE)) {
-    console.error('[e2e] Mock create script not found:', MOCK_CREATE);
+  const dbPath = path.join(MOCK_DIR, project === 'todo' ? 'mock.sqlite' : `mock-${project}.sqlite`);
+  if (fs.existsSync(dbPath)) {
+    console.log('[e2e] Mock DB already exists:', dbPath);
+    return true;
+  }
+  if (project === 'todo') {
+    if (!fs.existsSync(MOCK_CREATE)) {
+      console.error('[e2e] Mock create script not found:', MOCK_CREATE);
+      return false;
+    }
+    console.log('[e2e] Creating mock DB (todo)...');
+    const r = spawnSync(process.execPath, [MOCK_CREATE], { cwd: REPO_ROOT, stdio: 'inherit' });
+    if (r.status !== 0) {
+      console.error('[e2e] Failed to create mock DB');
+      return false;
+    }
+    return true;
+  }
+  const fixtureScript = path.join(PROJECTS_DIR, project, 'db', 'create-sqlite-fixture.js');
+  if (!fs.existsSync(fixtureScript)) {
+    console.error('[e2e] create-sqlite-fixture.js not found:', fixtureScript);
     return false;
   }
-  console.log('[e2e] Creating mock DB...');
-  const r = spawnSync(process.execPath, [MOCK_CREATE], { cwd: REPO_ROOT, stdio: 'inherit' });
+  console.log('[e2e] Creating mock DB (' + project + ')...');
+  const r = spawnSync(process.execPath, [fixtureScript, MOCK_DIR], { cwd: REPO_ROOT, stdio: 'inherit' });
   if (r.status !== 0) {
-    console.error('[e2e] Failed to create mock DB');
+    console.error('[e2e] Failed to create fixture');
+    return false;
+  }
+  const fixturePath = path.join(MOCK_DIR, 'fixture.sqlite');
+  if (!fs.existsSync(fixturePath)) {
+    console.error('[e2e] Fixture not found at', fixturePath);
+    return false;
+  }
+  try {
+    fs.renameSync(fixturePath, dbPath);
+  } catch (e) {
+    console.error('[e2e] Failed to rename fixture:', e.message);
     return false;
   }
   return true;
 }
 
-function runGenerator(conn) {
+function runGenerator(conn, outDir, appName) {
   if (!fs.existsSync(DIST_MAIN)) {
     console.error('[e2e] Generator not built. Run "npm run build" in gen/ or from repo root.');
     return false;
   }
-  if (fs.existsSync(OUT_DIR)) {
+  if (fs.existsSync(outDir)) {
     try {
-      fs.rmSync(OUT_DIR, { recursive: true });
-    } catch (e) {
-      console.error('[e2e] Failed to clean out dir:', e.message);
+      const entries = fs.readdirSync(outDir, { withFileTypes: true });
+      for (const e of entries) {
+        const p = path.join(outDir, e.name);
+        fs.rmSync(p, { recursive: true });
+      }
+    } catch (err) {
+      console.error('[e2e] Failed to clean out dir:', err.message);
       return false;
     }
+  } else {
+    fs.mkdirSync(outDir, { recursive: true });
   }
-  fs.mkdirSync(OUT_DIR, { recursive: true });
-  console.log('[e2e] Running generator with mock connection params...');
+  const effectiveAppName = appName || E2E_APP_NAME;
+  console.log('[e2e] Running generator with connection params...');
   const args = [
     DIST_MAIN,
-    '-a', 'e2e-mock-app',
+    '-a', effectiveAppName,
     '-d', conn.database,
     '-u', conn.user,
     '-pw', conn.password,
-    '-o', OUT_DIR,
+    '-o', outDir,
     '-t', conn.dbType,
     '-f', COMPONENTS,
   ];
+  if (conn.host) {
+    args.push('-h', conn.host);
+  }
+  if (conn.port != null && conn.port !== '') {
+    args.push('-p', String(conn.port));
+  }
   const r = spawnSync(process.execPath, args, { cwd: GEN_DIR, stdio: 'inherit' });
   if (r.status !== 0) {
     console.error('[e2e] Generator exited with code', r.status);
@@ -100,17 +214,24 @@ function runGenerator(conn) {
   return true;
 }
 
-function assessResults() {
+function assessResults(dbType, outDir, project) {
+  const expected = PROJECT_EXPECTED[project];
+  if (!expected) {
+    console.error('[e2e] Unknown project for assessment:', project);
+    return false;
+  }
+  const { tables: EXPECTED_TABLES, moduleNames: EXPECTED_MODULE_NAMES, entityFiles: EXPECTED_ENTITY_FILES } = expected;
+  const ARTIFACTS = artifactsFor(dbType, outDir);
   const checks = [];
   let requiredFailed = false;
 
   for (const p of ARTIFACTS) {
     const pass = fs.existsSync(p);
     if (!pass) requiredFailed = true;
-    checks.push({ name: path.relative(OUT_DIR, p) || p, pass, required: true });
+    checks.push({ name: path.relative(outDir, p) || p, pass, required: true });
   }
 
-  const entitiesDir = path.join(OUT_DIR, 'src', 'app', 'entities');
+  const entitiesDir = path.join(outDir, 'src', 'app', 'entities');
   const entityFiles = fs.existsSync(entitiesDir)
     ? fs.readdirSync(entitiesDir).filter((f) => f.endsWith('.ts'))
     : [];
@@ -134,7 +255,7 @@ function assessResults() {
     required: true,
   });
 
-  const appDir = path.join(OUT_DIR, 'src', 'app');
+  const appDir = path.join(outDir, 'src', 'app');
   let modulesOk = true;
   for (const mod of EXPECTED_MODULE_NAMES) {
     const modDir = path.join(appDir, mod);
@@ -151,7 +272,7 @@ function assessResults() {
   });
 
   let schemaOk = false;
-  const schemaPath = path.join(OUT_DIR, 'db.reader.sqlite.json');
+  const schemaPath = path.join(outDir, `db.reader.${dbType}.json`);
   if (fs.existsSync(schemaPath)) {
     try {
       const parsed = JSON.parse(fs.readFileSync(schemaPath, 'utf-8'));
@@ -169,17 +290,26 @@ function assessResults() {
     }
   }
 
-  let diagramOk = fs.existsSync(path.join(OUT_DIR, 'public', 'diagram.png'));
+  let diagramOk = fs.existsSync(path.join(outDir, 'public', 'diagram.png'));
   checks.push({ name: 'public/diagram.png', pass: diagramOk, required: false });
 
   let buildOk = false;
-  if (fs.existsSync(path.join(OUT_DIR, 'package.json'))) {
-    const buildResult = spawnSync('npm', ['run', 'build'], {
-      cwd: OUT_DIR,
+  if (fs.existsSync(path.join(outDir, 'package.json'))) {
+    const installResult = spawnSync('npm', ['install', '--legacy-peer-deps'], {
+      cwd: outDir,
       stdio: 'pipe',
-      timeout: 120000,
+      timeout: 180000,
     });
-    buildOk = buildResult.status === 0;
+    if (installResult.status !== 0) {
+      buildOk = false;
+    } else {
+      const buildResult = spawnSync('npm', ['run', 'build'], {
+        cwd: outDir,
+        stdio: 'pipe',
+        timeout: 120000,
+      });
+      buildOk = buildResult.status === 0;
+    }
     checks.push({
       name: 'npm run build no output (opcional)',
       pass: buildOk,
@@ -187,7 +317,7 @@ function assessResults() {
     });
   }
 
-  console.log('[e2e] --- Aferição dos resultados ---');
+  console.log(`[e2e] --- Aferição dos resultados (${dbType}) ---`);
   for (const c of checks) {
     const badge = c.pass ? 'OK' : 'FALHA';
     const req = c.required ? '' : ' (opcional)';
@@ -197,26 +327,66 @@ function assessResults() {
   const requiredTotal = checks.filter((c) => c.required).length;
   console.log('[e2e] ---');
   console.log(
-    `[e2e] Resultado: ${requiredFailed ? 'FALHA' : 'OK'} (obrigatórios ${requiredPassed}/${requiredTotal})`
+    `[e2e] Resultado ${dbType}: ${requiredFailed ? 'FALHA' : 'OK'} (obrigatórios ${requiredPassed}/${requiredTotal})`
   );
   return !requiredFailed;
 }
 
 function main() {
-  let conn;
-  try {
-    conn = loadMockConnection();
-  } catch (e) {
-    console.error('[e2e]', e.message);
+  const projects = discoverProjects();
+  if (projects.length === 0) {
+    console.error('[e2e] Nenhum projeto com connection.<dbType>.json em:', PROJECTS_DIR);
     process.exit(1);
   }
+
   console.log('[e2e] Repo root:', REPO_ROOT);
-  console.log('[e2e] Output dir:', OUT_DIR);
+  console.log('[e2e] Output base:', OUT_DIR_BASE);
   console.log('[e2e] Gen dir:', GEN_DIR);
-  console.log('[e2e] Parâmetros de entrada (mock): dbType=%s database=%s', conn.dbType, conn.database);
-  if (!ensureMock(conn)) process.exit(1);
-  if (!runGenerator(conn)) process.exit(1);
-  if (!assessResults()) process.exit(1);
+  console.log('[e2e] Projetos:', projects.join(', '));
+
+  let anyFailed = false;
+  for (const project of projects) {
+    const connectionDir = path.join(PROJECTS_DIR, project, 'db');
+    const connectionFiles = discoverConnectionFiles(connectionDir);
+    if (connectionFiles.length === 0) {
+      console.log('[e2e] Projeto', project, ': sem conexões, pulando.');
+      continue;
+    }
+    console.log('[e2e] Projeto', project, 'conexões:', connectionFiles.map((c) => c.dbType).join(', '));
+
+    for (const { dbType, path: connectionPath } of connectionFiles) {
+      console.log('[e2e] ========== project:', project, 'dbType:', dbType, '==========');
+      let conn;
+      try {
+        conn = loadMockConnection(connectionPath);
+      } catch (e) {
+        console.error('[e2e]', e.message);
+        anyFailed = true;
+        continue;
+      }
+      if (conn.dbType === 'sqlite') {
+        conn.database = path.join(MOCK_DIR, project === 'todo' ? 'mock.sqlite' : `mock-${project}.sqlite`);
+      }
+      console.log('[e2e] Parâmetros (mock): dbType=%s database=%s', conn.dbType, conn.database);
+      if (!ensureMock(conn, project)) {
+        anyFailed = true;
+        continue;
+      }
+      const outDir = path.join(OUT_DIR_BASE, project, dbType);
+      const appName = project;
+      if (!runGenerator(conn, outDir, appName)) {
+        anyFailed = true;
+        continue;
+      }
+      if (!assessResults(dbType, outDir, project)) {
+        anyFailed = true;
+      }
+    }
+  }
+
+  if (anyFailed) {
+    process.exit(1);
+  }
   console.log('[e2e] Done.');
 }
 

@@ -19,15 +19,15 @@ Este documento descreve como executar e aferir o CLI do gerador node-gen de pont
 
 Para atender ao pré-requisito de schema usando **SQLite em disco** (sem servidor de banco):
 
-1. **Criar fixture SQLite em disco:** na raiz do repositório, com diretório de saída vazio ou dedicado (ex.: `test/build-cli-test`):
+1. **Criar fixture SQLite em disco:** na raiz do repositório, com diretório de saída vazio ou dedicado (ex.: `output/`):
    ```bash
-   node scripts/create-sqlite-fixture.js ./test/build-cli-test
+   node test/e2e-generator-mock/projects/todo/db/create-sqlite-fixture.js ./output
    ```
    Isso gera `{outputDir}/fixture.sqlite` com uma tabela mínima `tb_user` (id, external_id, name, created_at, updated_at).
 
 2. **Executar o CLI com SQLite:** use `-t sqlite` e `-d` com o caminho do arquivo `.sqlite`. Host, porta, usuário e senha são ignorados pelo DbReader SQLite. Para que o projeto gerado compile com `nest build`, use `-T ./static` (ou caminho que contenha `tsconfig.json` e workspace Nest); o default `-T ./templates` copia apenas templates e não inclui `tsconfig.json`. Executar a partir de `gen/`:
    ```bash
-   cd gen && node dist/main.js -a cli-test -h localhost -p 5432 -d ../test/build-cli-test/fixture.sqlite -u - -pw - -o ../test/build-cli-test -t sqlite -T ./static -f "entities,services,interfaces,controllers,dtos,modules,app-module,main,env,package.json,readme,datasource,diagram"
+   cd gen && node dist/main.js -a cli-test -h localhost -p 5432 -d ../output/fixture.sqlite -u - -pw - -o ../output -t sqlite -T ./static -f "entities,services,interfaces,controllers,dtos,modules,app-module,main,env,package.json,readme,datasource,diagram"
    ```
 
 3. **SQLite in-memory:** o driver SQLite aceita `-d ":memory:"`, porém o banco em memória fica vazio quando o CLI abre a conexão; não há tabelas. Para usar in-memory seria necessário o CLI aceitar um modo que crie o schema em memória antes da leitura (evolução futura). Para testes reproduzíveis, use o fixture em disco acima.
@@ -57,8 +57,8 @@ node dist/main.js -a myapp -h localhost -p 5432 -d mydb -u user -pw secret -o ./
 **Exemplo com SQLite em disco (teste sem servidor de banco).** Use `-T ./static` para que o projeto gerado tenha `tsconfig.json` e compile com `nest build`:
 
 ```bash
-node scripts/create-sqlite-fixture.js ./build-cli-test
-node dist/main.js -a cli-test -d ./build-cli-test/fixture.sqlite -u - -pw - -o ./build-cli-test -t sqlite -T ./static -f "entities,services,interfaces,controllers,dtos,modules,app-module,main,env,package.json,readme,datasource,diagram"
+node test/e2e-generator-mock/projects/todo/db/create-sqlite-fixture.js ./output
+node dist/main.js -a cli-test -d ./output/fixture.sqlite -u - -pw - -o ./output -t sqlite -T ./static -f "entities,services,interfaces,controllers,dtos,modules,app-module,main,env,package.json,readme,datasource,diagram"
 ```
 
 **Ordem de execução interna:** cópia de arquivos estáticos → `dbReader.getSchemaInfo()` (grava schema JSON em `{outputDir}/db.reader.{dbType}.json`) → loop por cada componente solicitado gerando os artefatos.
@@ -66,7 +66,7 @@ node dist/main.js -a cli-test -d ./build-cli-test/fixture.sqlite -u - -pw - -o .
 ## Passos de execução (checklist)
 
 1. Garantir que o gerador está compilado: `npm run build` em `gen/` ou na raiz do repositório.
-2. Definir diretório de saída vazio ou dedicado (ex.: `./test/build-cli-test`).
+2. Definir diretório de saída vazio ou dedicado (ex.: `./output`).
 3. Executar o CLI com opções válidas para o ambiente (preferir SQLite em disco conforme seção acima; ou outro banco quando necessário; ou, no futuro, schema file se o modo for implementado).
 4. Verificar existência do schema JSON em `{outputDir}/db.reader.{dbType}.json` e dos diretórios/arquivos esperados (ex.: `src/app/`, `src/app/entities/`, `.env`, `package.json`, etc.).
 5. No diretório gerado: `npm install` (se permitido pelo ambiente) e `npm run build`.
@@ -92,12 +92,12 @@ Para cada cenário: documentar se foi executado (sim/não) e, em caso de falha, 
 
 ## Uso do projeto mock (matriz completa)
 
-Para testar todas as possibilidades de geração conforme a matriz de cenários (tabela simples, relações e chaves compostas, nullable/enum/decimal/datas/UUID, nomes limítrofes), use o projeto mock em **`test/mock/`**:
+Para testar todas as possibilidades de geração conforme a matriz de cenários (tabela simples, relações e chaves compostas, nullable/enum/decimal/datas/UUID, nomes limítrofes), use o mock em **`test/e2e-generator-mock/`** (schema.sql, create-db.js, mock.sqlite):
 
-1. Criar o banco: `node test/mock/create-db.js`
-2. Executar o CLI (a partir da raiz): `cd gen && node dist/main.js -a mock-app -d ../test/mock/mock.sqlite -u x -pw x -o ../test/build-mock-test -t sqlite -f "entities,...,diagram"` (e opcionalmente `-T ./static`)
+1. Criar o banco: `node test/e2e-generator-mock/create-db.js`
+2. Executar o CLI (a partir da raiz): `cd gen && node dist/main.js -a mock-app -d ../test/e2e-generator-mock/mock.sqlite -u x -pw x -o ../output -t sqlite -f "entities,...,diagram"` (e opcionalmente `-T ./static`)
 
-Ver [test/mock/README.md](../../test/mock/README.md) e [plan-mock-project-codegen.md](plan-mock-project-codegen.md). Para o projeto que **automatize** esse fluxo (garantir mock → executar gerador → validar artefatos), ver [plan-test-project-generator-vs-mock.md](plan-test-project-generator-vs-mock.md) e `test/e2e-generator-mock/`.
+Ver [test/e2e-generator-mock/README.md](../../test/e2e-generator-mock/README.md) e [plan-mock-project-codegen.md](plan-mock-project-codegen.md). Para o projeto que **automatize** esse fluxo (garantir mock → executar gerador → validar artefatos), ver [plan-test-project-generator-vs-mock.md](plan-test-project-generator-vs-mock.md) e `test/e2e-generator-mock/`.
 
 ## Rastreabilidade
 

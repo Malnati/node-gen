@@ -34,11 +34,20 @@ export class ServiceGenerator {
         fs.mkdirSync(subDir, { recursive: true });
       }
 
+      const hasExternalId = table.columns.some((c) => c.columnName === 'external_id');
+      const firstPkScalar = table.columns.find(
+        (c) => c.isPrimaryKey && !table.relations.some((r) => r.columnName === c.columnName),
+      );
+      const hasSingleScalarKey = hasExternalId || !!firstPkScalar;
+      const primaryKeyColumn = hasExternalId ? '' : (firstPkScalar ? toSnakeCase(firstPkScalar.columnName) : 'id');
       const data = {
         entityName,
         kebabCaseName,
         toSnakeCase,
-        imports: this.generateImports(table.relations),
+        hasExternalId,
+        hasSingleScalarKey,
+        primaryKeyColumn,
+        imports: this.generateImports(table),
         createUpdateAssignments: this.generateCreateUpdateAssignments(table.columns),
         relationCheckAndAssignment: this.generateRelationCheckAndAssignment(table.relations),
         updateAssignments: this.generateUpdateAssignments(table.columns),
@@ -56,11 +65,14 @@ export class ServiceGenerator {
     console.log(`Services have been generated in ${outputDir}`);
   }
 
-  private generateImports(relations: Relation[]): string {
-    return relations.map(rel => {
-      const relatedEntityName = toPascalCase(rel.foreignTableName);
-      return `import { ${relatedEntityName}Entity } from "@app/entities/${toSnakeCase(relatedEntityName)}";`;
-    }).join('\n');
+  private generateImports(table: Table): string {
+    return table.relations
+      .filter((rel) => rel.foreignTableName !== table.tableName)
+      .map((rel) => {
+        const relatedEntityName = toPascalCase(rel.foreignTableName);
+        return `import { ${relatedEntityName}Entity } from "@app/entities/${toSnakeCase(relatedEntityName)}";`;
+      })
+      .join('\n');
   }
 
   private generateCreateUpdateAssignments(columns: Column[]): string {
@@ -83,14 +95,22 @@ export class ServiceGenerator {
       .join('\n    ');
   }
 
+  private foreignTableHasExternalId(relation: Relation): boolean {
+    const foreign = this.schema.find((t) => t.tableName === relation.foreignTableName);
+    return !!foreign?.columns.some((c) => c.columnName === 'external_id');
+  }
+
   private generateRelationCheckAndAssignment(relations: Relation[]): string {
     return relations.map(rel => {
       const relatedEntityName = toPascalCase(rel.foreignTableName);
       const relationName = toSnakeCase(rel.columnName.replace('_id', ''));
+      const byEid = this.foreignTableHasExternalId(rel);
+      const whereKey = byEid ? 'external_id' : 'id';
+      const dtoKey = byEid ? `${relationName}_eid` : `${relationName}_id`;
       return `const ${relationName} = await this.dataSourceService
       .getDataSource()
       .getRepository(${relatedEntityName}Entity)
-      .findOne({ where: { external_id: dto.${relationName}_eid } });
+      .findOne({ where: { ${whereKey}: dto.${dtoKey} } });
 
     if (!${relationName}) {
       throw new NotFoundException("${relatedEntityName} not found");
@@ -104,10 +124,13 @@ export class ServiceGenerator {
     return relations.map(rel => {
       const relatedEntityName = toPascalCase(rel.foreignTableName);
       const relationName = toSnakeCase(rel.columnName.replace('_id', ''));
+      const byEid = this.foreignTableHasExternalId(rel);
+      const whereKey = byEid ? 'external_id' : 'id';
+      const dtoKey = byEid ? `${relationName}_eid` : `${relationName}_id`;
       return `const ${relationName} = await this.dataSourceService
       .getDataSource()
       .getRepository(${relatedEntityName}Entity)
-      .findOne({ where: { external_id: dto.${relationName}_eid } });
+      .findOne({ where: { ${whereKey}: dto.${dtoKey} } });
 
     if (!${relationName}) {
       throw new NotFoundException("${relatedEntityName} not found");
@@ -130,7 +153,10 @@ export class ServiceGenerator {
   private generateRelationMappings(relations: Relation[]): string {
     return relations.map(rel => {
       const relationName = toSnakeCase(rel.columnName.replace('_id', ''));
-      return `dto.${relationName}_eid = entity.${relationName}.external_id;`;
+      const byEid = this.foreignTableHasExternalId(rel);
+      const dtoKey = byEid ? `${relationName}_eid` : `${relationName}_id`;
+      const entityKey = byEid ? 'external_id' : 'id';
+      return `dto.${dtoKey} = entity.${relationName}.${entityKey};`;
     }).join('\n    ');
   }
 

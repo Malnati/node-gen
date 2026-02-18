@@ -1,0 +1,19 @@
+# .dockerignore (contexto para Dockerfile.e2e e builds que usam COPY . .)
+.git
+node_modules
+gen/node_modules
+output
+test/e2e-generator-mock/node_modules
+*.log
+.env
+.env.*
+dist
+gen/dist
+build
+build-mock-test
+coverage
+.nyc_output
+*.sqlite
+test/e2e-generator-mock/mock.sqlite
+test/e2e-generator-mock/projects/todo/db/*.db
+render.html

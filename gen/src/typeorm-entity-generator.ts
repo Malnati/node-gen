@@ -93,7 +93,8 @@ export class TypeORMEntityGenerator {
 		if (column.characterMaximumLength)
 			options.push(`length: ${column.characterMaximumLength}`)
 
-		const columnOptions = [`type: '${typeMapping[column.dataType] || column.dataType}'`, ...options]
+		const ormType = typeMapping[column.dataType] ?? typeMapping[column.dataType?.toLowerCase()] ?? (column.dataType?.toLowerCase() || column.dataType)
+		const columnOptions = [`type: '${ormType}'`, ...options]
 		let columnDecorator = `@Column({ ${columnOptions.join(", ")} })`
 
 		if (isPrimaryKey) {
@@ -143,6 +144,7 @@ export class TypeORMEntityGenerator {
 			relationType,
 			relation.foreignTableName,
 			propertyName,
+			relation.columnName,
 			relationType === "ManyToOne" || relationType === "OneToOne",
 		)
 	}
@@ -163,6 +165,7 @@ export class TypeORMEntityGenerator {
 		})
 
 		const entityImports = table.relations
+			.filter((relation) => relation.foreignTableName !== table.tableName)
 			.map(
 				(relation) =>
 					`import { ${toPascalCase(relation.foreignTableName)}Entity } from './${removeTbPrefix(relation.foreignTableName)}';`,
@@ -175,6 +178,11 @@ export class TypeORMEntityGenerator {
 	}
 
 	private generateCustomMethods(table: Table): string {
+		const hasExternalId = table.columns.some((c) => c.columnName === "external_id")
+		const firstPkScalar = table.columns.find(
+			(c) => c.isPrimaryKey && !this.isRelationColumn(c.columnName, table.relations),
+		)
+		const displayKey = hasExternalId ? "this.external_id" : (firstPkScalar ? `this.${firstPkScalar.columnName}` : "''")
 		const column = table.columns.find(
 			(col) =>
 				![
@@ -192,7 +200,7 @@ export class TypeORMEntityGenerator {
 
 		return `
     toString() {
-      return \`\${this.external_id}${columnName}\`;
+      return \`\${${displayKey}}${columnName}\`;
     }`
 	}
 

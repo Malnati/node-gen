@@ -15,7 +15,7 @@ export class ConfigUtil {
       .option('-pw, --password <type>', 'Senha do banco de dados')
       .option('-o, --outputDir <type>', 'Diretório de saída para os arquivos gerados', './build')
       .option('-t, --dbType <type>', 'Tipo do banco de dados (postgres, mysql, sqlite, sqlserver)', 'postgres')
-      .option('-T, --templateDir <type>', 'Diretório de templates para copiar arquivos estáticos (default: "./templates")', './templates')
+      .option('-T, --templateDir <type>', 'Diretório de origem para copiar arquivos estáticos (default: "./static")', './static')
       .option('-f, --components <type>', 'Especifique quais componentes gerar (entities, services, interfaces, controllers, dtos, modules, app-module, main, env, package.json, readme, datasource, diagram):', 'entities')
 
       .parse(process.argv);
