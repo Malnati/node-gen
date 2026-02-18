@@ -4,6 +4,7 @@ set -e
 if [ $# -eq 0 ]; then
   export NODE_PATH=/app/gen/node_modules
   node test/e2e-generator-mock/create-db.js 2>/dev/null || true
+  export E2E_DB_TYPES="${E2E_DB_TYPES:-sqlite}"
   exec node test/e2e-generator-mock/run.js
 fi
 exec "$@"
