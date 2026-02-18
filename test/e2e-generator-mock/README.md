@@ -12,7 +12,7 @@ Este projeto orquestra o fluxo **garantir mock → executar node-gen → validar
 - `connection.postgres.json` — PostgreSQL
 - `connection.sqlserver.json` — SQL Server
 
-O script descobre todos os `connection.<dbType>.json` presentes, executa uma chamada e2e para cada banco e grava a saída em `output/<dbType>/`. Não há conexão única na raiz do mock.
+O script descobre todos os `connection.<dbType>.json` presentes, executa uma chamada e2e para cada banco e grava a saída em `output/<project>/<dbType>/` (ex.: `output/e2e-mock-app/sqlite/`). O nome do projeto vem de `E2E_APP_NAME` (default `e2e-mock-app`), permitindo vários projetos com múltiplos bancos. Não há conexão única na raiz do mock.
 
 ## Pré-requisitos
 
@@ -43,7 +43,7 @@ cd test/e2e-generator-mock && node run.js
 ## O que o script faz
 
 1. **Descobrir conexões:** lista `projects/todo/db/connection.<dbType>.json` (sqlite, mysql, postgres, sqlserver, etc.).
-2. **Por cada banco:** (a) carrega a conexão; (b) para SQLite, garante mock (cria `mock.sqlite` via `create-db.js` se não existir); (c) executa o gerador com os parâmetros da conexão; saída em `output/<dbType>/`; (d) aferição dos artefatos (schema `db.reader.<dbType>.json`, entidades, módulos, etc.) e opcionalmente `npm run build` no output.
+2. **Por cada banco:** (a) carrega a conexão; (b) para SQLite, garante mock (cria `mock.sqlite` via `create-db.js` se não existir); (c) executa o gerador com os parâmetros da conexão; saída em `output/<project>/<dbType>/`; (d) aferição dos artefatos (schema `db.reader.<dbType>.json`, entidades, módulos, etc.) e opcionalmente `npm run build` no output.
 
 ## Estrutura
 
@@ -54,7 +54,7 @@ cd test/e2e-generator-mock && node run.js
 - `create-db.js` — cria `mock.sqlite` a partir de `projects/todo/db/schema.sql`.
 - `projects/todo/db/create-sqlite-fixture.js` — cria SQLite a partir de `database.sqlite.ddl` em diretório informado; usado pelo teste CLI em disco. Ver [plan-cli-test-execution.md](../../docs/issues/plan-cli-test-execution.md).
 - `mock.sqlite` — banco gerado (criado por `create-db.js`; ignorado pelo git).
-- Saída do gerador: `output/<dbType>/` na raiz do repositório (ex.: `output/sqlite/`, `output/postgres/`; ignorado pelo git).
+- Saída do gerador: `output/<project>/<dbType>/` na raiz do repositório (ex.: `output/e2e-mock-app/sqlite/`, `output/e2e-mock-app/postgres/`; ignorado pelo git). Vários projetos: use `E2E_APP_NAME` para alterar o nome do projeto.
 - `README.md` — este arquivo.
 
 ## Referências

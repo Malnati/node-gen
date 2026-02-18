@@ -8,7 +8,7 @@ Este diretório concentra os recursos de teste do gerador de código (`gen/`): m
 
 | Diretório | Descrição |
 |-----------|-----------|
-| `e2e-generator-mock/` | Testes E2E: executa o gerador contra o mock e valida artefatos. Conexões em `projects/todo/db/connection.<dbType>.json` (sqlite, mysql, postgres, sqlserver). Contém `create-db.js`, `projects/todo/db/schema.sql`, `create-sqlite-fixture.js`, `mock.sqlite` (gerado). Saída em `output/<dbType>/` na raiz. DDL/dados por dialeto em `e2e-generator-mock/projects/todo/db/` (database.{mysql,postgres,sqlite,sqlserver}.ddl e .sql). |
+| `e2e-generator-mock/` | Testes E2E: executa o gerador contra o mock e valida artefatos. Conexões em `projects/todo/db/connection.<dbType>.json` (sqlite, mysql, postgres, sqlserver). Contém `create-db.js`, `projects/todo/db/schema.sql`, `create-sqlite-fixture.js`, `mock.sqlite` (gerado). Saída em `output/<project>/<dbType>/` na raiz (ex.: `output/e2e-mock-app/sqlite/`). DDL/dados por dialeto em `e2e-generator-mock/projects/todo/db/` (database.{mysql,postgres,sqlite,sqlserver}.ddl e .sql). |
 
 ## Pré-requisitos
 
@@ -56,7 +56,7 @@ make e2e-build
 make e2e-run
 ```
 
-O ambiente usa `docker-compose.e2e.yml` e `.docker/Dockerfile.e2e` (Node 20, gen compilado, mock criado no build). No container só o SQLite é executado (`E2E_DB_TYPES=sqlite`). O diretório `output/` na raiz é montado no container; após `make e2e-run` a aplicação gerada fica em `output/sqlite/` e o E2E valida que `npm run build` no projeto gerado conclui com sucesso.
+O ambiente usa `docker-compose.e2e.yml` e `.docker/Dockerfile.e2e` (Node 20, gen compilado, mock criado no build). No container são executados SQLite e Postgres (`E2E_DB_TYPES=sqlite,postgres`); o serviço `postgres` sobe com o schema mock em `schema.postgres.ddl`. O diretório `output/` na raiz é montado no container; após `make e2e-run` as aplicações geradas ficam em `output/<project>/<db>/` (ex.: `output/e2e-mock-app/sqlite/` e `output/e2e-mock-app/postgres/`), permitindo vários projetos com múltiplos bancos. O E2E valida que `npm run build` em cada uma conclui com sucesso.
 
 ### 2. Criar o banco mock (quando necessário)
 
@@ -70,22 +70,22 @@ Gera `test/e2e-generator-mock/mock.sqlite` a partir de `test/e2e-generator-mock/
 
 ### 3. Testes unitários do projeto gerado (opcional)
 
-Após `make e2e-run` (via Docker a app fica em `output/sqlite/`) ou após gerar manualmente para `output/` ou `output/<dbType>/`, o projeto Nest gerado fica na raiz em `output/` ou em `output/<dbType>/`. Para rodar os testes Jest dele:
+Após `make e2e-run` (via Docker a app fica em `output/<project>/<db>/`, ex.: `output/e2e-mock-app/sqlite/`) ou após gerar manualmente para `output/<project>/<db>/`, o projeto Nest gerado fica em cada subdiretório. Para rodar os testes Jest dele:
 
 ```bash
-cd output
+cd output/e2e-mock-app/sqlite
 npm install
 npm test
 ```
 
-Cobertura: `npm run test:cov`.
+Cobertura: `npm run test:cov`. Para outro projeto ou banco, use `output/<project>/<db>/`.
 
 ## Ordem sugerida
 
 1. `npm run build` (raiz) — compila o gerador.
 2. `node test/e2e-generator-mock/create-db.js` (raiz) — cria o mock, se ainda não existir.
-3. `npm run test:e2e` (raiz) — executa o E2E do gerador contra o mock (saída em `output/`).
-4. Opcional: `cd output && npm install && npm test` — testes do projeto gerado.
+3. `npm run test:e2e` (raiz) — executa o E2E do gerador contra o mock (saída em `output/<project>/<db>/`).
+4. Opcional: `cd output/e2e-mock-app/sqlite && npm install && npm test` — testes do projeto gerado.
 
 ## Referências
 

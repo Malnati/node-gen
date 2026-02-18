@@ -10,6 +10,7 @@ const CONNECTION_DIR = path.join(MOCK_DIR, 'projects', 'todo', 'db');
 const MOCK_CREATE = path.join(MOCK_DIR, 'create-db.js');
 const DIST_MAIN = path.join(GEN_DIR, 'dist', 'main.js');
 const OUT_DIR_BASE = path.join(REPO_ROOT, 'output');
+const E2E_APP_NAME = process.env.E2E_APP_NAME || 'e2e-mock-app';
 const COMPONENTS = 'entities,services,interfaces,controllers,dtos,modules,app-module,main,env,package.json,readme,datasource';
 
 const CONNECTION_FILE_PATTERN = /^connection\.([a-z0-9]+)\.json$/;
@@ -44,7 +45,7 @@ function loadMockConnection(connectionFilePath) {
   const databasePath = dbType === 'sqlite'
     ? (path.isAbsolute(raw.database) ? raw.database : path.resolve(baseDir, raw.database))
     : raw.database;
-  return {
+  const conn = {
     dbType,
     database: databasePath,
     user: raw.user != null ? String(raw.user) : 'x',
@@ -52,6 +53,13 @@ function loadMockConnection(connectionFilePath) {
     host: raw.host != null ? String(raw.host) : '',
     port: raw.port != null ? Number(raw.port) : null,
   };
+  if (dbType === 'postgres') {
+    if (process.env.DB_POSTGRES_HOST) conn.host = process.env.DB_POSTGRES_HOST;
+    if (process.env.DB_POSTGRES_PORT != null && process.env.DB_POSTGRES_PORT !== '') {
+      conn.port = parseInt(process.env.DB_POSTGRES_PORT, 10);
+    }
+  }
+  return conn;
 }
 
 const EXPECTED_TABLES = [
@@ -98,7 +106,7 @@ function ensureMock(conn) {
   return true;
 }
 
-function runGenerator(conn, outDir) {
+function runGenerator(conn, outDir, appName) {
   if (!fs.existsSync(DIST_MAIN)) {
     console.error('[e2e] Generator not built. Run "npm run build" in gen/ or from repo root.');
     return false;
@@ -117,10 +125,11 @@ function runGenerator(conn, outDir) {
   } else {
     fs.mkdirSync(outDir, { recursive: true });
   }
+  const effectiveAppName = appName || E2E_APP_NAME;
   console.log('[e2e] Running generator with connection params...');
   const args = [
     DIST_MAIN,
-    '-a', 'e2e-mock-app',
+    '-a', effectiveAppName,
     '-d', conn.database,
     '-u', conn.user,
     '-pw', conn.password,
@@ -263,6 +272,7 @@ function main() {
 
   console.log('[e2e] Repo root:', REPO_ROOT);
   console.log('[e2e] Output base:', OUT_DIR_BASE);
+  console.log('[e2e] App name:', E2E_APP_NAME);
   console.log('[e2e] Gen dir:', GEN_DIR);
   console.log('[e2e] Conexões encontradas:', connectionFiles.map((c) => c.dbType).join(', '));
 
@@ -282,8 +292,8 @@ function main() {
       anyFailed = true;
       continue;
     }
-    const outDir = path.join(OUT_DIR_BASE, dbType);
-    if (!runGenerator(conn, outDir)) {
+    const outDir = path.join(OUT_DIR_BASE, E2E_APP_NAME, dbType);
+    if (!runGenerator(conn, outDir, E2E_APP_NAME)) {
       anyFailed = true;
       continue;
     }

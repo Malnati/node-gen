@@ -1,10 +1,30 @@
 # docker-compose.e2e.yml
 services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: todo_mock
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d todo_mock"]
+      interval: 2s
+      timeout: 5s
+      retries: 10
+    volumes:
+      - ./test/e2e-generator-mock/projects/todo/db/schema.postgres.ddl:/docker-entrypoint-initdb.d/01-schema.sql
   e2e:
     build:
       context: .
       dockerfile: .docker/Dockerfile.e2e
     image: node-gen-e2e:latest
     entrypoint: ["/app/.docker/entrypoint.e2e.sh"]
+    environment:
+      E2E_DB_TYPES: sqlite,postgres
+      DB_POSTGRES_HOST: postgres
+      DB_POSTGRES_PORT: "5432"
     volumes:
       - ./output:/app/output
+    depends_on:
+      postgres:
+        condition: service_healthy
