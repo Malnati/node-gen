@@ -15,16 +15,16 @@ echo ""
 npm run build
 
 if [ "${DB_TYPE}" = "sqlite" ]; then
-  sqlite3 "$2" < db/database.sqlite.ddl
-  sqlite3 "$2" < db/database.sqlite.sql
+  sqlite3 "$2" < test/db/database.sqlite.ddl
+  sqlite3 "$2" < test/db/database.sqlite.sql
 elif [ "${DB_TYPE}" = "mysql" ]; then
   mysql -u "$2" -p"$3" -e "CREATE DATABASE IF NOT EXISTS $2;"
-  mysql -u "$2" -p"$3" "$2" < db/database.mysql.ddl
-  mysql -u "$2" -p"$3" "$2" < db/database.mysql.sql
+  mysql -u "$2" -p"$3" "$2" < test/db/database.mysql.ddl
+  mysql -u "$2" -p"$3" "$2" < test/db/database.mysql.sql
 elif [ "${DB_TYPE}" = "sqlserver" ]; then
   sqlcmd -S "$4" -U "$2" -P "$3" -Q "IF NOT EXISTS (SELECT name FROM master.dbo.sysdatabases WHERE name = N'$2') CREATE DATABASE [$2]"
-  sqlcmd -S "$4" -U "$2" -P "$3" -d "$2" -i db/database.mysql.ddl
-  sqlcmd -S "$4" -U "$2" -P "$3" -d "$2" -i db/database.mysql.sql
+  sqlcmd -S "$4" -U "$2" -P "$3" -d "$2" -i test/db/database.mysql.ddl
+  sqlcmd -S "$4" -U "$2" -P "$3" -d "$2" -i test/db/database.mysql.sql
 fi
 
 # executa o gerador de codigo (gen/)
