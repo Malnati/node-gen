@@ -23,7 +23,7 @@ export class ConfigUtil {
     const options = program.opts();
     const components = options.components
       .split(',')
-      .map((c: string) => c.trim().toLowerCase().replace("\"", "")) as DbReaderConfig['components'];
+      .map((c: string) => c.trim().toLowerCase().replace(/"/g, "")) as DbReaderConfig['components'];
   
     return {
       app: options.app,
