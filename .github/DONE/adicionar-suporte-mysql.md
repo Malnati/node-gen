@@ -6,21 +6,21 @@ labels: enhancement, database, mysql, test
 
 # Objetivo
 
-Criar um banco de dados MySQL em `db/database.db`, contendo uma modelagem definida em `db/database.ddl` e uma carga definida em `db/data.sql`. O banco será utilizado para testes automatizados e não deve impactar a modelagem dos arquivos fonte do repositório, apenas permitir que o código seja executado contra o MySQL para geração dinâmica de back-end.
+Criar um banco de dados MySQL em `test/db/database.db`, contendo uma modelagem definida em `test/db/database.ddl` e uma carga definida em `test/db/data.sql`. O banco será utilizado para testes automatizados e não deve impactar a modelagem dos arquivos fonte do repositório, apenas permitir que o código seja executado contra o MySQL para geração dinâmica de back-end.
 
 ## Instruções
 
 ### 1. Criação do banco e scripts
 
-- Criar o diretório `db/` na raiz do projeto, caso não exista.
-- Criar o arquivo `db/database.ddl` contendo a modelagem relacional do banco, com as seguintes características:
+- Criar o diretório `test/db/` na raiz do projeto, caso não exista.
+- Criar o arquivo `test/db/database.mysql.ddl` contendo a modelagem relacional do banco, com as seguintes características:
   - Mínimo de 10 tabelas.
   - Todas as tabelas devem conter os campos `created_at`, `updated_at`, `deleted_at`.
   - Modelagem deve incluir exemplos de relacionamentos N-N, N-1 e chaves compostas.
   - Utilizar tipos variados de dados (INT, VARCHAR, TEXT, DECIMAL, BLOB, BOOLEAN, DATE, DATETIME, etc).
   - O sistema deve conter um registro de TODOs (ex: tabela `todo`).
-- Criar o arquivo `db/data.sql` com carga de dados para todas as tabelas, com pelo menos 10 registros em cada uma.
-- Gerar o banco MySQL em `db/database.db` a partir dos scripts acima.
+- Criar o arquivo `test/db/database.mysql.sql` com carga de dados para todas as tabelas, com pelo menos 10 registros em cada uma.
+- Gerar o banco MySQL em `test/db/database.db` a partir dos scripts acima.
 
 #### Exemplo de trecho para `database.ddl`:
 

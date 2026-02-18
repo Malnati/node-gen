@@ -11,7 +11,7 @@ Criar um **projeto mock** dedicado a testar o aplicativo node-gen em **todas as 
 - **Plano de revisão:** [template-review-plan.md](../template-review-plan.md) — ordem dos geradores e matriz mínima de cenários.
 - **Teste do CLI:** [plan-cli-test-execution.md](plan-cli-test-execution.md) — execução com SQLite preferido.
 - **Execução EPIC/SUBs:** [plan-issues-execution.md](plan-issues-execution.md).
-- **Schema existente:** `db/` contém DDL/SQL para postgres, mysql e sqlite (tabelas user, project, todo, etc.) com relações e chaves compostas; **não** cobre de forma explícita: prefixo `tb_`, UUID/external_id, enum, decimal, datas, nullable variado, nomes limítrofes.
+- **Schema existente:** `test/db/` contém DDL/SQL para postgres, mysql e sqlite (tabelas user, project, todo, etc.) com relações e chaves compostas; **não** cobre de forma explícita: prefixo `tb_`, UUID/external_id, enum, decimal, datas, nullable variado, nomes limítrofes.
 
 ## Escopo
 

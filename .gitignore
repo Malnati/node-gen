@@ -146,4 +146,4 @@ dist
 .pnp.*
 
 db/*.db
-db/database.db
+test/db/database.db
