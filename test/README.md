@@ -44,6 +44,23 @@ cd test/e2e-generator-mock && node run.js
 
 Se `test/mock/mock.sqlite` não existir, o script executa `node test/mock/create-db.js` antes de rodar o gerador.
 
+**Via Docker (evita problemas de arquitetura com sqlite3/sharp):**
+
+Na raiz do repositório:
+
+```bash
+make e2e
+```
+
+Ou apenas build da imagem e depois execução:
+
+```bash
+make e2e-build
+make e2e-run
+```
+
+O ambiente usa `docker-compose.e2e.yml` e `.docker/Dockerfile.e2e` (Node 20, gen compilado, mock criado no build).
+
 ### 2. Criar o banco mock (quando necessário)
 
 Para (re)criar apenas o banco mock, na raiz:
