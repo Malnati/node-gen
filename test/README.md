@@ -9,7 +9,7 @@ Este diretório concentra os recursos de teste do gerador de código (`gen/`): m
 | Diretório | Descrição |
 |-----------|-----------|
 | `mock/` | Schema SQLite do mock (`schema.sql`). Scripts de criação do banco e `mock.sqlite` ficam em `e2e-generator-mock/`. |
-| `e2e-generator-mock/` | Testes E2E: executa o gerador contra o mock e valida artefatos. Contém `connection.json`, `create-db.js`, `create-sqlite-fixture.js`, `mock.sqlite` (gerado). Saída em `e2e-generator-mock/out/`. |
+| `e2e-generator-mock/` | Testes E2E: executa o gerador contra o mock e valida artefatos. Contém `connection.json`, `create-db.js`, `create-sqlite-fixture.js`, `mock.sqlite` (gerado). Saída do gerador em `output/` na raiz do repositório. |
 | `build-cli-test/` | Projeto Nest gerado (fixture) para testes manuais e unitários do código gerado. |
 | `db/` | DDL e dados de exemplo para PostgreSQL, MySQL, SQLite e SQL Server (referência e testes por dialeto). |
 
@@ -22,7 +22,7 @@ Este diretório concentra os recursos de teste do gerador de código (`gen/`): m
 
 ### 1. Testes E2E do gerador (recomendado)
 
-Valida o fluxo: mock → node-gen → artefatos. O script garante o mock e invoca o gerador; a saída fica em `test/e2e-generator-mock/out/`.
+Valida o fluxo: mock → node-gen → artefatos. O script garante o mock e invoca o gerador; a saída fica em `output/` na raiz do repositório.
 
 **Na raiz do repositório:**
 
@@ -59,7 +59,7 @@ make e2e-build
 make e2e-run
 ```
 
-O ambiente usa `docker-compose.e2e.yml` e `.docker/Dockerfile.e2e` (Node 20, gen compilado, mock criado no build).
+O ambiente usa `docker-compose.e2e.yml` e `.docker/Dockerfile.e2e` (Node 20, gen compilado, mock criado no build). O diretório `output/` na raiz do repositório é montado no container; após `make e2e-run` a aplicação gerada fica em `output/` e o E2E valida que `npm run build` no projeto gerado conclui com sucesso.
 
 ### 2. Criar o banco mock (quando necessário)
 

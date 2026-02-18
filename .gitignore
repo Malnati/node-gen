@@ -22,6 +22,7 @@ build/
 build-mock-test/
 dist/
 gen/dist/
+output/
 
 # Entidades geradas (dentro de outputDir quando diferente de build/)
 entities/

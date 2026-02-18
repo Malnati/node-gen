@@ -6,3 +6,5 @@ services:
       dockerfile: .docker/Dockerfile.e2e
     image: node-gen-e2e:latest
     entrypoint: ["/app/.docker/entrypoint.e2e.sh"]
+    volumes:
+      - ./output:/app/output

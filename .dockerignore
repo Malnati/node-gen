@@ -3,7 +3,7 @@
 node_modules
 gen/node_modules
 test/build-cli-test/node_modules
-test/e2e-generator-mock/out
+output
 test/e2e-generator-mock/node_modules
 *.log
 .env

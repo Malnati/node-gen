@@ -9,7 +9,7 @@ const MOCK_DIR = path.join(REPO_ROOT, 'test', 'e2e-generator-mock');
 const MOCK_CONNECTION_PATH = path.join(MOCK_DIR, 'connection.json');
 const MOCK_CREATE = path.join(MOCK_DIR, 'create-db.js');
 const DIST_MAIN = path.join(GEN_DIR, 'dist', 'main.js');
-const OUT_DIR = path.join(__dirname, 'out');
+const OUT_DIR = path.join(REPO_ROOT, 'output');
 const COMPONENTS = 'entities,services,interfaces,controllers,dtos,modules,app-module,main,env,package.json,readme,datasource';
 
 function loadMockConnection() {
@@ -74,13 +74,18 @@ function runGenerator(conn) {
   }
   if (fs.existsSync(OUT_DIR)) {
     try {
-      fs.rmSync(OUT_DIR, { recursive: true });
-    } catch (e) {
-      console.error('[e2e] Failed to clean out dir:', e.message);
+      const entries = fs.readdirSync(OUT_DIR, { withFileTypes: true });
+      for (const e of entries) {
+        const p = path.join(OUT_DIR, e.name);
+        fs.rmSync(p, { recursive: true });
+      }
+    } catch (err) {
+      console.error('[e2e] Failed to clean out dir:', err.message);
       return false;
     }
+  } else {
+    fs.mkdirSync(OUT_DIR, { recursive: true });
   }
-  fs.mkdirSync(OUT_DIR, { recursive: true });
   console.log('[e2e] Running generator with mock connection params...');
   const args = [
     DIST_MAIN,

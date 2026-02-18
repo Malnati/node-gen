@@ -36,7 +36,7 @@ Criar um **projeto de testes** dedicado a **testar o aplicativo gerador de códi
 - **Conteúdo mínimo sugerido:**
   - **package.json:** nome do projeto, scripts (ex.: `test` ou `run` que executem o fluxo: criar mock DB → rodar node-gen → validar artefatos).
   - **Scripts de teste:** um ou mais scripts que: (1) garantam `test/e2e-generator-mock/mock.sqlite` (chamada a `node test/e2e-generator-mock/create-db.js` ou checagem), (2) chamem `gen/dist/main.js` com `-d test/e2e-generator-mock/mock.sqlite -o <out>` (caminhos a partir da raiz do repo), (3) verifiquem presença dos artefatos esperados no output.
-  - **Diretório de output:** subdiretório dentro do projeto (ex.: `test/e2e-generator-mock/out/`).
+  - **Diretório de output:** `output/` na raiz do repositório.
   - **README.md:** objetivo, pré-requisitos (build do node-gen em `gen/`), comandos e referências (test/mock, plan-cli-test-execution, plan-mock-project-codegen).
 
 ## Fluxo de teste (resumo)
