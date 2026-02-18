@@ -26,7 +26,7 @@ clean:
 	@echo "🗑️  Removendo imagens, volumes e containers órfãos..."
 	DOCKER_CONFIG=$(DOCKER_CONFIG) docker compose down --rmi all --volumes --remove-orphans
 
-COMPOSE_E2E = docker compose -f docker-compose.e2e.yml
+COMPOSE_E2E = docker-compose -f docker-compose.e2e.yml
 e2e-build:
 	@echo "🛠️  Buildando imagem E2E (node-gen-e2e:latest)..."
 	DOCKER_CONFIG=$(DOCKER_CONFIG) $(COMPOSE_E2E) build
