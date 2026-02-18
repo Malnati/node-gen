@@ -419,7 +419,7 @@ Para regras sobre fixtures, veja `.github/agents/agent-actions.md` seção "Fora
 
 1. **Descoberta dos aplicativos/serviços**
    - Identificar, no repositório, os serviços/aplicativos existentes (pelo menos por:
-     - Estruturas de pastas (`apps/`, `services/`, `backend/`, `test/e2e-generator-mock/projects/user/db/` etc.).
+     - Estruturas de pastas (`apps/`, `services/`, `backend/`, `test/e2e-generator-mock/projects/todo/db/` etc.).
      - Presença de `Dockerfile`, `docker-compose.yml` e `entrypoint.sh`).
    - Para cada serviço, verificar:
      - Existência simultânea de:

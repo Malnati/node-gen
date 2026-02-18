@@ -21,7 +21,7 @@ Para atender ao pré-requisito de schema usando **SQLite em disco** (sem servido
 
 1. **Criar fixture SQLite em disco:** na raiz do repositório, com diretório de saída vazio ou dedicado (ex.: `output/`):
    ```bash
-   node test/e2e-generator-mock/create-sqlite-fixture.js ./output
+   node test/e2e-generator-mock/projects/todo/db/create-sqlite-fixture.js ./output
    ```
    Isso gera `{outputDir}/fixture.sqlite` com uma tabela mínima `tb_user` (id, external_id, name, created_at, updated_at).
 
@@ -57,7 +57,7 @@ node dist/main.js -a myapp -h localhost -p 5432 -d mydb -u user -pw secret -o ./
 **Exemplo com SQLite em disco (teste sem servidor de banco).** Use `-T ./static` para que o projeto gerado tenha `tsconfig.json` e compile com `nest build`:
 
 ```bash
-node test/e2e-generator-mock/create-sqlite-fixture.js ./output
+node test/e2e-generator-mock/projects/todo/db/create-sqlite-fixture.js ./output
 node dist/main.js -a cli-test -d ./output/fixture.sqlite -u - -pw - -o ./output -t sqlite -T ./static -f "entities,services,interfaces,controllers,dtos,modules,app-module,main,env,package.json,readme,datasource,diagram"
 ```
 

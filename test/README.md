@@ -8,7 +8,7 @@ Este diretório concentra os recursos de teste do gerador de código (`gen/`): m
 
 | Diretório | Descrição |
 |-----------|-----------|
-| `e2e-generator-mock/` | Testes E2E: executa o gerador contra o mock e valida artefatos. Contém `schema.sql`, `connection.json`, `create-db.js`, `create-sqlite-fixture.js`, `mock.sqlite` (gerado). Saída do gerador em `output/` na raiz. DDL/dados por dialeto em `e2e-generator-mock/projects/user/db/` (database.{mysql,postgres,sqlite,sqlserver}.ddl e .sql). |
+| `e2e-generator-mock/` | Testes E2E: executa o gerador contra o mock e valida artefatos. Contém `schema.sql`, `connection.json`, `create-db.js`, `projects/todo/db/create-sqlite-fixture.js`, `mock.sqlite` (gerado). Saída do gerador em `output/` na raiz. DDL/dados por dialeto em `e2e-generator-mock/projects/todo/db/` (database.{mysql,postgres,sqlite,sqlserver}.ddl e .sql). |
 
 ## Pré-requisitos
 

@@ -40,8 +40,8 @@ jspm_packages/
 
 # Test: DBs e artefatos gerados
 test/e2e-generator-mock/mock.sqlite
-test/e2e-generator-mock/projects/user/db/database.db
-test/e2e-generator-mock/projects/user/db/*.db
+test/e2e-generator-mock/projects/todo/db/database.db
+test/e2e-generator-mock/projects/todo/db/*.db
 db/*.db
 
 # Validação curl (renderização capturada)

@@ -61,7 +61,7 @@ Você pode fornecer `--templateDir` para usar um diretório personalizado de tem
 
 ### Usando o SQLite para Testes
 
-Para executar o gerador contra um banco SQLite, use o mock (criar com `node test/e2e-generator-mock/create-db.js`) ou os scripts em `test/e2e-generator-mock/projects/user/db/` (ex.: `database.sqlite.ddl`, `database.sqlite.sql`). Exemplo com o mock:
+Para executar o gerador contra um banco SQLite, use o mock (criar com `node test/e2e-generator-mock/create-db.js`) ou os scripts em `test/e2e-generator-mock/projects/todo/db/` (ex.: `database.sqlite.ddl`, `database.sqlite.sql`). Exemplo com o mock:
 
 ```bash
 node test/e2e-generator-mock/create-db.js
@@ -77,8 +77,8 @@ carregue os scripts de modelagem e dados:
 
 ```bash
 mysql -u <usuario> -p -e "CREATE DATABASE IF NOT EXISTS <database>;"
-mysql -u <usuario> -p <database> < test/e2e-generator-mock/projects/user/db/database.mysql.ddl
-mysql -u <usuario> -p <database> < test/e2e-generator-mock/projects/user/db/database.mysql.sql
+mysql -u <usuario> -p <database> < test/e2e-generator-mock/projects/todo/db/database.mysql.ddl
+mysql -u <usuario> -p <database> < test/e2e-generator-mock/projects/todo/db/database.mysql.sql
 ```
 
 Depois execute o gerador informando `--dbType mysql` e apontando para o banco:
@@ -93,13 +93,13 @@ node-gen \
 ### Usando o SQLServer para Testes
 
 O banco SQLServer deve ser criado dinamicamente a partir dos scripts
-`test/e2e-generator-mock/projects/user/db/database.mysql.ddl` e `database.mysql.sql` (e equivalentes para postgres, sqlite, sqlserver). Nenhum arquivo de banco é
+`test/e2e-generator-mock/projects/todo/db/database.mysql.ddl` e `database.mysql.sql` (e equivalentes para postgres, sqlite, sqlserver). Nenhum arquivo de banco é
 versionado no repositório.
 
 ```bash
 sqlcmd -S <servidor> -U <usuario> -P <senha> -Q "CREATE DATABASE <database>"
-sqlcmd -S <servidor> -U <usuario> -P <senha> -d <database> -i test/e2e-generator-mock/projects/user/db/database.sqlserver.ddl
-sqlcmd -S <servidor> -U <usuario> -P <senha> -d <database> -i test/e2e-generator-mock/projects/user/db/database.sqlserver.sql
+sqlcmd -S <servidor> -U <usuario> -P <senha> -d <database> -i test/e2e-generator-mock/projects/todo/db/database.sqlserver.ddl
+sqlcmd -S <servidor> -U <usuario> -P <senha> -d <database> -i test/e2e-generator-mock/projects/todo/db/database.sqlserver.sql
 ```
 
 Depois execute o gerador informando `--dbType sqlserver` e os detalhes de
@@ -446,17 +446,17 @@ END $$;
 
 ## Executando testes com Postgres
 
-Crie o banco de dados de testes utilizando os scripts disponíveis em `test/e2e-generator-mock/projects/user/db/`:
+Crie o banco de dados de testes utilizando os scripts disponíveis em `test/e2e-generator-mock/projects/todo/db/`:
 
 ```bash
-psql -d seu_banco_testes -f test/e2e-generator-mock/projects/user/db/database.postgres.ddl
-psql -d seu_banco_testes -f test/e2e-generator-mock/projects/user/db/database.postgres.sql
+psql -d seu_banco_testes -f test/e2e-generator-mock/projects/todo/db/database.postgres.ddl
+psql -d seu_banco_testes -f test/e2e-generator-mock/projects/todo/db/database.postgres.sql
 ```
 
 Se desejar criar um dump para reutilização posterior, execute:
 
 ```bash
-pg_dump -Fc -f test/e2e-generator-mock/projects/user/db/database.db seu_banco_testes
+pg_dump -Fc -f test/e2e-generator-mock/projects/todo/db/database.db seu_banco_testes
 ```
 
 Configure a variável de ambiente `DATABASE_TYPE` com `postgres` para que o template gerado utilize o Postgres.
