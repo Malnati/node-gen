@@ -44,11 +44,11 @@ Criar um **projeto mock** dedicado a testar o aplicativo node-gen em **todas as 
 
 ## Proposta de estrutura do projeto mock
 
-- **Localização:** `mock/` na raiz do repositório.
+- **Localização:** `test/mock/` no repositório (testes em `test/`).
 - **Conteúdo mínimo:**
-  - **Schema:** um ou mais arquivos DDL que definam as tabelas que cobrem a matriz acima (ex.: `schema.sql` ou `01_simple.sql`, `02_relations.sql`, `03_types.sql`, `04_edge_names.sql`, ou um único DDL consolidado).
-  - **SQLite:** script ou instrução para criar um arquivo `.sqlite` a partir do DDL (ex.: extensão do `scripts/create-sqlite-fixture.js` ou novo script que execute os DDLs em `mock/`).
-  - **README ou doc:** descrição das tabelas, dos cenários cobertos e dos comandos para (1) criar o banco mock e (2) rodar o node-gen contra ele (ex.: `-d mock/mock.sqlite -o <out> -t sqlite -f "entities,...,diagram"`).
+  - **Schema:** um ou mais arquivos DDL que definam as tabelas que cobrem a matriz acima (ex.: `schema.sql`).
+  - **SQLite:** script ou instrução para criar um arquivo `.sqlite` a partir do DDL (ex.: `test/mock/create-db.js`).
+  - **README ou doc:** descrição das tabelas, dos cenários cobertos e dos comandos para (1) criar o banco mock e (2) rodar o node-gen contra ele (ex.: `-d test/mock/mock.sqlite -o <out> -t sqlite -f "entities,...,diagram"`).
 - **Uso:** quem executa o [plan-cli-test-execution.md](plan-cli-test-execution.md) pode, em vez do fixture mínimo atual (`tb_user`), usar o mock completo para testar todas as possibilidades de geração; ou usar ambos (fixture mínimo para smoke, mock completo para matriz).
 
 ## Possibilidades de geração a exercitar
@@ -59,7 +59,7 @@ Criar um **projeto mock** dedicado a testar o aplicativo node-gen em **todas as 
 
 ## Tarefas técnicas (checklist do plano)
 
-1. Definir estrutura do diretório `mock/` na raiz do repositório e convenção de nomes dos arquivos (DDL, script de criação).
+1. Definir estrutura do diretório `test/mock/` e convenção de nomes dos arquivos (DDL, script de criação).
 2. Escrever DDL do schema que atenda aos quatro cenários da matriz (tabela simples; relações e chaves compostas; nullable/enum/decimal/datas/UUID; nomes limítrofes).
 3. Fornecer forma de criar o SQLite a partir do DDL (script Node ou comando documentado).
 4. Documentar no repositório: (a) objetivo do mock, (b) cenários cobertos, (c) comandos para criar o banco e rodar o CLI, (d) vínculo com plan-cli-test-execution e com a matriz do template-review-plan.
@@ -81,4 +81,4 @@ Criar um **projeto mock** dedicado a testar o aplicativo node-gen em **todas as 
 ## Rastreabilidade
 
 - **Documentos relacionados:** [plan-cli-test-execution.md](plan-cli-test-execution.md), [plan-test-project-generator-vs-mock.md](plan-test-project-generator-vs-mock.md), [template-review-plan.md](../template-review-plan.md), [plan-issues-execution.md](plan-issues-execution.md).
-- Ao implementar o mock ou executar testes com ele, registrar em CHANGELOG e, se aplicável, atualizar plan-issues-execution ou plan-cli-test-execution com o uso do mock. O plano [plan-test-project-generator-vs-mock.md](plan-test-project-generator-vs-mock.md) define um projeto na raiz para automatizar testes do gerador contra este mock.
+- Ao implementar o mock ou executar testes com ele, registrar em CHANGELOG e, se aplicável, atualizar plan-issues-execution ou plan-cli-test-execution com o uso do mock. O plano [plan-test-project-generator-vs-mock.md](plan-test-project-generator-vs-mock.md) define o projeto em `test/e2e-generator-mock/` para automatizar testes do gerador contra este mock.

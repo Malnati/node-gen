@@ -1,13 +1,14 @@
-// e2e-generator-mock/run.js
+// test/e2e-generator-mock/run.js
 const path = require('path');
 const fs = require('fs');
 const { spawnSync } = require('child_process');
 
-const REPO_ROOT = path.resolve(__dirname, '..');
-const MOCK_DIR = path.join(REPO_ROOT, 'mock');
+const REPO_ROOT = path.resolve(__dirname, '..', '..');
+const GEN_DIR = path.join(REPO_ROOT, 'gen');
+const MOCK_DIR = path.join(REPO_ROOT, 'test', 'mock');
 const MOCK_CONNECTION_PATH = path.join(MOCK_DIR, 'connection.json');
 const MOCK_CREATE = path.join(MOCK_DIR, 'create-db.js');
-const DIST_MAIN = path.join(REPO_ROOT, 'dist', 'main.js');
+const DIST_MAIN = path.join(GEN_DIR, 'dist', 'main.js');
 const OUT_DIR = path.join(__dirname, 'out');
 const COMPONENTS = 'entities,services,interfaces,controllers,dtos,modules,app-module,main,env,package.json,readme,datasource,diagram';
 
@@ -68,7 +69,7 @@ function ensureMock(conn) {
 
 function runGenerator(conn) {
   if (!fs.existsSync(DIST_MAIN)) {
-    console.error('[e2e] Generator not built. Run "npm run build" at repo root.');
+    console.error('[e2e] Generator not built. Run "npm run build" in gen/ or from repo root.');
     return false;
   }
   if (fs.existsSync(OUT_DIR)) {
@@ -91,7 +92,7 @@ function runGenerator(conn) {
     '-t', conn.dbType,
     '-f', COMPONENTS,
   ];
-  const r = spawnSync(process.execPath, args, { cwd: REPO_ROOT, stdio: 'inherit' });
+  const r = spawnSync(process.execPath, args, { cwd: GEN_DIR, stdio: 'inherit' });
   if (r.status !== 0) {
     console.error('[e2e] Generator exited with code', r.status);
     return false;
@@ -211,6 +212,7 @@ function main() {
   }
   console.log('[e2e] Repo root:', REPO_ROOT);
   console.log('[e2e] Output dir:', OUT_DIR);
+  console.log('[e2e] Gen dir:', GEN_DIR);
   console.log('[e2e] Parâmetros de entrada (mock): dbType=%s database=%s', conn.dbType, conn.database);
   if (!ensureMock(conn)) process.exit(1);
   if (!runGenerator(conn)) process.exit(1);

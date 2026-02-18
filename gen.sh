@@ -11,7 +11,7 @@ echo ""
 # copia apenas od diretorios do static para o diretorio de destino
 # rsync -av --include '*/' --exclude '*' ./static/. $4
 
-# compila o projeto do gerador
+# compila o projeto do gerador (gen/)
 npm run build
 
 if [ "${DB_TYPE}" = "sqlite" ]; then
@@ -27,17 +27,17 @@ elif [ "${DB_TYPE}" = "sqlserver" ]; then
   sqlcmd -S "$4" -U "$2" -P "$3" -d "$2" -i db/database.mysql.sql
 fi
 
-# executa o gerador de codigo
- npx ts-node src/main.ts \
-                 --app $1 \
-                 --dbType ${DB_TYPE:-postgres} \
-                 --host "34.134.67.65" \
+# executa o gerador de codigo (gen/)
+(cd gen && npx ts-node src/main.ts \
+                 --app "$1" \
+                 --dbType "${DB_TYPE:-postgres}" \
+                 --host "localhost" \
                  --port "5432" \
-                 --database $2 \
-                 --user $2 \
-                 --password $3 \
-                 --outputDir $4 \
-                 --components "entities, services, interfaces, controllers, dtos, modules, app-module, main, env, package.json, readme, datasource, diagram"
+                 --database "$2" \
+                 --user "$2" \
+                 --password "$3" \
+                 --outputDir "$4" \
+                 --components "entities, services, interfaces, controllers, dtos, modules, app-module, main, env, package.json, readme, datasource, diagram")
 
 
 # copia os arquivos estaticos para o diretorio de destino

@@ -1,4 +1,4 @@
-<!-- mock/README.md -->
+<!-- test/mock/README.md -->
 
 # Projeto mock para testes de geração de código-fonte
 
@@ -47,7 +47,7 @@ O schema contém **relações N-1, N-N** e **tipos de uso comum no mercado**.
 
 - `schema.sql` — DDL SQLite com as tabelas do mock.
 - `create-db.js` — script Node que cria `mock.sqlite` a partir de `schema.sql` (executar na raiz do repositório).
-- `connection.json` — **dados de conexão do banco mock** (dbType, database, user, password). O projeto de testes e2e (`e2e-generator-mock/`) usa este arquivo como **parâmetros de entrada** dos testes: o gerador é invocado com esses dados.
+- `connection.json` — **dados de conexão do banco mock** (dbType, database, user, password). O projeto e2e (`test/e2e-generator-mock/`) usa este arquivo como **parâmetros de entrada** dos testes.
 - `mock.sqlite` — banco gerado (criado ao rodar `create-db.js`).
 - `README.md` — este arquivo.
 
@@ -58,23 +58,17 @@ O schema contém **relações N-1, N-N** e **tipos de uso comum no mercado**.
 Na raiz do repositório:
 
 ```bash
-node mock/create-db.js
+node test/mock/create-db.js
 ```
 
-Gera `mock/mock.sqlite`.
+Gera `test/mock/mock.sqlite`.
 
 ### 2. Rodar o node-gen contra o mock
 
-Na raiz do repositório, com o gerador compilado (`npm run build`):
+Na raiz do repositório, com o gerador compilado (`npm run build` em `gen/` ou na raiz):
 
 ```bash
-node dist/main.js -a mock-app -d ./mock/mock.sqlite -u x -pw x -o ./build-mock-test -t sqlite -f "entities,services,interfaces,controllers,dtos,modules,app-module,main,env,package.json,readme,datasource,diagram"
-```
-
-Para copiar estáticos Nest (tsconfig etc.), use `-T ./static`:
-
-```bash
-node dist/main.js -a mock-app -d ./mock/mock.sqlite -u x -pw x -o ./build-mock-test -t sqlite -T ./static -f "entities,services,interfaces,controllers,dtos,modules,app-module,main,env,package.json,readme,datasource,diagram"
+cd gen && node dist/main.js -a mock-app -d ../test/mock/mock.sqlite -u x -pw x -o ../test/build-mock-test -t sqlite -f "entities,services,interfaces,controllers,dtos,modules,app-module,main,env,package.json,readme,datasource,diagram"
 ```
 
 ### 3. Verificar artefatos
@@ -83,6 +77,6 @@ Confira em `{outputDir}`: `db.reader.sqlite.json`, `src/app/entities/`, `src/app
 
 ## Referências
 
-- **Plano do mock:** [docs/issues/plan-mock-project-codegen.md](docs/issues/plan-mock-project-codegen.md).
-- **Teste do CLI:** [docs/issues/plan-cli-test-execution.md](docs/issues/plan-cli-test-execution.md).
-- **Plano de revisão (matriz):** [docs/template-review-plan.md](docs/template-review-plan.md).
+- **Plano do mock:** [docs/issues/plan-mock-project-codegen.md](../../docs/issues/plan-mock-project-codegen.md).
+- **Teste do CLI:** [docs/issues/plan-cli-test-execution.md](../../docs/issues/plan-cli-test-execution.md).
+- **E2E:** [test/e2e-generator-mock/README.md](../e2e-generator-mock/README.md).

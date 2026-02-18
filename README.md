@@ -3,6 +3,14 @@
 
 Este repositório contém um conjunto de geradores TypeScript para criar a estrutura de um projeto NestJS completo, incluindo módulos, controladores, serviços, entidades TypeORM, DTOs e arquivos de configuração.
 
+## Estrutura do repositório
+
+- **`gen/`** — aplicativo gerador (node-gen): `package.json`, `src/`, `static/`, `templates/`, `tsconfig.json`. Build com `cd gen && npm run build` ou, na raiz, `npm run build`.
+- **`test/`** — testes e mocks:
+  - **`test/mock/`** — schema e banco mock para testes de geração (N-1, N-N, tipos diversos).
+  - **`test/e2e-generator-mock/`** — testes e2e do gerador contra o mock.
+  - **`test/build-cli-test/`** — output de exemplo do CLI (quando usado).
+
 ## Instalação
 
 O *node-gen* é um pacote Node.js que pode ser instalado globalmente via npm. O registro estaá disponível em [@codegenerator/node-gen](https://www.npmjs.com/package/@codegenerator/node-gen), então você pode instalar o pacote diretamente a partir do NPM.
@@ -19,8 +27,8 @@ npm install -g @codegenerator/node-gen
 Este repositório contém vários geradores para criar diferentes partes de um projeto NestJS. Aqui está uma breve descrição de cada gerador:
 
 ```bash
-npm run build && \
-    npx ts-node src/main.ts \
+cd gen && npm run build && \
+    node dist/main.js \
                     --app "myapp" \
                     --host "localhost" \
                     --port "5432" \
@@ -55,21 +63,14 @@ Você pode fornecer `--templateDir` para usar um diretório personalizado de tem
 
 ### Usando o SQLite para Testes
 
-Para executar o gerador contra um banco SQLite, primeiro crie o arquivo `db/database.db`. Esse arquivo **não é versionado** no repositório e será gerado a partir dos scripts de DDL e carga de dados:
+Para executar o gerador contra um banco SQLite, use o mock em `test/mock/` (criar com `node test/mock/create-db.js`) ou o arquivo `db/database.db` a partir dos scripts em `db/`. Exemplo com o mock:
 
 ```bash
-sqlite3 db/database.db < db/database.sqlite.ddl
-sqlite3 db/database.db < db/database.sqlite.sql
+node test/mock/create-db.js
+cd gen && node dist/main.js -a myapp -d ../test/mock/mock.sqlite -u x -pw x -o ../build -t sqlite -f "entities,services,interfaces,controllers,dtos,modules,app-module,main,env,package.json,readme,datasource,diagram"
 ```
 
-Em seguida, rode o gerador informando `--dbType sqlite` e apontando `--database` para o caminho do banco:
-
-```bash
-node-gen \
-  --dbType sqlite \
-  --database db/database.db \
-  --outputDir "./build"
-```
+Ou, na raiz, após `npm run build`: `node gen/dist/main.js ...` com os mesmos parâmetros.
 
 ### Usando o MySQL para Testes
 
