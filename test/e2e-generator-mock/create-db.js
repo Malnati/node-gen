@@ -3,7 +3,7 @@ const sqlite3 = require('sqlite3');
 const path = require('path');
 const fs = require('fs');
 
-const schemaPath = path.join(__dirname, '..', 'mock', 'schema.sql');
+const schemaPath = path.join(__dirname, 'schema.sql');
 const dbPath = path.join(__dirname, 'mock.sqlite');
 
 const sql = fs.readFileSync(schemaPath, 'utf-8');

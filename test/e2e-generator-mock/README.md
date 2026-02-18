@@ -36,7 +36,7 @@ cd test/e2e-generator-mock && node run.js
 
 ## O que o script faz
 
-1. **Garantir mock:** verifica se `test/e2e-generator-mock/mock.sqlite` existe; caso contrário, executa `node test/e2e-generator-mock/create-db.js` (que usa `test/mock/schema.sql`).
+1. **Garantir mock:** verifica se `test/e2e-generator-mock/mock.sqlite` existe; caso contrário, executa `node test/e2e-generator-mock/create-db.js` (que usa `schema.sql` neste diretório).
 2. **Executar gerador:** invoca `gen/dist/main.js` com os parâmetros de conexão do mock e todos os componentes; saída em `output/` na raiz do repositório.
 3. **Aferir resultados:** valida artefatos (schema JSON, entidades, módulos, etc.) e opcionalmente `npm run build` no output.
 
@@ -45,7 +45,8 @@ cd test/e2e-generator-mock && node run.js
 - `package.json` — scripts (`test`, `run`).
 - `run.js` — script que executa o fluxo completo.
 - `connection.json` — dados de conexão do mock (dbType, database, user, password).
-- `create-db.js` — cria `mock.sqlite` a partir de `test/mock/schema.sql`.
+- `schema.sql` — DDL SQLite do mock (8 tabelas: N-1, N-N, tipos diversos). Ver [plan-mock-project-codegen.md](../../docs/issues/plan-mock-project-codegen.md).
+- `create-db.js` — cria `mock.sqlite` a partir de `schema.sql`.
 - `create-sqlite-fixture.js` — cria SQLite mínimo (tabela `tb_user`) em diretório informado; usado pelo teste CLI em disco. Ver [plan-cli-test-execution.md](../../docs/issues/plan-cli-test-execution.md).
 - `mock.sqlite` — banco gerado (criado por `create-db.js`; ignorado pelo git).
 - Saída do gerador: `output/` na raiz do repositório (ignorado pelo git).
@@ -54,5 +55,5 @@ cd test/e2e-generator-mock && node run.js
 ## Referências
 
 - **Plano:** [docs/issues/plan-test-project-generator-vs-mock.md](../../docs/issues/plan-test-project-generator-vs-mock.md).
-- **Mock:** [test/mock/README.md](../mock/README.md), [docs/issues/plan-mock-project-codegen.md](../../docs/issues/plan-mock-project-codegen.md).
+- **Plano do mock:** [docs/issues/plan-mock-project-codegen.md](../../docs/issues/plan-mock-project-codegen.md).
 - **Teste manual do CLI:** [docs/issues/plan-cli-test-execution.md](../../docs/issues/plan-cli-test-execution.md).

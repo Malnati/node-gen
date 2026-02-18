@@ -92,12 +92,12 @@ Para cada cenário: documentar se foi executado (sim/não) e, em caso de falha, 
 
 ## Uso do projeto mock (matriz completa)
 
-Para testar todas as possibilidades de geração conforme a matriz de cenários (tabela simples, relações e chaves compostas, nullable/enum/decimal/datas/UUID, nomes limítrofes), use o projeto mock (schema em **`test/mock/`**, scripts e banco em **`test/e2e-generator-mock/`**):
+Para testar todas as possibilidades de geração conforme a matriz de cenários (tabela simples, relações e chaves compostas, nullable/enum/decimal/datas/UUID, nomes limítrofes), use o mock em **`test/e2e-generator-mock/`** (schema.sql, create-db.js, mock.sqlite):
 
 1. Criar o banco: `node test/e2e-generator-mock/create-db.js`
 2. Executar o CLI (a partir da raiz): `cd gen && node dist/main.js -a mock-app -d ../test/e2e-generator-mock/mock.sqlite -u x -pw x -o ../output -t sqlite -f "entities,...,diagram"` (e opcionalmente `-T ./static`)
 
-Ver [test/mock/README.md](../../test/mock/README.md) e [plan-mock-project-codegen.md](plan-mock-project-codegen.md). Para o projeto que **automatize** esse fluxo (garantir mock → executar gerador → validar artefatos), ver [plan-test-project-generator-vs-mock.md](plan-test-project-generator-vs-mock.md) e `test/e2e-generator-mock/`.
+Ver [test/e2e-generator-mock/README.md](../../test/e2e-generator-mock/README.md) e [plan-mock-project-codegen.md](plan-mock-project-codegen.md). Para o projeto que **automatize** esse fluxo (garantir mock → executar gerador → validar artefatos), ver [plan-test-project-generator-vs-mock.md](plan-test-project-generator-vs-mock.md) e `test/e2e-generator-mock/`.
 
 ## Rastreabilidade
 

@@ -9,7 +9,7 @@ Criar um **projeto de testes** dedicado a **testar o aplicativo gerador de códi
 ## Contexto e referências
 
 - **Gerador:** node-gen em `gen/` (CLI em `gen/dist/main.js`, build com `npm run build` em `gen/` ou na raiz).
-- **Mock:** schema em `test/mock/schema.sql`; banco e scripts em `test/e2e-generator-mock/` (`mock.sqlite` criado por `node test/e2e-generator-mock/create-db.js`). Ver [test/mock/README.md](../../test/mock/README.md) e [plan-mock-project-codegen.md](plan-mock-project-codegen.md).
+- **Mock:** schema e scripts em `test/e2e-generator-mock/` (`schema.sql`, `create-db.js` cria `mock.sqlite`). Ver [test/e2e-generator-mock/README.md](../../test/e2e-generator-mock/README.md) e [plan-mock-project-codegen.md](plan-mock-project-codegen.md).
 - **Teste manual do CLI:** [plan-cli-test-execution.md](plan-cli-test-execution.md) descreve passos manuais; o novo projeto automatiza e reproduz o fluxo “mock → gerador → validação”.
 
 ## Escopo
@@ -37,7 +37,7 @@ Criar um **projeto de testes** dedicado a **testar o aplicativo gerador de códi
   - **package.json:** nome do projeto, scripts (ex.: `test` ou `run` que executem o fluxo: criar mock DB → rodar node-gen → validar artefatos).
   - **Scripts de teste:** um ou mais scripts que: (1) garantam `test/e2e-generator-mock/mock.sqlite` (chamada a `node test/e2e-generator-mock/create-db.js` ou checagem), (2) chamem `gen/dist/main.js` com `-d test/e2e-generator-mock/mock.sqlite -o <out>` (caminhos a partir da raiz do repo), (3) verifiquem presença dos artefatos esperados no output.
   - **Diretório de output:** `output/` na raiz do repositório.
-  - **README.md:** objetivo, pré-requisitos (build do node-gen em `gen/`), comandos e referências (test/mock, plan-cli-test-execution, plan-mock-project-codegen).
+  - **README.md:** objetivo, pré-requisitos (build do node-gen em `gen/`), comandos e referências (test/e2e-generator-mock, plan-cli-test-execution, plan-mock-project-codegen).
 
 ## Fluxo de teste (resumo)
 
@@ -66,11 +66,11 @@ Criar um **projeto de testes** dedicado a **testar o aplicativo gerador de códi
 
 ## Riscos e dependências
 
-- **Dependência:** node-gen compilado (`gen/dist/`) e mock disponível (`test/mock/schema.sql`, `test/e2e-generator-mock/create-db.js`). O projeto de teste assume execução a partir da raiz do repositório (caminhos para `gen/` e `test/e2e-generator-mock/`).
+- **Dependência:** node-gen compilado (`gen/dist/`) e mock disponível (`test/e2e-generator-mock/schema.sql`, `test/e2e-generator-mock/create-db.js`). O projeto de teste assume execução a partir da raiz do repositório (caminhos para `gen/` e `test/e2e-generator-mock/`).
 - **Risco:** paths relativos podem quebrar se o script for executado de outro diretório; documentar que a execução deve ser feita a partir da raiz ou do próprio projeto com caminhos explícitos.
 - **Risco:** build do projeto gerado pode falhar (já conhecido); o projeto de teste deve registrar falha sem bloquear a existência da evidência de geração.
 
 ## Rastreabilidade
 
-- **Documentos relacionados:** [plan-cli-test-execution.md](plan-cli-test-execution.md), [plan-mock-project-codegen.md](plan-mock-project-codegen.md), [../../test/mock/README.md](../../test/mock/README.md).
+- **Documentos relacionados:** [plan-cli-test-execution.md](plan-cli-test-execution.md), [plan-mock-project-codegen.md](plan-mock-project-codegen.md), [../../test/e2e-generator-mock/README.md](../../test/e2e-generator-mock/README.md).
 - Ao implementar o projeto de testes, registrar em CHANGELOG e atualizar, se aplicável, plan-cli-test-execution ou plan-mock-project-codegen com referência ao novo projeto.

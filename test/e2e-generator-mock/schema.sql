@@ -1,4 +1,4 @@
--- mock/schema.sql
+-- test/e2e-generator-mock/schema.sql
 -- Modelo de dados mock: relações N-1, N-N e tipos de uso comum no mercado (texto, números, binário, datas, booleano).
 
 -- 1) Tabela simples sem relacionamentos (tipos básicos)

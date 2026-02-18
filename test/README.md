@@ -8,9 +8,7 @@ Este diretório concentra os recursos de teste do gerador de código (`gen/`): m
 
 | Diretório | Descrição |
 |-----------|-----------|
-| `mock/` | Schema SQLite do mock (`schema.sql`). Scripts de criação do banco e `mock.sqlite` ficam em `e2e-generator-mock/`. |
-| `e2e-generator-mock/` | Testes E2E: executa o gerador contra o mock e valida artefatos. Contém `connection.json`, `create-db.js`, `create-sqlite-fixture.js`, `mock.sqlite` (gerado). Saída do gerador em `output/` na raiz do repositório. |
-| `db/` | DDL e dados de exemplo para PostgreSQL, MySQL, SQLite e SQL Server (referência e testes por dialeto). |
+| `e2e-generator-mock/` | Testes E2E: executa o gerador contra o mock e valida artefatos. Contém `schema.sql`, `connection.json`, `create-db.js`, `create-sqlite-fixture.js`, `mock.sqlite` (gerado). Saída do gerador em `output/` na raiz. DDL/dados por dialeto em `e2e-generator-mock/projects/user/db/` (database.{mysql,postgres,sqlite,sqlserver}.ddl e .sql). |
 
 ## Pré-requisitos
 
@@ -68,7 +66,7 @@ Para (re)criar apenas o banco mock, na raiz:
 node test/e2e-generator-mock/create-db.js
 ```
 
-Gera `test/e2e-generator-mock/mock.sqlite` a partir de `test/mock/schema.sql`.
+Gera `test/e2e-generator-mock/mock.sqlite` a partir de `test/e2e-generator-mock/schema.sql`.
 
 ### 3. Testes unitários do projeto gerado (opcional)
 
@@ -91,5 +89,4 @@ Cobertura: `npm run test:cov`.
 
 ## Referências
 
-- **E2E:** [test/e2e-generator-mock/README.md](e2e-generator-mock/README.md)
-- **Mock:** [test/mock/README.md](mock/README.md)
+- **E2E e mock:** [test/e2e-generator-mock/README.md](e2e-generator-mock/README.md)

@@ -16,7 +16,7 @@ export class DataSourceService {
     if (type === "sqlite") {
       this.dataSource = new DataSource({
         type: "sqlite",
-        database: env.getEnv().get<string>("DATABASE_PATH") || "test/db/database.db",
+        database: env.getEnv().get<string>("DATABASE_PATH") || "test/e2e-generator-mock/projects/user/db/database.db",
         entities: [],
         synchronize: true,
         logging: true,
