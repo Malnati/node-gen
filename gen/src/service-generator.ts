@@ -34,10 +34,19 @@ export class ServiceGenerator {
         fs.mkdirSync(subDir, { recursive: true });
       }
 
+      const hasExternalId = table.columns.some((c) => c.columnName === 'external_id');
+      const firstPkScalar = table.columns.find(
+        (c) => c.isPrimaryKey && !table.relations.some((r) => r.columnName === c.columnName),
+      );
+      const hasSingleScalarKey = hasExternalId || !!firstPkScalar;
+      const primaryKeyColumn = hasExternalId ? '' : (firstPkScalar ? toSnakeCase(firstPkScalar.columnName) : 'id');
       const data = {
         entityName,
         kebabCaseName,
         toSnakeCase,
+        hasExternalId,
+        hasSingleScalarKey,
+        primaryKeyColumn,
         imports: this.generateImports(table.relations),
         createUpdateAssignments: this.generateCreateUpdateAssignments(table.columns),
         relationCheckAndAssignment: this.generateRelationCheckAndAssignment(table.relations),

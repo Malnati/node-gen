@@ -53,9 +53,9 @@ async function bootstrap() {
   if (!isProd) {
     let sessionHealthCheck: boolean;
     try {
-      sessionHealthCheck = await app
+      sessionHealthCheck = !!(await app
         .get(HealthService)
-        .verifyEndpointSessionHealthCheck();
+        .verifyEndpointSessionHealthCheck());
       if (sessionHealthCheck) {
         Logger.log("Session Token JWT microservice is UP!");
       } else {
