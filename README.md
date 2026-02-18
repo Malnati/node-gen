@@ -21,11 +21,11 @@ Este repositório contém vários geradores para criar diferentes partes de um p
 ```bash
 npm run build && \
     npx ts-node src/main.ts \
-                    --app "Log" \
-                    --host "34.134.67.65" \
+                    --app "myapp" \
+                    --host "localhost" \
                     --port "5432" \
-                    --database "biud_log" \
-                    --user "biud_log" \
+                    --database "myapp_db" \
+                    --user "myapp_user" \
                     --password "********************" \
                     --outputDir "./build" \
                     --templateDir "./templates" \
@@ -38,12 +38,12 @@ npm run build && \
 Para executar o gerador e criar toda a estrutura do projeto, use o comando `node-gen`:
 
 ```bash
-node-gen\
-    --app "Log" \
-    --host "34.134.67.65" \
+node-gen \
+    --app "myapp" \
+    --host "localhost" \
     --port "5432" \
-    --database "biud_log" \
-    --user "biud_log" \
+    --database "myapp_db" \
+    --user "myapp_user" \
     --password "********************" \
     --outputDir "./build" \
     --templateDir "./templates" \

@@ -1,6 +1,7 @@
 // /src/diagram-generator.ts
 import { Table, DbReaderConfig, Format } from './interfaces';
 import * as fs from 'fs';
+import * as path from 'path';
 import sharp from 'sharp';
 
 export class DiagramGenerator {
@@ -17,7 +18,11 @@ export class DiagramGenerator {
   public async generateDiagram(outputFormat: Format = 'png'): Promise<void> {
     try {
       const svgContent = this.createSvgContent();
-      const outputFilePath = `${this.config.outputDir}/public/diagram.${outputFormat}`;
+      const publicDir = path.join(this.config.outputDir, 'public');
+      if (!fs.existsSync(publicDir)) {
+        fs.mkdirSync(publicDir, { recursive: true });
+      }
+      const outputFilePath = path.join(publicDir, `diagram.${outputFormat}`);
 
       if (outputFormat === 'svg') {
         fs.writeFileSync(outputFilePath, svgContent);
@@ -39,16 +44,21 @@ export class DiagramGenerator {
   }
 
   private createSvgContent(): string {
+    if (this.schema.length === 0) {
+      const emptySvg = '<svg xmlns="http://www.w3.org/2000/svg" width="400" height="200"><rect width="100%" height="100%" fill="white"/><text x="20" y="100" font-family="Arial" font-size="14" fill="gray">Nenhuma tabela no schema.</text></svg>';
+      return emptySvg;
+    }
+
     const tableWidth = 250;
     const baseHeight = 50;
     const rowHeight = 20;
     const padding = 50;
 
-    // Calcular a altura máxima entre todas as tabelas
     const maxTableHeight = Math.max(...this.schema.map(table => baseHeight + table.columns.length * rowHeight));
+    const minHeight = 800;
     const width = 1300;
     const height = Math.max(
-      800,
+      minHeight,
       this.schema.length * (maxTableHeight + padding) / 2
     );
 

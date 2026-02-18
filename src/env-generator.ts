@@ -11,6 +11,10 @@ export class EnvGenerator {
   }
 
   generateEnvFile() {
+    const defaultPort = '3001';
+    const defaultSessionVerify = process.env.ENDPOINT_SESSION_VERIFY ?? 'https://localhost/session/verify';
+    const defaultSessionHealth = process.env.ENDPOINT_SESSION_HEALTH ?? 'https://localhost/health';
+
     const envConfig = {
       DATABASE_HOST: this.config.host,
       DATABASE_PORT: this.config.port.toString(),
@@ -19,10 +23,10 @@ export class EnvGenerator {
       DATABASE_PASSWORD: this.config.password,
       DATABASE_TYPE: this.config.dbType,
       DATABASE_PATH: this.config.dbType === 'sqlite' ? this.config.database : '',
-      ENDPOINT_SESSION_TOKEN: 'https://biud-microservice-session.dev.biud.services/session/verify',
-      ENDPOINT_SESSION_HEALTHCHECK: 'https://biud-microservice-session.dev.biud.services/health',
+      ENDPOINT_SESSION_TOKEN: process.env.ENDPOINT_SESSION_TOKEN ?? defaultSessionVerify,
+      ENDPOINT_SESSION_HEALTHCHECK: process.env.ENDPOINT_SESSION_HEALTHCHECK ?? defaultSessionHealth,
       MICROSERVICE_NAME: this.config.app,
-      PORT: '3001'
+      PORT: process.env.PORT ?? defaultPort,
     };
 
     const envFileContent = Object.entries(envConfig)

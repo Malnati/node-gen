@@ -67,18 +67,28 @@ ${columnComments}`;
   private mapType(dataType: string): string {
     const typeMapping: { [key: string]: string } = {
       'integer': 'serial4',
+      'smallint': 'int2',
       'bigint': 'int8',
+      'serial': 'serial4',
+      'bigserial': 'serial8',
+      'real': 'float4',
+      'double precision': 'float8',
+      'numeric': 'numeric',
+      'decimal': 'decimal',
       'uuid': 'uuid',
       'timestamp without time zone': 'timestamp',
       'timestamp with time zone': 'timestamptz',
+      'timestamptz': 'timestamptz',
       'date': 'date',
+      'time': 'time',
       'character varying': 'varchar',
+      'varchar': 'varchar',
+      'char': 'char',
       'text': 'text',
       'boolean': 'bool',
-      'numeric': 'numeric',
-      'decimal': 'decimal',
-      'bytea': 'bytea'
+      'bool': 'bool',
+      'bytea': 'bytea',
     };
-    return typeMapping[dataType] || dataType;
+    return typeMapping[dataType] ?? typeMapping[dataType.toLowerCase()] ?? dataType;
   }
 }

@@ -80,19 +80,30 @@ export class InterfaceGenerator {
   private mapType(dataType: string): string {
     const typeMapping: { [key: string]: string } = {
       'integer': 'number',
+      'smallint': 'number',
       'bigint': 'number',
-      'uuid': 'string',
-      'timestamp without time zone': 'Date',
-      'timestamp with time zone': 'Date',
-      'date': 'Date',
-      'character varying': 'string',
-      'text': 'string',
-      'boolean': 'boolean',
+      'serial': 'number',
+      'bigserial': 'number',
+      'real': 'number',
+      'double precision': 'number',
       'numeric': 'number',
       'decimal': 'number',
-      'bytea': 'Buffer'
+      'uuid': 'string',
+      'character varying': 'string',
+      'varchar': 'string',
+      'char': 'string',
+      'text': 'string',
+      'boolean': 'boolean',
+      'bool': 'boolean',
+      'timestamp without time zone': 'Date',
+      'timestamp with time zone': 'Date',
+      'timestamptz': 'Date',
+      'date': 'Date',
+      'time': 'string',
+      'time with time zone': 'string',
+      'bytea': 'Buffer',
     };
-    return typeMapping[dataType] || 'any';
+    return typeMapping[dataType] ?? typeMapping[dataType.toLowerCase()] ?? 'any';
   }
 
   private toPascalCase(str: string): string {

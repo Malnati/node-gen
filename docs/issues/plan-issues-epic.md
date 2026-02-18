@@ -47,6 +47,16 @@ Executar a revisão técnica completa do pipeline de geração TypeScript com tr
 - Comandos executados com resultado objetivo (sucesso/falha).
 - Consolidação final com status dos 13 geradores e das análises transversais.
 
+## Vinculação das SUBs (registro no repositório)
+| SUB | Artefato | Descrição |
+|-----|----------|-----------|
+| [SUB] 1 | [plan-issues-sub-1.md](plan-issues-sub-1.md) | Revisar geradores base (env, package-json, diagram, interface) |
+| [SUB] 2 | [plan-issues-sub-2.md](plan-issues-sub-2.md) | Revisar geradores intermediários (controller a readme) |
+| [SUB] 3 | [plan-issues-sub-3.md](plan-issues-sub-3.md) | Revisar geradores de domínio e persistência TypeORM |
+| [SUB] 4 | [plan-issues-sub-4.md](plan-issues-sub-4.md) | Análises transversais, matriz de cenários e fechamento |
+
+Registro de execução por SUB: [execution-sub-1.md](execution-sub-1.md), [execution-sub-2.md](execution-sub-2.md), [execution-sub-3.md](execution-sub-3.md), [execution-sub-4.md](execution-sub-4.md). Consolidação: [plan-issues-execution.md](plan-issues-execution.md).
+
 ## Definição de pronto
 - [ ] SUBs registradas e vinculadas ao EPIC.
 - [ ] Execução concluída na sequência técnica definida.

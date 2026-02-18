@@ -1,5 +1,5 @@
+
 # bitbucket-pipelines.yml
-# Substitua your-workspace/cicd-scripts pelo workspace e repositório reais do Bitbucket onde estão os scripts CI.
 options:
   size: 2x
 definitions:

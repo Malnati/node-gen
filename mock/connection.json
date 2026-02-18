@@ -1,0 +1,8 @@
+{
+  "dbType": "sqlite",
+  "database": "mock.sqlite",
+  "user": "x",
+  "password": "x",
+  "host": "",
+  "port": null
+}
