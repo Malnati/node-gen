@@ -1,4 +1,4 @@
-// mock/create-db.js
+// test/mock/create-db.js
 const sqlite3 = require('sqlite3');
 const path = require('path');
 const fs = require('fs');

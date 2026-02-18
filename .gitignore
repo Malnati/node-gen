@@ -17,8 +17,8 @@ build-mock-test/
 entities/
 dist/
 
-# mock: banco gerado pelo script (recriar com node mock/create-db.js)
-mock/mock.sqlite
+# mock: banco gerado pelo script (recriar com node test/mock/create-db.js)
+test/mock/mock.sqlite
 
 # Diagnostic reports (https://nodejs.org/api/report.html)
 report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
