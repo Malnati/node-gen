@@ -56,9 +56,9 @@ make e2e-build
 make e2e-run
 ```
 
-O ambiente usa `docker-compose.e2e.yml` e `.docker/Dockerfile.e2e` (Node 20, gen compilado, mock criado no build). Por padrão são executados **SQLite e Postgres** (`E2E_DB_TYPES=sqlite,postgres`); o serviço `postgres` sobe com o schema mock em `schema.postgres.ddl`. O diretório `output/` na raiz é montado no container; após `make e2e-run` as aplicações geradas ficam em `output/<project>/<db>/` (ex.: `output/e2e-mock-app/sqlite/` e `output/e2e-mock-app/postgres/`). O E2E valida que `npm run build` em cada uma conclui com sucesso.
+O ambiente usa `docker-compose.e2e.yml` e `.docker/Dockerfile.e2e` (Node 20, gen compilado, mock criado no build). Por padrão são executados **SQLite, Postgres, MySQL e SQL Server** (`E2E_DB_TYPES=sqlite,postgres,mysql,sqlserver`). O serviço `postgres` sobe com o schema em `schema.postgres.ddl`; o `mysql` com `schema.mysql.sql`; o `sqlserver` é inicializado via `init-sqlserver.js` com `schema.sqlserver.ddl`. O diretório `output/` na raiz é montado no container; após `make e2e-run` as aplicações geradas ficam em `output/<project>/<db>/` (ex.: `output/e2e-mock-app/sqlite/`, `output/e2e-mock-app/postgres/`, `output/e2e-mock-app/mysql/`, `output/e2e-mock-app/sqlserver/`). O E2E valida que `npm run build` em cada uma conclui com sucesso.
 
-**Foco dos testes:** SQLite, Postgres e SQL Server. Para incluir SQL Server no E2E via Docker, defina `E2E_DB_TYPES=sqlite,postgres,sqlserver` (o `docker-compose.e2e.yml` inclui o serviço `sqlserver` e o script `init-sqlserver.js` aplica `schema.sqlserver.ddl`). Em ambientes arm64 o container SQL Server pode rodar em emulação; em amd64 o fluxo dos três bancos pode ser validado.
+**Foco dos testes:** MySQL, SQL Server, Postgres e SQLite. Para restringir os bancos, defina `E2E_DB_TYPES` (ex.: `E2E_DB_TYPES=sqlite,postgres`). Em ambientes arm64 o container SQL Server pode rodar em emulação; em amd64 o fluxo dos quatro bancos pode ser validado.
 
 ### 2. Criar o banco mock (quando necessário)
 

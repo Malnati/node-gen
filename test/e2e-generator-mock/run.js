@@ -59,6 +59,14 @@ function loadMockConnection(connectionFilePath) {
       conn.port = parseInt(process.env.DB_POSTGRES_PORT, 10);
     }
   }
+  if (dbType === 'mysql') {
+    if (process.env.DB_MYSQL_HOST) conn.host = process.env.DB_MYSQL_HOST;
+    if (process.env.DB_MYSQL_PORT != null && process.env.DB_MYSQL_PORT !== '') {
+      conn.port = parseInt(process.env.DB_MYSQL_PORT, 10);
+    }
+    if (process.env.DB_MYSQL_USER) conn.user = process.env.DB_MYSQL_USER;
+    if (process.env.DB_MYSQL_PASSWORD) conn.password = process.env.DB_MYSQL_PASSWORD;
+  }
   if (dbType === 'sqlserver') {
     if (process.env.DB_SQLSERVER_HOST) conn.host = process.env.DB_SQLSERVER_HOST;
     if (process.env.DB_SQLSERVER_PORT != null && process.env.DB_SQLSERVER_PORT !== '') {

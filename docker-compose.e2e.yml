@@ -1,5 +1,19 @@
 # docker-compose.e2e.yml
 services:
+  mysql:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: todo_mock
+      MYSQL_USER: e2e
+      MYSQL_PASSWORD: e2e
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-proot"]
+      interval: 2s
+      timeout: 5s
+      retries: 10
+    volumes:
+      - ./test/e2e-generator-mock/projects/todo/db/schema.mysql.sql:/docker-entrypoint-initdb.d/01-schema.sql
   postgres:
     image: postgres:16-alpine
     environment:
@@ -25,15 +39,21 @@ services:
     image: node-gen-e2e:latest
     entrypoint: ["/app/.docker/entrypoint.e2e.sh"]
     environment:
-      E2E_DB_TYPES: ${E2E_DB_TYPES:-sqlite,postgres}
+      E2E_DB_TYPES: ${E2E_DB_TYPES:-sqlite,postgres,mysql,sqlserver}
       DB_POSTGRES_HOST: postgres
       DB_POSTGRES_PORT: "5432"
+      DB_MYSQL_HOST: mysql
+      DB_MYSQL_PORT: "3306"
+      DB_MYSQL_USER: e2e
+      DB_MYSQL_PASSWORD: e2e
       DB_SQLSERVER_HOST: sqlserver
       DB_SQLSERVER_PORT: "1433"
       DB_SQLSERVER_PASSWORD: "YourStrong@Passw0rd"
     volumes:
       - ./output:/app/output
     depends_on:
+      mysql:
+        condition: service_healthy
       postgres:
         condition: service_healthy
       sqlserver:
