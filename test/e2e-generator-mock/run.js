@@ -20,6 +20,48 @@ const CONNECTION_FILE_PATTERN = /^connection\.([a-z0-9]+)\.json$/;
 const API_START_TIMEOUT_MS = 45000;
 const POLL_INTERVAL_MS = 1500;
 const HEALTH_REQUEST_TIMEOUT_MS = 1500;
+const DB_CONNECT_CHECK_TIMEOUT_MS = 1500;
+
+function checkPortReachable(host, port, timeoutMs) {
+  return new Promise((resolve) => {
+    const socket = net.createConnection(port, host, () => {
+      socket.destroy();
+      resolve(true);
+    });
+    socket.setTimeout(timeoutMs, () => {
+      socket.destroy();
+      resolve(false);
+    });
+    socket.on('error', () => {
+      socket.destroy();
+      resolve(false);
+    });
+  });
+}
+
+function checkDbContainersReachable() {
+  const e2eDbTypes = (process.env.E2E_DB_TYPES || 'sqlite,postgres,mysql,sqlserver')
+    .split(',')
+    .map((s) => s.trim().toLowerCase());
+  const results = [];
+  const checks = [];
+  if (e2eDbTypes.includes('postgres')) {
+    const host = process.env.DB_POSTGRES_HOST || '127.0.0.1';
+    const port = parseInt(process.env.DB_POSTGRES_PORT || '5432', 10);
+    checks.push(checkPortReachable(host, port, DB_CONNECT_CHECK_TIMEOUT_MS).then((ok) => ({ db: 'postgres', ok })));
+  }
+  if (e2eDbTypes.includes('mysql')) {
+    const host = process.env.DB_MYSQL_HOST || '127.0.0.1';
+    const port = parseInt(process.env.DB_MYSQL_PORT || '3306', 10);
+    checks.push(checkPortReachable(host, port, DB_CONNECT_CHECK_TIMEOUT_MS).then((ok) => ({ db: 'mysql', ok })));
+  }
+  if (e2eDbTypes.includes('sqlserver')) {
+    const host = process.env.DB_SQLSERVER_HOST || '127.0.0.1';
+    const port = parseInt(process.env.DB_SQLSERVER_PORT || '1433', 10);
+    checks.push(checkPortReachable(host, port, DB_CONNECT_CHECK_TIMEOUT_MS).then((ok) => ({ db: 'sqlserver', ok })));
+  }
+  return Promise.all(checks);
+}
 
 function readPortFromEnv(outDir) {
   const envPath = path.join(outDir, '.env');
@@ -495,6 +537,11 @@ async function main() {
   console.log('[e2e] Output base:', OUT_DIR_BASE);
   console.log('[e2e] Gen dir:', GEN_DIR);
   console.log('[e2e] Projetos:', projects.join(', '));
+
+  const containerStatus = await checkDbContainersReachable();
+  for (const { db, ok } of containerStatus) {
+    console.log('[e2e] Container', db + ':', ok ? 'reachable' : 'unreachable');
+  }
 
   let anyFailed = false;
   for (const project of projects) {

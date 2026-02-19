@@ -1,13 +1,13 @@
 // /static/src/app/config/datasource.service.ts
 import "reflect-metadata";
 import { DataSource } from "typeorm";
-import { Injectable } from "@nestjs/common";
+import { Injectable, OnModuleInit } from "@nestjs/common";
 import { EnvironmentService } from "./environment.service";
 
 export const cacheDuration = 31536000000;
 
 @Injectable()
-export class DataSourceService {
+export class DataSourceService implements OnModuleInit {
   private dataSource: DataSource;
 
   constructor(private env: EnvironmentService) {
@@ -59,6 +59,12 @@ export class DataSourceService {
           duration: cacheDuration,
         },
       });
+    }
+  }
+
+  async onModuleInit(): Promise<void> {
+    if (!this.dataSource.isInitialized) {
+      await this.dataSource.initialize();
     }
   }
 

@@ -91,10 +91,12 @@ export class TypeORMEntityGenerator {
 			options.push(
 				`default: "${column.columnDefault.replace(/"/g, '\\"')}"`,
 			)
-		if (column.characterMaximumLength)
-			options.push(`length: ${column.characterMaximumLength}`)
 
 		const ormType = typeMapping[column.dataType] ?? typeMapping[column.dataType?.toLowerCase()] ?? (column.dataType?.toLowerCase() || column.dataType)
+		const lengthSupported = ["string", "varchar", "char", "nvarchar", "nchar"]
+		if (column.characterMaximumLength && lengthSupported.includes(String(ormType))) {
+			options.push(`length: ${column.characterMaximumLength}`)
+		}
 		const columnOptions = [`type: '${ormType}'`, ...options]
 		let columnDecorator = `@Column({ ${columnOptions.join(", ")} })`
 
