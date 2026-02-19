@@ -1,3 +1,4 @@
+-- test/e2e-generator-mock/projects/selling/db/init.mysql.sql
 -- MySQL init: database selling_mock para E2E (projeto selling)
 CREATE DATABASE IF NOT EXISTS selling_mock;
 GRANT ALL PRIVILEGES ON selling_mock.* TO 'e2e'@'%';

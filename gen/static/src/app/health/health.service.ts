@@ -38,6 +38,22 @@ export class HealthService extends HealthIndicator {
       return null;
     }
 
+    const isProd = process.env.NODE_ENV === "production";
+    if (isProd) {
+      try {
+        const dbHealth =
+          await this.customDatabaseHealthIndicator.isDatabaseHealthy(
+            "database",
+          );
+        const result = await this.health.check([async () => dbHealth]);
+        this.logger.log("checkMe (production) OK!");
+        return result;
+      } catch (error) {
+        this.logger.error(`Error from checkMe: ${error.message}`);
+        throw error;
+      }
+    }
+
     const PORT = process.env.PORT || 3001;
     const dest = `http://localhost:${PORT}/api`;
     let result = undefined;

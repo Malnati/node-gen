@@ -1,7 +1,7 @@
 // /templates/datasource.template.ts
 import "reflect-metadata";
 import { DataSource } from "typeorm";
-import { Injectable } from "@nestjs/common";
+import { Injectable, OnModuleInit } from "@nestjs/common";
 import { EnvironmentService } from "./environment.service";
 {{entityImports}}
 
@@ -10,7 +10,7 @@ export const cacheDuration = 31536000000;
 
 @Injectable()
 /** Service responsible for providing a configured DataSource instance */
-export class DataSourceService {
+export class DataSourceService implements OnModuleInit {
   private readonly dataSource: DataSource;
 
   constructor(private readonly env: EnvironmentService) {
@@ -28,7 +28,7 @@ export class DataSourceService {
       this.dataSource = new DataSource({
         type: "mysql",
         host: env.getEnv().get<string>("DATABASE_HOST"),
-        port: env.getEnv().get<number>("DATABASE_PORT"),
+        port: parseInt(env.getEnv().get<string>("DATABASE_PORT") || "3306", 10),
         database: env.getEnv().get<string>("DATABASE_NAME"),
         username: env.getEnv().get<string>("DATABASE_USER"),
         password: env.getEnv().get<string>("DATABASE_PASSWORD"),
@@ -44,7 +44,7 @@ export class DataSourceService {
       this.dataSource = new DataSource({
         type: type as any,
         host: env.getEnv().get<string>("DATABASE_HOST"),
-        port: env.getEnv().get<number>("DATABASE_PORT"),
+        port: parseInt(env.getEnv().get<string>("DATABASE_PORT") || "5432", 10),
         database: env.getEnv().get<string>("DATABASE_NAME"),
         username: env.getEnv().get<string>("DATABASE_USER"),
         password: env.getEnv().get<string>("DATABASE_PASSWORD"),
@@ -56,6 +56,12 @@ export class DataSourceService {
           duration: cacheDuration,
         },
       });
+    }
+  }
+
+  async onModuleInit(): Promise<void> {
+    if (!this.dataSource.isInitialized) {
+      await this.dataSource.initialize();
     }
   }
 

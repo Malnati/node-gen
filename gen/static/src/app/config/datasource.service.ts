@@ -1,13 +1,13 @@
 // /static/src/app/config/datasource.service.ts
 import "reflect-metadata";
 import { DataSource } from "typeorm";
-import { Injectable } from "@nestjs/common";
+import { Injectable, OnModuleInit } from "@nestjs/common";
 import { EnvironmentService } from "./environment.service";
 
 export const cacheDuration = 31536000000;
 
 @Injectable()
-export class DataSourceService {
+export class DataSourceService implements OnModuleInit {
   private dataSource: DataSource;
 
   constructor(private env: EnvironmentService) {
@@ -25,7 +25,7 @@ export class DataSourceService {
       this.dataSource = new DataSource({
         type: "mysql",
         host: env.getEnv().get<string>("DATABASE_HOST"),
-        port: env.getEnv().get<number>("DATABASE_PORT"),
+        port: parseInt(env.getEnv().get<string>("DATABASE_PORT") || "3306", 10),
         database: env.getEnv().get<string>("DATABASE_NAME"),
         username: env.getEnv().get<string>("DATABASE_USER"),
         password: env.getEnv().get<string>("DATABASE_PASSWORD"),
@@ -36,15 +36,15 @@ export class DataSourceService {
           rejectUnauthorized: false,
         },
         cache: {
-          type: "database", // Usando o cache in-memory do TypeORM
-          duration: cacheDuration // 1 ano em milissegundos
+          type: "database",
+          duration: cacheDuration,
         },
       });
     } else {
       this.dataSource = new DataSource({
         type: type as any,
         host: env.getEnv().get<string>("DATABASE_HOST"),
-        port: env.getEnv().get<number>("DATABASE_PORT"),
+        port: parseInt(env.getEnv().get<string>("DATABASE_PORT") || "5432", 10),
         database: env.getEnv().get<string>("DATABASE_NAME"),
         username: env.getEnv().get<string>("DATABASE_USER"),
         password: env.getEnv().get<string>("DATABASE_PASSWORD"),
@@ -55,10 +55,16 @@ export class DataSourceService {
           rejectUnauthorized: false,
         },
         cache: {
-          type: "database", // Usando o cache in-memory do TypeORM
-          duration: cacheDuration // 1 ano em milissegundos
+          type: "database",
+          duration: cacheDuration,
         },
       });
+    }
+  }
+
+  async onModuleInit(): Promise<void> {
+    if (!this.dataSource.isInitialized) {
+      await this.dataSource.initialize();
     }
   }
 
