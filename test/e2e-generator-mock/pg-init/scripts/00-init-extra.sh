@@ -1,5 +1,5 @@
 #!/bin/bash
-# .docker/e2e-postgres-init/00-init-extra.sh: create todo_mock, selling_mock and schedule_mock for E2E (schemas in projects/<name>/db)
+# test/e2e-generator-mock/pg-init/scripts/00-init-extra.sh: create todo_mock, selling_mock and schedule_mock for E2E (schemas in projects/<name>/db)
 set -e
 E2E_MOCK="${E2E_MOCK:-/e2e-mock}"
 # todo_mock already exists (POSTGRES_DB); only apply schema
