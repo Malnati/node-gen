@@ -15,6 +15,225 @@ const COMPONENTS = 'entities,services,interfaces,controllers,dtos,modules,app-mo
 
 const CONNECTION_FILE_PATTERN = /^connection\.([a-z0-9]+)\.json$/;
 
+<<<<<<< Updated upstream
+=======
+const API_START_TIMEOUT_MS = 45000;
+const POLL_INTERVAL_MS = 1500;
+const HEALTH_REQUEST_TIMEOUT_MS = 1500;
+const DB_CONNECT_CHECK_TIMEOUT_MS = 1500;
+
+function checkPortReachable(host, port, timeoutMs) {
+  return new Promise((resolve) => {
+    const socket = net.createConnection(port, host, () => {
+      socket.destroy();
+      resolve(true);
+    });
+    socket.setTimeout(timeoutMs, () => {
+      socket.destroy();
+      resolve(false);
+    });
+    socket.on('error', () => {
+      socket.destroy();
+      resolve(false);
+    });
+  });
+}
+
+function checkDbContainersReachable() {
+  const e2eDbTypes = (process.env.E2E_DB_TYPES || 'sqlite,postgres,mysql,sqlserver')
+    .split(',')
+    .map((s) => s.trim().toLowerCase());
+  const results = [];
+  const checks = [];
+  if (e2eDbTypes.includes('postgres')) {
+    const host = process.env.DB_POSTGRES_HOST || '127.0.0.1';
+    const port = parseInt(process.env.DB_POSTGRES_PORT || '5432', 10);
+    checks.push(checkPortReachable(host, port, DB_CONNECT_CHECK_TIMEOUT_MS).then((ok) => ({ db: 'postgres', ok })));
+  }
+  if (e2eDbTypes.includes('mysql')) {
+    const host = process.env.DB_MYSQL_HOST || '127.0.0.1';
+    const port = parseInt(process.env.DB_MYSQL_PORT || '3306', 10);
+    checks.push(checkPortReachable(host, port, DB_CONNECT_CHECK_TIMEOUT_MS).then((ok) => ({ db: 'mysql', ok })));
+  }
+  if (e2eDbTypes.includes('sqlserver')) {
+    const host = process.env.DB_SQLSERVER_HOST || '127.0.0.1';
+    const port = parseInt(process.env.DB_SQLSERVER_PORT || '1433', 10);
+    checks.push(checkPortReachable(host, port, DB_CONNECT_CHECK_TIMEOUT_MS).then((ok) => ({ db: 'sqlserver', ok })));
+  }
+  return Promise.all(checks);
+}
+
+function readPortFromEnv(outDir) {
+  const envPath = path.join(outDir, '.env');
+  if (!fs.existsSync(envPath)) return 3001;
+  const content = fs.readFileSync(envPath, 'utf-8');
+  const m = content.match(/(?:^|\n)PORT=['"]?(\d+)['"]?/);
+  return m ? parseInt(m[1], 10) : 3001;
+}
+
+function waitForPort(port, timeoutMs) {
+  return new Promise((resolve) => {
+    const deadline = Date.now() + timeoutMs;
+    function tryConnect() {
+      const socket = net.createConnection(port, '127.0.0.1', () => {
+        socket.destroy();
+        resolve(true);
+      });
+      socket.setTimeout(POLL_INTERVAL_MS, () => {
+        socket.destroy();
+        if (Date.now() >= deadline) {
+          resolve(false);
+          return;
+        }
+        setTimeout(tryConnect, POLL_INTERVAL_MS);
+      });
+      socket.on('error', () => {
+        socket.destroy();
+        if (Date.now() >= deadline) {
+          resolve(false);
+          return;
+        }
+        setTimeout(tryConnect, POLL_INTERVAL_MS);
+      });
+    }
+    tryConnect();
+  });
+}
+
+function curlGet(port, pathname, timeoutMs) {
+  return new Promise((resolve) => {
+    const req = http.get(
+      `http://127.0.0.1:${port}${pathname}`,
+      { timeout: timeoutMs },
+      (res) => {
+        let body = '';
+        res.on('data', (chunk) => { body += chunk; });
+        res.on('end', () => resolve({ statusCode: res.statusCode, body }));
+      }
+    );
+    req.on('error', (err) => resolve({ statusCode: 0, error: err.message }));
+    req.on('timeout', () => {
+      req.destroy();
+      resolve({ statusCode: 0, error: 'timeout' });
+    });
+  });
+}
+
+function curlHealth(port, timeoutMs) {
+  return curlGet(port, '/health', timeoutMs);
+}
+
+/** Chama GET em todos os endpoints da API gerada (health, version, listagem de cada módulo). Timeout por request: 1500ms. */
+function curlAllEndpoints(port, project, timeoutMs) {
+  const expected = PROJECT_EXPECTED[project];
+  if (!expected) return Promise.resolve({ allOk: false, failures: ['projeto desconhecido'] });
+  const paths = ['/health', '/version'];
+  expected.moduleNames.forEach((m) => paths.push(`/${m}`));
+  const timeout = Math.min(timeoutMs, 1500);
+  const results = [];
+  return Promise.all(
+    paths.map((p) =>
+      curlGet(port, p, timeout).then((r) => {
+        const ok = r.statusCode === 200 || (r.statusCode === 401 && p !== '/health' && p !== '/version');
+        results.push({ path: p, statusCode: r.statusCode, ok });
+        return { path: p, statusCode: r.statusCode, ok };
+      })
+    )
+  ).then((arr) => {
+    const failures = arr.filter((a) => !a.ok).map((a) => `${a.path}=${a.statusCode || 'err'}`);
+    const allOk = failures.length === 0;
+    return { allOk, failures, results: arr };
+  });
+}
+
+function waitForHealth(port, maxAttempts) {
+  const attemptMs = HEALTH_REQUEST_TIMEOUT_MS;
+  let attempts = 0;
+  function tryOnce() {
+    attempts++;
+    return curlHealth(port, attemptMs).then((result) => {
+      if (result.statusCode === 200) return result;
+      if (attempts >= maxAttempts) return result;
+      return new Promise((r) => setTimeout(r, POLL_INTERVAL_MS)).then(tryOnce);
+    });
+  }
+  return tryOnce();
+}
+
+function startAppAndCheckHealth(outDir, dbType, project) {
+  const port = readPortFromEnv(outDir);
+  const distMain = path.join(outDir, 'dist', 'main.js');
+  if (!fs.existsSync(distMain)) {
+    console.error('[e2e] dist/main.js não encontrado em', outDir);
+    return false;
+  }
+  const env = { ...process.env, NODE_ENV: 'production' };
+  const child = spawn(process.execPath, [distMain], {
+    cwd: outDir,
+    env,
+    stdio: ['ignore', 'pipe', 'pipe'],
+  });
+  const chunks = { stdout: [], stderr: [] };
+  child.stdout.on('data', (c) => chunks.stdout.push(c));
+  child.stderr.on('data', (c) => chunks.stderr.push(c));
+
+  let resolved = false;
+  const done = (ok, msg) => {
+    if (resolved) return;
+    resolved = true;
+    try {
+      child.kill('SIGTERM');
+    } catch (e) {
+      try { child.kill('SIGKILL'); } catch (_) {}
+    }
+    if (!ok && (chunks.stdout.length || chunks.stderr.length)) {
+      const out = Buffer.concat(chunks.stdout).slice(-2000).toString();
+      const err = Buffer.concat(chunks.stderr).slice(-2000).toString();
+      console.log('[e2e] Últimos logs (stdout):', out.slice(-500));
+      if (err) console.log('[e2e] Últimos logs (stderr):', err.slice(-500));
+    }
+    if (!ok) console.error('[e2e]', msg);
+  };
+
+  return new Promise((resolve) => {
+    const t = setTimeout(() => {
+      done(false, `API não respondeu na porta ${port} em ${API_START_TIMEOUT_MS}ms`);
+      resolve(false);
+    }, API_START_TIMEOUT_MS);
+
+    waitForPort(port, API_START_TIMEOUT_MS - 5000).then((listening) => {
+      if (!listening) {
+        clearTimeout(t);
+        done(false, `Porta ${port} não ficou disponível a tempo`);
+        resolve(false);
+        return;
+      }
+      const healthAttempts = Math.max(1, Math.floor((API_START_TIMEOUT_MS - 5000) / POLL_INTERVAL_MS));
+      waitForHealth(port, healthAttempts).then((result) => {
+        if (result.statusCode !== 200) {
+          clearTimeout(t);
+          done(false, `Health retornou ${result.statusCode || result.error}, esperado 200`);
+          resolve(false);
+          return;
+        }
+        curlAllEndpoints(port, project, HEALTH_REQUEST_TIMEOUT_MS).then((endpointResult) => {
+          clearTimeout(t);
+          if (!endpointResult.allOk) {
+            done(false, `Endpoints falharam: ${endpointResult.failures.join(', ')}`);
+            resolve(false);
+            return;
+          }
+          try { child.kill('SIGTERM'); } catch (e) { try { child.kill('SIGKILL'); } catch (_) {} }
+          resolved = true;
+          console.log('[e2e] API em execução: /health, /version e todos os endpoints GET OK (porta ' + port + ')');
+          resolve(true);
+        });
+      });
+    });
+  });
+}
+
+>>>>>>> Stashed changes
 const PROJECT_EXPECTED = {
   todo: {
     tables: ['tb_simple_item', 'tb_category', 'tb_product', 'tb_sale', 'tb_sale_item', 'tb_tag', 'tb_product_tag', 'tb_document'],
@@ -380,6 +599,15 @@ function main() {
       }
       if (!assessResults(dbType, outDir, project)) {
         anyFailed = true;
+<<<<<<< Updated upstream
+=======
+        continue;
+      }
+      console.log('[e2e] Subindo API e verificando /health e todos os endpoints...');
+      const healthOk = await startAppAndCheckHealth(outDir, dbType, project);
+      if (!healthOk) {
+        anyFailed = true;
+>>>>>>> Stashed changes
       }
     }
   }

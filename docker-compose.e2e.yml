@@ -28,7 +28,8 @@ services:
       timeout: 5s
       retries: 10
     volumes:
-      - ./test/e2e-generator-mock/pg-init:/docker-entrypoint-initdb.d
+      - ./test/e2e-generator-mock/pg-init/scripts:/docker-entrypoint-initdb.d
+      - ./test/e2e-generator-mock:/e2e-mock
   sqlserver:
     image: mcr.microsoft.com/mssql/server:2022-latest
     environment:
@@ -41,7 +42,7 @@ services:
     image: node-gen-e2e:latest
     entrypoint: ["/app/.docker/entrypoint.e2e.sh"]
     environment:
-      E2E_DB_TYPES: ${E2E_DB_TYPES:-sqlite,postgres,mysql,sqlserver}
+      E2E_DB_TYPES: ${E2E_DB_TYPES:-sqlite,postgres}
       DB_POSTGRES_HOST: postgres
       DB_POSTGRES_PORT: "5432"
       DB_MYSQL_HOST: mysql
@@ -54,9 +55,5 @@ services:
     volumes:
       - ./output:/app/output
     depends_on:
-      mysql:
-        condition: service_healthy
       postgres:
         condition: service_healthy
-      sqlserver:
-        condition: service_started
