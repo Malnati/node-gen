@@ -100,10 +100,10 @@ function waitForPort(port, timeoutMs) {
   });
 }
 
-function curlHealth(port, timeoutMs) {
+function curlGet(port, pathname, timeoutMs) {
   return new Promise((resolve) => {
     const req = http.get(
-      `http://127.0.0.1:${port}/health`,
+      `http://127.0.0.1:${port}${pathname}`,
       { timeout: timeoutMs },
       (res) => {
         let body = '';
@@ -119,21 +119,11 @@ function curlHealth(port, timeoutMs) {
   });
 }
 
-function waitForHealth(port, maxAttempts) {
-  const attemptMs = HEALTH_REQUEST_TIMEOUT_MS;
-  let attempts = 0;
-  function tryOnce() {
-    attempts++;
-    return curlHealth(port, attemptMs).then((result) => {
-      if (result.statusCode === 200) return result;
-      if (attempts >= maxAttempts) return result;
-      return new Promise((r) => setTimeout(r, POLL_INTERVAL_MS)).then(tryOnce);
-    });
-  }
-  return tryOnce();
+function curlHealth(port, timeoutMs) {
+  return curlGet(port, '/health', timeoutMs);
 }
 
-function startAppAndCheckHealth(outDir, dbType) {
+function startAppAndCheckHealth(outDir, dbType, project) {
   const port = readPortFromEnv(outDir);
   const distMain = path.join(outDir, 'dist', 'main.js');
   if (!fs.existsSync(distMain)) {
@@ -183,19 +173,60 @@ function startAppAndCheckHealth(outDir, dbType) {
       }
       const healthAttempts = Math.max(1, Math.floor((API_START_TIMEOUT_MS - 5000) / POLL_INTERVAL_MS));
       waitForHealth(port, healthAttempts).then((result) => {
-        clearTimeout(t);
-        const ok = result.statusCode === 200;
-        if (!ok) {
+        if (result.statusCode !== 200) {
+          clearTimeout(t);
           done(false, `Health retornou ${result.statusCode || result.error}, esperado 200`);
-        } else {
+          resolve(false);
+          return;
+        }
+        curlAllEndpoints(port, project, HEALTH_REQUEST_TIMEOUT_MS).then((endpointResult) => {
+          clearTimeout(t);
+          if (!endpointResult.allOk) {
+            done(false, `Endpoints falharam: ${endpointResult.failures.join(', ')}`);
+            resolve(false);
+            return;
+          }
           try { child.kill('SIGTERM'); } catch (e) { try { child.kill('SIGKILL'); } catch (_) {} }
           resolved = true;
-          console.log('[e2e] API em execução e /health OK (porta ' + port + ')');
-        }
-        resolve(ok);
+          console.log('[e2e] API em execução: /health, /version e todos os endpoints GET OK (porta ' + port + ')');
+          resolve(true);
+        });
       });
     });
   });
+}
+
+function curlAllEndpoints(port, project, timeoutMs) {
+  const expected = PROJECT_EXPECTED[project];
+  if (!expected) return Promise.resolve({ allOk: false, failures: ['projeto desconhecido'] });
+  const paths = ['/health', '/version'];
+  expected.moduleNames.forEach((m) => paths.push(`/${m}`));
+  const timeout = Math.min(timeoutMs, 1500);
+  return Promise.all(
+    paths.map((p) =>
+      curlGet(port, p, timeout).then((r) => {
+        const ok = r.statusCode === 200 || (r.statusCode === 401 && p !== '/health' && p !== '/version');
+        return { path: p, statusCode: r.statusCode, ok };
+      })
+    )
+  ).then((arr) => {
+    const failures = arr.filter((a) => !a.ok).map((a) => `${a.path}=${a.statusCode || 'err'}`);
+    return { allOk: failures.length === 0, failures };
+  });
+}
+
+function waitForHealth(port, maxAttempts) {
+  const attemptMs = HEALTH_REQUEST_TIMEOUT_MS;
+  let attempts = 0;
+  function tryOnce() {
+    attempts++;
+    return curlHealth(port, attemptMs).then((result) => {
+      if (result.statusCode === 200) return result;
+      if (attempts >= maxAttempts) return result;
+      return new Promise((r) => setTimeout(r, POLL_INTERVAL_MS)).then(tryOnce);
+    });
+  }
+  return tryOnce();
 }
 
 const PROJECT_EXPECTED = {
@@ -581,8 +612,8 @@ async function main() {
         anyFailed = true;
         continue;
       }
-      console.log('[e2e] Subindo API e verificando /health...');
-      const healthOk = await startAppAndCheckHealth(outDir, dbType);
+      console.log('[e2e] Subindo API e verificando /health e todos os endpoints...');
+      const healthOk = await startAppAndCheckHealth(outDir, dbType, project);
       if (!healthOk) {
         anyFailed = true;
       }

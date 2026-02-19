@@ -43,7 +43,7 @@ services:
     image: node-gen-e2e:latest
     entrypoint: ["/app/.docker/entrypoint.e2e.sh"]
     environment:
-      E2E_DB_TYPES: ${E2E_DB_TYPES:-sqlite,postgres}
+      E2E_DB_TYPES: ${E2E_DB_TYPES:-sqlite,postgres,mysql,sqlserver}
       DB_POSTGRES_HOST: postgres
       DB_POSTGRES_PORT: "5432"
       DB_MYSQL_HOST: mysql
@@ -56,5 +56,9 @@ services:
     volumes:
       - ./output:/app/output
     depends_on:
+      mysql:
+        condition: service_healthy
       postgres:
         condition: service_healthy
+      sqlserver:
+        condition: service_started
