@@ -43,7 +43,7 @@ cd test/e2e-generator-mock && node run.js
 ## O que o script faz
 
 1. **Descobrir conexões:** lista `projects/todo/db/connection.<dbType>.json` (sqlite, mysql, postgres, sqlserver, etc.).
-2. **Por cada banco:** (a) carrega a conexão; (b) para SQLite, garante mock (cria `mock.sqlite` via `create-db.js` se não existir); (c) executa o gerador com os parâmetros da conexão; saída em `output/<project>/<dbType>/`; (d) aferição dos artefatos (schema `db.reader.<dbType>.json`, entidades, módulos, etc.) e opcionalmente `npm run build` no output.
+2. **Por cada banco:** (a) carrega a conexão; (b) para SQLite, garante mock (cria `mock.sqlite` via `create-db.js` se não existir); (c) executa o gerador com os parâmetros da conexão; saída em `output/<project>/<dbType>/`; (d) aferição dos artefatos (schema `db.reader.<dbType>.json`, entidades, módulos, etc.) e **build obrigatório** (`npm run build`) no output; (e) **subida da API** — inicia a aplicação gerada em processo (NODE_ENV=production), aguarda a porta de escuta, faz requisição HTTP ao endpoint `/health` e verifica resposta 200; em falha, exibe os logs (stdout/stderr) do processo.
 
 ## Estrutura
 

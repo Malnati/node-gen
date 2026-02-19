@@ -28,7 +28,7 @@ export class DataSourceService {
       this.dataSource = new DataSource({
         type: "mysql",
         host: env.getEnv().get<string>("DATABASE_HOST"),
-        port: env.getEnv().get<number>("DATABASE_PORT"),
+        port: parseInt(env.getEnv().get<string>("DATABASE_PORT") || "3306", 10),
         database: env.getEnv().get<string>("DATABASE_NAME"),
         username: env.getEnv().get<string>("DATABASE_USER"),
         password: env.getEnv().get<string>("DATABASE_PASSWORD"),
@@ -44,7 +44,7 @@ export class DataSourceService {
       this.dataSource = new DataSource({
         type: type as any,
         host: env.getEnv().get<string>("DATABASE_HOST"),
-        port: env.getEnv().get<number>("DATABASE_PORT"),
+        port: parseInt(env.getEnv().get<string>("DATABASE_PORT") || "5432", 10),
         database: env.getEnv().get<string>("DATABASE_NAME"),
         username: env.getEnv().get<string>("DATABASE_USER"),
         password: env.getEnv().get<string>("DATABASE_PASSWORD"),

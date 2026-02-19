@@ -47,7 +47,8 @@ export class TypeORMEntityGenerator {
 		const columns = table.columns
 			.filter(
 				(col) =>
-					!this.isRelationColumn(col.columnName, table.relations),
+					!this.isRelationColumn(col.columnName, table.relations) ||
+					col.isPrimaryKey,
 			)
 			.map((col) =>
 				this.generateColumnDefinition(col, primaryKeys.includes(col)),
