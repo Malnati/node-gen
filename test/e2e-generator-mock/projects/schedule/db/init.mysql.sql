@@ -1,3 +1,4 @@
+-- test/e2e-generator-mock/projects/schedule/db/init.mysql.sql
 -- MySQL init: database schedule_mock para E2E (projeto schedule)
 CREATE DATABASE IF NOT EXISTS schedule_mock;
 GRANT ALL PRIVILEGES ON schedule_mock.* TO 'e2e'@'%';
