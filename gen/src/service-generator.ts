@@ -49,9 +49,9 @@ export class ServiceGenerator {
         primaryKeyColumn,
         imports: this.generateImports(table),
         createUpdateAssignments: this.generateCreateUpdateAssignments(table.columns),
-        relationCheckAndAssignment: this.generateRelationCheckAndAssignment(table.relations),
+        relationCheckAndAssignment: this.generateRelationCheckAndAssignment(table.relations, table),
         updateAssignments: this.generateUpdateAssignments(table.columns),
-        relationUpdateAndAssignment: this.generateRelationUpdateAndAssignment(table.relations),
+        relationUpdateAndAssignment: this.generateRelationUpdateAndAssignment(table.relations, table),
         toDTOAssignments: this.generateToDTOAssignments(table.columns),
         relationMappings: this.generateRelationMappings(table.relations),
       };
@@ -100,14 +100,20 @@ export class ServiceGenerator {
     return !!foreign?.columns.some((c) => c.columnName === 'external_id');
   }
 
-  private generateRelationCheckAndAssignment(relations: Relation[]): string {
+  private isRelationOptional(table: Table, rel: Relation): boolean {
+    const col = table.columns.find((c) => c.columnName === rel.columnName);
+    return !!col?.isNullable;
+  }
+
+  private generateRelationCheckAndAssignment(relations: Relation[], table: Table): string {
     return relations.map(rel => {
       const relatedEntityName = toPascalCase(rel.foreignTableName);
       const relationName = toSnakeCase(rel.columnName.replace('_id', ''));
       const byEid = this.foreignTableHasExternalId(rel);
       const whereKey = byEid ? 'external_id' : 'id';
       const dtoKey = byEid ? `${relationName}_eid` : `${relationName}_id`;
-      return `const ${relationName} = await this.dataSourceService
+      const optional = this.isRelationOptional(table, rel);
+      const block = `const ${relationName} = await this.dataSourceService
       .getDataSource()
       .getRepository(${relatedEntityName}Entity)
       .findOne({ where: { ${whereKey}: dto.${dtoKey} } });
@@ -117,17 +123,19 @@ export class ServiceGenerator {
     }
 
     newEntity.${relationName} = ${relationName};`;
+      return optional ? `if (dto.${dtoKey} != null) {\n    ${block}\n    }` : block;
     }).join('\n\n    ');
   }
 
-  private generateRelationUpdateAndAssignment(relations: Relation[]): string {
+  private generateRelationUpdateAndAssignment(relations: Relation[], table: Table): string {
     return relations.map(rel => {
       const relatedEntityName = toPascalCase(rel.foreignTableName);
       const relationName = toSnakeCase(rel.columnName.replace('_id', ''));
       const byEid = this.foreignTableHasExternalId(rel);
       const whereKey = byEid ? 'external_id' : 'id';
       const dtoKey = byEid ? `${relationName}_eid` : `${relationName}_id`;
-      return `const ${relationName} = await this.dataSourceService
+      const optional = this.isRelationOptional(table, rel);
+      const block = `const ${relationName} = await this.dataSourceService
       .getDataSource()
       .getRepository(${relatedEntityName}Entity)
       .findOne({ where: { ${whereKey}: dto.${dtoKey} } });
@@ -137,6 +145,7 @@ export class ServiceGenerator {
     }
 
     entity.${relationName} = ${relationName};`;
+      return optional ? `if (dto.${dtoKey} != null) {\n    ${block}\n    }` : block;
     }).join('\n\n    ');
   }
 
