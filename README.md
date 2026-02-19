@@ -471,7 +471,7 @@ make build
 make up
 ```
 
-Os serviços definidos em `docker-compose.yml` incluem `sqlite`, `postgres`, `mysql`, `sqlserver` e `node-gen`. Para parar todos os containers utilize:
+Os serviços definidos em `.docker/docker-compose.yml` incluem `sqlite`, `postgres`, `mysql`, `sqlserver` e `node-gen`. Para parar todos os containers utilize:
 
 ```bash
 make down

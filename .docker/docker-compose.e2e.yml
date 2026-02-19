@@ -1,4 +1,4 @@
-# docker-compose.e2e.yml
+# .docker/docker-compose.e2e.yml
 services:
   mysql:
     image: mysql:8.0
@@ -11,11 +11,12 @@ services:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-proot"]
       interval: 2s
       timeout: 5s
-      retries: 10
+      retries: 30
+      start_period: 120s
     volumes:
       - ./test/e2e-generator-mock/projects/todo/db/schema.mysql.sql:/docker-entrypoint-initdb.d/01-schema.sql
-      - ./test/e2e-generator-mock/mysql-init/02-selling.sql:/docker-entrypoint-initdb.d/02-selling.sql
-      - ./test/e2e-generator-mock/mysql-init/03-schedule.sql:/docker-entrypoint-initdb.d/03-schedule.sql
+      - ./test/e2e-generator-mock/projects/selling/db/init.mysql.sql:/docker-entrypoint-initdb.d/02-selling.sql
+      - ./test/e2e-generator-mock/projects/schedule/db/init.mysql.sql:/docker-entrypoint-initdb.d/03-schedule.sql
   postgres:
     image: postgres:16-alpine
     environment:

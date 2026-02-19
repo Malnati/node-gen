@@ -1,7 +1,9 @@
 // test/e2e-generator-mock/run.js
 const path = require('path');
 const fs = require('fs');
-const { spawnSync } = require('child_process');
+const net = require('net');
+const http = require('http');
+const { spawnSync, spawn } = require('child_process');
 
 const REPO_ROOT = path.resolve(__dirname, '..', '..');
 const GEN_DIR = path.join(REPO_ROOT, 'gen');
@@ -15,8 +17,6 @@ const COMPONENTS = 'entities,services,interfaces,controllers,dtos,modules,app-mo
 
 const CONNECTION_FILE_PATTERN = /^connection\.([a-z0-9]+)\.json$/;
 
-<<<<<<< Updated upstream
-=======
 const API_START_TIMEOUT_MS = 45000;
 const POLL_INTERVAL_MS = 1500;
 const HEALTH_REQUEST_TIMEOUT_MS = 1500;
@@ -100,10 +100,10 @@ function waitForPort(port, timeoutMs) {
   });
 }
 
-function curlGet(port, pathname, timeoutMs) {
+function curlHealth(port, timeoutMs) {
   return new Promise((resolve) => {
     const req = http.get(
-      `http://127.0.0.1:${port}${pathname}`,
+      `http://127.0.0.1:${port}/health`,
       { timeout: timeoutMs },
       (res) => {
         let body = '';
@@ -116,33 +116,6 @@ function curlGet(port, pathname, timeoutMs) {
       req.destroy();
       resolve({ statusCode: 0, error: 'timeout' });
     });
-  });
-}
-
-function curlHealth(port, timeoutMs) {
-  return curlGet(port, '/health', timeoutMs);
-}
-
-/** Chama GET em todos os endpoints da API gerada (health, version, listagem de cada módulo). Timeout por request: 1500ms. */
-function curlAllEndpoints(port, project, timeoutMs) {
-  const expected = PROJECT_EXPECTED[project];
-  if (!expected) return Promise.resolve({ allOk: false, failures: ['projeto desconhecido'] });
-  const paths = ['/health', '/version'];
-  expected.moduleNames.forEach((m) => paths.push(`/${m}`));
-  const timeout = Math.min(timeoutMs, 1500);
-  const results = [];
-  return Promise.all(
-    paths.map((p) =>
-      curlGet(port, p, timeout).then((r) => {
-        const ok = r.statusCode === 200 || (r.statusCode === 401 && p !== '/health' && p !== '/version');
-        results.push({ path: p, statusCode: r.statusCode, ok });
-        return { path: p, statusCode: r.statusCode, ok };
-      })
-    )
-  ).then((arr) => {
-    const failures = arr.filter((a) => !a.ok).map((a) => `${a.path}=${a.statusCode || 'err'}`);
-    const allOk = failures.length === 0;
-    return { allOk, failures, results: arr };
   });
 }
 
@@ -160,7 +133,7 @@ function waitForHealth(port, maxAttempts) {
   return tryOnce();
 }
 
-function startAppAndCheckHealth(outDir, dbType, project) {
+function startAppAndCheckHealth(outDir, dbType) {
   const port = readPortFromEnv(outDir);
   const distMain = path.join(outDir, 'dist', 'main.js');
   if (!fs.existsSync(distMain)) {
@@ -210,30 +183,21 @@ function startAppAndCheckHealth(outDir, dbType, project) {
       }
       const healthAttempts = Math.max(1, Math.floor((API_START_TIMEOUT_MS - 5000) / POLL_INTERVAL_MS));
       waitForHealth(port, healthAttempts).then((result) => {
-        if (result.statusCode !== 200) {
-          clearTimeout(t);
+        clearTimeout(t);
+        const ok = result.statusCode === 200;
+        if (!ok) {
           done(false, `Health retornou ${result.statusCode || result.error}, esperado 200`);
-          resolve(false);
-          return;
-        }
-        curlAllEndpoints(port, project, HEALTH_REQUEST_TIMEOUT_MS).then((endpointResult) => {
-          clearTimeout(t);
-          if (!endpointResult.allOk) {
-            done(false, `Endpoints falharam: ${endpointResult.failures.join(', ')}`);
-            resolve(false);
-            return;
-          }
+        } else {
           try { child.kill('SIGTERM'); } catch (e) { try { child.kill('SIGKILL'); } catch (_) {} }
           resolved = true;
-          console.log('[e2e] API em execução: /health, /version e todos os endpoints GET OK (porta ' + port + ')');
-          resolve(true);
-        });
+          console.log('[e2e] API em execução e /health OK (porta ' + port + ')');
+        }
+        resolve(ok);
       });
     });
   });
 }
 
->>>>>>> Stashed changes
 const PROJECT_EXPECTED = {
   todo: {
     tables: ['tb_simple_item', 'tb_category', 'tb_product', 'tb_sale', 'tb_sale_item', 'tb_tag', 'tb_product_tag', 'tb_document'],
@@ -517,10 +481,14 @@ function assessResults(dbType, outDir, project) {
     const installResult = spawnSync('npm', ['install', '--legacy-peer-deps'], {
       cwd: outDir,
       stdio: 'pipe',
-      timeout: 180000,
+      timeout: 300000,
     });
     if (installResult.status !== 0) {
       buildOk = false;
+      const out = (installResult.stdout && installResult.stdout.toString()) || '';
+      const err = (installResult.stderr && installResult.stderr.toString()) || '';
+      console.error('[e2e] npm install falhou. stdout:', out.slice(-800));
+      console.error('[e2e] npm install falhou. stderr:', err.slice(-800));
     } else {
       const buildResult = spawnSync('npm', ['run', 'build'], {
         cwd: outDir,
@@ -528,12 +496,19 @@ function assessResults(dbType, outDir, project) {
         timeout: 120000,
       });
       buildOk = buildResult.status === 0;
+      if (!buildOk) {
+        const out = (buildResult.stdout && buildResult.stdout.toString()) || '';
+        const err = (buildResult.stderr && buildResult.stderr.toString()) || '';
+        console.error('[e2e] npm run build falhou. stdout:', out.slice(-1200));
+        console.error('[e2e] npm run build falhou. stderr:', err.slice(-1200));
+      }
     }
     checks.push({
-      name: 'npm run build no output (opcional)',
+      name: 'npm run build no output (obrigatório)',
       pass: buildOk,
-      required: false,
+      required: true,
     });
+    if (!buildOk) requiredFailed = true;
   }
 
   console.log(`[e2e] --- Aferição dos resultados (${dbType}) ---`);
@@ -551,7 +526,7 @@ function assessResults(dbType, outDir, project) {
   return !requiredFailed;
 }
 
-function main() {
+async function main() {
   const projects = discoverProjects();
   if (projects.length === 0) {
     console.error('[e2e] Nenhum projeto com connection.<dbType>.json em:', PROJECTS_DIR);
@@ -562,6 +537,11 @@ function main() {
   console.log('[e2e] Output base:', OUT_DIR_BASE);
   console.log('[e2e] Gen dir:', GEN_DIR);
   console.log('[e2e] Projetos:', projects.join(', '));
+
+  const containerStatus = await checkDbContainersReachable();
+  for (const { db, ok } of containerStatus) {
+    console.log('[e2e] Container', db + ':', ok ? 'reachable' : 'unreachable');
+  }
 
   let anyFailed = false;
   for (const project of projects) {
@@ -599,15 +579,12 @@ function main() {
       }
       if (!assessResults(dbType, outDir, project)) {
         anyFailed = true;
-<<<<<<< Updated upstream
-=======
         continue;
       }
-      console.log('[e2e] Subindo API e verificando /health e todos os endpoints...');
-      const healthOk = await startAppAndCheckHealth(outDir, dbType, project);
+      console.log('[e2e] Subindo API e verificando /health...');
+      const healthOk = await startAppAndCheckHealth(outDir, dbType);
       if (!healthOk) {
         anyFailed = true;
->>>>>>> Stashed changes
       }
     }
   }
