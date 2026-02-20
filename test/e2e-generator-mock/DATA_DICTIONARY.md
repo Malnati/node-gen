@@ -1,7 +1,22 @@
 <!-- test/e2e-generator-mock/DATA_DICTIONARY.md -->
-# Dicionário de Dados — Projetos E2E (Accounts, Addresses, Contacts, Users, Companies, Payments, Transactions, Auth, Notifications, Products, Inventory, Orders, Logistics, Reports)
+# Dicionário de Dados — Projetos E2E (1–21)
 
 Relacionamentos entre projetos são apenas lógicos (campos UUID). Não há Foreign Keys entre bases.
+
+---
+
+## Regras de validação e mensagens
+
+### Obrigatórias (erro)
+A ausência ou formato inválido de UUIDs obrigatórios ou dados críticos (ex.: credenciais de integração vazias) deve gerar:
+`[ERROR] Validação falhou: O campo/regra obrigatório '{nome}' não foi atendido no payload de entrada.`
+
+### Opcionais (aviso)
+Campos que apenas estendem a funcionalidade devem emitir:
+`[WARNING] O campo opcional '{nome}' não foi fornecido. O sistema assumirá o registo principal/padrão associado.`
+
+### Soft delete
+A cláusula `WHERE deleted_at IS NULL` é implícita em todas as leituras da aplicação.
 
 ---
 
@@ -378,3 +393,370 @@ Lê de `current_inventory_levels`. Apresenta níveis de stock atuais.
 ### VIEW: v_logistics_performance
 
 Lê de `logistics_performance`. Apresenta indicadores de logística.
+
+---
+
+## 15. projects/rbac
+
+**Relação lógica:** user_id, account_id, tenant. Administração de perfis (roles), cadastro de funcionalidades e mapeamento de autorizações.
+
+### Tabela: role
+
+| Campo | Tipo | Obrigatório | Descrição |
+|-------|------|-------------|-----------|
+| id | Chave interna | Sim | Identificador físico interno. |
+| external_id | UUID | Sim, único | Identificador exposto a outros serviços. |
+| tenant | UUID | Sim | Tenant. |
+| name | Texto | Sim | Nome do perfil (ex.: admin, operador). |
+| description | Texto | Não | Descrição do perfil. |
+| created_at | Timestamp | Sim (default) | Criação. |
+| updated_at | Timestamp | Não | Última atualização. |
+| deleted_at | Timestamp | Não | Soft delete. |
+
+### Tabela: feature
+
+| Campo | Tipo | Obrigatório | Descrição |
+|-------|------|-------------|-----------|
+| id | Chave interna | Sim | Identificador físico interno. |
+| external_id | UUID | Sim, único | Identificador exposto a outros serviços. |
+| tenant | UUID | Sim | Tenant. |
+| code | Texto | Sim | Código da funcionalidade (ex.: orders.create). |
+| name | Texto | Não | Nome legível. |
+| description | Texto | Não | Descrição. |
+| created_at | Timestamp | Sim (default) | Criação. |
+| updated_at | Timestamp | Não | Última atualização. |
+| deleted_at | Timestamp | Não | Soft delete. |
+
+### Tabela: role_feature
+
+| Campo | Tipo | Obrigatório | Descrição |
+|-------|------|-------------|-----------|
+| id | Chave interna | Sim | Identificador físico interno. |
+| external_id | UUID | Sim, único | Identificador exposto a outros serviços. |
+| tenant | UUID | Sim | Tenant. |
+| role_id | UUID | Sim | Referência lógica ao role. |
+| feature_id | UUID | Sim | Referência lógica à feature. |
+| created_at | Timestamp | Sim (default) | Criação. |
+| updated_at | Timestamp | Não | Última atualização. |
+| deleted_at | Timestamp | Não | Soft delete. |
+
+### Tabela: user_role
+
+| Campo | Tipo | Obrigatório | Descrição |
+|-------|------|-------------|-----------|
+| id | Chave interna | Sim | Identificador físico interno. |
+| external_id | UUID | Sim, único | Identificador exposto a outros serviços. |
+| tenant | UUID | Sim | Tenant. |
+| user_id | UUID | Sim | Referência lógica ao app_user. |
+| account_id | UUID | Sim | Referência lógica ao account. |
+| role_id | UUID | Sim | Referência lógica ao role. |
+| created_at | Timestamp | Sim (default) | Criação. |
+| updated_at | Timestamp | Não | Última atualização. |
+| deleted_at | Timestamp | Não | Soft delete. |
+
+---
+
+## 16. projects/system_config
+
+**Relação lógica:** tenant. Administração global do software, configurações de integrações externas, parâmetros globais e webhooks.
+
+### Tabela: system_config
+
+| Campo | Tipo | Obrigatório | Descrição |
+|-------|------|-------------|-----------|
+| id | Chave interna | Sim | Identificador físico interno. |
+| external_id | UUID | Sim, único | Identificador exposto a outros serviços. |
+| tenant | UUID | Sim | Tenant. |
+| config_key | Texto | Sim | Chave do parâmetro (ex.: app.timezone). |
+| config_value | Texto | Não | Valor; pode ser JSON. |
+| value_type | Texto | Não | Tipo (string, number, json, boolean). |
+| created_at | Timestamp | Sim (default) | Criação. |
+| updated_at | Timestamp | Não | Última atualização. |
+| deleted_at | Timestamp | Não | Soft delete. |
+
+### Tabela: integration_config
+
+| Campo | Tipo | Obrigatório | Descrição |
+|-------|------|-------------|-----------|
+| id | Chave interna | Sim | Identificador físico interno. |
+| external_id | UUID | Sim, único | Identificador exposto a outros serviços. |
+| tenant | UUID | Sim | Tenant. |
+| integration_code | Texto | Sim | Código da integração (ex.: payment_gateway). |
+| endpoint_url | Texto | Não | URL base do serviço. |
+| credentials_ref | Texto | Não | Referência a credenciais (não armazenar em claro). |
+| enabled | Booleano | Não | Ativo; default true. |
+| created_at | Timestamp | Sim (default) | Criação. |
+| updated_at | Timestamp | Não | Última atualização. |
+| deleted_at | Timestamp | Não | Soft delete. |
+
+### Tabela: webhook
+
+| Campo | Tipo | Obrigatório | Descrição |
+|-------|------|-------------|-----------|
+| id | Chave interna | Sim | Identificador físico interno. |
+| external_id | UUID | Sim, único | Identificador exposto a outros serviços. |
+| tenant | UUID | Sim | Tenant. |
+| url | Texto | Sim | URL de callback. |
+| event_type | Texto | Não | Tipo de evento (ex.: order.created). |
+| secret_hash | Texto | Não | Hash do segredo para assinatura. |
+| enabled | Booleano | Não | Ativo; default true. |
+| created_at | Timestamp | Sim (default) | Criação. |
+| updated_at | Timestamp | Não | Última atualização. |
+| deleted_at | Timestamp | Não | Soft delete. |
+
+---
+
+## 17. projects/scheduling
+
+**Relação lógica:** user_id, account_id, tenant. Agendamentos, calendários, slots de tempo e marcações públicas.
+
+### Tabela: calendar
+
+| Campo | Tipo | Obrigatório | Descrição |
+|-------|------|-------------|-----------|
+| id | Chave interna | Sim | Identificador físico interno. |
+| external_id | UUID | Sim, único | Identificador exposto a outros serviços. |
+| tenant | UUID | Sim | Tenant. |
+| account_id | UUID | Não | Referência lógica ao account (dono do calendário). |
+| user_id | UUID | Não | Referência lógica ao app_user. |
+| name | Texto | Sim | Nome do calendário. |
+| timezone | Texto | Não | Fuso (ex.: Europe/Lisbon); default UTC. |
+| created_at | Timestamp | Sim (default) | Criação. |
+| updated_at | Timestamp | Não | Última atualização. |
+| deleted_at | Timestamp | Não | Soft delete. |
+
+### Tabela: time_slot
+
+| Campo | Tipo | Obrigatório | Descrição |
+|-------|------|-------------|-----------|
+| id | Chave interna | Sim | Identificador físico interno. |
+| external_id | UUID | Sim, único | Identificador exposto a outros serviços. |
+| tenant | UUID | Sim | Tenant. |
+| calendar_id | UUID | Sim | Referência lógica ao calendar. |
+| start_at | Timestamp | Sim | Início do slot. |
+| end_at | Timestamp | Sim | Fim do slot. |
+| available | Booleano | Não | Disponível para reserva; default true. |
+| created_at | Timestamp | Sim (default) | Criação. |
+| updated_at | Timestamp | Não | Última atualização. |
+| deleted_at | Timestamp | Não | Soft delete. |
+
+### Tabela: booking
+
+| Campo | Tipo | Obrigatório | Descrição |
+|-------|------|-------------|-----------|
+| id | Chave interna | Sim | Identificador físico interno. |
+| external_id | UUID | Sim, único | Identificador exposto a outros serviços. |
+| tenant | UUID | Sim | Tenant. |
+| time_slot_id | UUID | Sim | Referência lógica ao time_slot. |
+| user_id | UUID | Não | Utilizador que marca. |
+| account_id | UUID | Não | Conta associada. |
+| status | Texto | Não | Estado (pending, confirmed, cancelled). |
+| created_at | Timestamp | Sim (default) | Criação. |
+| updated_at | Timestamp | Não | Última atualização. |
+| deleted_at | Timestamp | Não | Soft delete. |
+
+---
+
+## 18. projects/communications
+
+**Relação lógica:** account_id, user_id, tenant. Templates de e-mail, configurações SMTP por tenant, histórico de envios e tracking de entrega.
+
+### Tabela: email_template
+
+| Campo | Tipo | Obrigatório | Descrição |
+|-------|------|-------------|-----------|
+| id | Chave interna | Sim | Identificador físico interno. |
+| external_id | UUID | Sim, único | Identificador exposto a outros serviços. |
+| tenant | UUID | Sim | Tenant. |
+| code | Texto | Sim | Código do template (ex.: welcome_email). |
+| name | Texto | Não | Nome legível. |
+| subject_tpl | Texto | Não | Modelo do assunto (placeholders permitidos). |
+| body_tpl | Texto | Não | Modelo do corpo (HTML/texto). |
+| created_at | Timestamp | Sim (default) | Criação. |
+| updated_at | Timestamp | Não | Última atualização. |
+| deleted_at | Timestamp | Não | Soft delete. |
+
+### Tabela: smtp_config
+
+| Campo | Tipo | Obrigatório | Descrição |
+|-------|------|-------------|-----------|
+| id | Chave interna | Sim | Identificador físico interno. |
+| external_id | UUID | Sim, único | Identificador exposto a outros serviços. |
+| tenant | UUID | Sim | Tenant. |
+| account_id | UUID | Não | Conta associada (opcional). |
+| host | Texto | Sim | Servidor SMTP. |
+| port | Inteiro | Não | Porta; default 587. |
+| use_tls | Booleano | Não | Usar TLS; default true. |
+| credentials_ref | Texto | Não | Referência a credenciais. |
+| created_at | Timestamp | Sim (default) | Criação. |
+| updated_at | Timestamp | Não | Última atualização. |
+| deleted_at | Timestamp | Não | Soft delete. |
+
+### Tabela: send_history
+
+| Campo | Tipo | Obrigatório | Descrição |
+|-------|------|-------------|-----------|
+| id | Chave interna | Sim | Identificador físico interno. |
+| external_id | UUID | Sim, único | Identificador exposto a outros serviços. |
+| tenant | UUID | Sim | Tenant. |
+| template_id | UUID | Não | Referência lógica ao email_template. |
+| recipient | Texto | Sim | Destinatário (e-mail). |
+| sent_at | Timestamp | Não | Data/hora de envio. |
+| status | Texto | Não | Estado (sent, failed, delivered). |
+| created_at | Timestamp | Sim (default) | Criação. |
+| updated_at | Timestamp | Não | Última atualização. |
+| deleted_at | Timestamp | Não | Soft delete. |
+
+### Tabela: delivery_tracking
+
+| Campo | Tipo | Obrigatório | Descrição |
+|-------|------|-------------|-----------|
+| id | Chave interna | Sim | Identificador físico interno. |
+| external_id | UUID | Sim, único | Identificador exposto a outros serviços. |
+| tenant | UUID | Sim | Tenant. |
+| send_history_id | UUID | Sim | Referência lógica ao send_history. |
+| event_type | Texto | Não | Tipo (delivered, opened, bounced). |
+| event_at | Timestamp | Não | Data/hora do evento. |
+| created_at | Timestamp | Sim (default) | Criação. |
+| updated_at | Timestamp | Não | Última atualização. |
+| deleted_at | Timestamp | Não | Soft delete. |
+
+---
+
+## 19. projects/maps
+
+**Relação lógica:** addresses, logistics, tenant. Provedores de mapas, cache de geocodificação e rotas.
+
+### Tabela: map_provider_config
+
+| Campo | Tipo | Obrigatório | Descrição |
+|-------|------|-------------|-----------|
+| id | Chave interna | Sim | Identificador físico interno. |
+| external_id | UUID | Sim, único | Identificador exposto a outros serviços. |
+| tenant | UUID | Sim | Tenant. |
+| provider_code | Texto | Sim | Código do provedor (ex.: osm, google). |
+| endpoint_url | Texto | Não | URL base da API. |
+| api_key_ref | Texto | Não | Referência à chave (não em claro). |
+| created_at | Timestamp | Sim (default) | Criação. |
+| updated_at | Timestamp | Não | Última atualização. |
+| deleted_at | Timestamp | Não | Soft delete. |
+
+### Tabela: geocode_cache
+
+| Campo | Tipo | Obrigatório | Descrição |
+|-------|------|-------------|-----------|
+| id | Chave interna | Sim | Identificador físico interno. |
+| external_id | UUID | Sim, único | Identificador exposto a outros serviços. |
+| tenant | UUID | Sim | Tenant. |
+| address_hash | Texto | Não | Hash do endereço para cache. |
+| raw_address | Texto | Não | Endereço original. |
+| latitude | Decimal(10,7) | Não | Latitude. |
+| longitude | Decimal(10,7) | Não | Longitude. |
+| created_at | Timestamp | Sim (default) | Criação. |
+| updated_at | Timestamp | Não | Última atualização. |
+| deleted_at | Timestamp | Não | Soft delete. |
+
+### Tabela: route_cache
+
+| Campo | Tipo | Obrigatório | Descrição |
+|-------|------|-------------|-----------|
+| id | Chave interna | Sim | Identificador físico interno. |
+| external_id | UUID | Sim, único | Identificador exposto a outros serviços. |
+| tenant | UUID | Sim | Tenant. |
+| origin_key | Texto | Não | Chave de origem (ex.: lat,lng ou address_id). |
+| destination_key | Texto | Não | Chave de destino. |
+| distance_km | Decimal(10,2) | Não | Distância em km. |
+| duration_min | Decimal(8,2) | Não | Duração em minutos. |
+| created_at | Timestamp | Sim (default) | Criação. |
+| updated_at | Timestamp | Não | Última atualização. |
+| deleted_at | Timestamp | Não | Soft delete. |
+
+---
+
+## 20. projects/llm_integrations
+
+**Relação lógica:** account_id, tenant. Modelos de IA, roteamento, fallback (ex.: Ollama), templates de prompts e logs de execução.
+
+### Tabela: llm_provider_config
+
+| Campo | Tipo | Obrigatório | Descrição |
+|-------|------|-------------|-----------|
+| id | Chave interna | Sim | Identificador físico interno. |
+| external_id | UUID | Sim, único | Identificador exposto a outros serviços. |
+| tenant | UUID | Sim | Tenant. |
+| account_id | UUID | Não | Conta associada. |
+| provider_code | Texto | Sim | Código (ex.: openai, ollama). |
+| model_id | Texto | Não | Identificador do modelo. |
+| api_key_ref | Texto | Não | Referência à chave. |
+| fallback_local_endpoint | Texto | Não | URL local para fallback (ex.: Ollama). |
+| routing_priority | Inteiro | Não | Ordem de tentativa (1 = primeiro). |
+| created_at | Timestamp | Sim (default) | Criação. |
+| updated_at | Timestamp | Não | Última atualização. |
+| deleted_at | Timestamp | Não | Soft delete. |
+
+### Tabela: prompt_template
+
+| Campo | Tipo | Obrigatório | Descrição |
+|-------|------|-------------|-----------|
+| id | Chave interna | Sim | Identificador físico interno. |
+| external_id | UUID | Sim, único | Identificador exposto a outros serviços. |
+| tenant | UUID | Sim | Tenant. |
+| code | Texto | Sim | Código do template. |
+| name | Texto | Não | Nome legível. |
+| content | Texto | Não | Conteúdo do prompt (placeholders permitidos). |
+| created_at | Timestamp | Sim (default) | Criação. |
+| updated_at | Timestamp | Não | Última atualização. |
+| deleted_at | Timestamp | Não | Soft delete. |
+
+### Tabela: llm_execution_log
+
+| Campo | Tipo | Obrigatório | Descrição |
+|-------|------|-------------|-----------|
+| id | Chave interna | Sim | Identificador físico interno. |
+| external_id | UUID | Sim, único | Identificador exposto a outros serviços. |
+| tenant | UUID | Sim | Tenant. |
+| provider_config_id | UUID | Não | Referência lógica à config. |
+| model_id | Texto | Não | Modelo utilizado. |
+| success | Booleano | Não | Execução com sucesso. |
+| latency_ms | Inteiro | Não | Latência em milissegundos. |
+| created_at | Timestamp | Sim (default) | Criação. |
+| updated_at | Timestamp | Não | Última atualização. |
+| deleted_at | Timestamp | Não | Soft delete. |
+
+---
+
+## 21. projects/consents
+
+**Relação lógica:** account_id, user_id, tenant. Opt-in/opt-out, preferências de notificações (e-mail, SMS, push) e registo de consentimento explícito para RGPD/LGPD.
+
+### Tabela: consent_record
+
+| Campo | Tipo | Obrigatório | Descrição |
+|-------|------|-------------|-----------|
+| id | Chave interna | Sim | Identificador físico interno. |
+| external_id | UUID | Sim, único | Identificador exposto a outros serviços. |
+| tenant | UUID | Sim | Tenant. |
+| account_id | UUID | Sim | Referência lógica ao account. |
+| user_id | UUID | Não | Referência lógica ao app_user. |
+| consent_type | Texto | Sim | Tipo (ex.: marketing, terms, privacy). |
+| granted_at | Timestamp | Não | Data/hora da concessão. |
+| ip_address | Texto | Não | IP no momento do consentimento. |
+| version | Texto | Não | Versão do documento/termos. |
+| created_at | Timestamp | Sim (default) | Criação. |
+| updated_at | Timestamp | Não | Última atualização. |
+| deleted_at | Timestamp | Não | Soft delete. |
+
+### Tabela: notification_preference
+
+| Campo | Tipo | Obrigatório | Descrição |
+|-------|------|-------------|-----------|
+| id | Chave interna | Sim | Identificador físico interno. |
+| external_id | UUID | Sim, único | Identificador exposto a outros serviços. |
+| tenant | UUID | Sim | Tenant. |
+| account_id | UUID | Sim | Referência lógica ao account. |
+| user_id | UUID | Não | Referência lógica ao app_user. |
+| channel | Texto | Sim | Canal: email, sms, push. |
+| opt_in | Booleano | Não | Opt-in ativo; default true. |
+| created_at | Timestamp | Sim (default) | Criação. |
+| updated_at | Timestamp | Não | Última atualização. |
+| deleted_at | Timestamp | Não | Soft delete. |
