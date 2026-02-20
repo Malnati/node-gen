@@ -1,10 +1,12 @@
 -- test/e2e-generator-mock/projects/payments/db/database.postgres.ddl
-CREATE TABLE payment (
+CREATE TABLE payment_method (
   id SERIAL PRIMARY KEY,
-  amount DECIMAL(12,2) NOT NULL,
-  currency_code VARCHAR(3) DEFAULT 'BRL',
-  status TEXT NOT NULL,
-  method TEXT,
+  tenant UUID NOT NULL,
+  account_id UUID NOT NULL,
+  code TEXT NOT NULL,
+  name TEXT NOT NULL,
+  method_type TEXT NOT NULL,
+  region TEXT,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP,
   deleted_at TIMESTAMP

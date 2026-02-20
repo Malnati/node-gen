@@ -1,13 +1,10 @@
--- test/e2e-generator-mock/projects/contacts/db/database.sqlite.ddl
-CREATE TABLE contact (
+-- test/e2e-generator-mock/projects/companies/db/database.sqlite.ddl
+CREATE TABLE company (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
-  tenant TEXT NOT NULL,
   account_id TEXT NOT NULL,
-  address_id TEXT,
   name TEXT NOT NULL,
-  email TEXT,
-  phone TEXT,
-  company TEXT,
+  legal_name TEXT,
+  tax_id TEXT,
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
   updated_at DATETIME,
   deleted_at DATETIME

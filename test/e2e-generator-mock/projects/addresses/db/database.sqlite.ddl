@@ -1,6 +1,8 @@
 -- test/e2e-generator-mock/projects/addresses/db/database.sqlite.ddl
 CREATE TABLE address (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
+  tenant TEXT NOT NULL,
+  account_id TEXT NOT NULL,
   street TEXT NOT NULL,
   city TEXT NOT NULL,
   state TEXT,

@@ -1,6 +1,7 @@
 -- test/e2e-generator-mock/projects/accounts/db/database.sqlite.ddl
 CREATE TABLE account (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
+  tenant TEXT NOT NULL,
   name TEXT NOT NULL,
   account_type TEXT NOT NULL,
   balance REAL DEFAULT 0,

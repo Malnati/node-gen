@@ -1,6 +1,7 @@
 -- test/e2e-generator-mock/projects/accounts/db/database.mysql.ddl
 CREATE TABLE account (
   id INT AUTO_INCREMENT PRIMARY KEY,
+  tenant CHAR(36) NOT NULL,
   name VARCHAR(255) NOT NULL,
   account_type VARCHAR(50) NOT NULL,
   balance DECIMAL(12,2) DEFAULT 0,
