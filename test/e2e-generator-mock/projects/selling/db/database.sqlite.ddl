@@ -1,33 +1,103 @@
 -- test/e2e-generator-mock/projects/selling/db/database.sqlite.ddl
-CREATE TABLE sale (
+CREATE TABLE tb_customer (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
-  external_id TEXT NOT NULL,
   tenant TEXT NOT NULL,
-  account_id TEXT NOT NULL,
-  order_id TEXT NOT NULL,
-  payment_id TEXT,
-  billing_address_id TEXT,
-  shipping_address_id TEXT,
-  status TEXT,
-  total REAL DEFAULT 0,
-  currency_code TEXT DEFAULT 'BRL',
+  external_id TEXT NOT NULL UNIQUE,
+  name TEXT NOT NULL,
+  email TEXT UNIQUE NOT NULL,
+  tax_id TEXT,
+  credit_limit REAL,
+  birth_date TEXT,
+  metadata TEXT,
+  is_active INTEGER DEFAULT 1,
   created_at TEXT DEFAULT (datetime('now')),
-  updated_at TEXT,
-  deleted_at TEXT,
-  UNIQUE(external_id)
+  updated_at TEXT DEFAULT (datetime('now')),
+  deleted_at TEXT
 );
 
-CREATE TABLE sale_item (
+CREATE TABLE tb_payment_method (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
-  external_id TEXT NOT NULL,
   tenant TEXT NOT NULL,
-  sale_id INTEGER NOT NULL,
-  product_id TEXT NOT NULL,
-  quantity REAL DEFAULT 1,
-  unit_price REAL DEFAULT 0,
+  external_id TEXT NOT NULL UNIQUE,
+  code TEXT NOT NULL UNIQUE,
+  name TEXT NOT NULL,
   created_at TEXT DEFAULT (datetime('now')),
-  updated_at TEXT,
+  updated_at TEXT DEFAULT (datetime('now')),
+  deleted_at TEXT
+);
+
+CREATE TABLE tb_order (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  tenant TEXT NOT NULL,
+  external_id TEXT NOT NULL UNIQUE,
+  customer_id INTEGER NOT NULL,
+  payment_method_id INTEGER NOT NULL,
+  status TEXT NOT NULL,
+  total REAL NOT NULL,
+  discount REAL DEFAULT 0,
+  ordered_at TEXT,
+  created_at TEXT DEFAULT (datetime('now')),
+  updated_at TEXT DEFAULT (datetime('now')),
   deleted_at TEXT,
-  UNIQUE(external_id),
-  FOREIGN KEY (sale_id) REFERENCES sale(id)
+  FOREIGN KEY (customer_id) REFERENCES tb_customer(id),
+  FOREIGN KEY (payment_method_id) REFERENCES tb_payment_method(id)
+);
+
+CREATE TABLE tb_order_line (
+  order_id INTEGER NOT NULL,
+  line_number INTEGER NOT NULL,
+  tenant TEXT NOT NULL,
+  external_id TEXT NOT NULL UNIQUE,
+  product_sku TEXT NOT NULL,
+  product_name TEXT NOT NULL,
+  quantity INTEGER NOT NULL,
+  unit_price REAL NOT NULL,
+  line_total REAL NOT NULL,
+  created_at TEXT DEFAULT (datetime('now')),
+  updated_at TEXT DEFAULT (datetime('now')),
+  deleted_at TEXT,
+  PRIMARY KEY (order_id, line_number),
+  FOREIGN KEY (order_id) REFERENCES tb_order(id)
+);
+
+CREATE TABLE tb_payment (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  tenant TEXT NOT NULL,
+  external_id TEXT NOT NULL UNIQUE,
+  order_id INTEGER NOT NULL,
+  amount REAL NOT NULL,
+  paid_at TEXT,
+  reference TEXT,
+  created_at TEXT DEFAULT (datetime('now')),
+  updated_at TEXT DEFAULT (datetime('now')),
+  deleted_at TEXT,
+  FOREIGN KEY (order_id) REFERENCES tb_order(id)
+);
+
+CREATE TABLE tb_stock_movement (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  tenant TEXT NOT NULL,
+  external_id TEXT NOT NULL UNIQUE,
+  product_sku TEXT NOT NULL,
+  quantity INTEGER NOT NULL,
+  movement_type TEXT NOT NULL,
+  created_at TEXT DEFAULT (datetime('now')),
+  updated_at TEXT DEFAULT (datetime('now')),
+  deleted_at TEXT
+);
+
+CREATE TABLE tb_customer_address (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  tenant TEXT NOT NULL,
+  external_id TEXT NOT NULL UNIQUE,
+  customer_id INTEGER NOT NULL,
+  street TEXT,
+  city TEXT,
+  state TEXT,
+  zip_code TEXT,
+  is_default INTEGER DEFAULT 0,
+  created_at TEXT DEFAULT (datetime('now')),
+  updated_at TEXT DEFAULT (datetime('now')),
+  deleted_at TEXT,
+  FOREIGN KEY (customer_id) REFERENCES tb_customer(id)
 );

@@ -1,4 +1,4 @@
--- test/e2e-generator-mock/projects/todo/db/database.postgres.ddl
+-- test/e2e-generator-mock/projects/todo/db/schema.postgres.ddl
 CREATE TABLE tb_simple_item (
   id SERIAL PRIMARY KEY,
   tenant UUID NOT NULL,

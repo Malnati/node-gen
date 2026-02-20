@@ -1,106 +1,94 @@
--- test/e2e-generator-mock/projects/todo/db/database.mysql.ddl
-CREATE TABLE tb_simple_item (
+-- test/e2e-generator-mock/projects/schedule/db/database.mysql.ddl
+CREATE TABLE tb_resource (
   id INT AUTO_INCREMENT PRIMARY KEY,
   tenant CHAR(36) NOT NULL,
   external_id CHAR(36) NOT NULL UNIQUE,
   name VARCHAR(255) NOT NULL,
-  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  deleted_at DATETIME
-);
-
-CREATE TABLE tb_category (
-  id INT AUTO_INCREMENT PRIMARY KEY,
-  tenant CHAR(36) NOT NULL,
-  external_id CHAR(36) NOT NULL UNIQUE,
-  code VARCHAR(50),
-  name VARCHAR(255) NOT NULL,
-  full_description TEXT,
-  status VARCHAR(50),
-  price DECIMAL(10,2),
-  sort_order INT DEFAULT 0,
-  is_active TINYINT(1) DEFAULT 1,
-  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  deleted_at DATETIME
-);
-
-CREATE TABLE tb_product (
-  id INT AUTO_INCREMENT PRIMARY KEY,
-  tenant CHAR(36) NOT NULL,
-  external_id CHAR(36) NOT NULL UNIQUE,
-  category_id INT NOT NULL,
-  name VARCHAR(255) NOT NULL,
-  description TEXT,
-  unit_price DECIMAL(12,2) NOT NULL,
-  stock_quantity INT DEFAULT 0,
+  resource_type VARCHAR(100) NOT NULL,
+  capacity INT DEFAULT 1,
+  parent_id INT,
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
   updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   deleted_at DATETIME,
-  FOREIGN KEY (category_id) REFERENCES tb_category(id)
+  FOREIGN KEY (parent_id) REFERENCES tb_resource(id)
 );
 
-CREATE TABLE tb_sale (
+CREATE TABLE tb_slot (
   id INT AUTO_INCREMENT PRIMARY KEY,
   tenant CHAR(36) NOT NULL,
   external_id CHAR(36) NOT NULL UNIQUE,
-  total DECIMAL(12,2),
-  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  deleted_at DATETIME
-);
-
-CREATE TABLE tb_sale_item (
-  sale_id INT NOT NULL,
-  product_id INT NOT NULL,
-  tenant CHAR(36) NOT NULL,
-  external_id CHAR(36) NOT NULL UNIQUE,
-  quantity INT NOT NULL DEFAULT 1,
-  unit_price DECIMAL(12,2),
+  resource_id INT NOT NULL,
+  start_at DATETIME NOT NULL,
+  end_at DATETIME NOT NULL,
+  status VARCHAR(50) NOT NULL,
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
   updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   deleted_at DATETIME,
-  PRIMARY KEY (sale_id, product_id),
-  FOREIGN KEY (sale_id) REFERENCES tb_sale(id),
-  FOREIGN KEY (product_id) REFERENCES tb_product(id)
+  FOREIGN KEY (resource_id) REFERENCES tb_resource(id)
 );
 
-CREATE TABLE tb_tag (
+CREATE TABLE tb_recurrence_rule (
   id INT AUTO_INCREMENT PRIMARY KEY,
   tenant CHAR(36) NOT NULL,
   external_id CHAR(36) NOT NULL UNIQUE,
+  code VARCHAR(50) NOT NULL UNIQUE,
   name VARCHAR(255) NOT NULL,
-  slug VARCHAR(255),
+  cron_expression TEXT,
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
   updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   deleted_at DATETIME
 );
 
-CREATE TABLE tb_product_tag (
-  product_id INT NOT NULL,
-  tag_id INT NOT NULL,
-  tenant CHAR(36) NOT NULL,
-  external_id CHAR(36) NOT NULL UNIQUE,
-  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  deleted_at DATETIME,
-  PRIMARY KEY (product_id, tag_id),
-  FOREIGN KEY (product_id) REFERENCES tb_product(id),
-  FOREIGN KEY (tag_id) REFERENCES tb_tag(id)
-);
-
-CREATE TABLE tb_document (
+CREATE TABLE tb_booking (
   id INT AUTO_INCREMENT PRIMARY KEY,
   tenant CHAR(36) NOT NULL,
   external_id CHAR(36) NOT NULL UNIQUE,
-  product_id INT NOT NULL,
-  file_name VARCHAR(255) NOT NULL,
-  mime_type VARCHAR(100),
-  content LONGBLOB,
-  file_size INT DEFAULT 0,
+  slot_id INT NOT NULL,
+  recurrence_rule_id INT,
+  title VARCHAR(255) NOT NULL,
   description TEXT,
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
   updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   deleted_at DATETIME,
-  FOREIGN KEY (product_id) REFERENCES tb_product(id)
+  FOREIGN KEY (slot_id) REFERENCES tb_slot(id),
+  FOREIGN KEY (recurrence_rule_id) REFERENCES tb_recurrence_rule(id)
+);
+
+CREATE TABLE tb_participant (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  tenant CHAR(36) NOT NULL,
+  external_id CHAR(36) NOT NULL UNIQUE,
+  name VARCHAR(255) NOT NULL,
+  email VARCHAR(255) NOT NULL,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  deleted_at DATETIME
+);
+
+CREATE TABLE tb_booking_participant (
+  booking_id INT NOT NULL,
+  participant_id INT NOT NULL,
+  tenant CHAR(36) NOT NULL,
+  external_id CHAR(36) NOT NULL UNIQUE,
+  role VARCHAR(100) NOT NULL,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  deleted_at DATETIME,
+  PRIMARY KEY (booking_id, participant_id),
+  FOREIGN KEY (booking_id) REFERENCES tb_booking(id),
+  FOREIGN KEY (participant_id) REFERENCES tb_participant(id)
+);
+
+CREATE TABLE tb_booking_history (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  tenant CHAR(36) NOT NULL,
+  external_id CHAR(36) NOT NULL UNIQUE,
+  booking_id INT NOT NULL,
+  action VARCHAR(100) NOT NULL,
+  changed_at DATETIME NOT NULL,
+  snapshot JSON,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  deleted_at DATETIME,
+  FOREIGN KEY (booking_id) REFERENCES tb_booking(id)
 );

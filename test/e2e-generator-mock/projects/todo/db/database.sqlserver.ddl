@@ -1,116 +1,106 @@
 -- test/e2e-generator-mock/projects/todo/db/database.sqlserver.ddl
-CREATE TABLE project (
+CREATE TABLE tb_simple_item (
   id INT IDENTITY(1,1) PRIMARY KEY,
-  external_id UNIQUEIDENTIFIER NOT NULL DEFAULT NEWID(),
   tenant UNIQUEIDENTIFIER NOT NULL,
+  external_id UNIQUEIDENTIFIER NOT NULL UNIQUE,
   name NVARCHAR(255) NOT NULL,
   created_at DATETIME2 DEFAULT GETDATE(),
-  updated_at DATETIME2,
-  deleted_at DATETIME2,
-  CONSTRAINT uk_project_external_id UNIQUE (external_id)
+  updated_at DATETIME2 DEFAULT GETDATE(),
+  deleted_at DATETIME2
 );
 
-CREATE TABLE status (
+CREATE TABLE tb_category (
   id INT IDENTITY(1,1) PRIMARY KEY,
-  external_id UNIQUEIDENTIFIER NOT NULL DEFAULT NEWID(),
-  tenant UNIQUEIDENTIFIER,
-  code NVARCHAR(50) NOT NULL,
-  name NVARCHAR(255) NOT NULL,
-  created_at DATETIME2 DEFAULT GETDATE(),
-  updated_at DATETIME2,
-  deleted_at DATETIME2,
-  CONSTRAINT uk_status_external_id UNIQUE (external_id)
-);
-
-CREATE TABLE tag (
-  id INT IDENTITY(1,1) PRIMARY KEY,
-  external_id UNIQUEIDENTIFIER NOT NULL DEFAULT NEWID(),
   tenant UNIQUEIDENTIFIER NOT NULL,
+  external_id UNIQUEIDENTIFIER NOT NULL UNIQUE,
+  code NVARCHAR(50),
   name NVARCHAR(255) NOT NULL,
+  full_description NVARCHAR(MAX),
+  status NVARCHAR(50),
+  price DECIMAL(10,2),
+  sort_order INT DEFAULT 0,
+  is_active BIT DEFAULT 1,
   created_at DATETIME2 DEFAULT GETDATE(),
-  updated_at DATETIME2,
-  deleted_at DATETIME2,
-  CONSTRAINT uk_tag_external_id UNIQUE (external_id)
+  updated_at DATETIME2 DEFAULT GETDATE(),
+  deleted_at DATETIME2
 );
 
-CREATE TABLE todo (
+CREATE TABLE tb_product (
   id INT IDENTITY(1,1) PRIMARY KEY,
-  external_id UNIQUEIDENTIFIER NOT NULL DEFAULT NEWID(),
   tenant UNIQUEIDENTIFIER NOT NULL,
-  account_id UNIQUEIDENTIFIER NOT NULL,
-  project_id INT NOT NULL,
-  status_id INT NOT NULL,
-  title NVARCHAR(255) NOT NULL,
+  external_id UNIQUEIDENTIFIER NOT NULL UNIQUE,
+  category_id INT NOT NULL,
+  name NVARCHAR(255) NOT NULL,
   description NVARCHAR(MAX),
-  due_date DATE,
+  unit_price DECIMAL(12,2) NOT NULL,
+  stock_quantity INT DEFAULT 0,
   created_at DATETIME2 DEFAULT GETDATE(),
-  updated_at DATETIME2,
+  updated_at DATETIME2 DEFAULT GETDATE(),
   deleted_at DATETIME2,
-  CONSTRAINT uk_todo_external_id UNIQUE (external_id),
-  CONSTRAINT fk_todo_project FOREIGN KEY (project_id) REFERENCES project(id),
-  CONSTRAINT fk_todo_status FOREIGN KEY (status_id) REFERENCES status(id)
+  FOREIGN KEY (category_id) REFERENCES tb_category(id)
 );
 
-CREATE TABLE todo_tag (
-  todo_id INT NOT NULL,
+CREATE TABLE tb_sale (
+  id INT IDENTITY(1,1) PRIMARY KEY,
+  tenant UNIQUEIDENTIFIER NOT NULL,
+  external_id UNIQUEIDENTIFIER NOT NULL UNIQUE,
+  total DECIMAL(12,2),
+  created_at DATETIME2 DEFAULT GETDATE(),
+  updated_at DATETIME2 DEFAULT GETDATE(),
+  deleted_at DATETIME2
+);
+
+CREATE TABLE tb_sale_item (
+  sale_id INT NOT NULL,
+  product_id INT NOT NULL,
+  tenant UNIQUEIDENTIFIER NOT NULL,
+  external_id UNIQUEIDENTIFIER NOT NULL UNIQUE,
+  quantity INT NOT NULL DEFAULT 1,
+  unit_price DECIMAL(12,2),
+  created_at DATETIME2 DEFAULT GETDATE(),
+  updated_at DATETIME2 DEFAULT GETDATE(),
+  deleted_at DATETIME2,
+  PRIMARY KEY (sale_id, product_id),
+  FOREIGN KEY (sale_id) REFERENCES tb_sale(id),
+  FOREIGN KEY (product_id) REFERENCES tb_product(id)
+);
+
+CREATE TABLE tb_tag (
+  id INT IDENTITY(1,1) PRIMARY KEY,
+  tenant UNIQUEIDENTIFIER NOT NULL,
+  external_id UNIQUEIDENTIFIER NOT NULL UNIQUE,
+  name NVARCHAR(255) NOT NULL,
+  slug NVARCHAR(255),
+  created_at DATETIME2 DEFAULT GETDATE(),
+  updated_at DATETIME2 DEFAULT GETDATE(),
+  deleted_at DATETIME2
+);
+
+CREATE TABLE tb_product_tag (
+  product_id INT NOT NULL,
   tag_id INT NOT NULL,
+  tenant UNIQUEIDENTIFIER NOT NULL,
+  external_id UNIQUEIDENTIFIER NOT NULL UNIQUE,
   created_at DATETIME2 DEFAULT GETDATE(),
-  updated_at DATETIME2,
+  updated_at DATETIME2 DEFAULT GETDATE(),
   deleted_at DATETIME2,
-  CONSTRAINT PK_todo_tag PRIMARY KEY (todo_id, tag_id),
-  CONSTRAINT fk_todo_tag_todo FOREIGN KEY (todo_id) REFERENCES todo(id),
-  CONSTRAINT fk_todo_tag_tag FOREIGN KEY (tag_id) REFERENCES tag(id)
+  PRIMARY KEY (product_id, tag_id),
+  FOREIGN KEY (product_id) REFERENCES tb_product(id),
+  FOREIGN KEY (tag_id) REFERENCES tb_tag(id)
 );
 
-CREATE TABLE project_member (
+CREATE TABLE tb_document (
   id INT IDENTITY(1,1) PRIMARY KEY,
-  external_id UNIQUEIDENTIFIER NOT NULL DEFAULT NEWID(),
   tenant UNIQUEIDENTIFIER NOT NULL,
-  account_id UNIQUEIDENTIFIER NOT NULL,
-  project_id INT NOT NULL,
-  role NVARCHAR(100),
+  external_id UNIQUEIDENTIFIER NOT NULL UNIQUE,
+  product_id INT NOT NULL,
+  file_name NVARCHAR(255) NOT NULL,
+  mime_type NVARCHAR(100),
+  content VARBINARY(MAX),
+  file_size INT DEFAULT 0,
+  description NVARCHAR(MAX),
   created_at DATETIME2 DEFAULT GETDATE(),
-  updated_at DATETIME2,
+  updated_at DATETIME2 DEFAULT GETDATE(),
   deleted_at DATETIME2,
-  CONSTRAINT uk_project_member_external_id UNIQUE (external_id),
-  CONSTRAINT fk_project_member_project FOREIGN KEY (project_id) REFERENCES project(id)
-);
-
-CREATE TABLE comment (
-  id INT IDENTITY(1,1) PRIMARY KEY,
-  external_id UNIQUEIDENTIFIER NOT NULL DEFAULT NEWID(),
-  tenant UNIQUEIDENTIFIER NOT NULL,
-  todo_id INT NOT NULL,
-  author_id UNIQUEIDENTIFIER NOT NULL,
-  content NVARCHAR(MAX) NOT NULL,
-  created_at DATETIME2 DEFAULT GETDATE(),
-  updated_at DATETIME2,
-  deleted_at DATETIME2,
-  CONSTRAINT uk_comment_external_id UNIQUE (external_id),
-  CONSTRAINT fk_comment_todo FOREIGN KEY (todo_id) REFERENCES todo(id)
-);
-
-CREATE TABLE attachment (
-  id INT IDENTITY(1,1) PRIMARY KEY,
-  external_id UNIQUEIDENTIFIER NOT NULL DEFAULT NEWID(),
-  tenant UNIQUEIDENTIFIER NOT NULL,
-  todo_id INT NOT NULL,
-  file_ref NVARCHAR(MAX),
-  created_at DATETIME2 DEFAULT GETDATE(),
-  updated_at DATETIME2,
-  deleted_at DATETIME2,
-  CONSTRAINT uk_attachment_external_id UNIQUE (external_id),
-  CONSTRAINT fk_attachment_todo FOREIGN KEY (todo_id) REFERENCES todo(id)
-);
-
-CREATE TABLE note (
-  id INT IDENTITY(1,1) PRIMARY KEY,
-  external_id UNIQUEIDENTIFIER NOT NULL DEFAULT NEWID(),
-  tenant UNIQUEIDENTIFIER NOT NULL,
-  account_id UNIQUEIDENTIFIER NOT NULL,
-  content NVARCHAR(MAX) NOT NULL,
-  created_at DATETIME2 DEFAULT GETDATE(),
-  updated_at DATETIME2,
-  deleted_at DATETIME2,
-  CONSTRAINT uk_note_external_id UNIQUE (external_id)
+  FOREIGN KEY (product_id) REFERENCES tb_product(id)
 );

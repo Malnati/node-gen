@@ -6,8 +6,8 @@ const MOCK_DIR = path.resolve(__dirname);
 const PROJECTS_DIR = path.join(MOCK_DIR, 'projects');
 
 const PROJECT_DBS = [
-  { name: 'todo', dbName: 'todo_mock', checkTable: 'todo' },
-  { name: 'selling', dbName: 'selling_mock', checkTable: 'sale' },
+  { name: 'todo', dbName: 'todo_mock', checkTable: 'tb_simple_item' },
+  { name: 'selling', dbName: 'selling_mock', checkTable: 'tb_order' },
   { name: 'google-calendar', dbName: 'google_calendar_mock', checkTable: 'calendar_integration' },
 ];
 
