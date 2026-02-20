@@ -7,8 +7,8 @@ const { spawnSync, spawn } = require('child_process');
 
 const E2E_POST_VERIFY = {
   todo: { path: '/simple-item', body: { name: 'e2e-verify' }, table: 'tb_simple_item', whereColumn: 'name', whereValue: 'e2e-verify' },
-  selling: { path: '/customer', body: { name: 'e2e', email: 'e2e@e2e.com' }, table: 'tb_customer', whereColumn: 'email', whereValue: 'e2e@e2e.com' },
-  schedule: { path: '/resource', body: { name: 'e2e', resource_type: 'room' }, table: 'tb_resource', whereColumn: 'name', whereValue: 'e2e' },
+  selling: { path: '/sale', body: { status: 'confirmed' }, table: 'sale', whereColumn: 'status', whereValue: 'confirmed' },
+  'google-calendar': { path: '/calendar-integration', body: { connected_email: 'calendar@example.com' }, table: 'calendar_integration', whereColumn: 'connected_email', whereValue: 'calendar@example.com' },
 };
 
 const REPO_ROOT = path.resolve(__dirname, '..', '..');
@@ -383,14 +383,14 @@ const PROJECT_EXPECTED = {
     entityFiles: ['simple_item.ts', 'category.ts', 'product.ts', 'sale.ts', 'sale_item.ts', 'tag.ts', 'product_tag.ts', 'document.ts'],
   },
   selling: {
-    tables: ['tb_customer', 'tb_payment_method', 'tb_order', 'tb_order_line', 'tb_payment', 'tb_stock_movement', 'tb_customer_address'],
-    moduleNames: ['customer', 'payment-method', 'order', 'order-line', 'payment', 'stock-movement', 'customer-address'],
-    entityFiles: ['customer.ts', 'payment_method.ts', 'order.ts', 'order_line.ts', 'payment.ts', 'stock_movement.ts', 'customer_address.ts'],
+    tables: ['sale', 'sale_item'],
+    moduleNames: ['sale', 'sale-item'],
+    entityFiles: ['sale.ts', 'sale_item.ts'],
   },
-  schedule: {
-    tables: ['tb_resource', 'tb_slot', 'tb_recurrence_rule', 'tb_booking', 'tb_participant', 'tb_booking_participant', 'tb_booking_history'],
-    moduleNames: ['resource', 'slot', 'recurrence-rule', 'booking', 'participant', 'booking-participant', 'booking-history'],
-    entityFiles: ['resource.ts', 'slot.ts', 'recurrence_rule.ts', 'booking.ts', 'participant.ts', 'booking_participant.ts', 'booking_history.ts'],
+  'google-calendar': {
+    tables: ['calendar_integration', 'calendar', 'calendar_event'],
+    moduleNames: ['calendar-integration', 'calendar', 'calendar-event'],
+    entityFiles: ['calendar_integration.ts', 'calendar.ts', 'calendar_event.ts'],
   },
 };
 

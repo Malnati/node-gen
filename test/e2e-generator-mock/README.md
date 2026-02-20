@@ -50,8 +50,8 @@ cd test/e2e-generator-mock && node run.js
 - `package.json` — scripts (`test`, `run`).
 - `run.js` — script que executa o fluxo completo (uma chamada e2e por banco encontrado em `projects/todo/db/`).
 - `projects/todo/db/connection.<dbType>.json` — dados de conexão por banco (sqlite, mysql, postgres, sqlserver). Ex.: `connection.sqlite.json`, `connection.postgres.json`.
-- `projects/todo/db/schema.sql` — DDL SQLite do mock (8 tabelas: N-1, N-N, tipos diversos). Ver [plan-mock-project-codegen.md](../../docs/issues/plan-mock-project-codegen.md).
-- `create-db.js` — cria `mock.sqlite` a partir de `projects/todo/db/schema.sql`.
+- `projects/todo/db/database.sqlite.ddl` — DDL SQLite do mock (project, status, tag, todo, todo_tag, project_member, comment, attachment, note). Padrão distribuído com external_id e tenant. Ver DATA_DICTIONARY.md secção 25.
+- `create-db.js` — cria `mock.sqlite` a partir de `projects/todo/db/database.sqlite.ddl`.
 - `projects/todo/db/create-sqlite-fixture.js` — cria SQLite a partir de `database.sqlite.ddl` em diretório informado; usado pelo teste CLI em disco. Ver [plan-cli-test-execution.md](../../docs/issues/plan-cli-test-execution.md).
 - `mock.sqlite` — banco gerado (criado por `create-db.js`; ignorado pelo git).
 - Saída do gerador: `output/<project>/<dbType>/` na raiz do repositório (ex.: `output/e2e-mock-app/sqlite/`, `output/e2e-mock-app/postgres/`; ignorado pelo git). Vários projetos: use `E2E_APP_NAME` para alterar o nome do projeto.

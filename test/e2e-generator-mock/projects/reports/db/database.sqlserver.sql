@@ -3,7 +3,7 @@ INSERT INTO consolidated_sales_monthly (tenant, year_month, total_amount, order_
 ('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11','2025-01',380.30,2,'BRL',GETDATE()),
 ('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a12','2025-01',0,0,'BRL',GETDATE());
 
-INSERT INTO current_inventory_levels (tenant, product_id, address_id, quantity, reserved, updated_at) VALUES
+INSERT INTO current_warehouse_stock (tenant, product_id, address_id, quantity, reserved, updated_at) VALUES
 ('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11','d1eebc99-9c0b-4ef8-bb6d-6bb9bd380a11','f1eebc99-9c0b-4ef8-bb6d-6bb9bd380a11',100,5,GETDATE()),
 ('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11','d1eebc99-9c0b-4ef8-bb6d-6bb9bd380a12','f1eebc99-9c0b-4ef8-bb6d-6bb9bd380a11',50,0,GETDATE());
 

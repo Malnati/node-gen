@@ -12,8 +12,8 @@ CREATE TABLE consolidated_sales_monthly (
   updated_at DATETIME2
 );
 
--- Consolidação níveis de stock. Atualização esperada: sob demanda ou diária.
-CREATE TABLE current_inventory_levels (
+-- Consolidação stock por armazém. Atualização esperada: sob demanda ou diária.
+CREATE TABLE current_warehouse_stock (
   id INT IDENTITY(1,1) PRIMARY KEY,
   tenant UNIQUEIDENTIFIER NOT NULL,
   product_id UNIQUEIDENTIFIER NOT NULL,
@@ -37,6 +37,6 @@ CREATE TABLE logistics_performance (
 GO
 CREATE VIEW v_sales_monthly AS SELECT * FROM consolidated_sales_monthly;
 GO
-CREATE VIEW v_inventory_levels AS SELECT * FROM current_inventory_levels;
+CREATE VIEW v_warehouse_stock AS SELECT * FROM current_warehouse_stock;
 GO
 CREATE VIEW v_logistics_performance AS SELECT * FROM logistics_performance;
