@@ -1,106 +1,116 @@
-CREATE TABLE user (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  name TEXT NOT NULL,
-  email TEXT UNIQUE NOT NULL,
-  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-  updated_at DATETIME,
-  deleted_at DATETIME
-);
-
+-- test/e2e-generator-mock/projects/todo/db/database.sqlite.ddl
 CREATE TABLE project (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
+  external_id TEXT NOT NULL,
+  tenant TEXT NOT NULL,
   name TEXT NOT NULL,
-  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-  updated_at DATETIME,
-  deleted_at DATETIME
+  created_at TEXT DEFAULT (datetime('now')),
+  updated_at TEXT,
+  deleted_at TEXT,
+  UNIQUE(external_id)
 );
 
-CREATE TABLE user_project (
-  user_id INTEGER,
-  project_id INTEGER,
-  role TEXT,
-  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-  updated_at DATETIME,
-  deleted_at DATETIME,
-  PRIMARY KEY (user_id, project_id),
-  FOREIGN KEY (user_id) REFERENCES user(id),
-  FOREIGN KEY (project_id) REFERENCES project(id)
-);
-
-CREATE TABLE todo (
+CREATE TABLE status (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
-  user_id INTEGER NOT NULL,
-  project_id INTEGER,
-  title TEXT NOT NULL,
-  description TEXT,
-  status TEXT,
-  due_date DATE,
-  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-  updated_at DATETIME,
-  deleted_at DATETIME,
-  FOREIGN KEY (user_id) REFERENCES user(id),
-  FOREIGN KEY (project_id) REFERENCES project(id)
+  external_id TEXT NOT NULL,
+  tenant TEXT,
+  code TEXT NOT NULL,
+  name TEXT NOT NULL,
+  created_at TEXT DEFAULT (datetime('now')),
+  updated_at TEXT,
+  deleted_at TEXT,
+  UNIQUE(external_id)
 );
 
 CREATE TABLE tag (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
+  external_id TEXT NOT NULL,
+  tenant TEXT NOT NULL,
   name TEXT NOT NULL,
-  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-  updated_at DATETIME,
-  deleted_at DATETIME
+  created_at TEXT DEFAULT (datetime('now')),
+  updated_at TEXT,
+  deleted_at TEXT,
+  UNIQUE(external_id)
+);
+
+CREATE TABLE todo (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  external_id TEXT NOT NULL,
+  tenant TEXT NOT NULL,
+  account_id TEXT NOT NULL,
+  project_id INTEGER NOT NULL,
+  status_id INTEGER NOT NULL,
+  title TEXT NOT NULL,
+  description TEXT,
+  due_date TEXT,
+  created_at TEXT DEFAULT (datetime('now')),
+  updated_at TEXT,
+  deleted_at TEXT,
+  UNIQUE(external_id),
+  FOREIGN KEY (project_id) REFERENCES project(id),
+  FOREIGN KEY (status_id) REFERENCES status(id)
 );
 
 CREATE TABLE todo_tag (
-  todo_id INTEGER,
-  tag_id INTEGER,
-  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-  updated_at DATETIME,
-  deleted_at DATETIME,
+  todo_id INTEGER NOT NULL,
+  tag_id INTEGER NOT NULL,
+  created_at TEXT DEFAULT (datetime('now')),
+  updated_at TEXT,
+  deleted_at TEXT,
   PRIMARY KEY (todo_id, tag_id),
   FOREIGN KEY (todo_id) REFERENCES todo(id),
   FOREIGN KEY (tag_id) REFERENCES tag(id)
 );
 
+CREATE TABLE project_member (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  external_id TEXT NOT NULL,
+  tenant TEXT NOT NULL,
+  account_id TEXT NOT NULL,
+  project_id INTEGER NOT NULL,
+  role TEXT,
+  created_at TEXT DEFAULT (datetime('now')),
+  updated_at TEXT,
+  deleted_at TEXT,
+  UNIQUE(external_id),
+  FOREIGN KEY (project_id) REFERENCES project(id)
+);
+
 CREATE TABLE comment (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
+  external_id TEXT NOT NULL,
+  tenant TEXT NOT NULL,
   todo_id INTEGER NOT NULL,
-  user_id INTEGER NOT NULL,
-  message TEXT,
-  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-  updated_at DATETIME,
-  deleted_at DATETIME,
-  FOREIGN KEY (todo_id) REFERENCES todo(id),
-  FOREIGN KEY (user_id) REFERENCES user(id)
+  author_id TEXT NOT NULL,
+  content TEXT NOT NULL,
+  created_at TEXT DEFAULT (datetime('now')),
+  updated_at TEXT,
+  deleted_at TEXT,
+  UNIQUE(external_id),
+  FOREIGN KEY (todo_id) REFERENCES todo(id)
 );
 
 CREATE TABLE attachment (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
+  external_id TEXT NOT NULL,
+  tenant TEXT NOT NULL,
   todo_id INTEGER NOT NULL,
-  file BLOB,
-  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-  updated_at DATETIME,
-  deleted_at DATETIME,
+  file_ref TEXT,
+  created_at TEXT DEFAULT (datetime('now')),
+  updated_at TEXT,
+  deleted_at TEXT,
+  UNIQUE(external_id),
   FOREIGN KEY (todo_id) REFERENCES todo(id)
-);
-
-CREATE TABLE address (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  user_id INTEGER NOT NULL,
-  street TEXT,
-  city TEXT,
-  state TEXT,
-  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-  updated_at DATETIME,
-  deleted_at DATETIME,
-  FOREIGN KEY (user_id) REFERENCES user(id)
 );
 
 CREATE TABLE note (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
-  user_id INTEGER NOT NULL,
-  content TEXT,
-  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-  updated_at DATETIME,
-  deleted_at DATETIME,
-  FOREIGN KEY (user_id) REFERENCES user(id)
+  external_id TEXT NOT NULL,
+  tenant TEXT NOT NULL,
+  account_id TEXT NOT NULL,
+  content TEXT NOT NULL,
+  created_at TEXT DEFAULT (datetime('now')),
+  updated_at TEXT,
+  deleted_at TEXT,
+  UNIQUE(external_id)
 );

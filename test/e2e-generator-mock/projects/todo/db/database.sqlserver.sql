@@ -1,38 +1,38 @@
-INSERT INTO [user] (name, email) VALUES
-('Alice','alice@example.com'),
-('Bob','bob@example.com'),
-('Carol','carol@example.com'),
-('Dave','dave@example.com'),
-('Eve','eve@example.com'),
-('Frank','frank@example.com'),
-('Grace','grace@example.com'),
-('Heidi','heidi@example.com'),
-('Ivan','ivan@example.com'),
-('Judy','judy@example.com');
+-- test/e2e-generator-mock/projects/todo/db/database.sqlserver.sql
+INSERT INTO project (external_id, tenant, name) VALUES
+('a1eebc99-9c0b-4ef8-bb6d-6bb9bd380a01','a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11','Project1'),
+('a1eebc99-9c0b-4ef8-bb6d-6bb9bd380a02','a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11','Project2'),
+('a1eebc99-9c0b-4ef8-bb6d-6bb9bd380a03','a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11','Project3');
 
-INSERT INTO project (name) VALUES
-('Project A'),('Project B'),('Project C'),('Project D'),('Project E'),('Project F'),('Project G'),('Project H'),('Project I'),('Project J');
+INSERT INTO status (external_id, tenant, code, name) VALUES
+('b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a01',NULL,'open','Open'),
+('b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a02',NULL,'in_progress','In Progress'),
+('b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a03',NULL,'closed','Closed');
 
-INSERT INTO user_project (user_id, project_id, role) VALUES
-(1,1,'admin'),(2,1,'member'),(3,2,'member'),(4,3,'member'),(5,4,'member'),(6,5,'member'),(7,6,'member'),(8,7,'member'),(9,8,'member'),(10,9,'member');
+INSERT INTO tag (external_id, tenant, name) VALUES
+('c1eebc99-9c0b-4ef8-bb6d-6bb9bd380a01','a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11','urgent'),
+('c1eebc99-9c0b-4ef8-bb6d-6bb9bd380a02','a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11','task');
 
-INSERT INTO todo (user_id, project_id, title, status) VALUES
-(1,1,'Tarefa 1','open'),(2,1,'Tarefa 2','open'),(3,2,'Tarefa 3','open'),(4,3,'Tarefa 4','open'),(5,4,'Tarefa 5','open'),(6,5,'Tarefa 6','open'),(7,6,'Tarefa 7','open'),(8,7,'Tarefa 8','open'),(9,8,'Tarefa 9','open'),(10,9,'Tarefa 10','open');
+INSERT INTO todo (external_id, tenant, account_id, project_id, status_id, title, description, due_date) VALUES
+('d1eebc99-9c0b-4ef8-bb6d-6bb9bd380a01','a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11','e0eebc99-9c0b-4ef8-bb6d-6bb9bd380a01',1,1,'Todo 1','Desc 1','2024-12-01'),
+('d1eebc99-9c0b-4ef8-bb6d-6bb9bd380a02','a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11','e0eebc99-9c0b-4ef8-bb6d-6bb9bd380a02',2,2,'Todo 2','Desc 2','2024-12-02'),
+('d1eebc99-9c0b-4ef8-bb6d-6bb9bd380a03','a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11','e0eebc99-9c0b-4ef8-bb6d-6bb9bd380a03',3,3,'Todo 3','Desc 3','2024-12-03');
 
-INSERT INTO tag (name) VALUES
-('urgent'),('low'),('medium'),('high'),('enhancement'),('bug'),('task'),('idea'),('research'),('misc');
+INSERT INTO todo_tag (todo_id, tag_id) VALUES (1,1),(2,2),(3,1);
 
-INSERT INTO todo_tag (todo_id, tag_id) VALUES
-(1,1),(2,2),(3,3),(4,4),(5,5),(6,6),(7,7),(8,8),(9,9),(10,10);
+INSERT INTO project_member (external_id, tenant, account_id, project_id, role) VALUES
+('f1eebc99-9c0b-4ef8-bb6d-6bb9bd380a01','a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11','e0eebc99-9c0b-4ef8-bb6d-6bb9bd380a01',1,'admin'),
+('f1eebc99-9c0b-4ef8-bb6d-6bb9bd380a02','a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11','e0eebc99-9c0b-4ef8-bb6d-6bb9bd380a02',2,'member'),
+('f1eebc99-9c0b-4ef8-bb6d-6bb9bd380a03','a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11','e0eebc99-9c0b-4ef8-bb6d-6bb9bd380a03',3,'member');
 
-INSERT INTO comment (todo_id, user_id, message) VALUES
-(1,2,'ok'),(2,3,'ok'),(3,4,'ok'),(4,5,'ok'),(5,6,'ok'),(6,7,'ok'),(7,8,'ok'),(8,9,'ok'),(9,10,'ok'),(10,1,'ok');
+INSERT INTO comment (external_id, tenant, todo_id, author_id, content) VALUES
+('g1eebc99-9c0b-4ef8-bb6d-6bb9bd380a01','a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11',1,'e0eebc99-9c0b-4ef8-bb6d-6bb9bd380a02','Comment 1'),
+('g1eebc99-9c0b-4ef8-bb6d-6bb9bd380a02','a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11',2,'e0eebc99-9c0b-4ef8-bb6d-6bb9bd380a03','Comment 2');
 
-INSERT INTO attachment (todo_id,file) VALUES
-(1,0x00),(2,0x00),(3,0x00),(4,0x00),(5,0x00),(6,0x00),(7,0x00),(8,0x00),(9,0x00),(10,0x00);
+INSERT INTO attachment (external_id, tenant, todo_id, file_ref) VALUES
+('h1eebc99-9c0b-4ef8-bb6d-6bb9bd380a01','a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11',1,'storage://todo/attachments/att1'),
+('h1eebc99-9c0b-4ef8-bb6d-6bb9bd380a02','a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11',2,'storage://todo/attachments/att2');
 
-INSERT INTO address (user_id,street,city,state) VALUES
-(1,'R1','C1','S1'),(2,'R2','C2','S2'),(3,'R3','C3','S3'),(4,'R4','C4','S4'),(5,'R5','C5','S5'),(6,'R6','C6','S6'),(7,'R7','C7','S7'),(8,'R8','C8','S8'),(9,'R9','C9','S9'),(10,'R10','C10','S10');
-
-INSERT INTO note (user_id,content) VALUES
-(1,'n1'),(2,'n2'),(3,'n3'),(4,'n4'),(5,'n5'),(6,'n6'),(7,'n7'),(8,'n8'),(9,'n9'),(10,'n10');
+INSERT INTO note (external_id, tenant, account_id, content) VALUES
+('i1eebc99-9c0b-4ef8-bb6d-6bb9bd380a01','a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11','e0eebc99-9c0b-4ef8-bb6d-6bb9bd380a01','Note 1'),
+('i1eebc99-9c0b-4ef8-bb6d-6bb9bd380a02','a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11','e0eebc99-9c0b-4ef8-bb6d-6bb9bd380a02','Note 2');

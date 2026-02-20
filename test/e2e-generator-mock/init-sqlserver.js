@@ -6,9 +6,9 @@ const MOCK_DIR = path.resolve(__dirname);
 const PROJECTS_DIR = path.join(MOCK_DIR, 'projects');
 
 const PROJECT_DBS = [
-  { name: 'todo', dbName: 'todo_mock', checkTable: 'tb_simple_item' },
-  { name: 'selling', dbName: 'selling_mock', checkTable: 'tb_customer' },
-  { name: 'schedule', dbName: 'schedule_mock', checkTable: 'tb_resource' },
+  { name: 'todo', dbName: 'todo_mock', checkTable: 'todo' },
+  { name: 'selling', dbName: 'selling_mock', checkTable: 'sale' },
+  { name: 'google-calendar', dbName: 'google_calendar_mock', checkTable: 'calendar_integration' },
 ];
 
 const host = process.env.DB_SQLSERVER_HOST || '127.0.0.1';
@@ -42,8 +42,10 @@ async function main() {
   try {
     for (const { name: projectName, dbName, checkTable } of PROJECT_DBS) {
       const schemaPath = path.join(PROJECTS_DIR, projectName, 'db', 'schema.sqlserver.ddl');
-      if (!fs.existsSync(schemaPath)) {
-        console.log('[init-sqlserver] Skip', dbName, '(no schema.sqlserver.ddl)');
+      const databasePath = path.join(PROJECTS_DIR, projectName, 'db', 'database.sqlserver.ddl');
+      const ddlPath = fs.existsSync(schemaPath) ? schemaPath : (fs.existsSync(databasePath) ? databasePath : null);
+      if (!ddlPath) {
+        console.log('[init-sqlserver] Skip', dbName, '(no schema.sqlserver.ddl nor database.sqlserver.ddl)');
         continue;
       }
       await pool.request().query(
@@ -61,7 +63,7 @@ async function main() {
           console.log('[init-sqlserver] Schema already present in', dbName, ', skipping.');
           continue;
         }
-        const ddl = fs.readFileSync(schemaPath, 'utf-8');
+        const ddl = fs.readFileSync(ddlPath, 'utf-8');
         await poolDb.request().query(ddl);
         console.log('[init-sqlserver] Schema applied to', dbName);
       } finally {

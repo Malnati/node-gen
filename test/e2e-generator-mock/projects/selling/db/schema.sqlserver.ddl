@@ -1,81 +1,33 @@
 -- test/e2e-generator-mock/projects/selling/db/schema.sqlserver.ddl
--- Modelo de vendas em sintaxe T-SQL (DECIMAL, DATE, NVARCHAR, JSON via NVARCHAR(MAX)).
-
-CREATE TABLE tb_customer (
+CREATE TABLE sale (
   id INT IDENTITY(1,1) PRIMARY KEY,
-  external_id NVARCHAR(36),
-  name NVARCHAR(255) NOT NULL,
-  email NVARCHAR(255) UNIQUE NOT NULL,
-  tax_id NVARCHAR(50),
-  credit_limit DECIMAL(10,2),
-  birth_date DATE,
-  metadata NVARCHAR(MAX),
-  is_active BIT DEFAULT 1,
-  created_at DATETIME2 DEFAULT GETUTCDATE(),
-  updated_at DATETIME2
-);
-
-CREATE TABLE tb_payment_method (
-  id INT IDENTITY(1,1) PRIMARY KEY,
-  code NVARCHAR(50) NOT NULL UNIQUE,
-  name NVARCHAR(255) NOT NULL,
-  created_at DATETIME2 DEFAULT GETUTCDATE()
-);
-
-CREATE TABLE tb_order (
-  id INT IDENTITY(1,1) PRIMARY KEY,
-  external_id NVARCHAR(36),
-  customer_id INT NOT NULL,
-  payment_method_id INT NOT NULL,
-  status NVARCHAR(50) NOT NULL,
-  total DECIMAL(12,2) NOT NULL,
-  discount DECIMAL(5,2) DEFAULT 0,
-  ordered_at DATETIME2,
-  created_at DATETIME2 DEFAULT GETUTCDATE(),
+  external_id UNIQUEIDENTIFIER NOT NULL DEFAULT NEWID(),
+  tenant UNIQUEIDENTIFIER NOT NULL,
+  account_id UNIQUEIDENTIFIER NOT NULL,
+  order_id UNIQUEIDENTIFIER NOT NULL,
+  payment_id UNIQUEIDENTIFIER,
+  billing_address_id UNIQUEIDENTIFIER,
+  shipping_address_id UNIQUEIDENTIFIER,
+  status NVARCHAR(50),
+  total DECIMAL(12,2) DEFAULT 0,
+  currency_code NVARCHAR(3) DEFAULT 'BRL',
+  created_at DATETIME2 DEFAULT GETDATE(),
   updated_at DATETIME2,
-  FOREIGN KEY (customer_id) REFERENCES tb_customer(id),
-  FOREIGN KEY (payment_method_id) REFERENCES tb_payment_method(id)
+  deleted_at DATETIME2,
+  CONSTRAINT uk_sale_external_id UNIQUE (external_id)
 );
 
-CREATE TABLE tb_order_line (
-  order_id INT NOT NULL,
-  line_number INT NOT NULL,
-  product_sku NVARCHAR(100) NOT NULL,
-  product_name NVARCHAR(255) NOT NULL,
-  quantity INT NOT NULL,
-  unit_price DECIMAL(12,2) NOT NULL,
-  line_total DECIMAL(12,2) NOT NULL,
-  created_at DATETIME2 DEFAULT GETUTCDATE(),
-  PRIMARY KEY (order_id, line_number),
-  FOREIGN KEY (order_id) REFERENCES tb_order(id)
-);
-
-CREATE TABLE tb_payment (
+CREATE TABLE sale_item (
   id INT IDENTITY(1,1) PRIMARY KEY,
-  order_id INT NOT NULL,
-  amount DECIMAL(12,2) NOT NULL,
-  paid_at DATETIME2,
-  reference NVARCHAR(255),
-  created_at DATETIME2 DEFAULT GETUTCDATE(),
-  FOREIGN KEY (order_id) REFERENCES tb_order(id)
-);
-
-CREATE TABLE tb_stock_movement (
-  id INT IDENTITY(1,1) PRIMARY KEY,
-  product_sku NVARCHAR(100) NOT NULL,
-  quantity INT NOT NULL,
-  movement_type NVARCHAR(20) NOT NULL,
-  created_at DATETIME2 DEFAULT GETUTCDATE()
-);
-
-CREATE TABLE tb_customer_address (
-  id INT IDENTITY(1,1) PRIMARY KEY,
-  customer_id INT NOT NULL,
-  street NVARCHAR(255),
-  city NVARCHAR(100),
-  state NVARCHAR(100),
-  zip_code NVARCHAR(20),
-  is_default BIT DEFAULT 0,
-  created_at DATETIME2 DEFAULT GETUTCDATE(),
-  FOREIGN KEY (customer_id) REFERENCES tb_customer(id)
+  external_id UNIQUEIDENTIFIER NOT NULL DEFAULT NEWID(),
+  tenant UNIQUEIDENTIFIER NOT NULL,
+  sale_id INT NOT NULL,
+  product_id UNIQUEIDENTIFIER NOT NULL,
+  quantity DECIMAL(12,2) DEFAULT 1,
+  unit_price DECIMAL(12,2) DEFAULT 0,
+  created_at DATETIME2 DEFAULT GETDATE(),
+  updated_at DATETIME2,
+  deleted_at DATETIME2,
+  CONSTRAINT uk_sale_item_external_id UNIQUE (external_id),
+  CONSTRAINT fk_sale_item_sale FOREIGN KEY (sale_id) REFERENCES sale(id)
 );
