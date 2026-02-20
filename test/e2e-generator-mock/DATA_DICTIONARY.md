@@ -3,6 +3,18 @@
 
 Relacionamentos entre projetos são apenas lógicos (campos UUID). Não há Foreign Keys entre bases.
 
+## Padrões globais (todas as tabelas)
+
+| Campo       | Tipo    | Obrigatório | Descrição |
+|------------|---------|-------------|-----------|
+| tenant     | UUID    | Sim         | Identificador lógico do locatário (serviço companies). Sem FK. |
+| external_id| UUID    | Sim, único  | Identificador público para APIs e referência entre serviços. |
+| created_at | Timestamp | Sim (default) | Criação. |
+| updated_at | Timestamp | Não        | Última modificação. |
+| deleted_at | Timestamp | Não        | Exclusão lógica (soft delete). |
+
+Nenhuma restrição `FOREIGN KEY` aponta para dados de outro banco/serviço; vínculos são apenas colunas UUID.
+
 ---
 
 ## Regras de validação e mensagens
@@ -27,7 +39,7 @@ A cláusula `WHERE deleted_at IS NULL` é implícita em todas as leituras da apl
 | account | status | `active`, `suspended`, `pending_verification`, `closed` (conta de acesso à plataforma) |
 | payments (tabela currency) | code / region | ISO 4217; region: `SOUTH_AMERICA`, `NORTH_AMERICA`, `EUROPE` (ex.: BRL, USD, EUR, GBP, MXN, ARS, COP, CLP, PEN, CAD, CHF) |
 | transactions, orders | currency_code | ISO 4217 (referência lógica; catálogo em payments/currency). |
-| products | currency_id | FK para currency; catálogo em products/currency (cópia idêntica de payments/currency). |
+| products | currency_id | FK local para currency; catálogo em products/currency. payments referencia currency por external_id (UUID). |
 | (address usa tabelas country, state, city; não há CHECK de texto) | — | Ver projects/addresses. |
 | order | status | `draft`, `confirmed`, `paid`, `shipped`, `delivered`, `cancelled` |
 | shipment | status | `pending`, `picked_up`, `in_transit`, `out_for_delivery`, `delivered`, `exception` |
@@ -189,24 +201,7 @@ Todas as relações entre projetos são **UUID** (PostgreSQL UUID; MySQL CHAR(36
 
 ## 6. projects/payments
 
-**Relação lógica:** account_id, contact_id, billing_address_id (address), tenant. Pagamentos com tipo (tabela payment_type) e moeda multi‑país (tabela currency); abrangência: América do Sul, América do Norte e Europa.
-
-### Tabela: currency
-
-Catálogo de moedas por região (SOUTH_AMERICA, NORTH_AMERICA, EUROPE).
-
-| Campo | Tipo | Obrigatório | Descrição |
-|-------|------|-------------|-----------|
-| id | Chave interna | Sim | Identificador físico interno. |
-| external_id | UUID | Sim, único | Identificador exposto a outros serviços. |
-| tenant | UUID | Não | Tenant (NULL = catálogo global). |
-| code | Texto (3) | Sim, único | Código ISO 4217 (ex.: BRL, USD, EUR, GBP, MXN, ARS, COP, CLP, PEN, CAD, CHF). |
-| name | Texto | Sim | Nome da moeda. |
-| symbol | Texto | Não | Símbolo (ex.: R$, $, €). |
-| region | Enum | Não | SOUTH_AMERICA, NORTH_AMERICA, EUROPE. |
-| created_at | Timestamp | Sim (default) | Criação. |
-| updated_at | Timestamp | Não | Última atualização. |
-| deleted_at | Timestamp | Não | Soft delete. |
+**Relação lógica:** account_id, contact_id, billing_address_id (address), currency_id (external_id do domínio products/currency), tenant. Pagamentos com tipo (tabela payment_type). Moeda referenciada por UUID ao catálogo em products/currency (sem tabela currency em payments).
 
 ### Tabela: payment_type
 
@@ -232,10 +227,10 @@ Tipos de pagamento associados à tabela payment.
 | external_id | UUID | Sim, único | Identificador exposto a outros serviços. |
 | tenant | UUID | Sim | Tenant. |
 | account_id | UUID | Sim | Referência lógica ao account. |
-| contact_id | UUID | Não | Titular/contacto. |
-| billing_address_id | UUID | Não | Morada de faturação (address). |
-| payment_type_id | Chave interna | Sim | FK para payment_type. |
-| currency_id | Chave interna | Sim | FK para currency. |
+| contact_id | UUID | Não | Titular/contacto (contacts). |
+| billing_address_id | UUID | Não | Morada de faturação (addresses). |
+| payment_type_id | Chave interna | Sim | FK local para payment_type. |
+| currency_id | UUID | Sim | Referência lógica à moeda (products/currency external_id). |
 | amount | Decimal(12,2) | Não | Valor; default 0. |
 | status | Texto | Não | Estado do pagamento (ex.: pending, completed). |
 | created_at | Timestamp | Sim (default) | Criação. |
@@ -334,7 +329,7 @@ Tipos de pagamento associados à tabela payment.
 
 **Relação lógica:** account_id (fornecedor/criador), tenant. Catálogo, preços (moeda alinhada a payments), unidades de medida e descrições.
 
-**Integridade com payments:** A tabela `currency` em products é **cópia idêntica** da de projects/payments: mesma estrutura (external_id, code, name, symbol, region) e mesmos dados de seed (mesmos external_id e code para cada moeda), de forma a manter currency_code e atributos equivalentes sincronizáveis.
+**Integridade com payments:** A tabela `currency` existe apenas em products; payments referencia moeda por `currency_id` (UUID = external_id da currency em products).
 
 ### Tabela: currency
 
@@ -517,16 +512,14 @@ Tabela física. Atualização esperada: mensal.
 
 ### Tabela: current_warehouse_stock
 
-Tabela física. Atualização esperada: sob demanda ou diária. Consolidação de stock por armazém (projects/warehouse).
+Tabela física. Atualização esperada: sob demanda ou diária. Referencia warehouse por external_id (sem duplicar product_id, address_id, quantity, reserved).
 
 | Campo | Tipo | Obrigatório | Descrição |
 |-------|------|-------------|-----------|
 | id | Chave interna | Sim | Identificador físico interno. |
 | tenant | UUID | Sim | Tenant. |
-| product_id | UUID | Sim | Referência lógica ao product. |
-| address_id | UUID | Sim | Armazém/local (address). |
-| quantity | Decimal(12,2) | Não | Quantidade disponível. |
-| reserved | Decimal(12,2) | Não | Quantidade reservada. |
+| warehouse_stock_external_id | UUID | Sim | Referência lógica a warehouse.warehouse_stock (external_id). |
+| snapshot_at | Timestamp | Não | Data/hora do snapshot. |
 | updated_at | Timestamp | Não | Última atualização da consolidação. |
 
 ### Tabela: logistics_performance
@@ -1124,40 +1117,9 @@ Textos de UI por tenant e opcionalmente locale (i18n white label).
 
 ## 24. projects/selling
 
-**Conceito:** Clientes, pedidos, pagamentos e movimentações de estoque com integridade referencial física no mesmo escopo. tenant e external_id em todas as tabelas (referência lógica ao serviço companies).
+**Conceito:** Pedidos de venda (tb_order, tb_order_line) com referências lógicas a accounts, addresses, payments e products. Sem tabelas de cliente, pagamento ou stock (domínios globais).
 
-**Relação lógica:** tenant (UUID, sem FK; aponta para companies). FKs físicas: tb_order → tb_customer, tb_payment_method; tb_order_line → tb_order; tb_payment → tb_order; tb_customer_address → tb_customer.
-
-### Tabela: tb_customer
-
-| Campo | Tipo | Obrigatório | Descrição |
-|-------|------|-------------|-----------|
-| id | Chave interna | Sim | Identificador físico interno. |
-| external_id | UUID | Sim, único | Identificador exposto em APIs. |
-| tenant | UUID | Sim | Locatário (referência lógica, sem FK). |
-| name | Texto | Sim | Nome do cliente. |
-| email | Texto | Sim, único | E-mail. |
-| tax_id | Texto | Não | Documento fiscal. |
-| credit_limit | Decimal(10,2) | Não | Limite de crédito. |
-| birth_date | Data | Não | Data de nascimento. |
-| metadata | JSONB/Texto | Não | Metadados. |
-| is_active | Booleano | Não | Ativo; default true. |
-| created_at | Timestamp | Sim (default) | Criação. |
-| updated_at | Timestamp | Não | Última atualização. |
-| deleted_at | Timestamp | Não | Soft delete. |
-
-### Tabela: tb_payment_method
-
-| Campo | Tipo | Obrigatório | Descrição |
-|-------|------|-------------|-----------|
-| id | Chave interna | Sim | Identificador físico interno. |
-| external_id | UUID | Sim, único | Identificador exposto. |
-| tenant | UUID | Sim | Locatário. |
-| code | Texto | Sim, único | Código do método. |
-| name | Texto | Sim | Nome. |
-| created_at | Timestamp | Sim (default) | Criação. |
-| updated_at | Timestamp | Não | Última atualização. |
-| deleted_at | Timestamp | Não | Soft delete. |
+**Relação lógica:** tenant, account_id, billing_address_id, shipping_address_id, payment_id (UUID; sem FK). FKs físicas apenas internas: tb_order_line.order_id → tb_order(id).
 
 ### Tabela: tb_order
 
@@ -1166,8 +1128,10 @@ Textos de UI por tenant e opcionalmente locale (i18n white label).
 | id | Chave interna | Sim | Identificador físico interno. |
 | external_id | UUID | Sim, único | Identificador exposto. |
 | tenant | UUID | Sim | Locatário. |
-| customer_id | Chave interna | Sim | FK para tb_customer. |
-| payment_method_id | Chave interna | Sim | FK para tb_payment_method. |
+| account_id | UUID | Sim | Referência lógica ao comprador (accounts). |
+| billing_address_id | UUID | Não | Referência lógica ao endereço de faturação (addresses). |
+| shipping_address_id | UUID | Não | Referência lógica ao endereço de envio (addresses). |
+| payment_id | UUID | Não | Referência lógica ao pagamento (payments). |
 | status | Texto | Sim | Estado do pedido. |
 | total | Decimal(12,2) | Sim | Total. |
 | discount | Decimal(5,2) | Não | Desconto; default 0. |
@@ -1180,61 +1144,15 @@ Textos de UI por tenant e opcionalmente locale (i18n white label).
 
 | Campo | Tipo | Obrigatório | Descrição |
 |-------|------|-------------|-----------|
-| order_id | Chave interna | Sim | FK para tb_order. |
+| order_id | Chave interna | Sim | FK local para tb_order (PK composta). |
 | line_number | Inteiro | Sim | Número da linha (PK composta). |
 | external_id | UUID | Sim, único | Identificador exposto. |
 | tenant | UUID | Sim | Locatário. |
-| product_sku | Texto | Sim | SKU do produto. |
-| product_name | Texto | Sim | Nome do produto. |
+| product_id | UUID | Sim | Referência lógica ao produto (products). |
+| product_name | Texto | Não | Cache do nome para exibição. |
 | quantity | Inteiro | Sim | Quantidade. |
 | unit_price | Decimal(12,2) | Sim | Preço unitário. |
 | line_total | Decimal(12,2) | Sim | Total da linha. |
-| created_at | Timestamp | Sim (default) | Criação. |
-| updated_at | Timestamp | Não | Última atualização. |
-| deleted_at | Timestamp | Não | Soft delete. |
-
-### Tabela: tb_payment
-
-| Campo | Tipo | Obrigatório | Descrição |
-|-------|------|-------------|-----------|
-| id | Chave interna | Sim | Identificador físico interno. |
-| external_id | UUID | Sim, único | Identificador exposto. |
-| tenant | UUID | Sim | Locatário. |
-| order_id | Chave interna | Sim | FK para tb_order. |
-| amount | Decimal(12,2) | Sim | Valor pago. |
-| paid_at | Timestamp | Não | Data do pagamento. |
-| reference | Texto | Não | Referência externa. |
-| created_at | Timestamp | Sim (default) | Criação. |
-| updated_at | Timestamp | Não | Última atualização. |
-| deleted_at | Timestamp | Não | Soft delete. |
-
-### Tabela: tb_stock_movement
-
-| Campo | Tipo | Obrigatório | Descrição |
-|-------|------|-------------|-----------|
-| id | Chave interna | Sim | Identificador físico interno. |
-| external_id | UUID | Sim, único | Identificador exposto. |
-| tenant | UUID | Sim | Locatário. |
-| product_sku | Texto | Sim | SKU do produto. |
-| quantity | Inteiro | Sim | Quantidade (positivo/negativo). |
-| movement_type | Texto | Sim | Tipo do movimento. |
-| created_at | Timestamp | Sim (default) | Criação. |
-| updated_at | Timestamp | Não | Última atualização. |
-| deleted_at | Timestamp | Não | Soft delete. |
-
-### Tabela: tb_customer_address
-
-| Campo | Tipo | Obrigatório | Descrição |
-|-------|------|-------------|-----------|
-| id | Chave interna | Sim | Identificador físico interno. |
-| external_id | UUID | Sim, único | Identificador exposto. |
-| tenant | UUID | Sim | Locatário. |
-| customer_id | Chave interna | Sim | FK para tb_customer. |
-| street | Texto | Não | Logradouro. |
-| city | Texto | Não | Cidade. |
-| state | Texto | Não | Estado. |
-| zip_code | Texto | Não | CEP. |
-| is_default | Booleano | Não | Endereço padrão; default false. |
 | created_at | Timestamp | Sim (default) | Criação. |
 | updated_at | Timestamp | Não | Última atualização. |
 | deleted_at | Timestamp | Não | Soft delete. |
@@ -1243,21 +1161,9 @@ Textos de UI por tenant e opcionalmente locale (i18n white label).
 
 ## 25. projects/todo
 
-**Objetivo:** Itens genéricos, categorias, produtos, vendas, tags e documentos com integridade referencial física no mesmo escopo. tenant e external_id em todas as tabelas (referência lógica ao serviço companies).
+**Objetivo:** Itens genéricos, categorias, tags e junção item–tag. Sem tabelas de produto, venda ou documento (domínios em products, orders, storage). Referência lógica a products quando o item se relacionar a um produto.
 
-**Relação lógica:** tenant (UUID, sem FK). FKs físicas: tb_product → tb_category; tb_sale_item → tb_sale, tb_product; tb_product_tag → tb_product, tb_tag; tb_document → tb_product.
-
-### Tabela: tb_simple_item
-
-| Campo | Tipo | Obrigatório | Descrição |
-|-------|------|-------------|-----------|
-| id | Chave interna | Sim | Identificador físico interno. |
-| external_id | UUID | Sim, único | Identificador exposto em APIs. |
-| tenant | UUID | Sim | Locatário (referência lógica, sem FK). |
-| name | Texto | Sim | Nome. |
-| created_at | Timestamp | Sim (default) | Criação. |
-| updated_at | Timestamp | Não | Última atualização. |
-| deleted_at | Timestamp | Não | Soft delete. |
+**Relação lógica:** tenant (UUID, sem FK). FKs físicas internas: tb_simple_item.category_id → tb_category; tb_simple_item_tag → tb_simple_item, tb_tag.
 
 ### Tabela: tb_category
 
@@ -1277,44 +1183,16 @@ Textos de UI por tenant e opcionalmente locale (i18n white label).
 | updated_at | Timestamp | Não | Última atualização. |
 | deleted_at | Timestamp | Não | Soft delete. |
 
-### Tabela: tb_product
+### Tabela: tb_simple_item
 
 | Campo | Tipo | Obrigatório | Descrição |
 |-------|------|-------------|-----------|
 | id | Chave interna | Sim | Identificador físico interno. |
 | external_id | UUID | Sim, único | Identificador exposto. |
 | tenant | UUID | Sim | Locatário. |
-| category_id | Chave interna | Sim | FK para tb_category. |
 | name | Texto | Sim | Nome. |
-| description | Texto | Não | Descrição. |
-| unit_price | Decimal/Real | Sim | Preço unitário. |
-| stock_quantity | Inteiro | Não | Quantidade em estoque; default 0. |
-| created_at | Timestamp | Sim (default) | Criação. |
-| updated_at | Timestamp | Não | Última atualização. |
-| deleted_at | Timestamp | Não | Soft delete. |
-
-### Tabela: tb_sale
-
-| Campo | Tipo | Obrigatório | Descrição |
-|-------|------|-------------|-----------|
-| id | Chave interna | Sim | Identificador físico interno. |
-| external_id | UUID | Sim, único | Identificador exposto. |
-| tenant | UUID | Sim | Locatário. |
-| total | Decimal/Real | Não | Total. |
-| created_at | Timestamp | Sim (default) | Criação. |
-| updated_at | Timestamp | Não | Última atualização. |
-| deleted_at | Timestamp | Não | Soft delete. |
-
-### Tabela: tb_sale_item
-
-| Campo | Tipo | Obrigatório | Descrição |
-|-------|------|-------------|-----------|
-| sale_id | Chave interna | Sim | FK para tb_sale (PK composta). |
-| product_id | Chave interna | Sim | FK para tb_product (PK composta). |
-| external_id | UUID | Sim, único | Identificador exposto. |
-| tenant | UUID | Sim | Locatário. |
-| quantity | Inteiro | Sim | Quantidade; default 1. |
-| unit_price | Decimal/Real | Não | Preço unitário. |
+| category_id | Chave interna | Não | FK local para tb_category. |
+| product_id | UUID | Não | Referência lógica ao produto (products), quando aplicável. |
 | created_at | Timestamp | Sim (default) | Criação. |
 | updated_at | Timestamp | Não | Última atualização. |
 | deleted_at | Timestamp | Não | Soft delete. |
@@ -1332,31 +1210,16 @@ Textos de UI por tenant e opcionalmente locale (i18n white label).
 | updated_at | Timestamp | Não | Última atualização. |
 | deleted_at | Timestamp | Não | Soft delete. |
 
-### Tabela: tb_product_tag
+### Tabela: tb_simple_item_tag
+
+Junção N-N entre tb_simple_item e tb_tag (ambas locais).
 
 | Campo | Tipo | Obrigatório | Descrição |
 |-------|------|-------------|-----------|
-| product_id | Chave interna | Sim | FK para tb_product (PK composta). |
-| tag_id | Chave interna | Sim | FK para tb_tag (PK composta). |
+| simple_item_id | Chave interna | Sim | FK local para tb_simple_item (PK composta). |
+| tag_id | Chave interna | Sim | FK local para tb_tag (PK composta). |
 | external_id | UUID | Sim, único | Identificador exposto. |
 | tenant | UUID | Sim | Locatário. |
-| created_at | Timestamp | Sim (default) | Criação. |
-| updated_at | Timestamp | Não | Última atualização. |
-| deleted_at | Timestamp | Não | Soft delete. |
-
-### Tabela: tb_document
-
-| Campo | Tipo | Obrigatório | Descrição |
-|-------|------|-------------|-----------|
-| id | Chave interna | Sim | Identificador físico interno. |
-| external_id | UUID | Sim, único | Identificador exposto. |
-| tenant | UUID | Sim | Locatário. |
-| product_id | Chave interna | Sim | FK para tb_product. |
-| file_name | Texto | Sim | Nome do ficheiro. |
-| mime_type | Texto | Não | Tipo MIME. |
-| content | BLOB/BYTEA | Não | Conteúdo binário. |
-| file_size | Inteiro | Não | Tamanho; default 0. |
-| description | Texto | Não | Descrição. |
 | created_at | Timestamp | Sim (default) | Criação. |
 | updated_at | Timestamp | Não | Última atualização. |
 | deleted_at | Timestamp | Não | Soft delete. |
@@ -1365,21 +1228,21 @@ Textos de UI por tenant e opcionalmente locale (i18n white label).
 
 ## 26. projects/schedule
 
-**Objetivo:** Recursos agendáveis, slots, regras de recorrência, agendamentos (bookings), participantes e histórico de alterações. tenant e external_id em todas as tabelas; integridade referencial física no mesmo escopo (incluindo auto-referência em tb_resource).
+**Objetivo:** Recursos agendáveis, slots, regras de recorrência, agendamentos (bookings), participantes por account_id e histórico. Sem tabela tb_participant (participantes são users/accounts). tenant e external_id em todas as tabelas; FKs físicas apenas internas.
 
-**Relação lógica:** tenant (UUID, sem FK). FKs físicas: tb_resource.parent_id → tb_resource; tb_slot → tb_resource; tb_booking → tb_slot, tb_recurrence_rule; tb_booking_participant → tb_booking, tb_participant; tb_booking_history → tb_booking.
+**Relação lógica:** tenant, organizer_account_id, account_id em tb_booking_participant (UUID; sem FK para accounts/users). FKs físicas: tb_resource.parent_id → tb_resource; tb_slot → tb_resource; tb_booking → tb_slot, tb_recurrence_rule; tb_booking_participant → tb_booking; tb_booking_history → tb_booking.
 
 ### Tabela: tb_resource
 
 | Campo | Tipo | Obrigatório | Descrição |
 |-------|------|-------------|-----------|
 | id | Chave interna | Sim | Identificador físico interno. |
-| external_id | UUID | Sim, único | Identificador exposto em APIs. |
-| tenant | UUID | Sim | Locatário (referência lógica, sem FK). |
+| external_id | UUID | Sim, único | Identificador exposto. |
+| tenant | UUID | Sim | Locatário. |
 | name | Texto | Sim | Nome do recurso. |
 | resource_type | Texto | Sim | Tipo do recurso. |
 | capacity | Inteiro | Não | Capacidade; default 1. |
-| parent_id | Chave interna | Não | FK para tb_resource (hierarquia). |
+| parent_id | Chave interna | Não | FK local para tb_resource (hierarquia). |
 | created_at | Timestamp | Sim (default) | Criação. |
 | updated_at | Timestamp | Não | Última atualização. |
 | deleted_at | Timestamp | Não | Soft delete. |
@@ -1391,7 +1254,7 @@ Textos de UI por tenant e opcionalmente locale (i18n white label).
 | id | Chave interna | Sim | Identificador físico interno. |
 | external_id | UUID | Sim, único | Identificador exposto. |
 | tenant | UUID | Sim | Locatário. |
-| resource_id | Chave interna | Sim | FK para tb_resource. |
+| resource_id | Chave interna | Sim | FK local para tb_resource. |
 | start_at | Timestamp | Sim | Início da janela. |
 | end_at | Timestamp | Sim | Fim da janela. |
 | status | Texto | Sim | Status do slot. |
@@ -1420,23 +1283,11 @@ Textos de UI por tenant e opcionalmente locale (i18n white label).
 | id | Chave interna | Sim | Identificador físico interno. |
 | external_id | UUID | Sim, único | Identificador exposto. |
 | tenant | UUID | Sim | Locatário. |
-| slot_id | Chave interna | Sim | FK para tb_slot. |
-| recurrence_rule_id | Chave interna | Não | FK para tb_recurrence_rule. |
+| slot_id | Chave interna | Sim | FK local para tb_slot. |
+| recurrence_rule_id | Chave interna | Não | FK local para tb_recurrence_rule. |
+| organizer_account_id | UUID | Não | Referência lógica ao responsável (accounts). |
 | title | Texto | Sim | Título. |
 | description | Texto | Não | Descrição. |
-| created_at | Timestamp | Sim (default) | Criação. |
-| updated_at | Timestamp | Não | Última atualização. |
-| deleted_at | Timestamp | Não | Soft delete. |
-
-### Tabela: tb_participant
-
-| Campo | Tipo | Obrigatório | Descrição |
-|-------|------|-------------|-----------|
-| id | Chave interna | Sim | Identificador físico interno. |
-| external_id | UUID | Sim, único | Identificador exposto. |
-| tenant | UUID | Sim | Locatário. |
-| name | Texto | Sim | Nome. |
-| email | Texto | Sim | E-mail. |
 | created_at | Timestamp | Sim (default) | Criação. |
 | updated_at | Timestamp | Não | Última atualização. |
 | deleted_at | Timestamp | Não | Soft delete. |
@@ -1445,8 +1296,8 @@ Textos de UI por tenant e opcionalmente locale (i18n white label).
 
 | Campo | Tipo | Obrigatório | Descrição |
 |-------|------|-------------|-----------|
-| booking_id | Chave interna | Sim | FK para tb_booking (PK composta). |
-| participant_id | Chave interna | Sim | FK para tb_participant (PK composta). |
+| booking_id | Chave interna | Sim | FK local para tb_booking (PK composta). |
+| account_id | UUID | Sim | Referência lógica ao participante (accounts/users) (PK composta). |
 | external_id | UUID | Sim, único | Identificador exposto. |
 | tenant | UUID | Sim | Locatário. |
 | role | Texto | Sim | Papel do participante. |
@@ -1461,10 +1312,26 @@ Textos de UI por tenant e opcionalmente locale (i18n white label).
 | id | Chave interna | Sim | Identificador físico interno. |
 | external_id | UUID | Sim, único | Identificador exposto. |
 | tenant | UUID | Sim | Locatário. |
-| booking_id | Chave interna | Sim | FK para tb_booking. |
+| booking_id | Chave interna | Sim | FK local para tb_booking. |
 | action | Texto | Sim | Ação registrada. |
 | changed_at | Timestamp | Sim | Data/hora da alteração. |
 | snapshot | JSONB/Texto | Não | Estado ou payload (auditoria). |
 | created_at | Timestamp | Sim (default) | Criação. |
 | updated_at | Timestamp | Não | Última atualização. |
 | deleted_at | Timestamp | Não | Soft delete. |
+
+---
+
+## Resumo das referências lógicas (UUID) — selling, schedule, todo
+
+| Projeto  | Tabela / contexto     | Coluna(s) UUID        | Serviço de destino |
+|----------|------------------------|------------------------|--------------------|
+| selling  | tb_order              | account_id             | accounts           |
+| selling  | tb_order              | billing_address_id, shipping_address_id | addresses |
+| selling  | tb_order              | payment_id             | payments           |
+| selling  | tb_order_line         | product_id             | products           |
+| schedule | tb_booking            | organizer_account_id   | accounts           |
+| schedule | tb_booking_participant| account_id             | accounts / users   |
+| todo     | tb_simple_item        | product_id             | products           |
+
+Nenhuma dessas colunas possui `FOREIGN KEY`; a integridade referencial externa fica a cargo dos serviços e da orquestração da aplicação.
