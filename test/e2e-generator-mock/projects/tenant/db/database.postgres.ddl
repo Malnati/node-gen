@@ -1,5 +1,5 @@
--- test/e2e-generator-mock/projects/companies/db/database.postgres.ddl
-CREATE TABLE company (
+-- test/e2e-generator-mock/projects/tenant/db/database.postgres.ddl
+CREATE TABLE tenant (
   id SERIAL PRIMARY KEY,
   external_id UUID NOT NULL DEFAULT gen_random_uuid(),
   tenant UUID NOT NULL,

@@ -4,12 +4,10 @@ CREATE TABLE account (
   external_id UUID NOT NULL DEFAULT gen_random_uuid(),
   tenant UUID NOT NULL,
   name TEXT NOT NULL,
-  account_type TEXT NOT NULL,
-  currency_code VARCHAR(3) DEFAULT 'BRL',
+  status TEXT NOT NULL DEFAULT 'active',
   created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP WITH TIME ZONE,
   deleted_at TIMESTAMP WITH TIME ZONE,
   UNIQUE(external_id),
-  CONSTRAINT chk_account_type CHECK (account_type IN ('checking','savings','credit','wallet','other')),
-  CONSTRAINT chk_currency_code CHECK (currency_code IN ('BRL','EUR','USD','GBP','MXN','ARS'))
+  CONSTRAINT chk_account_status CHECK (status IN ('active','suspended','pending_verification','closed'))
 );

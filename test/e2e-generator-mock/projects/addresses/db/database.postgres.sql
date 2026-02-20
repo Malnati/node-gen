@@ -1,5 +1,74 @@
 -- test/e2e-generator-mock/projects/addresses/db/database.postgres.sql
-INSERT INTO address (external_id, tenant, account_id, street, city, state, zip_code, country) VALUES
-('f1eebc99-9c0b-4ef8-bb6d-6bb9bd380a11','a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11','e1eebc99-9c0b-4ef8-bb6d-6bb9bd380a11','Rua das Flores 100','São Paulo','SP','01310-100','BR'),
-('f1eebc99-9c0b-4ef8-bb6d-6bb9bd380a12','a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11','e1eebc99-9c0b-4ef8-bb6d-6bb9bd380a12','Av. Central 200','Rio de Janeiro','RJ','20040-020','BR'),
-('f1eebc99-9c0b-4ef8-bb6d-6bb9bd380a13','a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a12','e1eebc99-9c0b-4ef8-bb6d-6bb9bd380a13','Praça do Comércio 50','Belo Horizonte','MG','30130-100','BR');
+INSERT INTO country (code, name) VALUES
+('BR','Brasil'),
+('AR','Argentina'),
+('MX','México'),
+('CL','Chile'),
+('CO','Colômbia'),
+('PE','Peru'),
+('UY','Uruguai'),
+('PY','Paraguai'),
+('EC','Equador'),
+('BO','Bolívia'),
+('VE','Venezuela'),
+('US','Estados Unidos'),
+('CA','Canadá'),
+('PT','Portugal'),
+('ES','Espanha'),
+('FR','França'),
+('DE','Alemanha'),
+('GB','Reino Unido'),
+('IT','Itália'),
+('NL','Países Baixos'),
+('BE','Bélgica'),
+('CH','Suíça'),
+('AT','Áustria'),
+('PL','Polónia'),
+('GR','Grécia'),
+('SE','Suécia'),
+('NO','Noruega'),
+('IE','Irlanda'),
+('CZ','República Checa'),
+('HU','Hungria'),
+('RO','Roménia');
+
+INSERT INTO state (country_id, code, name) VALUES
+(1,'SP','São Paulo'),
+(1,'RJ','Rio de Janeiro'),
+(1,'MG','Minas Gerais'),
+(1,'BA','Bahia'),
+(1,'RS','Rio Grande do Sul'),
+(2,'B','Buenos Aires'),
+(2,'C','Córdoba'),
+(3,'DF','Ciudad de México'),
+(3,'JAL','Jalisco'),
+(8,'CA','California'),
+(8,'NY','New York'),
+(8,'TX','Texas'),
+(10,'11','Lisboa'),
+(10,'13','Porto'),
+(11,'M','Madrid'),
+(11,'B','Barcelona');
+
+INSERT INTO city (state_id, name) VALUES
+(1,'São Paulo'),
+(2,'Rio de Janeiro'),
+(3,'Belo Horizonte'),
+(4,'Salvador'),
+(5,'Porto Alegre'),
+(6,'Buenos Aires'),
+(7,'Córdoba'),
+(8,'Ciudad de México'),
+(9,'Guadalajara'),
+(10,'Los Angeles'),
+(11,'New York'),
+(12,'Houston'),
+(13,'Lisboa'),
+(14,'Porto'),
+(15,'Madrid'),
+(16,'Barcelona');
+
+INSERT INTO address (external_id, tenant, account_id, street, zip_code, country_id, state_id, city_id) VALUES
+('f1eebc99-9c0b-4ef8-bb6d-6bb9bd380a11','a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11','e1eebc99-9c0b-4ef8-bb6d-6bb9bd380a11','Rua das Flores 100','01310-100',1,1,1),
+('f1eebc99-9c0b-4ef8-bb6d-6bb9bd380a12','a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11','e1eebc99-9c0b-4ef8-bb6d-6bb9bd380a12','Av. Central 200','20040-020',1,2,2),
+('f1eebc99-9c0b-4ef8-bb6d-6bb9bd380a13','a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a12','e1eebc99-9c0b-4ef8-bb6d-6bb9bd380a13','Praça do Comércio 50','30130-100',1,3,3);

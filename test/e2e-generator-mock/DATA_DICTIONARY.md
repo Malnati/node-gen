@@ -24,11 +24,9 @@ A cláusula `WHERE deleted_at IS NULL` é implícita em todas as leituras da apl
 
 | Contexto | Campo | Valores / Regra |
 |----------|--------|------------------|
-| account | account_type | `checking`, `savings`, `credit`, `wallet`, `other` |
-| account, payments, transactions, orders, products | currency_code | ISO 4217: `BRL`, `EUR`, `USD`, `GBP`, `MXN`, `ARS` |
-| address | country | ISO 3166-1 alpha-2: `BR`, `PT`, `US`, `ES`, `AR`, `MX`, `GB`, `FR`, `DE` |
-| address | state | Código estado/região (ex.: SP, RJ, NY, CA) ou texto; domínio por país quando aplicável |
-| address | city | Texto livre; opcionalmente tabela de apoio por país |
+| account | status | `active`, `suspended`, `pending_verification`, `closed` (conta de acesso à plataforma) |
+| payments, transactions, orders, products | currency_code | ISO 4217: `BRL`, `EUR`, `USD`, `GBP`, `MXN`, `ARS` |
+| (address usa tabelas country, state, city; não há CHECK de texto) | — | Ver projects/addresses. |
 | order | status | `draft`, `confirmed`, `paid`, `shipped`, `delivered`, `cancelled` |
 | shipment | status | `pending`, `picked_up`, `in_transit`, `out_for_delivery`, `delivered`, `exception` |
 | notification | channel | `email`, `sms`, `push` |
@@ -40,7 +38,9 @@ Todas as relações entre projetos são **UUID** (PostgreSQL UUID; MySQL CHAR(36
 
 ## 1. projects/accounts
 
-**Relação lógica:** tenant. Entidade centralizadora. Saldo (balance) não pertence ao escopo de accounts; utilizar domínio de transações/ledger.
+**Conceito:** Conta de **usuário de acesso à plataforma** (não é conta bancária nem de pagamento; nada de financeiro neste domínio).
+
+**Relação lógica:** tenant. Entidade centralizadora de identidade de acesso (quem pode aceder à plataforma).
 
 ### Tabela: account
 
@@ -49,9 +49,8 @@ Todas as relações entre projetos são **UUID** (PostgreSQL UUID; MySQL CHAR(36
 | id | Chave interna (SERIAL/IDENTITY/AUTO_INCREMENT) | Sim | Identificador físico interno. |
 | external_id | UUID | Sim, único | Identificador exposto a outros serviços. |
 | tenant | UUID | Sim | Tenant ao qual a conta pertence. |
-| name | Texto | Sim | Nome da conta. |
-| account_type | Domínio | Sim | checking, savings, credit, wallet, other. |
-| currency_code | Domínio | Não | ISO 4217; default BRL. Ver domínios acima. |
+| name | Texto | Sim | Nome da conta (ex.: nome do utilizador ou da organização de acesso). |
+| status | Domínio | Sim | Estado da conta de acesso: active, suspended, pending_verification, closed. Ver domínios acima. |
 | created_at | Timestamp | Sim (default) | Data/hora de criação. |
 | updated_at | Timestamp | Não | Data/hora da última atualização. |
 | deleted_at | Timestamp | Não | Exclusão lógica (soft delete); NULL = ativo. |
@@ -60,7 +59,41 @@ Todas as relações entre projetos são **UUID** (PostgreSQL UUID; MySQL CHAR(36
 
 ## 2. projects/addresses
 
-**Relação lógica:** account_id, tenant.
+**Relação lógica:** account_id, tenant. País, estado e cidade são tabelas de referência (América Latina, América do Norte e Europa); address referencia-as por FK dentro do mesmo projeto.
+
+### Tabela: country
+
+| Campo | Tipo | Obrigatório | Descrição |
+|-------|------|-------------|-----------|
+| id | Chave interna | Sim | Identificador físico interno. |
+| code | Texto (2) | Sim, único | Código ISO 3166-1 alpha-2 (ex.: BR, AR, MX, US, PT, ES). |
+| name | Texto | Sim | Nome do país. |
+| created_at | Timestamp | Sim (default) | Criação. |
+| updated_at | Timestamp | Não | Última atualização. |
+| deleted_at | Timestamp | Não | Soft delete. |
+
+### Tabela: state
+
+| Campo | Tipo | Obrigatório | Descrição |
+|-------|------|-------------|-----------|
+| id | Chave interna | Sim | Identificador físico interno. |
+| country_id | FK → country(id) | Sim | País ao qual o estado pertence. |
+| code | Texto | Sim | Código do estado/região (ex.: SP, RJ, CA, NY). Único por país. |
+| name | Texto | Sim | Nome do estado/região. |
+| created_at | Timestamp | Sim (default) | Criação. |
+| updated_at | Timestamp | Não | Última atualização. |
+| deleted_at | Timestamp | Não | Soft delete. |
+
+### Tabela: city
+
+| Campo | Tipo | Obrigatório | Descrição |
+|-------|------|-------------|-----------|
+| id | Chave interna | Sim | Identificador físico interno. |
+| state_id | FK → state(id) | Sim | Estado ao qual a cidade pertence. |
+| name | Texto | Sim | Nome da cidade. |
+| created_at | Timestamp | Sim (default) | Criação. |
+| updated_at | Timestamp | Não | Última atualização. |
+| deleted_at | Timestamp | Não | Soft delete. |
 
 ### Tabela: address
 
@@ -71,10 +104,10 @@ Todas as relações entre projetos são **UUID** (PostgreSQL UUID; MySQL CHAR(36
 | tenant | UUID | Sim | Tenant. |
 | account_id | UUID | Sim | Referência lógica ao account (projects/accounts). |
 | street | Texto | Sim | Logradouro. |
-| city | Texto | Sim | Cidade. Domínio por país quando aplicável. |
-| state | Texto | Não | Estado/região. Código ou texto; domínio por país. |
 | zip_code | Texto | Não | CEP/código postal. |
-| country | Domínio | Não | ISO 3166-1 alpha-2; default BR. Ver domínios acima. |
+| country_id | FK → country(id) | Sim | Referência ao país. |
+| state_id | FK → state(id) | Sim | Referência ao estado/região. |
+| city_id | FK → city(id) | Sim | Referência à cidade. |
 | created_at | Timestamp | Sim (default) | Criação. |
 | updated_at | Timestamp | Não | Última atualização. |
 | deleted_at | Timestamp | Não | Soft delete. |
@@ -127,11 +160,13 @@ Todas as relações entre projetos são **UUID** (PostgreSQL UUID; MySQL CHAR(36
 
 ---
 
-## 5. projects/companies
+## 5. projects/tenant
+
+**Conceito:** Dados do inquilino (tenant), em geral uma pessoa jurídica que utiliza a plataforma. O projeto e o banco de dados designam-se «tenant».
 
 **Relação lógica:** account_id, contact_id, address_id, tenant.
 
-### Tabela: company
+### Tabela: tenant
 
 | Campo | Tipo | Obrigatório | Descrição |
 |-------|------|-------------|-----------|

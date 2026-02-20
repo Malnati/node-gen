@@ -1,5 +1,5 @@
--- test/e2e-generator-mock/projects/companies/db/database.sqlite.ddl
-CREATE TABLE company (
+-- test/e2e-generator-mock/projects/tenant/db/database.sqlite.ddl
+CREATE TABLE tenant (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   external_id TEXT NOT NULL,
   tenant TEXT NOT NULL,

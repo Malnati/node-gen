@@ -1,5 +1,5 @@
--- test/e2e-generator-mock/projects/companies/db/database.mysql.ddl
-CREATE TABLE company (
+-- test/e2e-generator-mock/projects/tenant/db/database.mysql.ddl
+CREATE TABLE tenant (
   id INT AUTO_INCREMENT PRIMARY KEY,
   external_id CHAR(36) NOT NULL,
   tenant CHAR(36) NOT NULL,
@@ -12,5 +12,5 @@ CREATE TABLE company (
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
   updated_at DATETIME,
   deleted_at DATETIME,
-  UNIQUE KEY uk_company_external_id (external_id)
+  UNIQUE KEY uk_tenant_external_id (external_id)
 );
