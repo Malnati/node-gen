@@ -1,7 +1,4 @@
 -- test/e2e-generator-mock/projects/reports/db/database.sqlserver.ddl
--- Tabelas de consolidação físicas. Sem soft delete. Periodicidade em comentário.
-
--- Consolidação vendas mensais. Atualização esperada: mensal.
 CREATE TABLE consolidated_sales_monthly (
   id INT IDENTITY(1,1) PRIMARY KEY,
   tenant UNIQUEIDENTIFIER NOT NULL,
@@ -12,18 +9,14 @@ CREATE TABLE consolidated_sales_monthly (
   updated_at DATETIME2
 );
 
--- Consolidação stock por armazém. Atualização esperada: sob demanda ou diária.
 CREATE TABLE current_warehouse_stock (
   id INT IDENTITY(1,1) PRIMARY KEY,
   tenant UNIQUEIDENTIFIER NOT NULL,
-  product_id UNIQUEIDENTIFIER NOT NULL,
-  address_id UNIQUEIDENTIFIER NOT NULL,
-  quantity DECIMAL(12,2),
-  reserved DECIMAL(12,2),
+  warehouse_stock_external_id UNIQUEIDENTIFIER NOT NULL,
+  snapshot_at DATETIME2,
   updated_at DATETIME2
 );
 
--- Consolidação desempenho logística. Atualização esperada: diária ou semanal.
 CREATE TABLE logistics_performance (
   id INT IDENTITY(1,1) PRIMARY KEY,
   tenant UNIQUEIDENTIFIER NOT NULL,

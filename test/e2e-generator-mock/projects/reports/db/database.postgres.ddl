@@ -1,7 +1,4 @@
 -- test/e2e-generator-mock/projects/reports/db/database.postgres.ddl
--- Tabelas de consolidação físicas. Sem soft delete. Periodicidade em comentário.
-
--- Consolidação vendas mensais. Atualização esperada: mensal.
 CREATE TABLE consolidated_sales_monthly (
   id SERIAL PRIMARY KEY,
   tenant UUID NOT NULL,
@@ -12,18 +9,14 @@ CREATE TABLE consolidated_sales_monthly (
   updated_at TIMESTAMP WITH TIME ZONE
 );
 
--- Consolidação níveis de stock. Atualização esperada: sob demanda ou diária.
 CREATE TABLE current_warehouse_stock (
   id SERIAL PRIMARY KEY,
   tenant UUID NOT NULL,
-  product_id UUID NOT NULL,
-  address_id UUID NOT NULL,
-  quantity DECIMAL(12,2),
-  reserved DECIMAL(12,2),
+  warehouse_stock_external_id UUID NOT NULL,
+  snapshot_at TIMESTAMP WITH TIME ZONE,
   updated_at TIMESTAMP WITH TIME ZONE
 );
 
--- Consolidação desempenho logística. Atualização esperada: diária ou semanal.
 CREATE TABLE logistics_performance (
   id SERIAL PRIMARY KEY,
   tenant UUID NOT NULL,

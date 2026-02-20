@@ -1,7 +1,4 @@
 -- test/e2e-generator-mock/projects/reports/db/database.mysql.ddl
--- Tabelas de consolidação físicas. Sem soft delete. Periodicidade em comentário.
-
--- Consolidação vendas mensais. Atualização esperada: mensal.
 CREATE TABLE consolidated_sales_monthly (
   id INT AUTO_INCREMENT PRIMARY KEY,
   tenant CHAR(36) NOT NULL,
@@ -12,18 +9,14 @@ CREATE TABLE consolidated_sales_monthly (
   updated_at DATETIME
 );
 
--- Consolidação stock por armazém. Atualização esperada: sob demanda ou diária.
 CREATE TABLE current_warehouse_stock (
   id INT AUTO_INCREMENT PRIMARY KEY,
   tenant CHAR(36) NOT NULL,
-  product_id CHAR(36) NOT NULL,
-  address_id CHAR(36) NOT NULL,
-  quantity DECIMAL(12,2),
-  reserved DECIMAL(12,2),
+  warehouse_stock_external_id CHAR(36) NOT NULL,
+  snapshot_at DATETIME,
   updated_at DATETIME
 );
 
--- Consolidação desempenho logística. Atualização esperada: diária ou semanal.
 CREATE TABLE logistics_performance (
   id INT AUTO_INCREMENT PRIMARY KEY,
   tenant CHAR(36) NOT NULL,
