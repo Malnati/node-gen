@@ -1,8 +1,8 @@
 -- test/e2e-generator-mock/projects/selling/db/schema.postgres.ddl
 CREATE TABLE tb_order (
-  id SERIAL PRIMARY KEY,
+  id SERIAL,
   tenant UUID NOT NULL,
-  external_id UUID NOT NULL UNIQUE,
+  external_id UUID NOT NULL,
   account_id UUID NOT NULL,
   billing_address_id UUID,
   shipping_address_id UUID,
@@ -13,7 +13,9 @@ CREATE TABLE tb_order (
   ordered_at TIMESTAMP,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  deleted_at TIMESTAMP
+  deleted_at TIMESTAMP,
+  CONSTRAINT pk_tb_order PRIMARY KEY (id),
+  CONSTRAINT uk_tb_order_external_id UNIQUE(external_id)
 );
 COMMENT ON TABLE tb_order IS 'Pedidos de venda; comprador e endereços/pagamento referenciados por UUID aos serviços accounts, addresses e payments.';
 COMMENT ON COLUMN tb_order.id IS 'Chave interna do pedido.';
@@ -30,12 +32,14 @@ COMMENT ON COLUMN tb_order.ordered_at IS 'Data/hora do pedido.';
 COMMENT ON COLUMN tb_order.created_at IS 'Data/hora de criação do registro.';
 COMMENT ON COLUMN tb_order.updated_at IS 'Data/hora da última alteração.';
 COMMENT ON COLUMN tb_order.deleted_at IS 'Exclusão lógica (soft delete).';
+COMMENT ON CONSTRAINT pk_tb_order ON tb_order IS 'Chave primária.';
+COMMENT ON CONSTRAINT uk_tb_order_external_id ON tb_order IS 'UUID único.';
 
 CREATE TABLE tb_order_line (
   order_id INTEGER NOT NULL,
   line_number INTEGER NOT NULL,
   tenant UUID NOT NULL,
-  external_id UUID NOT NULL UNIQUE,
+  external_id UUID NOT NULL,
   product_id UUID NOT NULL,
   product_name TEXT,
   quantity INTEGER NOT NULL,
@@ -44,8 +48,9 @@ CREATE TABLE tb_order_line (
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   deleted_at TIMESTAMP,
-  PRIMARY KEY (order_id, line_number),
-  FOREIGN KEY (order_id) REFERENCES tb_order(id)
+  CONSTRAINT pk_tb_order_line PRIMARY KEY (order_id, line_number),
+  CONSTRAINT uk_tb_order_line_external_id UNIQUE(external_id),
+  CONSTRAINT fk_tb_order_line_order FOREIGN KEY (order_id) REFERENCES tb_order(id)
 );
 COMMENT ON TABLE tb_order_line IS 'Itens do pedido; produto referenciado por UUID ao serviço products.';
 COMMENT ON COLUMN tb_order_line.order_id IS 'Chave interna do pedido (FK local).';
@@ -60,3 +65,6 @@ COMMENT ON COLUMN tb_order_line.line_total IS 'Total da linha.';
 COMMENT ON COLUMN tb_order_line.created_at IS 'Data/hora de criação do registro.';
 COMMENT ON COLUMN tb_order_line.updated_at IS 'Data/hora da última alteração.';
 COMMENT ON COLUMN tb_order_line.deleted_at IS 'Exclusão lógica (soft delete).';
+COMMENT ON CONSTRAINT pk_tb_order_line ON tb_order_line IS 'Chave primária composta.';
+COMMENT ON CONSTRAINT uk_tb_order_line_external_id ON tb_order_line IS 'UUID único.';
+COMMENT ON CONSTRAINT fk_tb_order_line_order ON tb_order_line IS 'Referência ao pedido.';
