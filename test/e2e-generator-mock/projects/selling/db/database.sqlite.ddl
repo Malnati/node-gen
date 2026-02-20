@@ -1,33 +1,34 @@
 -- test/e2e-generator-mock/projects/selling/db/database.sqlite.ddl
-CREATE TABLE sale (
+CREATE TABLE tb_order (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
-  external_id TEXT NOT NULL,
   tenant TEXT NOT NULL,
+  external_id TEXT NOT NULL UNIQUE,
   account_id TEXT NOT NULL,
-  order_id TEXT NOT NULL,
-  payment_id TEXT,
   billing_address_id TEXT,
   shipping_address_id TEXT,
-  status TEXT,
-  total REAL DEFAULT 0,
-  currency_code TEXT DEFAULT 'BRL',
+  payment_id TEXT,
+  status TEXT NOT NULL,
+  total REAL NOT NULL,
+  discount REAL DEFAULT 0,
+  ordered_at TEXT,
   created_at TEXT DEFAULT (datetime('now')),
-  updated_at TEXT,
-  deleted_at TEXT,
-  UNIQUE(external_id)
+  updated_at TEXT DEFAULT (datetime('now')),
+  deleted_at TEXT
 );
 
-CREATE TABLE sale_item (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  external_id TEXT NOT NULL,
+CREATE TABLE tb_order_line (
+  order_id INTEGER NOT NULL,
+  line_number INTEGER NOT NULL,
   tenant TEXT NOT NULL,
-  sale_id INTEGER NOT NULL,
+  external_id TEXT NOT NULL UNIQUE,
   product_id TEXT NOT NULL,
-  quantity REAL DEFAULT 1,
-  unit_price REAL DEFAULT 0,
+  product_name TEXT,
+  quantity INTEGER NOT NULL,
+  unit_price REAL NOT NULL,
+  line_total REAL NOT NULL,
   created_at TEXT DEFAULT (datetime('now')),
-  updated_at TEXT,
+  updated_at TEXT DEFAULT (datetime('now')),
   deleted_at TEXT,
-  UNIQUE(external_id),
-  FOREIGN KEY (sale_id) REFERENCES sale(id)
+  PRIMARY KEY (order_id, line_number),
+  FOREIGN KEY (order_id) REFERENCES tb_order(id)
 );

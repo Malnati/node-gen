@@ -6,8 +6,8 @@ const MOCK_DIR = path.resolve(__dirname);
 const PROJECTS_DIR = path.join(MOCK_DIR, 'projects');
 
 const EXTRA_DBS = [
-  { name: 'todo', dbName: 'todo_mock', schemaFile: 'todo/db/database.postgres.ddl', checkTable: 'todo' },
-  { name: 'selling', dbName: 'selling_mock', schemaFile: 'selling/db/schema.postgres.ddl', checkTable: 'sale' },
+  { name: 'todo', dbName: 'todo_mock', schemaFile: 'todo/db/database.postgres.ddl', checkTable: 'tb_simple_item' },
+  { name: 'selling', dbName: 'selling_mock', schemaFile: 'selling/db/schema.postgres.ddl', checkTable: 'tb_order' },
   { name: 'google-calendar', dbName: 'google_calendar_mock', schemaFile: 'google-calendar/db/database.postgres.ddl', checkTable: 'calendar_integration' },
 ];
 

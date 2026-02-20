@@ -1,116 +1,53 @@
 -- test/e2e-generator-mock/projects/todo/db/database.mysql.ddl
-CREATE TABLE project (
+CREATE TABLE tb_category (
   id INT AUTO_INCREMENT PRIMARY KEY,
-  external_id CHAR(36) NOT NULL,
   tenant CHAR(36) NOT NULL,
+  external_id CHAR(36) NOT NULL UNIQUE,
+  code VARCHAR(50),
   name VARCHAR(255) NOT NULL,
+  full_description TEXT,
+  status VARCHAR(50),
+  price DECIMAL(10,2),
+  sort_order INT DEFAULT 0,
+  is_active TINYINT(1) DEFAULT 1,
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-  updated_at DATETIME,
-  deleted_at DATETIME,
-  UNIQUE KEY uk_project_external_id (external_id)
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  deleted_at DATETIME
 );
 
-CREATE TABLE status (
+CREATE TABLE tb_simple_item (
   id INT AUTO_INCREMENT PRIMARY KEY,
-  external_id CHAR(36) NOT NULL,
-  tenant CHAR(36),
-  code VARCHAR(50) NOT NULL,
-  name VARCHAR(255) NOT NULL,
-  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-  updated_at DATETIME,
-  deleted_at DATETIME,
-  UNIQUE KEY uk_status_external_id (external_id)
-);
-
-CREATE TABLE tag (
-  id INT AUTO_INCREMENT PRIMARY KEY,
-  external_id CHAR(36) NOT NULL,
   tenant CHAR(36) NOT NULL,
+  external_id CHAR(36) NOT NULL UNIQUE,
   name VARCHAR(255) NOT NULL,
+  category_id INT,
+  product_id CHAR(36),
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-  updated_at DATETIME,
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   deleted_at DATETIME,
-  UNIQUE KEY uk_tag_external_id (external_id)
+  FOREIGN KEY (category_id) REFERENCES tb_category(id)
 );
 
-CREATE TABLE todo (
+CREATE TABLE tb_tag (
   id INT AUTO_INCREMENT PRIMARY KEY,
-  external_id CHAR(36) NOT NULL,
   tenant CHAR(36) NOT NULL,
-  account_id CHAR(36) NOT NULL,
-  project_id INT NOT NULL,
-  status_id INT NOT NULL,
-  title VARCHAR(255) NOT NULL,
-  description TEXT,
-  due_date DATE,
+  external_id CHAR(36) NOT NULL UNIQUE,
+  name VARCHAR(255) NOT NULL,
+  slug VARCHAR(255),
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-  updated_at DATETIME,
-  deleted_at DATETIME,
-  UNIQUE KEY uk_todo_external_id (external_id),
-  CONSTRAINT fk_todo_project FOREIGN KEY (project_id) REFERENCES project(id),
-  CONSTRAINT fk_todo_status FOREIGN KEY (status_id) REFERENCES status(id)
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  deleted_at DATETIME
 );
 
-CREATE TABLE todo_tag (
-  todo_id INT NOT NULL,
+CREATE TABLE tb_simple_item_tag (
+  simple_item_id INT NOT NULL,
   tag_id INT NOT NULL,
-  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-  updated_at DATETIME,
-  deleted_at DATETIME,
-  PRIMARY KEY (todo_id, tag_id),
-  CONSTRAINT fk_todo_tag_todo FOREIGN KEY (todo_id) REFERENCES todo(id),
-  CONSTRAINT fk_todo_tag_tag FOREIGN KEY (tag_id) REFERENCES tag(id)
-);
-
-CREATE TABLE project_member (
-  id INT AUTO_INCREMENT PRIMARY KEY,
-  external_id CHAR(36) NOT NULL,
   tenant CHAR(36) NOT NULL,
-  account_id CHAR(36) NOT NULL,
-  project_id INT NOT NULL,
-  role VARCHAR(100),
+  external_id CHAR(36) NOT NULL UNIQUE,
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-  updated_at DATETIME,
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   deleted_at DATETIME,
-  UNIQUE KEY uk_project_member_external_id (external_id),
-  CONSTRAINT fk_project_member_project FOREIGN KEY (project_id) REFERENCES project(id)
-);
-
-CREATE TABLE comment (
-  id INT AUTO_INCREMENT PRIMARY KEY,
-  external_id CHAR(36) NOT NULL,
-  tenant CHAR(36) NOT NULL,
-  todo_id INT NOT NULL,
-  author_id CHAR(36) NOT NULL,
-  content TEXT NOT NULL,
-  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-  updated_at DATETIME,
-  deleted_at DATETIME,
-  UNIQUE KEY uk_comment_external_id (external_id),
-  CONSTRAINT fk_comment_todo FOREIGN KEY (todo_id) REFERENCES todo(id)
-);
-
-CREATE TABLE attachment (
-  id INT AUTO_INCREMENT PRIMARY KEY,
-  external_id CHAR(36) NOT NULL,
-  tenant CHAR(36) NOT NULL,
-  todo_id INT NOT NULL,
-  file_ref TEXT,
-  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-  updated_at DATETIME,
-  deleted_at DATETIME,
-  UNIQUE KEY uk_attachment_external_id (external_id),
-  CONSTRAINT fk_attachment_todo FOREIGN KEY (todo_id) REFERENCES todo(id)
-);
-
-CREATE TABLE note (
-  id INT AUTO_INCREMENT PRIMARY KEY,
-  external_id CHAR(36) NOT NULL,
-  tenant CHAR(36) NOT NULL,
-  account_id CHAR(36) NOT NULL,
-  content TEXT NOT NULL,
-  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-  updated_at DATETIME,
-  deleted_at DATETIME,
-  UNIQUE KEY uk_note_external_id (external_id)
+  PRIMARY KEY (simple_item_id, tag_id),
+  FOREIGN KEY (simple_item_id) REFERENCES tb_simple_item(id),
+  FOREIGN KEY (tag_id) REFERENCES tb_tag(id)
 );

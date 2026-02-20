@@ -1,4 +1,4 @@
--- test/e2e-generator-mock/projects/todo/db/database.sqlite.ddl
+-- test/e2e-generator-mock/projects/todo/db/schema.sql
 CREATE TABLE tb_category (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   tenant TEXT NOT NULL,
