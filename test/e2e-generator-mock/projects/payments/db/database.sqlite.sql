@@ -1,14 +1,5 @@
 -- test/e2e-generator-mock/projects/payments/db/database.sqlite.sql
-INSERT INTO payment_method (tenant, account_id, contact_id, code, name, method_type, region) VALUES
-('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11','b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a11','k1eebc99-9c0b-4ef8-bb6d-6bb9bd380a11','debit','Débito','debit','BR'),
-('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11','b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a11','k1eebc99-9c0b-4ef8-bb6d-6bb9bd380a11','credit','Crédito','credit','BR'),
-('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11','b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a11','k1eebc99-9c0b-4ef8-bb6d-6bb9bd380a11','pix','PIX','pix','BR'),
-('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11','b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a11','k1eebc99-9c0b-4ef8-bb6d-6bb9bd380a11','boleto','Boleto','boleto','BR'),
-('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11','b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a11','k1eebc99-9c0b-4ef8-bb6d-6bb9bd380a11','crypto','Criptomoeda','crypto',NULL),
-('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11','b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a11','k1eebc99-9c0b-4ef8-bb6d-6bb9bd380a11','visa','Visa','international','international'),
-('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11','b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a11','k1eebc99-9c0b-4ef8-bb6d-6bb9bd380a11','mastercard','Mastercard','international','international'),
-('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11','b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a11','k1eebc99-9c0b-4ef8-bb6d-6bb9bd380a11','amex','American Express','international','international'),
-('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11','b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a11','k1eebc99-9c0b-4ef8-bb6d-6bb9bd380a11','paypal','PayPal','international','international'),
-('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11','b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a11','k1eebc99-9c0b-4ef8-bb6d-6bb9bd380a11','sepa','SEPA','international','EU'),
-('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11','b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a11','k1eebc99-9c0b-4ef8-bb6d-6bb9bd380a11','diners','Diners Club','international','international'),
-('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11','b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a11','k1eebc99-9c0b-4ef8-bb6d-6bb9bd380a11','mercadopago','Mercado Pago','international','LATAM');
+INSERT INTO payment (external_id, tenant, account_id, contact_id, billing_address_id, method, amount, currency_code, status) VALUES
+('p1eebc99-9c0b-4ef8-bb6d-6bb9bd380a11','a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11','e1eebc99-9c0b-4ef8-bb6d-6bb9bd380a11','c1eebc99-9c0b-4ef8-bb6d-6bb9bd380a11','f1eebc99-9c0b-4ef8-bb6d-6bb9bd380a11','PIX',100.00,'BRL','completed'),
+('p1eebc99-9c0b-4ef8-bb6d-6bb9bd380a12','a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11','e1eebc99-9c0b-4ef8-bb6d-6bb9bd380a12','c1eebc99-9c0b-4ef8-bb6d-6bb9bd380a12','f1eebc99-9c0b-4ef8-bb6d-6bb9bd380a12','CREDITO',250.50,'BRL','pending'),
+('p1eebc99-9c0b-4ef8-bb6d-6bb9bd380a13','a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a12','e1eebc99-9c0b-4ef8-bb6d-6bb9bd380a13',NULL,NULL,'BOLETO',500.00,'BRL','pending');
