@@ -1,16 +1,4 @@
 -- test/e2e-generator-mock/projects/todo/db/database.postgres.ddl
-CREATE TABLE tb_simple_item (
-  id SERIAL PRIMARY KEY,
-  tenant UUID NOT NULL,
-  external_id UUID NOT NULL UNIQUE,
-  name TEXT NOT NULL,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  deleted_at TIMESTAMP
-);
-COMMENT ON TABLE tb_simple_item IS 'Tabela de itens genéricos para testes básicos.';
-COMMENT ON COLUMN tb_simple_item.tenant IS 'Referência UUID para o inquilino isolado no sistema.';
-
 CREATE TABLE tb_category (
   id SERIAL PRIMARY KEY,
   tenant UUID NOT NULL,
@@ -26,50 +14,43 @@ CREATE TABLE tb_category (
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   deleted_at TIMESTAMP
 );
-COMMENT ON TABLE tb_category IS 'Tipos e agrupamentos disponíveis para produtos.';
+COMMENT ON TABLE tb_category IS 'Categorias para classificação local de itens (tarefas/classificação).';
+COMMENT ON COLUMN tb_category.id IS 'Chave interna.';
+COMMENT ON COLUMN tb_category.tenant IS 'Referência lógica ao locatário (serviço companies).';
+COMMENT ON COLUMN tb_category.external_id IS 'Identificador público para APIs.';
+COMMENT ON COLUMN tb_category.code IS 'Código da categoria.';
+COMMENT ON COLUMN tb_category.name IS 'Nome.';
+COMMENT ON COLUMN tb_category.full_description IS 'Descrição completa.';
+COMMENT ON COLUMN tb_category.status IS 'Status.';
+COMMENT ON COLUMN tb_category.price IS 'Preço (opcional).';
+COMMENT ON COLUMN tb_category.sort_order IS 'Ordem de exibição.';
+COMMENT ON COLUMN tb_category.is_active IS 'Ativo (1) ou não (0).';
+COMMENT ON COLUMN tb_category.created_at IS 'Data/hora de criação.';
+COMMENT ON COLUMN tb_category.updated_at IS 'Data/hora da última alteração.';
+COMMENT ON COLUMN tb_category.deleted_at IS 'Exclusão lógica (soft delete).';
 
-CREATE TABLE tb_product (
+CREATE TABLE tb_simple_item (
   id SERIAL PRIMARY KEY,
   tenant UUID NOT NULL,
   external_id UUID NOT NULL UNIQUE,
-  category_id INTEGER NOT NULL,
   name TEXT NOT NULL,
-  description TEXT,
-  unit_price REAL NOT NULL,
-  stock_quantity INTEGER DEFAULT 0,
+  category_id INTEGER,
+  product_id UUID,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   deleted_at TIMESTAMP,
   FOREIGN KEY (category_id) REFERENCES tb_category(id)
 );
-COMMENT ON TABLE tb_product IS 'Itens mantidos no catálogo.';
-
-CREATE TABLE tb_sale (
-  id SERIAL PRIMARY KEY,
-  tenant UUID NOT NULL,
-  external_id UUID NOT NULL UNIQUE,
-  total REAL,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  deleted_at TIMESTAMP
-);
-COMMENT ON TABLE tb_sale IS 'Registros consolidados de saída ou compra.';
-
-CREATE TABLE tb_sale_item (
-  sale_id INTEGER NOT NULL,
-  product_id INTEGER NOT NULL,
-  tenant UUID NOT NULL,
-  external_id UUID NOT NULL UNIQUE,
-  quantity INTEGER NOT NULL DEFAULT 1,
-  unit_price REAL,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  deleted_at TIMESTAMP,
-  PRIMARY KEY (sale_id, product_id),
-  FOREIGN KEY (sale_id) REFERENCES tb_sale(id),
-  FOREIGN KEY (product_id) REFERENCES tb_product(id)
-);
-COMMENT ON TABLE tb_sale_item IS 'Relação física N-N para os itens vendidos e seus valores fracionados.';
+COMMENT ON TABLE tb_simple_item IS 'Itens genéricos; product_id é referência lógica ao serviço products.';
+COMMENT ON COLUMN tb_simple_item.id IS 'Chave interna.';
+COMMENT ON COLUMN tb_simple_item.tenant IS 'Referência lógica ao locatário (serviço companies).';
+COMMENT ON COLUMN tb_simple_item.external_id IS 'Identificador público para APIs.';
+COMMENT ON COLUMN tb_simple_item.name IS 'Nome do item.';
+COMMENT ON COLUMN tb_simple_item.category_id IS 'FK local para tb_category.';
+COMMENT ON COLUMN tb_simple_item.product_id IS 'Referência lógica ao produto (serviço products), quando aplicável.';
+COMMENT ON COLUMN tb_simple_item.created_at IS 'Data/hora de criação.';
+COMMENT ON COLUMN tb_simple_item.updated_at IS 'Data/hora da última alteração.';
+COMMENT ON COLUMN tb_simple_item.deleted_at IS 'Exclusão lógica (soft delete).';
 
 CREATE TABLE tb_tag (
   id SERIAL PRIMARY KEY,
@@ -81,35 +62,33 @@ CREATE TABLE tb_tag (
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   deleted_at TIMESTAMP
 );
-COMMENT ON TABLE tb_tag IS 'Etiquetas de classificação adicional.';
+COMMENT ON TABLE tb_tag IS 'Etiquetas para classificação de itens.';
+COMMENT ON COLUMN tb_tag.id IS 'Chave interna.';
+COMMENT ON COLUMN tb_tag.tenant IS 'Referência lógica ao locatário (serviço companies).';
+COMMENT ON COLUMN tb_tag.external_id IS 'Identificador público para APIs.';
+COMMENT ON COLUMN tb_tag.name IS 'Nome da tag.';
+COMMENT ON COLUMN tb_tag.slug IS 'Slug para URL.';
+COMMENT ON COLUMN tb_tag.created_at IS 'Data/hora de criação.';
+COMMENT ON COLUMN tb_tag.updated_at IS 'Data/hora da última alteração.';
+COMMENT ON COLUMN tb_tag.deleted_at IS 'Exclusão lógica (soft delete).';
 
-CREATE TABLE tb_product_tag (
-  product_id INTEGER NOT NULL,
+CREATE TABLE tb_simple_item_tag (
+  simple_item_id INTEGER NOT NULL,
   tag_id INTEGER NOT NULL,
   tenant UUID NOT NULL,
   external_id UUID NOT NULL UNIQUE,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   deleted_at TIMESTAMP,
-  PRIMARY KEY (product_id, tag_id),
-  FOREIGN KEY (product_id) REFERENCES tb_product(id),
+  PRIMARY KEY (simple_item_id, tag_id),
+  FOREIGN KEY (simple_item_id) REFERENCES tb_simple_item(id),
   FOREIGN KEY (tag_id) REFERENCES tb_tag(id)
 );
-COMMENT ON TABLE tb_product_tag IS 'Vínculo físico N-N entre produtos e suas tags associadas.';
-
-CREATE TABLE tb_document (
-  id SERIAL PRIMARY KEY,
-  tenant UUID NOT NULL,
-  external_id UUID NOT NULL UNIQUE,
-  product_id INTEGER NOT NULL,
-  file_name TEXT NOT NULL,
-  mime_type TEXT,
-  content BYTEA,
-  file_size INTEGER DEFAULT 0,
-  description TEXT,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  deleted_at TIMESTAMP,
-  FOREIGN KEY (product_id) REFERENCES tb_product(id)
-);
-COMMENT ON TABLE tb_document IS 'Armazenamento de artefatos binários ligados aos produtos.';
+COMMENT ON TABLE tb_simple_item_tag IS 'Junção N-N entre tb_simple_item e tb_tag (ambas locais).';
+COMMENT ON COLUMN tb_simple_item_tag.simple_item_id IS 'FK local para tb_simple_item.';
+COMMENT ON COLUMN tb_simple_item_tag.tag_id IS 'FK local para tb_tag.';
+COMMENT ON COLUMN tb_simple_item_tag.tenant IS 'Referência lógica ao locatário (serviço companies).';
+COMMENT ON COLUMN tb_simple_item_tag.external_id IS 'Identificador público para APIs.';
+COMMENT ON COLUMN tb_simple_item_tag.created_at IS 'Data/hora de criação.';
+COMMENT ON COLUMN tb_simple_item_tag.updated_at IS 'Data/hora da última alteração.';
+COMMENT ON COLUMN tb_simple_item_tag.deleted_at IS 'Exclusão lógica (soft delete).';

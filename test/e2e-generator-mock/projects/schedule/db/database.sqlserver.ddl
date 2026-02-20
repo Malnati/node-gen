@@ -45,6 +45,7 @@ CREATE TABLE tb_booking (
   external_id UNIQUEIDENTIFIER NOT NULL UNIQUE,
   slot_id INT NOT NULL,
   recurrence_rule_id INT,
+  organizer_account_id UNIQUEIDENTIFIER,
   title NVARCHAR(255) NOT NULL,
   description NVARCHAR(MAX),
   created_at DATETIME2 DEFAULT GETDATE(),
@@ -54,29 +55,17 @@ CREATE TABLE tb_booking (
   FOREIGN KEY (recurrence_rule_id) REFERENCES tb_recurrence_rule(id)
 );
 
-CREATE TABLE tb_participant (
-  id INT IDENTITY(1,1) PRIMARY KEY,
-  tenant UNIQUEIDENTIFIER NOT NULL,
-  external_id UNIQUEIDENTIFIER NOT NULL UNIQUE,
-  name NVARCHAR(255) NOT NULL,
-  email NVARCHAR(255) NOT NULL,
-  created_at DATETIME2 DEFAULT GETDATE(),
-  updated_at DATETIME2 DEFAULT GETDATE(),
-  deleted_at DATETIME2
-);
-
 CREATE TABLE tb_booking_participant (
   booking_id INT NOT NULL,
-  participant_id INT NOT NULL,
+  account_id UNIQUEIDENTIFIER NOT NULL,
   tenant UNIQUEIDENTIFIER NOT NULL,
   external_id UNIQUEIDENTIFIER NOT NULL UNIQUE,
   role NVARCHAR(100) NOT NULL,
   created_at DATETIME2 DEFAULT GETDATE(),
   updated_at DATETIME2 DEFAULT GETDATE(),
   deleted_at DATETIME2,
-  PRIMARY KEY (booking_id, participant_id),
-  FOREIGN KEY (booking_id) REFERENCES tb_booking(id),
-  FOREIGN KEY (participant_id) REFERENCES tb_participant(id)
+  PRIMARY KEY (booking_id, account_id),
+  FOREIGN KEY (booking_id) REFERENCES tb_booking(id)
 );
 
 CREATE TABLE tb_booking_history (

@@ -1,14 +1,4 @@
 -- test/e2e-generator-mock/projects/todo/db/database.mysql.ddl
-CREATE TABLE tb_simple_item (
-  id INT AUTO_INCREMENT PRIMARY KEY,
-  tenant CHAR(36) NOT NULL,
-  external_id CHAR(36) NOT NULL UNIQUE,
-  name VARCHAR(255) NOT NULL,
-  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  deleted_at DATETIME
-);
-
 CREATE TABLE tb_category (
   id INT AUTO_INCREMENT PRIMARY KEY,
   tenant CHAR(36) NOT NULL,
@@ -25,44 +15,17 @@ CREATE TABLE tb_category (
   deleted_at DATETIME
 );
 
-CREATE TABLE tb_product (
+CREATE TABLE tb_simple_item (
   id INT AUTO_INCREMENT PRIMARY KEY,
   tenant CHAR(36) NOT NULL,
   external_id CHAR(36) NOT NULL UNIQUE,
-  category_id INT NOT NULL,
   name VARCHAR(255) NOT NULL,
-  description TEXT,
-  unit_price DECIMAL(12,2) NOT NULL,
-  stock_quantity INT DEFAULT 0,
+  category_id INT,
+  product_id CHAR(36),
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
   updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   deleted_at DATETIME,
   FOREIGN KEY (category_id) REFERENCES tb_category(id)
-);
-
-CREATE TABLE tb_sale (
-  id INT AUTO_INCREMENT PRIMARY KEY,
-  tenant CHAR(36) NOT NULL,
-  external_id CHAR(36) NOT NULL UNIQUE,
-  total DECIMAL(12,2),
-  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  deleted_at DATETIME
-);
-
-CREATE TABLE tb_sale_item (
-  sale_id INT NOT NULL,
-  product_id INT NOT NULL,
-  tenant CHAR(36) NOT NULL,
-  external_id CHAR(36) NOT NULL UNIQUE,
-  quantity INT NOT NULL DEFAULT 1,
-  unit_price DECIMAL(12,2),
-  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  deleted_at DATETIME,
-  PRIMARY KEY (sale_id, product_id),
-  FOREIGN KEY (sale_id) REFERENCES tb_sale(id),
-  FOREIGN KEY (product_id) REFERENCES tb_product(id)
 );
 
 CREATE TABLE tb_tag (
@@ -76,31 +39,15 @@ CREATE TABLE tb_tag (
   deleted_at DATETIME
 );
 
-CREATE TABLE tb_product_tag (
-  product_id INT NOT NULL,
+CREATE TABLE tb_simple_item_tag (
+  simple_item_id INT NOT NULL,
   tag_id INT NOT NULL,
   tenant CHAR(36) NOT NULL,
   external_id CHAR(36) NOT NULL UNIQUE,
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
   updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   deleted_at DATETIME,
-  PRIMARY KEY (product_id, tag_id),
-  FOREIGN KEY (product_id) REFERENCES tb_product(id),
+  PRIMARY KEY (simple_item_id, tag_id),
+  FOREIGN KEY (simple_item_id) REFERENCES tb_simple_item(id),
   FOREIGN KEY (tag_id) REFERENCES tb_tag(id)
-);
-
-CREATE TABLE tb_document (
-  id INT AUTO_INCREMENT PRIMARY KEY,
-  tenant CHAR(36) NOT NULL,
-  external_id CHAR(36) NOT NULL UNIQUE,
-  product_id INT NOT NULL,
-  file_name VARCHAR(255) NOT NULL,
-  mime_type VARCHAR(100),
-  content LONGBLOB,
-  file_size INT DEFAULT 0,
-  description TEXT,
-  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  deleted_at DATETIME,
-  FOREIGN KEY (product_id) REFERENCES tb_product(id)
 );

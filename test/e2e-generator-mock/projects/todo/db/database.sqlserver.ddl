@@ -1,14 +1,4 @@
 -- test/e2e-generator-mock/projects/todo/db/database.sqlserver.ddl
-CREATE TABLE tb_simple_item (
-  id INT IDENTITY(1,1) PRIMARY KEY,
-  tenant UNIQUEIDENTIFIER NOT NULL,
-  external_id UNIQUEIDENTIFIER NOT NULL UNIQUE,
-  name NVARCHAR(255) NOT NULL,
-  created_at DATETIME2 DEFAULT GETDATE(),
-  updated_at DATETIME2 DEFAULT GETDATE(),
-  deleted_at DATETIME2
-);
-
 CREATE TABLE tb_category (
   id INT IDENTITY(1,1) PRIMARY KEY,
   tenant UNIQUEIDENTIFIER NOT NULL,
@@ -25,44 +15,17 @@ CREATE TABLE tb_category (
   deleted_at DATETIME2
 );
 
-CREATE TABLE tb_product (
+CREATE TABLE tb_simple_item (
   id INT IDENTITY(1,1) PRIMARY KEY,
   tenant UNIQUEIDENTIFIER NOT NULL,
   external_id UNIQUEIDENTIFIER NOT NULL UNIQUE,
-  category_id INT NOT NULL,
   name NVARCHAR(255) NOT NULL,
-  description NVARCHAR(MAX),
-  unit_price DECIMAL(12,2) NOT NULL,
-  stock_quantity INT DEFAULT 0,
+  category_id INT,
+  product_id UNIQUEIDENTIFIER,
   created_at DATETIME2 DEFAULT GETDATE(),
   updated_at DATETIME2 DEFAULT GETDATE(),
   deleted_at DATETIME2,
   FOREIGN KEY (category_id) REFERENCES tb_category(id)
-);
-
-CREATE TABLE tb_sale (
-  id INT IDENTITY(1,1) PRIMARY KEY,
-  tenant UNIQUEIDENTIFIER NOT NULL,
-  external_id UNIQUEIDENTIFIER NOT NULL UNIQUE,
-  total DECIMAL(12,2),
-  created_at DATETIME2 DEFAULT GETDATE(),
-  updated_at DATETIME2 DEFAULT GETDATE(),
-  deleted_at DATETIME2
-);
-
-CREATE TABLE tb_sale_item (
-  sale_id INT NOT NULL,
-  product_id INT NOT NULL,
-  tenant UNIQUEIDENTIFIER NOT NULL,
-  external_id UNIQUEIDENTIFIER NOT NULL UNIQUE,
-  quantity INT NOT NULL DEFAULT 1,
-  unit_price DECIMAL(12,2),
-  created_at DATETIME2 DEFAULT GETDATE(),
-  updated_at DATETIME2 DEFAULT GETDATE(),
-  deleted_at DATETIME2,
-  PRIMARY KEY (sale_id, product_id),
-  FOREIGN KEY (sale_id) REFERENCES tb_sale(id),
-  FOREIGN KEY (product_id) REFERENCES tb_product(id)
 );
 
 CREATE TABLE tb_tag (
@@ -76,31 +39,15 @@ CREATE TABLE tb_tag (
   deleted_at DATETIME2
 );
 
-CREATE TABLE tb_product_tag (
-  product_id INT NOT NULL,
+CREATE TABLE tb_simple_item_tag (
+  simple_item_id INT NOT NULL,
   tag_id INT NOT NULL,
   tenant UNIQUEIDENTIFIER NOT NULL,
   external_id UNIQUEIDENTIFIER NOT NULL UNIQUE,
   created_at DATETIME2 DEFAULT GETDATE(),
   updated_at DATETIME2 DEFAULT GETDATE(),
   deleted_at DATETIME2,
-  PRIMARY KEY (product_id, tag_id),
-  FOREIGN KEY (product_id) REFERENCES tb_product(id),
+  PRIMARY KEY (simple_item_id, tag_id),
+  FOREIGN KEY (simple_item_id) REFERENCES tb_simple_item(id),
   FOREIGN KEY (tag_id) REFERENCES tb_tag(id)
-);
-
-CREATE TABLE tb_document (
-  id INT IDENTITY(1,1) PRIMARY KEY,
-  tenant UNIQUEIDENTIFIER NOT NULL,
-  external_id UNIQUEIDENTIFIER NOT NULL UNIQUE,
-  product_id INT NOT NULL,
-  file_name NVARCHAR(255) NOT NULL,
-  mime_type NVARCHAR(100),
-  content VARBINARY(MAX),
-  file_size INT DEFAULT 0,
-  description NVARCHAR(MAX),
-  created_at DATETIME2 DEFAULT GETDATE(),
-  updated_at DATETIME2 DEFAULT GETDATE(),
-  deleted_at DATETIME2,
-  FOREIGN KEY (product_id) REFERENCES tb_product(id)
 );
