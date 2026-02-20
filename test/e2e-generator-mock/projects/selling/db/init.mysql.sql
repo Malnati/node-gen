@@ -1,39 +1,39 @@
 -- test/e2e-generator-mock/projects/selling/db/init.mysql.sql
--- MySQL init: database selling_mock para E2E (projeto selling)
 CREATE DATABASE IF NOT EXISTS selling_mock;
 GRANT ALL PRIVILEGES ON selling_mock.* TO 'e2e'@'%';
 FLUSH PRIVILEGES;
 USE selling_mock;
 
-CREATE TABLE sale (
+CREATE TABLE tb_order (
   id INT AUTO_INCREMENT PRIMARY KEY,
-  external_id CHAR(36) NOT NULL,
   tenant CHAR(36) NOT NULL,
+  external_id CHAR(36) NOT NULL UNIQUE,
   account_id CHAR(36) NOT NULL,
-  order_id CHAR(36) NOT NULL,
-  payment_id CHAR(36),
   billing_address_id CHAR(36),
   shipping_address_id CHAR(36),
-  status VARCHAR(50),
-  total DECIMAL(12,2) DEFAULT 0,
-  currency_code VARCHAR(3) DEFAULT 'BRL',
+  payment_id CHAR(36),
+  status VARCHAR(50) NOT NULL,
+  total DECIMAL(12,2) NOT NULL,
+  discount DECIMAL(5,2) DEFAULT 0,
+  ordered_at DATETIME,
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-  updated_at DATETIME,
-  deleted_at DATETIME,
-  UNIQUE KEY uk_sale_external_id (external_id)
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  deleted_at DATETIME
 );
 
-CREATE TABLE sale_item (
-  id INT AUTO_INCREMENT PRIMARY KEY,
-  external_id CHAR(36) NOT NULL,
+CREATE TABLE tb_order_line (
+  order_id INT NOT NULL,
+  line_number INT NOT NULL,
   tenant CHAR(36) NOT NULL,
-  sale_id INT NOT NULL,
+  external_id CHAR(36) NOT NULL UNIQUE,
   product_id CHAR(36) NOT NULL,
-  quantity DECIMAL(12,2) DEFAULT 1,
-  unit_price DECIMAL(12,2) DEFAULT 0,
+  product_name VARCHAR(255),
+  quantity INT NOT NULL,
+  unit_price DECIMAL(12,2) NOT NULL,
+  line_total DECIMAL(12,2) NOT NULL,
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-  updated_at DATETIME,
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   deleted_at DATETIME,
-  UNIQUE KEY uk_sale_item_external_id (external_id),
-  CONSTRAINT fk_sale_item_sale FOREIGN KEY (sale_id) REFERENCES sale(id)
+  PRIMARY KEY (order_id, line_number),
+  FOREIGN KEY (order_id) REFERENCES tb_order(id)
 );
