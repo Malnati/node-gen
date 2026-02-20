@@ -41,3 +41,20 @@ CREATE TABLE llm_execution_log (
   deleted_at TEXT,
   UNIQUE(external_id)
 );
+
+CREATE TABLE llm_usage_summary (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  external_id TEXT NOT NULL,
+  tenant TEXT NOT NULL,
+  account_id TEXT,
+  provider_config_id TEXT,
+  period_start TEXT NOT NULL,
+  period_end TEXT NOT NULL,
+  total_requests INTEGER DEFAULT 0,
+  total_tokens_input INTEGER DEFAULT 0,
+  total_tokens_output INTEGER DEFAULT 0,
+  created_at TEXT DEFAULT (datetime('now')),
+  updated_at TEXT,
+  deleted_at TEXT,
+  UNIQUE(external_id)
+);

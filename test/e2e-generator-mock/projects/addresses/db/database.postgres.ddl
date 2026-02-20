@@ -8,9 +8,10 @@ CREATE TABLE address (
   city TEXT NOT NULL,
   state TEXT,
   zip_code TEXT,
-  country TEXT DEFAULT 'BR',
+  country VARCHAR(2) DEFAULT 'BR',
   created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP WITH TIME ZONE,
   deleted_at TIMESTAMP WITH TIME ZONE,
-  UNIQUE(external_id)
+  UNIQUE(external_id),
+  CONSTRAINT chk_address_country CHECK (country IN ('BR','PT','US','ES','AR','MX','GB','FR','DE'))
 );

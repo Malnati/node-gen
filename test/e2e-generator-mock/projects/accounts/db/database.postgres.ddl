@@ -5,10 +5,11 @@ CREATE TABLE account (
   tenant UUID NOT NULL,
   name TEXT NOT NULL,
   account_type TEXT NOT NULL,
-  balance DECIMAL(12,2) DEFAULT 0,
   currency_code VARCHAR(3) DEFAULT 'BRL',
   created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP WITH TIME ZONE,
   deleted_at TIMESTAMP WITH TIME ZONE,
-  UNIQUE(external_id)
+  UNIQUE(external_id),
+  CONSTRAINT chk_account_type CHECK (account_type IN ('checking','savings','credit','wallet','other')),
+  CONSTRAINT chk_currency_code CHECK (currency_code IN ('BRL','EUR','USD','GBP','MXN','ARS'))
 );

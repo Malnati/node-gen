@@ -1,11 +1,15 @@
 -- test/e2e-generator-mock/projects/llm/db/database.sqlserver.ddl
 CREATE TABLE llm_log (
   id INT IDENTITY(1,1) PRIMARY KEY,
+  external_id UNIQUEIDENTIFIER NOT NULL DEFAULT NEWID(),
+  tenant UNIQUEIDENTIFIER NOT NULL,
+  account_id UNIQUEIDENTIFIER,
   model_name NVARCHAR(255) NOT NULL,
   prompt NVARCHAR(MAX),
   response NVARCHAR(MAX),
   tokens_used INT DEFAULT 0,
-  created_at DATETIME DEFAULT GETDATE(),
-  updated_at DATETIME,
-  deleted_at DATETIME
+  created_at DATETIME2 DEFAULT GETDATE(),
+  updated_at DATETIME2,
+  deleted_at DATETIME2,
+  CONSTRAINT uk_llm_log_external_id UNIQUE (external_id)
 );

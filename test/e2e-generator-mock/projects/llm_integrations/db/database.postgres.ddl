@@ -41,3 +41,20 @@ CREATE TABLE llm_execution_log (
   deleted_at TIMESTAMP WITH TIME ZONE,
   UNIQUE(external_id)
 );
+
+CREATE TABLE llm_usage_summary (
+  id SERIAL PRIMARY KEY,
+  external_id UUID NOT NULL DEFAULT gen_random_uuid(),
+  tenant UUID NOT NULL,
+  account_id UUID,
+  provider_config_id UUID,
+  period_start DATE NOT NULL,
+  period_end DATE NOT NULL,
+  total_requests INT DEFAULT 0,
+  total_tokens_input INT DEFAULT 0,
+  total_tokens_output INT DEFAULT 0,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP WITH TIME ZONE,
+  deleted_at TIMESTAMP WITH TIME ZONE,
+  UNIQUE(external_id)
+);

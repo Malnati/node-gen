@@ -41,3 +41,20 @@ CREATE TABLE llm_execution_log (
   deleted_at DATETIME2,
   CONSTRAINT uk_llm_execution_log_external_id UNIQUE (external_id)
 );
+
+CREATE TABLE llm_usage_summary (
+  id INT IDENTITY(1,1) PRIMARY KEY,
+  external_id UNIQUEIDENTIFIER NOT NULL DEFAULT NEWID(),
+  tenant UNIQUEIDENTIFIER NOT NULL,
+  account_id UNIQUEIDENTIFIER,
+  provider_config_id UNIQUEIDENTIFIER,
+  period_start DATE NOT NULL,
+  period_end DATE NOT NULL,
+  total_requests INT DEFAULT 0,
+  total_tokens_input INT DEFAULT 0,
+  total_tokens_output INT DEFAULT 0,
+  created_at DATETIME2 DEFAULT GETDATE(),
+  updated_at DATETIME2,
+  deleted_at DATETIME2,
+  CONSTRAINT uk_llm_usage_summary_external_id UNIQUE (external_id)
+);

@@ -20,9 +20,27 @@ A cláusula `WHERE deleted_at IS NULL` é implícita em todas as leituras da apl
 
 ---
 
+## Domínios e valores permitidos
+
+| Contexto | Campo | Valores / Regra |
+|----------|--------|------------------|
+| account | account_type | `checking`, `savings`, `credit`, `wallet`, `other` |
+| account, payments, transactions, orders, products | currency_code | ISO 4217: `BRL`, `EUR`, `USD`, `GBP`, `MXN`, `ARS` |
+| address | country | ISO 3166-1 alpha-2: `BR`, `PT`, `US`, `ES`, `AR`, `MX`, `GB`, `FR`, `DE` |
+| address | state | Código estado/região (ex.: SP, RJ, NY, CA) ou texto; domínio por país quando aplicável |
+| address | city | Texto livre; opcionalmente tabela de apoio por país |
+| order | status | `draft`, `confirmed`, `paid`, `shipped`, `delivered`, `cancelled` |
+| shipment | status | `pending`, `picked_up`, `in_transit`, `out_for_delivery`, `delivered`, `exception` |
+| notification | channel | `email`, `sms`, `push` |
+| notification | priority | `low`, `normal`, `high`, `urgent` |
+
+Todas as relações entre projetos são **UUID** (PostgreSQL UUID; MySQL CHAR(36); SQL Server UNIQUEIDENTIFIER; SQLite TEXT). Nenhuma FK física entre bases.
+
+---
+
 ## 1. projects/accounts
 
-**Relação lógica:** tenant.
+**Relação lógica:** tenant. Entidade centralizadora. Saldo (balance) não pertence ao escopo de accounts; utilizar domínio de transações/ledger.
 
 ### Tabela: account
 
@@ -32,9 +50,8 @@ A cláusula `WHERE deleted_at IS NULL` é implícita em todas as leituras da apl
 | external_id | UUID | Sim, único | Identificador exposto a outros serviços. |
 | tenant | UUID | Sim | Tenant ao qual a conta pertence. |
 | name | Texto | Sim | Nome da conta. |
-| account_type | Texto | Sim | Tipo (ex.: checking, savings). |
-| balance | Decimal(12,2) | Não | Saldo; default 0. |
-| currency_code | Texto (3) | Não | Código da moeda; default BRL. |
+| account_type | Domínio | Sim | checking, savings, credit, wallet, other. |
+| currency_code | Domínio | Não | ISO 4217; default BRL. Ver domínios acima. |
 | created_at | Timestamp | Sim (default) | Data/hora de criação. |
 | updated_at | Timestamp | Não | Data/hora da última atualização. |
 | deleted_at | Timestamp | Não | Exclusão lógica (soft delete); NULL = ativo. |
@@ -54,10 +71,10 @@ A cláusula `WHERE deleted_at IS NULL` é implícita em todas as leituras da apl
 | tenant | UUID | Sim | Tenant. |
 | account_id | UUID | Sim | Referência lógica ao account (projects/accounts). |
 | street | Texto | Sim | Logradouro. |
-| city | Texto | Sim | Cidade. |
-| state | Texto | Não | Estado/região. |
+| city | Texto | Sim | Cidade. Domínio por país quando aplicável. |
+| state | Texto | Não | Estado/região. Código ou texto; domínio por país. |
 | zip_code | Texto | Não | CEP/código postal. |
-| country | Texto | Não | País; default BR. |
+| country | Domínio | Não | ISO 3166-1 alpha-2; default BR. Ver domínios acima. |
 | created_at | Timestamp | Sim (default) | Criação. |
 | updated_at | Timestamp | Não | Última atualização. |
 | deleted_at | Timestamp | Não | Soft delete. |
@@ -217,10 +234,28 @@ Método de pagamento: apenas `DEBITO`, `CREDITO`, `PIX`, `BOLETO`, `CRIPTO`, `SW
 | account_id | UUID | Sim | Referência lógica ao account. |
 | user_id | UUID | Não | Referência lógica ao app_user. |
 | contact_id | UUID | Não | Referência lógica ao contact. |
-| channel | Texto | Não | Canal (email, sms, push). |
+| template_id | UUID | Não | Referência lógica a notification_template (quando existir). |
+| channel | Domínio | Não | email, sms, push. Ver domínios acima. |
+| priority | Texto | Não | low, normal, high, urgent. |
 | subject | Texto | Não | Assunto. |
 | body | Texto | Não | Corpo da mensagem. |
 | read_at | Timestamp | Não | Data de leitura; NULL = não lida. |
+| created_at | Timestamp | Sim (default) | Criação. |
+| updated_at | Timestamp | Não | Última atualização. |
+| deleted_at | Timestamp | Não | Soft delete. |
+
+### Tabela: notification_template (opcional, expansão)
+
+| Campo | Tipo | Obrigatório | Descrição |
+|-------|------|-------------|-----------|
+| id | Chave interna | Sim | Identificador físico interno. |
+| external_id | UUID | Sim, único | Identificador exposto a outros serviços. |
+| tenant | UUID | Sim | Tenant. |
+| code | Texto | Sim | Código do template. |
+| name | Texto | Não | Nome. |
+| channel | Domínio | Não | email, sms, push. |
+| subject_tpl | Texto | Não | Modelo do assunto. |
+| body_tpl | Texto | Não | Modelo do corpo. |
 | created_at | Timestamp | Sim (default) | Criação. |
 | updated_at | Timestamp | Não | Última atualização. |
 | deleted_at | Timestamp | Não | Soft delete. |
@@ -286,9 +321,9 @@ Método de pagamento: apenas `DEBITO`, `CREDITO`, `PIX`, `BOLETO`, `CRIPTO`, `SW
 | shipping_address_id | UUID | Não | Morada de entrega. |
 | billing_address_id | UUID | Não | Morada de faturação. |
 | payment_id | UUID | Não | Pagamento associado. |
-| status | Texto | Não | Estado do pedido (draft, confirmed, shipped, etc.). |
+| status | Domínio | Não | draft, confirmed, paid, shipped, delivered, cancelled. Ver domínios acima. |
 | total | Decimal(12,2) | Não | Total; default 0. |
-| currency_code | Texto (3) | Não | Moeda; default BRL. |
+| currency_code | Domínio | Não | ISO 4217; default BRL. Ver domínios acima. |
 | created_at | Timestamp | Sim (default) | Criação. |
 | updated_at | Timestamp | Não | Última atualização. |
 | deleted_at | Timestamp | Não | Soft delete. |
@@ -312,7 +347,7 @@ Método de pagamento: apenas `DEBITO`, `CREDITO`, `PIX`, `BOLETO`, `CRIPTO`, `SW
 
 ## 13. projects/logistics
 
-**Relação lógica:** order_id, origin_address_id, destination_address_id, driver_contact_id, receiver_contact_id, tenant. Rastreamento, rotas e estado de entrega.
+**Relação lógica:** order_id, origin_address_id, destination_address_id, driver_contact_id, receiver_contact_id, tenant. Rastreamento, rotas, transportadora e eventos de tracking.
 
 ### Tabela: shipment
 
@@ -326,8 +361,27 @@ Método de pagamento: apenas `DEBITO`, `CREDITO`, `PIX`, `BOLETO`, `CRIPTO`, `SW
 | destination_address_id | UUID | Não | Morada de destino. |
 | driver_contact_id | UUID | Não | Motorista (contact). |
 | receiver_contact_id | UUID | Não | Recebedor (contact). |
-| status | Texto | Não | Estado da entrega (pending, in_transit, delivered). |
+| carrier | Texto | Não | Nome/código da transportadora. |
+| status | Domínio | Não | pending, picked_up, in_transit, out_for_delivery, delivered, exception. Ver domínios acima. |
 | tracking_code | Texto | Não | Código de rastreio. |
+| estimated_delivery_at | Timestamp | Não | Previsão de entrega. |
+| delivered_at | Timestamp | Não | Data/hora efetiva da entrega. |
+| created_at | Timestamp | Sim (default) | Criação. |
+| updated_at | Timestamp | Não | Última atualização. |
+| deleted_at | Timestamp | Não | Soft delete. |
+
+### Tabela: shipment_event
+
+| Campo | Tipo | Obrigatório | Descrição |
+|-------|------|-------------|-----------|
+| id | Chave interna | Sim | Identificador físico interno. |
+| external_id | UUID | Sim, único | Identificador exposto a outros serviços. |
+| tenant | UUID | Sim | Tenant. |
+| shipment_id | UUID | Sim | Referência lógica ao shipment. |
+| event_type | Texto | Não | Tipo do evento (ex.: picked_up, in_transit, delivered). |
+| event_at | Timestamp | Não | Data/hora do evento. |
+| location_text | Texto | Não | Local ou descrição no momento do evento. |
+| raw_payload | Texto | Não | Payload bruto do provedor de tracking (JSON). |
 | created_at | Timestamp | Sim (default) | Criação. |
 | updated_at | Timestamp | Não | Última atualização. |
 | deleted_at | Timestamp | Não | Soft delete. |

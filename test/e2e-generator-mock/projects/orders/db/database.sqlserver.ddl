@@ -13,7 +13,9 @@ CREATE TABLE [order] (
   created_at DATETIME2 DEFAULT GETDATE(),
   updated_at DATETIME2,
   deleted_at DATETIME2,
-  CONSTRAINT uk_order_external_id UNIQUE (external_id)
+  CONSTRAINT uk_order_external_id UNIQUE (external_id),
+  CONSTRAINT chk_order_status CHECK (status IS NULL OR status IN ('draft','confirmed','paid','shipped','delivered','cancelled')),
+  CONSTRAINT chk_order_currency_code CHECK (currency_code IS NULL OR currency_code IN ('BRL','EUR','USD','GBP','MXN','ARS'))
 );
 
 CREATE TABLE order_item (

@@ -12,5 +12,6 @@ CREATE TABLE address (
   created_at DATETIME2 DEFAULT GETDATE(),
   updated_at DATETIME2,
   deleted_at DATETIME2,
-  CONSTRAINT uk_address_external_id UNIQUE (external_id)
+  CONSTRAINT uk_address_external_id UNIQUE (external_id),
+  CONSTRAINT chk_address_country CHECK (country IN ('BR','PT','US','ES','AR','MX','GB','FR','DE'))
 );
