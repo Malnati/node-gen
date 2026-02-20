@@ -4,6 +4,7 @@ CREATE TABLE app_user (
   tenant UNIQUEIDENTIFIER NOT NULL,
   account_id UNIQUEIDENTIFIER NOT NULL,
   address_id UNIQUEIDENTIFIER,
+  contact_id UNIQUEIDENTIFIER,
   username NVARCHAR(255) NOT NULL,
   email NVARCHAR(255) NOT NULL,
   password_hash NVARCHAR(255),

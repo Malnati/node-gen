@@ -3,6 +3,7 @@ CREATE TABLE app_user (
   id SERIAL PRIMARY KEY,
   tenant UUID NOT NULL,
   account_id UUID NOT NULL,
+  contact_id UUID,
   address_id UUID,
   username TEXT NOT NULL,
   email TEXT NOT NULL,

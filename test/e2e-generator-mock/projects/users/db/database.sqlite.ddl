@@ -4,6 +4,7 @@ CREATE TABLE app_user (
   tenant TEXT NOT NULL,
   account_id TEXT NOT NULL,
   address_id TEXT,
+  contact_id TEXT,
   username TEXT NOT NULL,
   email TEXT NOT NULL,
   password_hash TEXT,

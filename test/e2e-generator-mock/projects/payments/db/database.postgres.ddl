@@ -3,6 +3,7 @@ CREATE TABLE payment_method (
   id SERIAL PRIMARY KEY,
   tenant UUID NOT NULL,
   account_id UUID NOT NULL,
+  contact_id UUID,
   code TEXT NOT NULL,
   name TEXT NOT NULL,
   method_type TEXT NOT NULL,

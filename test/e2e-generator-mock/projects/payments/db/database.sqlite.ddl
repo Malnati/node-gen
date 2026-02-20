@@ -3,6 +3,7 @@ CREATE TABLE payment_method (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   tenant TEXT NOT NULL,
   account_id TEXT NOT NULL,
+  contact_id TEXT,
   code TEXT NOT NULL,
   name TEXT NOT NULL,
   method_type TEXT NOT NULL,
