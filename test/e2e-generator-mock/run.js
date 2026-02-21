@@ -5,6 +5,8 @@ const net = require('net');
 const http = require('http');
 const { spawnSync, spawn } = require('child_process');
 
+const E2E_DB_TYPES_ALLOWED = ['sqlite', 'postgres', 'mysql', 'sqlserver'];
+
 const E2E_POST_VERIFY = {
   todo: { path: '/simple-item', body: { name: 'e2e-verify' }, table: 'tb_simple_item', whereColumn: 'name', whereValue: 'e2e-verify' },
   selling: { path: '/sale', body: { status: 'confirmed' }, table: 'sale', whereColumn: 'status', whereValue: 'confirmed' },
@@ -27,6 +29,7 @@ const API_START_TIMEOUT_MS = 45000;
 const POLL_INTERVAL_MS = 1500;
 const HEALTH_REQUEST_TIMEOUT_MS = 1500;
 const DB_CONNECT_CHECK_TIMEOUT_MS = 1500;
+/* Loops de conclusão usam intervalo/timeout de no máximo 1,5 s por tentativa. */
 
 function checkPortReachable(host, port, timeoutMs) {
   return new Promise((resolve) => {
@@ -46,10 +49,8 @@ function checkPortReachable(host, port, timeoutMs) {
 }
 
 function checkDbContainersReachable() {
-  const e2eDbTypes = (process.env.E2E_DB_TYPES || 'sqlite,postgres,mysql,sqlserver')
-    .split(',')
-    .map((s) => s.trim().toLowerCase());
-  const results = [];
+  const raw = (process.env.E2E_DB_TYPES || 'sqlite,postgres,mysql,sqlserver').split(',').map((s) => s.trim().toLowerCase());
+  const e2eDbTypes = raw.filter((t) => E2E_DB_TYPES_ALLOWED.includes(t));
   const checks = [];
   if (e2eDbTypes.includes('postgres')) {
     const host = process.env.DB_POSTGRES_HOST || '127.0.0.1';
@@ -305,7 +306,7 @@ function startAppAndCheckHealth(outDir, dbType, project, conn) {
         curlAllEndpoints(port, project, HEALTH_REQUEST_TIMEOUT_MS).then((endpointResult) => {
           if (!endpointResult.allOk) {
             clearTimeout(t);
-            done(false, `Endpoints falharam: ${endpointResult.failures.join(', ')}`);
+            done(false, `Cobertura endpoints: falha em ${endpointResult.failures.join(', ')}`);
             resolve(false);
             return;
           }
@@ -314,22 +315,22 @@ function startAppAndCheckHealth(outDir, dbType, project, conn) {
           const hasStartupLog = /Nest|Application|listening|started|Listening/.test(out + err);
           if (!hasStartupLog) {
             clearTimeout(t);
-            done(false, 'Logs da API não contêm mensagem de startup (Nest/Application/listening)');
+            done(false, 'Cobertura logs: logs da API não contêm mensagem de startup (Nest/Application/listening)');
             resolve(false);
             return;
           }
-          console.log('[e2e] API em execução: /health, /version e todos os endpoints GET OK (porta ' + port + '); verificando logs e banco.');
+          console.log('[e2e] Cobertura cURL: /health, /version e todos os endpoints GET OK (porta ' + port + '). Cobertura logs: OK. Verificando banco após execução dos endpoints.');
           postAndVerifyInDb(port, project, conn, HEALTH_REQUEST_TIMEOUT_MS)
             .then((dbOk) => {
               clearTimeout(t);
               if (!dbOk) {
-                done(false, 'Verificação no banco de dados após POST falhou.');
+                done(false, 'Cobertura banco: verificação no banco de dados após execução do endpoint falhou.');
                 resolve(false);
                 return;
               }
               try { child.kill('SIGTERM'); } catch (e) { try { child.kill('SIGKILL'); } catch (_) {} }
               resolved = true;
-              console.log('[e2e] Verificação em banco OK (porta ' + port + ').');
+              console.log('[e2e] Cobertura banco: dados confirmados no banco após endpoint (porta ' + port + ').');
               resolve(true);
             })
             .catch((e) => {
@@ -422,14 +423,13 @@ function discoverConnectionFiles(connectionDir) {
     if (!e.isFile() || !e.name.endsWith('.json')) continue;
     const m = e.name.match(CONNECTION_FILE_PATTERN);
     if (m) {
-      out.push({ dbType: m[1], path: path.join(connectionDir, e.name) });
+      const dbType = m[1].toLowerCase();
+      if (E2E_DB_TYPES_ALLOWED.includes(dbType)) {
+        out.push({ dbType, path: path.join(connectionDir, e.name) });
+      }
     }
   }
-  const allowed = process.env.E2E_DB_TYPES;
-  const list = allowed
-    ? out.filter((c) => allowed.split(',').map((s) => s.trim().toLowerCase()).includes(c.dbType.toLowerCase()))
-    : out;
-  return list.sort((a, b) => a.dbType.localeCompare(b.dbType));
+  return out.sort((a, b) => a.dbType.localeCompare(b.dbType));
 }
 
 function loadMockConnection(connectionFilePath) {
@@ -717,10 +717,16 @@ async function main() {
   console.log('[e2e] Output base:', OUT_DIR_BASE);
   console.log('[e2e] Gen dir:', GEN_DIR);
   console.log('[e2e] Projetos:', projects.join(', '));
+  console.log('[e2e] DB types (cobertura):', E2E_DB_TYPES_ALLOWED.join(', '));
 
+  console.log('[e2e] Cobertura E2E: verificação de containers, logs das APIs, cURL em todos os endpoints e confirmação no banco após execução.');
   const containerStatus = await checkDbContainersReachable();
   for (const { db, ok } of containerStatus) {
     console.log('[e2e] Container', db + ':', ok ? 'reachable' : 'unreachable');
+  }
+  if (containerStatus.some((r) => !r.ok)) {
+    console.error('[e2e] Falha na cobertura: algum container de DB não está acessível.');
+    process.exit(1);
   }
 
   let anyFailed = false;
