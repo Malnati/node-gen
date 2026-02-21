@@ -266,6 +266,9 @@ function startAppAndCheckHealth(outDir, dbType, project, conn) {
     return false;
   }
   const env = { ...process.env, NODE_ENV: 'production', E2E_SKIP_JWT: 'true' };
+  if (dbType === 'sqlite' && conn && conn.database) {
+    env.DATABASE_PATH = conn.database;
+  }
   const child = spawn(process.execPath, [distMain], {
     cwd: outDir,
     env,
@@ -672,16 +675,22 @@ function assessResults(dbType, outDir, project) {
 
   let buildOk = false;
   if (fs.existsSync(path.join(outDir, 'package.json'))) {
-    spawnSync(
+    const installResult = spawnSync(
       'sh',
-      ['-c', 'npm install --legacy-peer-deps --no-audit --ignore-scripts 2>&1; exit 0'],
+      ['-c', 'npm install --legacy-peer-deps --no-audit --ignore-scripts 2>&1'],
       { cwd: outDir, stdio: 'pipe', timeout: 300000, env: { ...process.env, npm_config_audit: 'false', npm_config_fund: 'false' } }
     );
-    const buildResult = spawnSync('npm', ['run', 'build'], {
-      cwd: outDir,
-      stdio: 'pipe',
-      timeout: 120000,
-    });
+    if (installResult.status !== 0) {
+      console.error('[e2e] npm install falhou. stderr:', (installResult.stderr && installResult.stderr.toString()) || '');
+    }
+    const buildResult =
+      installResult.status === 0
+        ? spawnSync('npm', ['run', 'build'], {
+            cwd: outDir,
+            stdio: 'pipe',
+            timeout: 120000,
+          })
+        : { status: 1, stdout: null, stderr: null };
     buildOk = buildResult.status === 0;
     if (!buildOk) {
       const out = (buildResult.stdout && buildResult.stdout.toString()) || '';
