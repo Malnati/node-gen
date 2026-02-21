@@ -92,7 +92,8 @@ function applyMySQL(content, comments, firstLine) {
       const l = blockLines[k];
       const isClosing = k === lastIdx && /^\s*\)\s*;?\s*$/.test(l.trim());
       if (isClosing && tableComment != null && tableComment !== '') {
-        const withComment = l.replace(/\)\s*;?\s*$/, ") COMMENT = '" + String(tableComment).replace(/'/g, "\\'") + "';");
+        const escapedTableComment = String(tableComment).replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+        const withComment = l.replace(/\)\s*;?\s*$/, ") COMMENT = '" + escapedTableComment + "';");
         out.push(withComment);
         continue;
       }
