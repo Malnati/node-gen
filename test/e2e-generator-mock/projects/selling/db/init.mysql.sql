@@ -1,10 +1,10 @@
 -- test/e2e-generator-mock/projects/selling/db/init.mysql.sql
-CREATE DATABASE IF NOT EXISTS selling_mock;
-CREATE DATABASE IF NOT EXISTS google_calendar_mock;
-GRANT ALL PRIVILEGES ON selling_mock.* TO 'e2e'@'%';
-GRANT ALL PRIVILEGES ON google_calendar_mock.* TO 'e2e'@'%';
+CREATE DATABASE IF NOT EXISTS selling;
+CREATE DATABASE IF NOT EXISTS google_calendar;
+GRANT ALL PRIVILEGES ON selling.* TO 'e2e'@'%';
+GRANT ALL PRIVILEGES ON google_calendar.* TO 'e2e'@'%';
 FLUSH PRIVILEGES;
-USE selling_mock;
+USE selling;
 
 CREATE TABLE tb_order (
   id INT AUTO_INCREMENT PRIMARY KEY,
@@ -40,7 +40,7 @@ CREATE TABLE tb_order_line (
   FOREIGN KEY (order_id) REFERENCES tb_order(id)
 );
 
-USE google_calendar_mock;
+USE google_calendar;
 CREATE TABLE calendar_integration (
   id INT AUTO_INCREMENT PRIMARY KEY COMMENT 'Identificador interno.',
   external_id CHAR(36) NOT NULL COMMENT 'UUID público.',

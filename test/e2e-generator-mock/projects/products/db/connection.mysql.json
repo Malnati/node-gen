@@ -1,1 +1,1 @@
-{"dbType":"mysql","database":"products_mock","user":"root","password":"root","host":"127.0.0.1","port":3306}
+{"dbType":"mysql","database":"products","user":"root","password":"root","host":"127.0.0.1","port":3306}

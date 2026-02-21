@@ -19,7 +19,7 @@
   - `.docker/docker-compose.e2e.yml` (ex-raiz)
   - `.docker/docker-compose.yml` (ex-raiz)
 - **Atualizados:**
-  - `test/e2e-generator-mock/pg-init/00-init-extra.sh` — passa a usar `E2E_MOCK` e schemas em `projects/<name>/db/schema.postgres.ddl`; não tenta criar `todo_mock` (já criado por `POSTGRES_DB`).
+  - `test/e2e-generator-mock/pg-init/00-init-extra.sh` — passa a usar `E2E_MOCK` e schemas em `projects/<name>/db/schema.postgres.ddl`; não tenta criar `todo` (já criado por `POSTGRES_DB`).
   - `.docker/docker-compose.e2e.yml` — volumes MySQL e Postgres apontam para `projects/<name>/db/`; Postgres com volume `/e2e-mock`; healthcheck MySQL com `start_period: 120s` e `retries: 30`.
   - `Makefile` — `COMPOSE` e `COMPOSE_E2E` usam `docker-compose -f .docker/docker-compose.yml` e `-f .docker/docker-compose.e2e.yml --project-directory .`.
   - `test/README.md`, `README.md` — referências a `docker-compose.e2e.yml` / `docker-compose.yml` atualizadas para `.docker/`.

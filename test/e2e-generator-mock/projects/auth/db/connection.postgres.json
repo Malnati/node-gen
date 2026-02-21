@@ -1,1 +1,1 @@
-{"dbType":"postgres","database":"auth_mock","user":"postgres","password":"postgres","host":"127.0.0.1","port":5432}
+{"dbType":"postgres","database":"auth","user":"postgres","password":"postgres","host":"127.0.0.1","port":5432}

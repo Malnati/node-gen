@@ -1,1 +1,1 @@
-{"dbType":"sqlserver","database":"communications_mock","user":"sa","password":"YourStrong@Passw0rd","host":"127.0.0.1","port":1433}
+{"dbType":"sqlserver","database":"communications","user":"sa","password":"YourStrong@Passw0rd","host":"127.0.0.1","port":1433}

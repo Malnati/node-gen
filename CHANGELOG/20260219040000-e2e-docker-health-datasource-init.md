@@ -4,7 +4,7 @@
 ## Arquivos alterados
 
 - **Criados**
-  - `.docker/e2e-postgres-init/00-init-extra.sh` — script de init do Postgres para E2E (cria todo_mock, selling_mock, schedule_mock e aplica schemas de `projects/<name>/db/schema.postgres.ddl`); executável (`chmod +x`).
+  - `.docker/e2e-postgres-init/00-init-extra.sh` — script de init do Postgres para E2E (cria todo, selling, schedule e aplica schemas de `projects/<name>/db/schema.postgres.ddl`); executável (`chmod +x`).
   - `test/e2e-generator-mock/pg-init/README.md` — referência ao init em `.docker/e2e-postgres-init`.
 - **Removidos**
   - `test/e2e-generator-mock/pg-init/00-init-extra.sh` — conteúdo migrado para `.docker/e2e-postgres-init/00-init-extra.sh`.
