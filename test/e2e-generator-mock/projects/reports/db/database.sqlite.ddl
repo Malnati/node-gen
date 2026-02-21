@@ -1,30 +1,33 @@
 -- test/e2e-generator-mock/projects/reports/db/database.sqlite.ddl
+-- Vendas consolidadas por mês e tenant.
 CREATE TABLE consolidated_sales_monthly (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  tenant TEXT NOT NULL,
-  year_month TEXT NOT NULL,
-  total_amount REAL,
-  order_count INTEGER,
-  currency_code TEXT DEFAULT 'BRL',
-  updated_at TEXT
+  id INTEGER PRIMARY KEY AUTOINCREMENT, -- Identificador interno.
+  tenant TEXT NOT NULL, -- Tenant.
+  year_month TEXT NOT NULL, -- Ano-mês (YYYY-MM).
+  total_amount REAL, -- Valor total.
+  order_count INTEGER, -- Quantidade de pedidos.
+  currency_code TEXT DEFAULT 'BRL', -- Moeda.
+  updated_at TEXT -- Última atualização.
 );
 
+-- Snapshot atual de estoque por tenant.
 CREATE TABLE current_warehouse_stock (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  tenant TEXT NOT NULL,
-  warehouse_stock_external_id TEXT NOT NULL,
-  snapshot_at TEXT,
-  updated_at TEXT
+  id INTEGER PRIMARY KEY AUTOINCREMENT, -- Identificador interno.
+  tenant TEXT NOT NULL, -- Tenant.
+  warehouse_stock_external_id TEXT NOT NULL, -- Estoque (UUID externo).
+  snapshot_at TEXT, -- Data do snapshot.
+  updated_at TEXT -- Última atualização.
 );
 
+-- Métricas de desempenho logístico por tenant e período.
 CREATE TABLE logistics_performance (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  tenant TEXT NOT NULL,
-  period_type TEXT,
-  period_key TEXT,
-  on_time_rate REAL,
-  avg_delivery_days REAL,
-  updated_at TEXT
+  id INTEGER PRIMARY KEY AUTOINCREMENT, -- Identificador interno.
+  tenant TEXT NOT NULL, -- Tenant.
+  period_type TEXT, -- Tipo do período.
+  period_key TEXT, -- Chave do período.
+  on_time_rate REAL, -- Taxa de entrega no prazo.
+  avg_delivery_days REAL, -- Média de dias para entrega.
+  updated_at TEXT -- Última atualização.
 );
 
 CREATE VIEW v_sales_monthly AS SELECT * FROM consolidated_sales_monthly;
