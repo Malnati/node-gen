@@ -35,10 +35,14 @@ export class ServiceGenerator {
       }
 
       const hasExternalId = table.columns.some((c) => c.columnName === 'external_id');
-      const firstPkScalar = table.columns.find(
-        (c) => c.isPrimaryKey && !table.relations.some((r) => r.columnName === c.columnName),
-      );
-      const hasSingleScalarKey = hasExternalId || !!firstPkScalar;
+      const pkColumns = table.columns.filter((c) => c.isPrimaryKey);
+      const firstPkScalar =
+        pkColumns.length === 1
+          ? pkColumns[0]
+          : table.columns.find(
+              (c) => c.isPrimaryKey && !table.relations.some((r) => r.columnName === c.columnName),
+            );
+      const hasSingleScalarKey = hasExternalId || pkColumns.length === 1;
       const primaryKeyColumn = hasExternalId ? '' : (firstPkScalar ? toSnakeCase(firstPkScalar.columnName) : 'id');
       const data = {
         entityName,
