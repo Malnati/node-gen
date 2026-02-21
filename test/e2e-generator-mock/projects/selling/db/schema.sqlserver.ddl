@@ -47,10 +47,8 @@ CREATE TABLE tb_order_line (
   created_at DATETIME2 DEFAULT GETDATE(),
   updated_at DATETIME2 DEFAULT GETDATE(),
   deleted_at DATETIME2,
-  PRIMARY KEY (order_id, line_number),
+  CONSTRAINT pk_tb_order_line PRIMARY KEY (order_id, line_number),
   FOREIGN KEY (order_id) REFERENCES tb_order(id)
-,
-  CONSTRAINT pk_tb_order_line PRIMARY KEY (id)
 );
 EXEC sp_addextendedproperty @name = N'MS_Description', @value = N'Itens do pedido; produto referenciado por UUID ao serviço products.', @level0type = N'SCHEMA', @level0name = N'dbo', @level1type = N'TABLE', @level1name = N'tb_order_line';
 EXEC sp_addextendedproperty @name = N'MS_Description', @value = N'Chave interna do pedido (FK local).', @level0type = N'SCHEMA', @level0name = N'dbo', @level1type = N'TABLE', @level1name = N'tb_order_line', @level2type = N'COLUMN', @level2name = N'order_id';
