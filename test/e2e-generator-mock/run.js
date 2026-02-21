@@ -9,8 +9,8 @@ const E2E_DB_TYPES_ALLOWED = ['sqlite', 'postgres', 'mysql', 'sqlserver'];
 
 const E2E_POST_VERIFY = {
   todo: { path: '/simple-item', body: { name: 'e2e-verify' }, table: 'tb_simple_item', whereColumn: 'name', whereValue: 'e2e-verify' },
-  selling: { path: '/sale', body: { status: 'confirmed' }, table: 'sale', whereColumn: 'status', whereValue: 'confirmed' },
-  'google-calendar': { path: '/calendar-integration', body: { connected_email: 'calendar@example.com' }, table: 'calendar_integration', whereColumn: 'connected_email', whereValue: 'calendar@example.com' },
+  selling: { path: '/order', body: { status: 'confirmed', tenant: '00000000-0000-0000-0000-000000000001', account_id: '00000000-0000-0000-0000-000000000002', total: 0 }, table: 'tb_order', whereColumn: 'status', whereValue: 'confirmed' },
+  'google-calendar': { path: '/calendar-integration', body: { connected_email: 'calendar@example.com', tenant: '00000000-0000-0000-0000-000000000001', account_id: '00000000-0000-0000-0000-000000000002' }, table: 'calendar_integration', whereColumn: 'connected_email', whereValue: 'calendar@example.com' },
 };
 
 const REPO_ROOT = path.resolve(__dirname, '..', '..');
@@ -384,9 +384,9 @@ const PROJECT_EXPECTED = {
     entityFiles: ['simple_item.ts', 'category.ts', 'product.ts', 'sale.ts', 'sale_item.ts', 'tag.ts', 'product_tag.ts', 'document.ts'],
   },
   selling: {
-    tables: ['sale', 'sale_item'],
-    moduleNames: ['sale', 'sale-item'],
-    entityFiles: ['sale.ts', 'sale_item.ts'],
+    tables: ['tb_order', 'tb_order_line'],
+    moduleNames: ['order', 'order-line'],
+    entityFiles: ['order.ts', 'order_line.ts'],
   },
   'google-calendar': {
     tables: ['calendar_integration', 'calendar', 'calendar_event'],
@@ -751,6 +751,11 @@ async function main() {
       }
       if (conn.dbType === 'sqlite') {
         conn.database = path.join(MOCK_DIR, project === 'todo' ? 'mock.sqlite' : `mock-${project}.sqlite`);
+        const fixtureScript = path.join(PROJECTS_DIR, project, 'db', 'create-sqlite-fixture.js');
+        if (project !== 'todo' && !fs.existsSync(fixtureScript)) {
+          console.log('[e2e] Projeto', project, 'sqlite: create-sqlite-fixture.js ausente, pulando.');
+          continue;
+        }
       }
       console.log('[e2e] Parâmetros (mock): dbType=%s database=%s', conn.dbType, conn.database);
       if (!ensureMock(conn, project)) {

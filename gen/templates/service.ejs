@@ -40,9 +40,17 @@ export class <%= entityName %>Service {
       // Validate and assign related entities
       <%- relationCheckAndAssignment %>
 
-      const savedEntity = await this.repository.manager.transaction(async manager =>
-        manager.getRepository(<%= entityName %>Entity).save(newEntity)
-      );
+      const savedEntity = await this.repository.manager.transaction(async (manager) => {
+        const repo = manager.getRepository(<%= entityName %>Entity);
+        const result = await repo.insert(newEntity);
+        const pk = result.identifiers?.[0] ?? result.generatedMaps?.[0];
+        const id = pk?.id ?? (pk && '<%= primaryKeyColumn %>' ? pk['<%= primaryKeyColumn %>'] : undefined);
+        if (id !== undefined && id !== null && '<%= primaryKeyColumn %>') {
+          const found = await repo.findOne({ where: { <%= primaryKeyColumn %>: id } });
+          if (found) return found;
+        }
+        return repo.save(newEntity);
+      });
 
       return this.toDTO(savedEntity);
     } catch (error) {
