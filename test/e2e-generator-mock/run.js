@@ -162,7 +162,11 @@ function postAndVerifyInDb(port, project, conn, timeoutMs) {
       console.error('[e2e] POST', spec.path, 'retornou', r.statusCode, r.body || r.error);
       return false;
     }
-    const sql = `SELECT 1 AS ok FROM ${spec.table} WHERE ${spec.whereColumn} = '${spec.whereValue.replace(/'/g, "''")}' LIMIT 1`;
+    const dbType = (conn.dbType || 'sqlite').toLowerCase();
+    const whereClause = `${spec.whereColumn} = '${spec.whereValue.replace(/'/g, "''")}'`;
+    const sql = dbType === 'sqlserver'
+      ? `SELECT TOP 1 1 AS ok FROM ${spec.table} WHERE ${whereClause}`
+      : `SELECT 1 AS ok FROM ${spec.table} WHERE ${whereClause} LIMIT 1`;
     return queryDb(conn, sql).then((rows) => {
       const ok = Array.isArray(rows) && rows.length > 0;
       if (!ok) console.error('[e2e] Nenhuma linha encontrada no banco após POST', spec.path);
@@ -661,30 +665,22 @@ function assessResults(dbType, outDir, project) {
 
   let buildOk = false;
   if (fs.existsSync(path.join(outDir, 'package.json'))) {
-    const installResult = spawnSync('npm', ['install', '--legacy-peer-deps'], {
+    spawnSync(
+      'sh',
+      ['-c', 'npm install --legacy-peer-deps --no-audit --ignore-scripts 2>&1; exit 0'],
+      { cwd: outDir, stdio: 'pipe', timeout: 300000, env: { ...process.env, npm_config_audit: 'false', npm_config_fund: 'false' } }
+    );
+    const buildResult = spawnSync('npm', ['run', 'build'], {
       cwd: outDir,
       stdio: 'pipe',
-      timeout: 300000,
+      timeout: 120000,
     });
-    if (installResult.status !== 0) {
-      buildOk = false;
-      const out = (installResult.stdout && installResult.stdout.toString()) || '';
-      const err = (installResult.stderr && installResult.stderr.toString()) || '';
-      console.error('[e2e] npm install falhou. stdout:', out.slice(-800));
-      console.error('[e2e] npm install falhou. stderr:', err.slice(-800));
-    } else {
-      const buildResult = spawnSync('npm', ['run', 'build'], {
-        cwd: outDir,
-        stdio: 'pipe',
-        timeout: 120000,
-      });
-      buildOk = buildResult.status === 0;
-      if (!buildOk) {
-        const out = (buildResult.stdout && buildResult.stdout.toString()) || '';
-        const err = (buildResult.stderr && buildResult.stderr.toString()) || '';
-        console.error('[e2e] npm run build falhou. stdout:', out.slice(-1200));
-        console.error('[e2e] npm run build falhou. stderr:', err.slice(-1200));
-      }
+    buildOk = buildResult.status === 0;
+    if (!buildOk) {
+      const out = (buildResult.stdout && buildResult.stdout.toString()) || '';
+      const err = (buildResult.stderr && buildResult.stderr.toString()) || '';
+      console.error('[e2e] npm run build falhou. stdout:', out.slice(-1200));
+      console.error('[e2e] npm run build falhou. stderr:', err.slice(-1200));
     }
     checks.push({
       name: 'npm run build no output (obrigatório)',

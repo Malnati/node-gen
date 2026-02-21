@@ -52,11 +52,11 @@ export class ServiceGenerator {
         hasSingleScalarKey,
         primaryKeyColumn,
         imports: this.generateImports(table),
-        createUpdateAssignments: this.generateCreateUpdateAssignments(table.columns),
+        createUpdateAssignments: this.generateCreateUpdateAssignments(table.columns, table),
         relationCheckAndAssignment: this.generateRelationCheckAndAssignment(table.relations, table),
-        updateAssignments: this.generateUpdateAssignments(table.columns),
+        updateAssignments: this.generateUpdateAssignments(table.columns, table),
         relationUpdateAndAssignment: this.generateRelationUpdateAndAssignment(table.relations, table),
-        toDTOAssignments: this.generateToDTOAssignments(table.columns),
+        toDTOAssignments: this.generateToDTOAssignments(table.columns, table),
         relationMappings: this.generateRelationMappings(table.relations),
       };
 
@@ -79,9 +79,9 @@ export class ServiceGenerator {
       .join('\n');
   }
 
-  private generateCreateUpdateAssignments(columns: Column[]): string {
+  private generateCreateUpdateAssignments(columns: Column[], table: Table): string {
     return columns
-      .filter(col => this.shouldIncludeColumn(col))
+      .filter(col => this.shouldIncludeColumn(col, table))
       .map(col => {
         const columnName = toSnakeCase(col.columnName);
         return `newEntity.${columnName} = dto.${columnName};`;
@@ -89,9 +89,9 @@ export class ServiceGenerator {
       .join('\n    ');
   }
 
-  private generateUpdateAssignments(columns: Column[]): string {
+  private generateUpdateAssignments(columns: Column[], table: Table): string {
     return columns
-      .filter(col => this.shouldIncludeColumn(col))
+      .filter(col => this.shouldIncludeColumn(col, table))
       .map(col => {
         const columnName = toSnakeCase(col.columnName);
         return `entity.${columnName} = dto.${columnName};`;
@@ -126,7 +126,7 @@ export class ServiceGenerator {
       throw new NotFoundException("${relatedEntityName} not found");
     }
 
-    newEntity.${relationName} = ${relationName};`;
+    newEntity.${toSnakeCase(rel.columnName)} = ${relationName}.${byEid ? 'external_id' : 'id'};`;
       return optional ? `if (dto.${dtoKey} != null) {\n    ${block}\n    }` : block;
     }).join('\n\n    ');
   }
@@ -153,9 +153,9 @@ export class ServiceGenerator {
     }).join('\n\n    ');
   }
 
-  private generateToDTOAssignments(columns: Column[]): string {
+  private generateToDTOAssignments(columns: Column[], table: Table): string {
     return columns
-      .filter(col => this.shouldIncludeColumn(col))
+      .filter(col => this.shouldIncludeColumn(col, table))
       .map(col => {
         const columnName = toSnakeCase(col.columnName);
         return `dto.${columnName} = entity.${columnName};`;
@@ -173,12 +173,13 @@ export class ServiceGenerator {
     }).join('\n    ');
   }
 
-  private shouldIncludeColumn(column: Column): boolean {
+  private shouldIncludeColumn(column: Column, table: Table): boolean {
     if (['id', 'created_at', 'updated_at', 'deleted_at', 'external_id'].includes(column.columnName)) {
       return false;
     }
     if (column.columnName.endsWith('_id') && column.columnName !== 'external_id') {
-      return false;
+      const isRelation = table.relations.some((r) => r.columnName === column.columnName);
+      if (isRelation) return false;
     }
     return true;
   }

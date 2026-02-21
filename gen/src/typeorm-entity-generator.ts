@@ -100,7 +100,9 @@ export class TypeORMEntityGenerator {
 		const columnOptions = [`type: '${ormType}'`, ...options]
 		let columnDecorator = `@Column({ ${columnOptions.join(", ")} })`
 
-		if (isPrimaryKey) {
+		if (isPrimaryKey && column.isIdentity) {
+			columnDecorator = `@PrimaryGeneratedColumn()`
+		} else if (isPrimaryKey) {
 			columnDecorator = `@PrimaryColumn({ ${columnOptions.join(", ")} })`
 		}
 
@@ -160,6 +162,7 @@ export class TypeORMEntityGenerator {
 			"UpdateDateColumn",
 			"DeleteDateColumn",
 			"PrimaryColumn",
+			"PrimaryGeneratedColumn",
 			"JoinColumn",
 		])
 
@@ -196,10 +199,10 @@ export class TypeORMEntityGenerator {
 					"deleted_at",
 				].includes(col.columnName),
 		)
-
-		const columnName = column
-			? ` - \${this.${this.removeIdSuffix(column.columnName)}}`
+		const propName = column
+			? (this.isRelationColumn(column.columnName, table.relations) ? this.removeIdSuffix(column.columnName) : column.columnName)
 			: ""
+		const columnName = propName ? ` - \${this.${propName}}` : ""
 
 		return `
     toString() {

@@ -1,6 +1,6 @@
 // /templates/service.ejs
 import { Injectable, Logger, NotFoundException } from "@nestjs/common";
-import { Repository } from "typeorm";
+import { FindOptionsWhere, Repository } from "typeorm";
 import { DataSourceService } from "../config/datasource.service";
 import { <%= entityName %>Entity } from "@app/entities/<%= toSnakeCase(entityName) %>";
 import { <%= entityName %>QueryDTO, <%= entityName %>PersistDTO } from "./<%= kebabCaseName %>.dto";
@@ -36,25 +36,16 @@ export class <%= entityName %>Service {
     try {
       const newEntity = new <%= entityName %>Entity();
       <%- createUpdateAssignments %>
+      <% if (hasExternalId) { %>
+      newEntity.external_id = dto.external_id ?? require('crypto').randomUUID();
+      <% } %>
 
       // Validate and assign related entities
       <%- relationCheckAndAssignment %>
 
       const savedEntity = await this.repository.manager.transaction(async (manager) => {
         const repo = manager.getRepository(<%= entityName %>Entity);
-        <% if (hasSingleScalarKey) { %>
-        const result = await repo.insert(newEntity);
-        const pk = result.identifiers?.[0] ?? result.generatedMaps?.[0];
-        const pkKey = '<%= primaryKeyColumn || "id" %>';
-        const id = pk?.id ?? (pkKey ? pk?.[pkKey] : undefined);
-        if (id !== undefined && id !== null) {
-          const found = await repo.findOne({ where: { [pkKey]: id } });
-          if (found) return found;
-        }
         return repo.save(newEntity);
-        <% } else { %>
-        return repo.save(newEntity);
-        <% } %>
       });
 
       return this.toDTO(savedEntity);
