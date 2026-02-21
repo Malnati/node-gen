@@ -17,9 +17,9 @@ if [ $# -eq 0 ]; then
   fi
   if echo ",${E2E_DB_TYPES}," | grep -q ',mysql,'; then
     echo "[e2e] Aguardando MySQL em mysql:3306..."
-    for i in $(seq 1 60); do
+    for i in $(seq 1 120); do
       if (echo >/dev/tcp/mysql/3306) 2>/dev/null; then break; fi
-      if [ "$i" -eq 60 ]; then echo "[e2e] MySQL nao respondeu."; exit 1; fi
+      if [ "$i" -eq 120 ]; then echo "[e2e] MySQL nao respondeu."; exit 1; fi
       sleep 1.5
     done
     echo "[e2e] MySQL pronto."

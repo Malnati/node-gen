@@ -14,7 +14,7 @@ services:
       retries: 30
       start_period: 120s
     volumes:
-      - ./test/e2e-generator-mock/projects/todo/db/schema.mysql.sql:/docker-entrypoint-initdb.d/01-schema.sql
+      - ./test/e2e-generator-mock/projects/todo/db/database.mysql.ddl:/docker-entrypoint-initdb.d/01-schema.sql
       - ./test/e2e-generator-mock/projects/selling/db/init.mysql.sql:/docker-entrypoint-initdb.d/02-selling.sql
       - ./test/e2e-generator-mock/projects/schedule/db/init.mysql.sql:/docker-entrypoint-initdb.d/03-schedule.sql
   postgres:
