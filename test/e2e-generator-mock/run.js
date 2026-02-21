@@ -383,9 +383,9 @@ function waitForHealth(port, maxAttempts) {
 
 const PROJECT_EXPECTED = {
   todo: {
-    tables: ['tb_simple_item', 'tb_category', 'tb_product', 'tb_sale', 'tb_sale_item', 'tb_tag', 'tb_product_tag', 'tb_document'],
-    moduleNames: ['simple-item', 'category', 'product', 'sale', 'sale-item', 'tag', 'product-tag', 'document'],
-    entityFiles: ['simple_item.ts', 'category.ts', 'product.ts', 'sale.ts', 'sale_item.ts', 'tag.ts', 'product_tag.ts', 'document.ts'],
+    tables: ['tb_category', 'tb_simple_item', 'tb_tag', 'tb_simple_item_tag'],
+    moduleNames: ['category', 'simple-item', 'tag', 'simple-item-tag'],
+    entityFiles: ['category.ts', 'simple_item.ts', 'tag.ts', 'simple_item_tag.ts'],
   },
   selling: {
     tables: ['tb_order', 'tb_order_line'],

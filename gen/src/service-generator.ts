@@ -126,7 +126,7 @@ export class ServiceGenerator {
       throw new NotFoundException("${relatedEntityName} not found");
     }
 
-    newEntity.${toSnakeCase(rel.columnName)} = ${relationName}.${byEid ? 'external_id' : 'id'};`;
+    newEntity.${relationName} = ${relationName};`;
       return optional ? `if (dto.${dtoKey} != null) {\n    ${block}\n    }` : block;
     }).join('\n\n    ');
   }
