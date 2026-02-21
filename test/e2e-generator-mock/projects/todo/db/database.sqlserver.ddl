@@ -89,11 +89,9 @@ CREATE TABLE tb_simple_item_tag (
   created_at DATETIME2 DEFAULT GETDATE(),
   updated_at DATETIME2 DEFAULT GETDATE(),
   deleted_at DATETIME2,
-  PRIMARY KEY (simple_item_id, tag_id),
+  CONSTRAINT pk_tb_simple_item_tag PRIMARY KEY (simple_item_id, tag_id),
   FOREIGN KEY (simple_item_id) REFERENCES tb_simple_item(id),
   FOREIGN KEY (tag_id) REFERENCES tb_tag(id)
-,
-  CONSTRAINT pk_tb_simple_item_tag PRIMARY KEY (id)
 );
 EXEC sp_addextendedproperty @name = N'MS_Description', @value = N'Junção N-N entre tb_simple_item e tb_tag (ambas locais).', @level0type = N'SCHEMA', @level0name = N'dbo', @level1type = N'TABLE', @level1name = N'tb_simple_item_tag';
 EXEC sp_addextendedproperty @name = N'MS_Description', @value = N'FK local para tb_simple_item.', @level0type = N'SCHEMA', @level0name = N'dbo', @level1type = N'TABLE', @level1name = N'tb_simple_item_tag', @level2type = N'COLUMN', @level2name = N'simple_item_id';
