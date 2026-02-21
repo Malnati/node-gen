@@ -169,7 +169,7 @@ export class ServiceGenerator {
       const byEid = this.foreignTableHasExternalId(rel);
       const dtoKey = byEid ? `${relationName}_eid` : `${relationName}_id`;
       const entityKey = byEid ? 'external_id' : 'id';
-      return `dto.${dtoKey} = entity.${relationName}.${entityKey};`;
+      return `dto.${dtoKey} = entity.${relationName}?.${entityKey};`;
     }).join('\n    ');
   }
 

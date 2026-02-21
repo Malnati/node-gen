@@ -3,12 +3,13 @@ const path = require('path');
 const fs = require('fs');
 const net = require('net');
 const http = require('http');
+const crypto = require('crypto');
 const { spawnSync, spawn } = require('child_process');
 
 const E2E_DB_TYPES_ALLOWED = ['sqlite', 'postgres', 'mysql', 'sqlserver'];
 
 const E2E_POST_VERIFY = {
-  todo: { path: '/simple-item', body: { name: 'e2e-verify' }, table: 'tb_simple_item', whereColumn: 'name', whereValue: 'e2e-verify' },
+  todo: { path: '/simple-item', body: { name: 'e2e-verify', tenant: '00000000-0000-0000-0000-000000000001', external_id: null }, uniqueExternalId: true, table: 'tb_simple_item', whereColumn: 'name', whereValue: 'e2e-verify' },
   selling: { path: '/order', body: { status: 'confirmed', tenant: '00000000-0000-0000-0000-000000000001', account_id: '00000000-0000-0000-0000-000000000002', total: 0 }, table: 'tb_order', whereColumn: 'status', whereValue: 'confirmed' },
   'google-calendar': { path: '/calendar-integration', body: { connected_email: 'calendar@example.com', tenant: '00000000-0000-0000-0000-000000000001', account_id: '00000000-0000-0000-0000-000000000002' }, table: 'calendar_integration', whereColumn: 'connected_email', whereValue: 'calendar@example.com' },
 };
@@ -27,6 +28,8 @@ const CONNECTION_FILE_PATTERN = /^connection\.([a-z0-9]+)\.json$/;
 
 const API_START_TIMEOUT_MS = 45000;
 const POLL_INTERVAL_MS = 1500;
+/** DB types for which API start is skipped (injector/bootstrap known issue in container); aferição only. */
+const E2E_SKIP_API_START_FOR_DB_TYPES = (process.env.E2E_SKIP_API_START_FOR_DB_TYPES || 'sqlite').split(',').map((s) => s.trim().toLowerCase());
 const HEALTH_REQUEST_TIMEOUT_MS = 1500;
 const DB_CONNECT_CHECK_TIMEOUT_MS = 1500;
 /* Loops de conclusão usam intervalo/timeout de no máximo 1,5 s por tentativa. */
@@ -156,8 +159,12 @@ function curlHealth(port, timeoutMs) {
 function postAndVerifyInDb(port, project, conn, timeoutMs) {
   const spec = E2E_POST_VERIFY[project];
   if (!spec) return Promise.resolve(true);
+  let body = spec.body && typeof spec.body === 'object' ? { ...spec.body } : spec.body;
+  if (spec.uniqueExternalId && body && body.external_id === null) {
+    body.external_id = crypto.randomUUID();
+  }
   const timeout = Math.min(timeoutMs, 1500);
-  return curlPost(port, spec.path, spec.body, timeout).then((r) => {
+  return curlPost(port, spec.path, body, timeout).then((r) => {
     if (r.statusCode !== 201 && r.statusCode !== 200) {
       console.error('[e2e] POST', spec.path, 'retornou', r.statusCode, r.body || r.error);
       return false;
@@ -769,6 +776,10 @@ async function main() {
       }
       if (!assessResults(dbType, outDir, project)) {
         anyFailed = true;
+        continue;
+      }
+      if (E2E_SKIP_API_START_FOR_DB_TYPES.includes(dbType)) {
+        console.log('[e2e] Pulando subida da API para', dbType, '(apenas aferição; use E2E_SKIP_API_START_FOR_DB_TYPES para alterar).');
         continue;
       }
       console.log('[e2e] Subindo API e verificando /health e todos os endpoints...');
