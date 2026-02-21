@@ -44,9 +44,10 @@ export class <%= entityName %>Service {
         const repo = manager.getRepository(<%= entityName %>Entity);
         const result = await repo.insert(newEntity);
         const pk = result.identifiers?.[0] ?? result.generatedMaps?.[0];
-        const id = pk?.id ?? (pk && '<%= primaryKeyColumn %>' ? pk['<%= primaryKeyColumn %>'] : undefined);
-        if (id !== undefined && id !== null && '<%= primaryKeyColumn %>') {
-          const found = await repo.findOne({ where: { <%= primaryKeyColumn %>: id } });
+        const pkKey = '<%= primaryKeyColumn %>';
+        const id = pk?.id ?? (pkKey ? pk?.[pkKey] : undefined);
+        if (pkKey && id !== undefined && id !== null) {
+          const found = await repo.findOne({ where: { [pkKey]: id } });
           if (found) return found;
         }
         return repo.save(newEntity);
