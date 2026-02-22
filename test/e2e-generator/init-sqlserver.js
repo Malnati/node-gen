@@ -5,12 +5,12 @@ const fs = require('fs');
 const MOCK_DIR = path.resolve(__dirname);
 const PROJECTS_DIR = path.join(MOCK_DIR, 'projects');
 
-const FIRST_TABLE_REGEX = /CREATE\s+TABLE\s+(?:[\w.]+\.)?(\w+)/i;
+const FIRST_TABLE_REGEX = /CREATE\s+TABLE\s+(?:[\w.]+\.)?(?:\[([^\]]+)\]|(\w+))/i;
 const GO_LINE_REGEX = /\r?\n\s*GO\s*\r?\n/i;
 
 function getFirstTableName(ddlContent) {
   const m = ddlContent.match(FIRST_TABLE_REGEX);
-  return m ? m[1] : null;
+  return m ? (m[1] || m[2]) : null;
 }
 
 function splitSqlServerBatches(ddlContent) {
