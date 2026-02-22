@@ -120,10 +120,8 @@ CREATE TABLE tb_booking_participant (
   created_at DATETIME2 DEFAULT GETDATE(),
   updated_at DATETIME2 DEFAULT GETDATE(),
   deleted_at DATETIME2,
-  PRIMARY KEY (booking_id, account_id),
+  CONSTRAINT pk_tb_booking_participant PRIMARY KEY (booking_id, account_id),
   FOREIGN KEY (booking_id) REFERENCES tb_booking(id)
-,
-  CONSTRAINT pk_tb_booking_participant PRIMARY KEY (id)
 );
 EXEC sp_addextendedproperty @name = N'MS_Description', @value = N'Participantes do agendamento; account_id é referência lógica (serviço accounts/users).', @level0type = N'SCHEMA', @level0name = N'dbo', @level1type = N'TABLE', @level1name = N'tb_booking_participant';
 EXEC sp_addextendedproperty @name = N'MS_Description', @value = N'FK local para tb_booking.', @level0type = N'SCHEMA', @level0name = N'dbo', @level1type = N'TABLE', @level1name = N'tb_booking_participant', @level2type = N'COLUMN', @level2name = N'booking_id';
