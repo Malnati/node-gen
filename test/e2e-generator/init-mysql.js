@@ -71,6 +71,13 @@ async function main() {
     const projects = discoverProjects();
     console.log('[init-mysql] Found', projects.length, 'projects with MySQL connection and DDL.');
 
+    const e2eUserEsc = e2eUser.replace(/`/g, '``');
+    const e2ePasswordEsc = e2ePassword.replace(/'/g, "''");
+    await conn.query(
+      `CREATE USER IF NOT EXISTS \`${e2eUserEsc}\`@'%' IDENTIFIED BY '${e2ePasswordEsc}'`
+    );
+    await conn.query('FLUSH PRIVILEGES');
+
     for (const { name, dbName, ddlPath, dataPath } of projects) {
       await conn.query(`CREATE DATABASE IF NOT EXISTS \`${dbName}\``);
       try {

@@ -723,7 +723,7 @@ function runGenerator(conn, outDir, appName) {
   const r = spawnSync(process.execPath, args, { cwd: GEN_DIR, stdio: 'inherit' });
   if (r.status !== 0) {
     console.error('[e2e] Generator exited with code', r.status);
-    if (dbType === 'mysql') {
+    if (conn.dbType === 'mysql') {
       console.error('[e2e] Se o erro for Access denied no MySQL, execute: make e2e-clean && make e2e');
     }
     return false;
