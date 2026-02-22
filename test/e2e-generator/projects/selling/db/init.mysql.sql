@@ -87,3 +87,5 @@ CREATE TABLE calendar_event (
   deleted_at DATETIME COMMENT 'Exclusão lógica.',
   UNIQUE KEY uk_calendar_event_external_id (external_id)
 ) COMMENT = 'Eventos do calendário por tenant e conta.';
+
+USE todo;
