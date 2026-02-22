@@ -16,7 +16,7 @@ services:
     volumes:
       - ./test/e2e-generator/projects/todo/db/database.mysql.ddl:/docker-entrypoint-initdb.d/01-schema.sql
       - ./test/e2e-generator/projects/selling/db/init.mysql.sql:/docker-entrypoint-initdb.d/02-selling.sql
-      - ./test/e2e-generator/projects/schedule/db/init.mysql.sql:/docker-entrypoint-initdb.d/03-schedule.sql
+      - ./test/e2e-generator/projects/schedule/db/database.mysql.sql:/docker-entrypoint-initdb.d/03-schedule.sql
   postgres:
     image: postgres:16-alpine
     environment:
