@@ -14,7 +14,7 @@ if [ $# -eq 0 ]; then
       if [ "$i" -eq 60 ]; then echo "[e2e] Postgres nao respondeu."; exit 1; fi
       sleep 1.5
     done
-    echo "[e2e] Postgres pronto. Criando selling e schedule se necessario..."
+    echo "[e2e] Postgres pronto. Inicializando bancos..."
     node test/e2e-generator/init-postgres.js 2>/dev/null || true
   fi
   if echo ",${E2E_DB_TYPES}," | grep -q ',mysql,'; then
