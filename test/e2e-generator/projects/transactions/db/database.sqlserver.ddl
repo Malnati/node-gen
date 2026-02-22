@@ -1,5 +1,5 @@
 -- test/e2e-generator/projects/transactions/db/database.sqlserver.ddl
-CREATE TABLE transaction (
+CREATE TABLE [transaction] (
   id INT IDENTITY(1,1),
   external_id UNIQUEIDENTIFIER NOT NULL DEFAULT NEWID(),
   tenant UNIQUEIDENTIFIER NOT NULL,
