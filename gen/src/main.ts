@@ -69,6 +69,8 @@ function ensureGitRepo(outputDir: string): void {
     }
     try {
         execSync("git init", { cwd: outputDir, stdio: "pipe" });
+        execSync("git config user.email \"gen@local\"", { cwd: outputDir, stdio: "pipe" });
+        execSync("git config user.name \"gen\"", { cwd: outputDir, stdio: "pipe" });
         execSync("git add .", { cwd: outputDir, stdio: "pipe" });
         execSync("git commit -m \"Initial generated\"", { cwd: outputDir, stdio: "pipe" });
     } catch (err) {

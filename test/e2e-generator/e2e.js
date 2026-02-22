@@ -164,10 +164,11 @@ function postAndVerifyInDb(port, project, conn, timeoutMs) {
       return false;
     }
     const dbType = (conn.dbType || 'sqlite').toLowerCase();
+    const tableRef = dbType === 'sqlite' ? '"' + spec.table + '"' : (dbType === 'sqlserver' ? '[' + spec.table + ']' : spec.table);
     const whereClause = spec.whereColumn + " = '" + String(spec.whereValue).replace(/'/g, "''") + "'";
     const sql = dbType === 'sqlserver'
-      ? 'SELECT TOP 1 1 AS ok FROM ' + spec.table + ' WHERE ' + whereClause
-      : 'SELECT 1 AS ok FROM ' + spec.table + ' WHERE ' + whereClause + ' LIMIT 1';
+      ? 'SELECT TOP 1 1 AS ok FROM ' + tableRef + ' WHERE ' + whereClause
+      : 'SELECT 1 AS ok FROM ' + tableRef + ' WHERE ' + whereClause + ' LIMIT 1';
     return queryDb(conn, sql).then((rows) => {
       const ok = Array.isArray(rows) && rows.length > 0;
       if (!ok) console.error('[e2e] Nenhuma linha encontrada no banco após POST', spec.path);

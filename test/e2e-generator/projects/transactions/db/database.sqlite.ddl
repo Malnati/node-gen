@@ -1,6 +1,6 @@
 -- test/e2e-generator/projects/transactions/db/database.sqlite.ddl
 -- Transações financeiras por conta e tenant.
-CREATE TABLE "transaction" (
+CREATE TABLE [transaction] (
   id INTEGER PRIMARY KEY AUTOINCREMENT, -- Identificador interno.
   external_id TEXT NOT NULL, -- UUID público.
   tenant TEXT NOT NULL, -- Tenant dono do registro.
