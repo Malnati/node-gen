@@ -392,21 +392,32 @@ function waitForHealth(port, maxAttempts) {
 }
 
 const PROJECT_EXPECTED = {
-  todo: {
-    tables: ['tb_category', 'tb_simple_item', 'tb_tag', 'tb_simple_item_tag'],
-    moduleNames: ['category', 'simple-item', 'tag', 'simple-item-tag'],
-    entityFiles: ['category.ts', 'simple_item.ts', 'tag.ts', 'simple_item_tag.ts'],
-  },
-  selling: {
-    tables: ['tb_order', 'tb_order_line'],
-    moduleNames: ['order', 'order-line'],
-    entityFiles: ['order.ts', 'order_line.ts'],
-  },
-  'google-calendar': {
-    tables: ['calendar_integration', 'calendar', 'calendar_event'],
-    moduleNames: ['calendar-integration', 'calendar', 'calendar-event'],
-    entityFiles: ['calendar_integration.ts', 'calendar.ts', 'calendar_event.ts'],
-  },
+  accounts: { tables: ['account'], moduleNames: ['account'], entityFiles: ['account.ts'] },
+  addresses: { tables: ['country', 'state', 'city', 'address'], moduleNames: ['country', 'state', 'city', 'address'], entityFiles: ['country.ts', 'state.ts', 'city.ts', 'address.ts'] },
+  auth: { tables: ['auth_session'], moduleNames: ['auth-session'], entityFiles: ['auth_session.ts'] },
+  communications: { tables: ['email_template', 'smtp_config', 'send_history', 'delivery_tracking'], moduleNames: ['email-template', 'smtp-config', 'send-history', 'delivery-tracking'], entityFiles: ['email_template.ts', 'smtp_config.ts', 'send_history.ts', 'delivery_tracking.ts'] },
+  config: { tables: ['config', 'integration_config', 'webhook', 'branding', 'label'], moduleNames: ['config', 'integration-config', 'webhook', 'branding', 'label'], entityFiles: ['config.ts', 'integration_config.ts', 'webhook.ts', 'branding.ts', 'label.ts'] },
+  consents: { tables: ['consent_record', 'notification_preference'], moduleNames: ['consent-record', 'notification-preference'], entityFiles: ['consent_record.ts', 'notification_preference.ts'] },
+  contacts: { tables: ['contact'], moduleNames: ['contact'], entityFiles: ['contact.ts'] },
+  gmail: { tables: ['gmail_integration', 'gmail_message_template', 'gmail_message'], moduleNames: ['gmail-integration', 'gmail-message-template', 'gmail-message'], entityFiles: ['gmail_integration.ts', 'gmail_message_template.ts', 'gmail_message.ts'] },
+  'google-calendar': { tables: ['calendar_integration', 'calendar', 'calendar_event'], moduleNames: ['calendar-integration', 'calendar', 'calendar-event'], entityFiles: ['calendar_integration.ts', 'calendar.ts', 'calendar_event.ts'] },
+  'google-drive': { tables: ['drive_integration', 'drive_folder', 'drive_file'], moduleNames: ['drive-integration', 'drive-folder', 'drive-file'], entityFiles: ['drive_integration.ts', 'drive_folder.ts', 'drive_file.ts'] },
+  llm: { tables: ['llm_log', 'llm_provider_config', 'prompt_template', 'llm_execution_log', 'llm_usage_summary'], moduleNames: ['llm-log', 'llm-provider-config', 'prompt-template', 'llm-execution-log', 'llm-usage-summary'], entityFiles: ['llm_log.ts', 'llm_provider_config.ts', 'prompt_template.ts', 'llm_execution_log.ts', 'llm_usage_summary.ts'] },
+  logistics: { tables: ['shipment', 'shipment_event'], moduleNames: ['shipment', 'shipment-event'], entityFiles: ['shipment.ts', 'shipment_event.ts'] },
+  maps: { tables: ['map_provider_config', 'geocode_cache', 'route_cache'], moduleNames: ['map-provider-config', 'geocode-cache', 'route-cache'], entityFiles: ['map_provider_config.ts', 'geocode_cache.ts', 'route_cache.ts'] },
+  notifications: { tables: ['notification_template', 'notification'], moduleNames: ['notification-template', 'notification'], entityFiles: ['notification_template.ts', 'notification.ts'] },
+  orders: { tables: ['order', 'order_item'], moduleNames: ['order', 'order-item'], entityFiles: ['order.ts', 'order_item.ts'] },
+  payments: { tables: ['payment_type', 'payment'], moduleNames: ['payment-type', 'payment'], entityFiles: ['payment_type.ts', 'payment.ts'] },
+  products: { tables: ['currency', 'unit_of_measure', 'product'], moduleNames: ['currency', 'unit-of-measure', 'product'], entityFiles: ['currency.ts', 'unit_of_measure.ts', 'product.ts'] },
+  reports: { tables: ['consolidated_sales_monthly', 'current_warehouse_stock', 'logistics_performance'], moduleNames: ['consolidated-sales-monthly', 'current-warehouse-stock', 'logistics-performance'], entityFiles: ['consolidated_sales_monthly.ts', 'current_warehouse_stock.ts', 'logistics_performance.ts'] },
+  roles: { tables: ['role', 'feature', 'role_feature', 'user_role'], moduleNames: ['role', 'feature', 'role-feature', 'user-role'], entityFiles: ['role.ts', 'feature.ts', 'role_feature.ts', 'user_role.ts'] },
+  schedule: { tables: ['tb_resource', 'tb_slot', 'tb_recurrence_rule', 'tb_booking', 'tb_booking_participant', 'tb_booking_history'], moduleNames: ['resource', 'slot', 'recurrence-rule', 'booking', 'booking-participant', 'booking-history'], entityFiles: ['resource.ts', 'slot.ts', 'recurrence_rule.ts', 'booking.ts', 'booking_participant.ts', 'booking_history.ts'] },
+  selling: { tables: ['tb_order', 'tb_order_line'], moduleNames: ['order', 'order-line'], entityFiles: ['order.ts', 'order_line.ts'] },
+  tenant: { tables: ['tenant'], moduleNames: ['tenant'], entityFiles: ['tenant.ts'] },
+  todo: { tables: ['tb_category', 'tb_simple_item', 'tb_tag', 'tb_simple_item_tag'], moduleNames: ['category', 'simple-item', 'tag', 'simple-item-tag'], entityFiles: ['category.ts', 'simple_item.ts', 'tag.ts', 'simple_item_tag.ts'] },
+  transactions: { tables: ['transaction'], moduleNames: ['transaction'], entityFiles: ['transaction.ts'] },
+  users: { tables: ['app_user'], moduleNames: ['app-user'], entityFiles: ['app_user.ts'] },
+  warehouse: { tables: ['warehouse_stock'], moduleNames: ['warehouse-stock'], entityFiles: ['warehouse_stock.ts'] },
 };
 
 function discoverProjects() {
