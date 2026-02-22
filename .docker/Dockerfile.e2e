@@ -18,6 +18,7 @@ COPY . .
 RUN cd gen && npm install --legacy-peer-deps && npm run build
 
 ENV NODE_PATH=/app/gen/node_modules
-RUN node test/e2e-generator-mock/create-db.js
+ENV E2E_DB_TYPES=sqlite
+RUN node test/e2e-generator/db.js
 
 ENTRYPOINT ["/app/.docker/entrypoint.e2e.sh"]

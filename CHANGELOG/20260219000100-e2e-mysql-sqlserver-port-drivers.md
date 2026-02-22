@@ -9,7 +9,7 @@
 - `gen/templates/datasource.template.ts` — `DATABASE_PORT` lido como string e convertido com `parseInt(..., 10)` para MySQL e demais tipos (postgres/mssql).
 - `gen/static/src/app/config/datasource.service.ts` — Mesma conversão de porta para número.
 - `gen/src/package-json-generator.ts` — Inclusão condicional de drivers por `dbType`: `mysql2` (MySQL), `mssql` (SQL Server), `sqlite3` (SQLite); `pg` mantido para Postgres.
-- `test/e2e-generator-mock/run.js` — Log de stdout/stderr quando `npm install` ou `npm run build` falham; timeout de `npm install` aumentado para 300000 ms (5 min).
+- `test/e2e-generator/run.js` — Log de stdout/stderr quando `npm install` ou `npm run build` falham; timeout de `npm install` aumentado para 300000 ms (5 min).
 
 ## Regras/requisitos atendidos
 

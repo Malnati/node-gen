@@ -28,6 +28,10 @@ clean:
 	DOCKER_CONFIG=$(DOCKER_CONFIG) $(COMPOSE) down --rmi all --volumes --remove-orphans
 
 COMPOSE_E2E ?= docker-compose -f .docker/docker-compose.e2e.yml --project-directory .
+e2e-clean:
+	@echo "🧹  Removendo containers e volumes E2E (MySQL/Postgres/SQL Server) para forçar reexecução dos inits..."
+	DOCKER_CONFIG=$(DOCKER_CONFIG) $(COMPOSE_E2E) down -v 2>/dev/null || true
+
 e2e-build:
 	@echo "🛠️  Buildando imagem E2E (node-gen-e2e:latest)..."
 	DOCKER_CONFIG=$(DOCKER_CONFIG) $(COMPOSE_E2E) build

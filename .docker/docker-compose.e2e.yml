@@ -4,7 +4,6 @@ services:
     image: mysql:8.0
     environment:
       MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: todo_mock
       MYSQL_USER: e2e
       MYSQL_PASSWORD: e2e
     healthcheck:
@@ -13,24 +12,16 @@ services:
       timeout: 5s
       retries: 30
       start_period: 120s
-    volumes:
-      - ./test/e2e-generator-mock/projects/todo/db/schema.mysql.sql:/docker-entrypoint-initdb.d/01-schema.sql
-      - ./test/e2e-generator-mock/projects/selling/db/init.mysql.sql:/docker-entrypoint-initdb.d/02-selling.sql
-      - ./test/e2e-generator-mock/projects/schedule/db/init.mysql.sql:/docker-entrypoint-initdb.d/03-schedule.sql
   postgres:
     image: postgres:16-alpine
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: todo_mock
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres -d todo_mock"]
+      test: ["CMD-SHELL", "pg_isready -U postgres -d postgres"]
       interval: 2s
       timeout: 5s
       retries: 10
-    volumes:
-      - ./test/e2e-generator-mock/pg-init/scripts:/docker-entrypoint-initdb.d
-      - ./test/e2e-generator-mock:/e2e-mock
   sqlserver:
     image: mcr.microsoft.com/mssql/server:2022-latest
     environment:
@@ -50,6 +41,8 @@ services:
       DB_MYSQL_PORT: "3306"
       DB_MYSQL_USER: e2e
       DB_MYSQL_PASSWORD: e2e
+      DB_MYSQL_INIT_USER: root
+      DB_MYSQL_INIT_PASSWORD: root
       DB_SQLSERVER_HOST: sqlserver
       DB_SQLSERVER_PORT: "1433"
       DB_SQLSERVER_PASSWORD: "YourStrong@Passw0rd"

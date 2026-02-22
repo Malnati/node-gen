@@ -5,10 +5,10 @@
 
 ## Arquivos alterados
 
-- `test/e2e-generator-mock/projects/todo/db/schema.mysql.ddl` — criado: DDL MySQL do mock (tb_simple_item, tb_category, … tb_document) para E2E.
-- `test/e2e-generator-mock/projects/todo/db/schema.mysql.sql` — criado: mesmo conteúdo em .sql para init do container MySQL (imagem executa apenas .sql/.sh/.sql.gz).
+- `test/e2e-generator/projects/todo/db/schema.mysql.ddl` — criado: DDL MySQL do mock (tb_simple_item, tb_category, … tb_document) para E2E.
+- `test/e2e-generator/projects/todo/db/schema.mysql.sql` — criado: mesmo conteúdo em .sql para init do container MySQL (imagem executa apenas .sql/.sh/.sql.gz).
 - `docker-compose.e2e.yml` — serviço `mysql` (imagem mysql:8.0, healthcheck, init com `schema.mysql.sql`); `E2E_DB_TYPES` padrão `sqlite,postgres,mysql,sqlserver`; variáveis `DB_MYSQL_HOST`, `DB_MYSQL_PORT`, `DB_MYSQL_USER`, `DB_MYSQL_PASSWORD`; `depends_on` do serviço `e2e` inclui `mysql (condition: service_healthy)`.
-- `test/e2e-generator-mock/run.js` — override de host/port/user/password para MySQL via `DB_MYSQL_*` ao carregar conexão.
+- `test/e2e-generator/run.js` — override de host/port/user/password para MySQL via `DB_MYSQL_*` ao carregar conexão.
 - `.docker/entrypoint.e2e.sh` — quando `E2E_DB_TYPES` contém `mysql`: espera porta 3306 antes de executar o gerador.
 - `test/README.md` — documentação da seção Via Docker: padrão com os quatro bancos (SQLite, Postgres, MySQL, SQL Server); schema.mysql.sql e init descritos.
 

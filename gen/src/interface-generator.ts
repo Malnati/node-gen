@@ -1,7 +1,7 @@
 // /src/interface-generator.ts
 import * as fs from 'fs';
 import * as path from 'path';
-import { Table, Column, DbReaderConfig } from './interfaces';
+import { Table, Column, Relation, DbReaderConfig } from './interfaces';
 import { loadTemplate } from './utils/template-loader';
 
 export class InterfaceGenerator {
@@ -29,7 +29,7 @@ export class InterfaceGenerator {
         fs.mkdirSync(subDir, { recursive: true });
       }
 
-      const interfaceContent = this.generateInterfaceContent(entityName, table.columns);
+      const interfaceContent = this.generateInterfaceContent(entityName, table);
       const filePath = path.join(subDir, `${kebabCaseName}.interface.ts`);
       fs.writeFileSync(filePath, interfaceContent);
     });
@@ -37,8 +37,9 @@ export class InterfaceGenerator {
     console.log(`Interfaces have been generated in ${outputDir}`);
   }
 
-  private generateInterfaceContent(entityName: string, columns: Column[]): string {
-    const filteredColumns = columns.filter(col => this.shouldIncludeColumn(col));
+  private generateInterfaceContent(entityName: string, table: Table): string {
+    const { columns } = table;
+    const filteredColumns = columns.filter(col => this.shouldIncludeColumn(col, table));
     const queryDto = this.generateQueryDto(entityName, filteredColumns);
     const persistDto = this.generatePersistDto(entityName, filteredColumns);
 
@@ -49,31 +50,33 @@ export class InterfaceGenerator {
     });
   }
 
-  private shouldIncludeColumn(column: Column): boolean {
+  private shouldIncludeColumn(column: Column, table: Table): boolean {
     if (['id', 'created_at', 'updated_at', 'deleted_at'].includes(column.columnName)) {
       return false;
     }
     if (column.columnName.endsWith('_id') && column.columnName !== 'external_id') {
-        return false;
+      const isRelation = table.relations.some((r: Relation) => r.columnName === column.columnName);
+      if (isRelation) return false;
     }
     return true;
   }
 
   private generateQueryDto(entityName: string, columns: Column[]): string {
-    const properties = columns.map(col => this.generateProperty(col, true)).join('\n  ');
+    const properties = columns.map(col => this.generateProperty(col, true, false)).join('\n  ');
 
     return `/**\n   * DTO retornado em consultas de ${entityName}.\n   */\nexport interface I${entityName}QueryDTO {\n  ${properties}\n}`;
   }
 
   private generatePersistDto(entityName: string, columns: Column[]): string {
-    const properties = columns.map(col => this.generateProperty(col, false)).join('\n  ');
+    const properties = columns.map(col => this.generateProperty(col, false, true)).join('\n  ');
 
     return `/**\n   * DTO utilizado para criar ou atualizar ${entityName}.\n   */\nexport interface I${entityName}PersistDTO {\n  ${properties}\n}`;
   }
 
-  private generateProperty(column: Column, includeOptional: boolean): string {
+  private generateProperty(column: Column, includeOptional: boolean, forPersist = false): string {
     const type = this.mapType(column.dataType);
-    const optional = includeOptional && column.isNullable ? '?' : '';
+    const optionalPersistExternalId = forPersist && column.columnName === 'external_id';
+    const optional = optionalPersistExternalId || (includeOptional && column.isNullable) ? '?' : '';
     return `${column.columnName}${optional}: ${type};`;
   }
 

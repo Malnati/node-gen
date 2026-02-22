@@ -6,11 +6,11 @@
 
 ## Arquivos alterados
 - `docker-compose.e2e.yml` — serviço `sqlserver` (imagem mcr.microsoft.com/mssql/server:2022-latest); variáveis `DB_SQLSERVER_*` para o e2e; padrão `E2E_DB_TYPES=${E2E_DB_TYPES:-sqlite,postgres}` permitindo sobrescrever via ambiente (ex.: incluir `sqlserver`).
-- `test/e2e-generator-mock/projects/todo/db/schema.sqlserver.ddl` — criado: DDL T-SQL do mock (tb_simple_item, tb_category, … tb_document) para E2E.
-- `test/e2e-generator-mock/init-sqlserver.js` — criado: script Node que cria o banco `todo_mock` e aplica o schema (idempotente); ajustado para usar `new mssql.ConnectionPool(...).connect()` por banco (master/todo_mock), evitando reaproveitar pool global e garantindo que o schema seja aplicado em `todo_mock`.
-- `test/e2e-generator-mock/run.js` — override de host/port para SQL Server via `DB_SQLSERVER_HOST` e `DB_SQLSERVER_PORT`; aferição passa a considerar também SQL Server quando `E2E_DB_TYPES` inclui `sqlserver`.
+- `test/e2e-generator/projects/todo/db/schema.sqlserver.ddl` — criado: DDL T-SQL do mock (tb_simple_item, tb_category, … tb_document) para E2E.
+- `test/e2e-generator/init-sqlserver.js` — criado: script Node que cria o banco `todo` e aplica o schema (idempotente); ajustado para usar `new mssql.ConnectionPool(...).connect()` por banco (master/todo), evitando reaproveitar pool global e garantindo que o schema seja aplicado em `todo`.
+- `test/e2e-generator/run.js` — override de host/port para SQL Server via `DB_SQLSERVER_HOST` e `DB_SQLSERVER_PORT`; aferição passa a considerar também SQL Server quando `E2E_DB_TYPES` inclui `sqlserver`.
 - `.docker/entrypoint.e2e.sh` — quando `E2E_DB_TYPES` contém `sqlserver`: espera porta 1433 e executa `init-sqlserver.js`.
-- `gen/src/db.reader.sqlserver.ts` — query de tabelas usando nome qualificado `[todo_mock].INFORMATION_SCHEMA.TABLES` e fallback de coluna `table_name`/`TABLE_NAME`.
+- `gen/src/db.reader.sqlserver.ts` — query de tabelas usando nome qualificado `[todo].INFORMATION_SCHEMA.TABLES` e fallback de coluna `table_name`/`TABLE_NAME`.
 - `test/README.md` — documentação da seção Via Docker: foco em SQLite, Postgres e SQL Server; inclusão opcional de SQL Server com `E2E_DB_TYPES=sqlite,postgres,sqlserver`.
 
 ## Regras/requisitos atendidos

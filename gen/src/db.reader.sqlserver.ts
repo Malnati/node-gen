@@ -65,6 +65,12 @@ export class DbReaderSqlServer {
         const pkColumns = pkResult.recordset.map((r: any) => r.COLUMN_NAME)
         columns.forEach(col => { if (pkColumns.includes(col.columnName)) col.isPrimaryKey = true })
 
+        const identityResult = await pool
+          .request()
+          .query(`SELECT name AS COLUMN_NAME FROM sys.identity_columns WHERE object_id = OBJECT_ID('${tableName}')`)
+        const identityColumns = (identityResult.recordset || []).map((r: any) => r.COLUMN_NAME)
+        columns.forEach(col => { if (identityColumns.includes(col.columnName)) col.isIdentity = true })
+
         const relationsResult = await pool
           .request()
           .query(`

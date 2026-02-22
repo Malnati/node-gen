@@ -31,7 +31,7 @@ export class DTOGenerator {
         fs.mkdirSync(subDir, { recursive: true });
       }
 
-      const dtoContent = this.generateDTOContent(entityName, table.columns, table.relations);
+      const dtoContent = this.generateDTOContent(entityName, table);
       const filePath = path.join(subDir, `${kebabCaseName}.dto.ts`);
       fs.writeFileSync(filePath, dtoContent);
     });
@@ -39,10 +39,11 @@ export class DTOGenerator {
     console.log(`DTOs have been generated in ${outputDir}`);
   }
 
-  private generateDTOContent(entityName: string, columns: Column[], relations: Relation[]): string {
+  private generateDTOContent(entityName: string, table: Table): string {
+    const { columns, relations } = table;
     const usedValidators = new Set<string>();
-    const queryDto = this.generateQueryDTO(entityName, columns, relations, usedValidators);
-    const persistDto = this.generatePersistDTO(entityName, columns, relations, usedValidators);
+    const queryDto = this.generateQueryDTO(entityName, table, usedValidators);
+    const persistDto = this.generatePersistDTO(entityName, table, usedValidators);
 
     const validatorsImport = usedValidators.size
       ? `import { ${Array.from(usedValidators).sort().join(', ')} } from "class-validator";`
@@ -57,10 +58,11 @@ export class DTOGenerator {
     });
   }
 
-  private generateQueryDTO(entityName: string, columns: Column[], relations: Relation[], usedValidators: Set<string>): string {
+  private generateQueryDTO(entityName: string, table: Table, usedValidators: Set<string>): string {
+    const { columns, relations } = table;
     const properties = columns
-      .filter(col => this.shouldIncludeColumn(col))
-      .map(col => this.generateProperty(col, usedValidators))
+      .filter(col => this.shouldIncludeColumn(col, table))
+      .map(col => this.generateProperty(col, usedValidators, false))
       .concat(relations.map(rel => this.generateRelationProperty(rel)))
       .join('\n  ');
 
@@ -72,10 +74,11 @@ export class ${entityName}QueryDTO implements I${entityName}QueryDTO {
 }`;
   }
 
-  private generatePersistDTO(entityName: string, columns: Column[], relations: Relation[], usedValidators: Set<string>): string {
+  private generatePersistDTO(entityName: string, table: Table, usedValidators: Set<string>): string {
+    const { columns, relations } = table;
     const properties = columns
-      .filter(col => this.shouldIncludeColumn(col))
-      .map(col => this.generateProperty(col, usedValidators))
+      .filter(col => this.shouldIncludeColumn(col, table))
+      .map(col => this.generateProperty(col, usedValidators, true))
       .concat(relations.map(rel => this.generateRelationProperty(rel)))
       .join('\n  ');
 
@@ -87,16 +90,16 @@ export class ${entityName}PersistDTO implements I${entityName}PersistDTO {
 }`;
   }
 
-  private generateProperty(column: Column, usedValidators: Set<string>): string {
+  private generateProperty(column: Column, usedValidators: Set<string>, forPersist = false): string {
     const type = this.mapType(column.dataType);
-    const validationDecorators = this.generateValidationDecorators(column, usedValidators);
-    
+    const validationDecorators = this.generateValidationDecorators(column, usedValidators, forPersist);
+    const optionalSuffix = forPersist && column.columnName === 'external_id' ? '?' : '';
     const example = this.getExampleForColumn(column);
     const apiProperty = `@ApiProperty({
     example: ${example},
     description: "${column.columnComment || 'Descrição do campo.'}",
   })\n  `;
-    return `${validationDecorators}${apiProperty}${toSnakeCase(column.columnName)}: ${type};`;
+    return `${validationDecorators}${apiProperty}${toSnakeCase(column.columnName)}${optionalSuffix}: ${type};`;
   }
 
   private foreignTableHasExternalId(relation: Relation): boolean {
@@ -121,10 +124,11 @@ export class ${entityName}PersistDTO implements I${entityName}PersistDTO {
   ${propName}: ${propType};`;
   }
 
-  private generateValidationDecorators(column: Column, usedValidators: Set<string>): string {
+  private generateValidationDecorators(column: Column, usedValidators: Set<string>, forPersist = false): string {
     const decorators: string[] = [];
+    const forceOptional = forPersist && column.columnName === 'external_id';
 
-    if (column.isNullable) {
+    if (column.isNullable || forceOptional) {
       decorators.push('@IsOptional()');
       usedValidators.add('IsOptional');
     } else {
@@ -178,13 +182,14 @@ export class ${entityName}PersistDTO implements I${entityName}PersistDTO {
     return `"${column.columnDefault || 'exemplo'}"`;
   }
 
-  private shouldIncludeColumn(column: Column): boolean {
+  private shouldIncludeColumn(column: Column, table: Table): boolean {
     const excludedColumns = ['id', 'created_at', 'updated_at', 'deleted_at'];
     if (excludedColumns.includes(column.columnName)) {
       return false;
     }
     if (column.columnName.endsWith('_id') && column.columnName !== 'external_id') {
-      return false;
+      const isRelation = table.relations.some((r) => r.columnName === column.columnName);
+      if (isRelation) return false;
     }
     return true;
   }

@@ -6,9 +6,9 @@
 
 ## Arquivos modificados / criados
 
-- `test/e2e-generator-mock/projects/todo/db/schema.postgres.ddl` — criado: DDL PostgreSQL equivalente ao `schema.sql` (tb_simple_item, tb_category, … tb_document) para E2E no container.
+- `test/e2e-generator/projects/todo/db/schema.postgres.ddl` — criado: DDL PostgreSQL equivalente ao `schema.sql` (tb_simple_item, tb_category, … tb_document) para E2E no container.
 - `docker-compose.e2e.yml` — adicionado serviço `postgres` (imagem postgres:16-alpine, healthcheck, init com `schema.postgres.ddl`); serviço `e2e` com `E2E_DB_TYPES=sqlite,postgres`, `DB_POSTGRES_HOST=postgres`, `DB_POSTGRES_PORT=5432` e `depends_on: postgres (condition: service_healthy)`.
-- `test/e2e-generator-mock/run.js` — override de host/port para Postgres via `DB_POSTGRES_HOST` e `DB_POSTGRES_PORT` ao carregar conexão.
+- `test/e2e-generator/run.js` — override de host/port para Postgres via `DB_POSTGRES_HOST` e `DB_POSTGRES_PORT` ao carregar conexão.
 - `test/README.md` — documentação da seção "Via Docker" atualizada: E2E executa SQLite e Postgres; saídas em `output/sqlite/` e `output/postgres/`.
 
 ## Regras/requisitos atendidos

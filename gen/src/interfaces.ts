@@ -7,6 +7,8 @@ export interface Column {
   isPrimaryKey: boolean;
   columnDefault: string | null;
   columnComment: string | null;
+  /** True when column is IDENTITY (SQL Server) or auto-increment (MySQL). */
+  isIdentity?: boolean;
 }
 
 export interface Table {

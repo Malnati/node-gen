@@ -16,13 +16,13 @@ export class EnvGenerator {
     const defaultSessionHealth = process.env.ENDPOINT_SESSION_HEALTH ?? 'https://localhost/health';
 
     const envConfig = {
-      DATABASE_HOST: this.config.host,
-      DATABASE_PORT: this.config.port.toString(),
-      DATABASE_NAME: this.config.database,
-      DATABASE_USER: this.config.user,
-      DATABASE_PASSWORD: this.config.password,
-      DATABASE_TYPE: this.config.dbType,
-      DATABASE_PATH: this.config.dbType === 'sqlite' ? this.config.database : '',
+      DATABASE_HOST: this.config.host ?? '',
+      DATABASE_PORT: (this.config.port != null ? this.config.port : 5432).toString(),
+      DATABASE_NAME: this.config.database ?? '',
+      DATABASE_USER: this.config.user ?? '',
+      DATABASE_PASSWORD: this.config.password ?? '',
+      DATABASE_TYPE: this.config.dbType ?? 'postgres',
+      DATABASE_PATH: this.config.dbType === 'sqlite' ? (this.config.database ?? '') : '',
       ENDPOINT_SESSION_TOKEN: process.env.ENDPOINT_SESSION_TOKEN ?? defaultSessionVerify,
       ENDPOINT_SESSION_HEALTHCHECK: process.env.ENDPOINT_SESSION_HEALTHCHECK ?? defaultSessionHealth,
       MICROSERVICE_NAME: this.config.app,

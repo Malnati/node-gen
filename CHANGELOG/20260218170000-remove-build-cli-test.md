@@ -16,5 +16,5 @@ Consolidar a saída do gerador em `output/` na raiz; o diretório `test/build-cl
 
 ## Uso atual
 
-- **Teste CLI (fixture mínima tb_user):** `node test/e2e-generator-mock/create-sqlite-fixture.js ./output` e depois executar o gerador com `-d ./output/fixture.sqlite -o ./output`.
+- **Teste CLI (fixture mínima tb_user):** `node test/e2e-generator/create-sqlite-fixture.js ./output` e depois executar o gerador com `-d ./output/fixture.sqlite -o ./output`.
 - **Testes do projeto gerado:** após E2E ou geração manual, `cd output && npm install && npm test`.

@@ -12,16 +12,16 @@
 
 ### Saída do gerador no E2E
 
-- **`test/e2e-generator-mock/run.js`:** `OUT_DIR` alterado de `test/e2e-generator-mock/out` para `path.join(REPO_ROOT, 'output')`. Limpeza do diretório de saída passou a esvaziar o conteúdo em vez de remover o diretório (compatível com volume Docker `./output:/app/output`).
+- **`test/e2e-generator/run.js`:** `OUT_DIR` alterado de `test/e2e-generator/out` para `path.join(REPO_ROOT, 'output')`. Limpeza do diretório de saída passou a esvaziar o conteúdo em vez de remover o diretório (compatível com volume Docker `./output:/app/output`).
 - **`.gitignore`:** adicionado `output/`.
-- **`.dockerignore`:** `test/e2e-generator-mock/out` substituído por `output`.
+- **`.dockerignore`:** `test/e2e-generator/out` substituído por `output`.
 - **`docker-compose.e2e.yml`:** volume `./output:/app/output` para que a aplicação gerada fique em `output/` na raiz do repo após `make e2e-run`.
-- **`.docker/entrypoint.e2e.sh`:** correção do caminho do script de criação do mock para `test/e2e-generator-mock/create-db.js`.
+- **`.docker/entrypoint.e2e.sh`:** correção do caminho do script de criação do mock para `test/e2e-generator/create-db.js`.
 
 ### Documentação
 
 - **`test/README.md`:** saída do E2E descrita como `output/` na raiz; seção "Via Docker" atualizada com menção ao volume e à validação de build.
-- **`test/e2e-generator-mock/README.md`:** saída em `output/` na raiz.
+- **`test/e2e-generator/README.md`:** saída em `output/` na raiz.
 - **`docs/issues/plan-test-project-generator-vs-mock.md`:** diretório de output como `output/` na raiz.
 
 ## Resultado dos testes

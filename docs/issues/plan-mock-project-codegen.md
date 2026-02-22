@@ -11,7 +11,7 @@ Criar um **projeto mock** dedicado a testar o aplicativo node-gen em **todas as 
 - **Plano de revisão:** [template-review-plan.md](../template-review-plan.md) — ordem dos geradores e matriz mínima de cenários.
 - **Teste do CLI:** [plan-cli-test-execution.md](plan-cli-test-execution.md) — execução com SQLite preferido.
 - **Execução EPIC/SUBs:** [plan-issues-execution.md](plan-issues-execution.md).
-- **Schema existente:** `test/e2e-generator-mock/projects/todo/db/` contém DDL/SQL para postgres, mysql, sqlite e sqlserver (tabelas user, project, todo, etc.) com relações e chaves compostas; **não** cobre de forma explícita: prefixo `tb_`, UUID/external_id, enum, decimal, datas, nullable variado, nomes limítrofes.
+- **Schema existente:** `test/e2e-generator/projects/todo/db/` contém DDL/SQL para postgres, mysql, sqlite e sqlserver (tabelas user, project, todo, etc.) com relações e chaves compostas; **não** cobre de forma explícita: prefixo `tb_`, UUID/external_id, enum, decimal, datas, nullable variado, nomes limítrofes.
 
 ## Escopo
 
@@ -44,11 +44,11 @@ Criar um **projeto mock** dedicado a testar o aplicativo node-gen em **todas as 
 
 ## Proposta de estrutura do projeto mock
 
-- **Localização:** `test/e2e-generator-mock/` (schema, scripts e `mock.sqlite` no mesmo diretório).
+- **Localização:** `test/e2e-generator/` (schema, scripts e `mock.sqlite` no mesmo diretório).
 - **Conteúdo mínimo:**
-  - **Schema:** DDL em `test/e2e-generator-mock/schema.sql` com as tabelas que cobrem a matriz acima.
-  - **SQLite:** script `test/e2e-generator-mock/create-db.js` que cria `mock.sqlite` a partir de `schema.sql`.
-  - **README ou doc:** descrição das tabelas, dos cenários cobertos e dos comandos para (1) criar o banco mock e (2) rodar o node-gen contra ele (ex.: `-d test/e2e-generator-mock/mock.sqlite -o <out> -t sqlite -f "entities,...,diagram"`).
+  - **Schema:** DDL em `test/e2e-generator/schema.sql` com as tabelas que cobrem a matriz acima.
+  - **SQLite:** script `test/e2e-generator/create-db.js` que cria `mock.sqlite` a partir de `schema.sql`.
+  - **README ou doc:** descrição das tabelas, dos cenários cobertos e dos comandos para (1) criar o banco mock e (2) rodar o node-gen contra ele (ex.: `-d test/e2e-generator/mock.sqlite -o <out> -t sqlite -f "entities,...,diagram"`).
 - **Uso:** quem executa o [plan-cli-test-execution.md](plan-cli-test-execution.md) pode, em vez do fixture mínimo atual (`tb_user`), usar o mock completo para testar todas as possibilidades de geração; ou usar ambos (fixture mínimo para smoke, mock completo para matriz).
 
 ## Possibilidades de geração a exercitar
@@ -59,7 +59,7 @@ Criar um **projeto mock** dedicado a testar o aplicativo node-gen em **todas as 
 
 ## Tarefas técnicas (checklist do plano)
 
-1. Definir estrutura do diretório do mock e convenção de nomes (DDL, script de criação); atualmente em `test/e2e-generator-mock/`.
+1. Definir estrutura do diretório do mock e convenção de nomes (DDL, script de criação); atualmente em `test/e2e-generator/`.
 2. Escrever DDL do schema que atenda aos quatro cenários da matriz (tabela simples; relações e chaves compostas; nullable/enum/decimal/datas/UUID; nomes limítrofes).
 3. Fornecer forma de criar o SQLite a partir do DDL (script Node ou comando documentado).
 4. Documentar no repositório: (a) objetivo do mock, (b) cenários cobertos, (c) comandos para criar o banco e rodar o CLI, (d) vínculo com plan-cli-test-execution e com a matriz do template-review-plan.
@@ -81,4 +81,4 @@ Criar um **projeto mock** dedicado a testar o aplicativo node-gen em **todas as 
 ## Rastreabilidade
 
 - **Documentos relacionados:** [plan-cli-test-execution.md](plan-cli-test-execution.md), [plan-test-project-generator-vs-mock.md](plan-test-project-generator-vs-mock.md), [template-review-plan.md](../template-review-plan.md), [plan-issues-execution.md](plan-issues-execution.md).
-- Ao implementar o mock ou executar testes com ele, registrar em CHANGELOG e, se aplicável, atualizar plan-issues-execution ou plan-cli-test-execution com o uso do mock. O plano [plan-test-project-generator-vs-mock.md](plan-test-project-generator-vs-mock.md) define o projeto em `test/e2e-generator-mock/` para automatizar testes do gerador contra este mock.
+- Ao implementar o mock ou executar testes com ele, registrar em CHANGELOG e, se aplicável, atualizar plan-issues-execution ou plan-cli-test-execution com o uso do mock. O plano [plan-test-project-generator-vs-mock.md](plan-test-project-generator-vs-mock.md) define o projeto em `test/e2e-generator/` para automatizar testes do gerador contra este mock.
