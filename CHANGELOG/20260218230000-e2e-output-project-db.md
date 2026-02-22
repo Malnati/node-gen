@@ -6,9 +6,9 @@
 
 ## Arquivos modificados
 
-- `test/e2e-generator-mock/run.js` — saída passou de `output/<dbType>/` para `output/<project>/<dbType>/`; constante `E2E_APP_NAME` (default `e2e-mock-app`), override via `E2E_APP_NAME`; `runGenerator` recebe `appName` e monta `outDir = path.join(OUT_DIR_BASE, E2E_APP_NAME, dbType)`.
+- `test/e2e-generator/run.js` — saída passou de `output/<dbType>/` para `output/<project>/<dbType>/`; constante `E2E_APP_NAME` (default `e2e-mock-app`), override via `E2E_APP_NAME`; `runGenerator` recebe `appName` e monta `outDir = path.join(OUT_DIR_BASE, E2E_APP_NAME, dbType)`.
 - `test/README.md` — documentação atualizada: estrutura `output/<project>/<db>/`, exemplos `output/e2e-mock-app/sqlite/`, comandos para testes do projeto gerado com `cd output/e2e-mock-app/sqlite`.
-- `test/e2e-generator-mock/README.md` — fluxo e saída descritos como `output/<project>/<dbType>/`; referência a `E2E_APP_NAME` para vários projetos.
+- `test/e2e-generator/README.md` — fluxo e saída descritos como `output/<project>/<dbType>/`; referência a `E2E_APP_NAME` para vários projetos.
 
 ## Regras/requisitos atendidos
 

@@ -11,7 +11,7 @@
 - Rastreabilidade: plano referenciado em CHANGELOG; referências cruzadas com plan-cli-test-execution e plan-mock-project-codegen.
 
 ## Conteúdo do plano
-- Objetivo: projeto na raiz (ex.: `e2e-generator-mock/` ou `test-generator-mock/`) que orquestre: garantir mock → executar node-gen com mock como entrada → validar artefatos (e opcionalmente build do output).
+- Objetivo: projeto na raiz (ex.: `e2e-generator/` ou `test-generator-mock/`) que orquestre: garantir mock → executar node-gen com mock como entrada → validar artefatos (e opcionalmente build do output).
 - Escopo: não alterar node-gen nem mock; apenas invocar e validar; fluxo reproduzível via scripts/comandos documentados.
 - Estrutura proposta: package.json, scripts de teste (Node ou comandos), diretório de output dedicado, README com pré-requisitos e referências.
 - Tarefas técnicas em 6 itens; critérios de sucesso, riscos e rastreabilidade descritos no plano.

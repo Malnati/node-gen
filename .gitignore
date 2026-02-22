@@ -39,9 +39,9 @@ jspm_packages/
 .yarn/install-state.gz
 
 # Test: DBs e artefatos gerados
-test/e2e-generator-mock/mock.sqlite
-test/e2e-generator-mock/projects/todo/db/database.db
-test/e2e-generator-mock/projects/todo/db/*.db
+test/e2e-generator/mock.sqlite
+test/e2e-generator/projects/todo/db/database.db
+test/e2e-generator/projects/todo/db/*.db
 db/*.db
 
 # Validação curl (renderização capturada)

@@ -12,7 +12,7 @@
 - `gen/src/db.reader.sqlserver.ts` — preenchimento de `isIdentity` a partir de `sys.identity_columns`.
 - `gen/src/db.reader.mysql.ts` — preenchimento de `isIdentity` a partir de `EXTRA` (auto_increment) em `information_schema.columns`.
 - `gen/src/typeorm-entity-generator.ts` — uso de `@PrimaryGeneratedColumn()` quando `isPrimaryKey && column.isIdentity`; import de `PrimaryGeneratedColumn` adicionado.
-- `test/e2e-generator-mock/run.js` — em `postAndVerifyInDb`, query de verificação no banco usa `SELECT TOP 1 ...` para SQL Server e `... LIMIT 1` para os demais.
+- `test/e2e-generator/run.js` — em `postAndVerifyInDb`, query de verificação no banco usa `SELECT TOP 1 ...` para SQL Server e `... LIMIT 1` para os demais.
 
 ## Regras/requisitos atendidos
 
@@ -25,7 +25,7 @@
 
 ## Atualização: verificação banco SQL Server
 
-- `test/e2e-generator-mock/run.js`: em `postAndVerifyInDb`, a query de verificação usa `SELECT TOP 1 1 AS ok ...` quando `conn.dbType === 'sqlserver'`, e `... LIMIT 1` para os demais, evitando o erro "Incorrect syntax near 'LIMIT'" no SQL Server.
+- `test/e2e-generator/run.js`: em `postAndVerifyInDb`, a query de verificação usa `SELECT TOP 1 1 AS ok ...` quando `conn.dbType === 'sqlserver'`, e `... LIMIT 1` para os demais, evitando o erro "Incorrect syntax near 'LIMIT'" no SQL Server.
 
 ## Pendências / observações
 

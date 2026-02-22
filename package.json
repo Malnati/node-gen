@@ -4,6 +4,6 @@
   "description": "Repositório do gerador node-gen (gen/) e testes (test/)",
   "scripts": {
     "build": "cd gen && npm run build",
-    "test:e2e": "node test/e2e-generator-mock/run.js"
+    "test:e2e": "node test/e2e-generator/run.js"
   }
 }

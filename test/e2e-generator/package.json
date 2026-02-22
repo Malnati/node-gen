@@ -1,0 +1,9 @@
+{
+  "name": "e2e-generator",
+  "private": true,
+  "description": "Projeto de testes do gerador node-gen contra o mock (fluxo garantir mock → executar gerador → validar artefatos)",
+  "scripts": {
+    "test": "node run.js",
+    "run": "node run.js"
+  }
+}

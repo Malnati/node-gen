@@ -5,8 +5,8 @@
 
 ## Arquivos criados
 
-- `test/e2e-generator-mock/projects/selling/db/` — projeto **selling** (vendas): connection.*.json, schema.sql, schema.postgres.ddl, schema.mysql.ddl, schema.mysql.sql, schema.sqlserver.ddl, database.sqlite.ddl, database.sqlite.sql, database.postgres.ddl, database.postgres.sql, database.mysql.ddl, database.mysql.sql, database.sqlserver.ddl, database.sqlserver.sql, create-sqlite-fixture.js
-- `test/e2e-generator-mock/projects/schedule/db/` — projeto **schedule** (agendamento): mesma estrutura para os quatro bancos (SQLite, PostgreSQL, MySQL, SQL Server)
+- `test/e2e-generator/projects/selling/db/` — projeto **selling** (vendas): connection.*.json, schema.sql, schema.postgres.ddl, schema.mysql.ddl, schema.mysql.sql, schema.sqlserver.ddl, database.sqlite.ddl, database.sqlite.sql, database.postgres.ddl, database.postgres.sql, database.mysql.ddl, database.mysql.sql, database.sqlserver.ddl, database.sqlserver.sql, create-sqlite-fixture.js
+- `test/e2e-generator/projects/schedule/db/` — projeto **schedule** (agendamento): mesma estrutura para os quatro bancos (SQLite, PostgreSQL, MySQL, SQL Server)
 
 ## Regras/requisitos atendidos
 

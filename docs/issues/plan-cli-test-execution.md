@@ -21,7 +21,7 @@ Para atender ao pré-requisito de schema usando **SQLite em disco** (sem servido
 
 1. **Criar fixture SQLite em disco:** na raiz do repositório, com diretório de saída vazio ou dedicado (ex.: `output/`):
    ```bash
-   node test/e2e-generator-mock/projects/todo/db/create-sqlite-fixture.js ./output
+   node test/e2e-generator/projects/todo/db/create-sqlite-fixture.js ./output
    ```
    Isso gera `{outputDir}/fixture.sqlite` com uma tabela mínima `tb_user` (id, external_id, name, created_at, updated_at).
 
@@ -57,7 +57,7 @@ node dist/main.js -a myapp -h localhost -p 5432 -d mydb -u user -pw secret -o ./
 **Exemplo com SQLite em disco (teste sem servidor de banco).** Use `-T ./static` para que o projeto gerado tenha `tsconfig.json` e compile com `nest build`:
 
 ```bash
-node test/e2e-generator-mock/projects/todo/db/create-sqlite-fixture.js ./output
+node test/e2e-generator/projects/todo/db/create-sqlite-fixture.js ./output
 node dist/main.js -a cli-test -d ./output/fixture.sqlite -u - -pw - -o ./output -t sqlite -T ./static -f "entities,services,interfaces,controllers,dtos,modules,app-module,main,env,package.json,readme,datasource,diagram"
 ```
 
@@ -92,12 +92,12 @@ Para cada cenário: documentar se foi executado (sim/não) e, em caso de falha, 
 
 ## Uso do projeto mock (matriz completa)
 
-Para testar todas as possibilidades de geração conforme a matriz de cenários (tabela simples, relações e chaves compostas, nullable/enum/decimal/datas/UUID, nomes limítrofes), use o mock em **`test/e2e-generator-mock/`** (schema.sql, create-db.js, mock.sqlite):
+Para testar todas as possibilidades de geração conforme a matriz de cenários (tabela simples, relações e chaves compostas, nullable/enum/decimal/datas/UUID, nomes limítrofes), use o mock em **`test/e2e-generator/`** (schema.sql, create-db.js, mock.sqlite):
 
-1. Criar o banco: `node test/e2e-generator-mock/create-db.js`
-2. Executar o CLI (a partir da raiz): `cd gen && node dist/main.js -a mock-app -d ../test/e2e-generator-mock/mock.sqlite -u x -pw x -o ../output -t sqlite -f "entities,...,diagram"` (e opcionalmente `-T ./static`)
+1. Criar o banco: `node test/e2e-generator/create-db.js`
+2. Executar o CLI (a partir da raiz): `cd gen && node dist/main.js -a mock-app -d ../test/e2e-generator/mock.sqlite -u x -pw x -o ../output -t sqlite -f "entities,...,diagram"` (e opcionalmente `-T ./static`)
 
-Ver [test/e2e-generator-mock/README.md](../../test/e2e-generator-mock/README.md) e [plan-mock-project-codegen.md](plan-mock-project-codegen.md). Para o projeto que **automatize** esse fluxo (garantir mock → executar gerador → validar artefatos), ver [plan-test-project-generator-vs-mock.md](plan-test-project-generator-vs-mock.md) e `test/e2e-generator-mock/`.
+Ver [test/e2e-generator/README.md](../../test/e2e-generator/README.md) e [plan-mock-project-codegen.md](plan-mock-project-codegen.md). Para o projeto que **automatize** esse fluxo (garantir mock → executar gerador → validar artefatos), ver [plan-test-project-generator-vs-mock.md](plan-test-project-generator-vs-mock.md) e `test/e2e-generator/`.
 
 ## Rastreabilidade
 

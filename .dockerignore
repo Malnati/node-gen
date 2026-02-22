@@ -3,7 +3,7 @@
 node_modules
 gen/node_modules
 output
-test/e2e-generator-mock/node_modules
+test/e2e-generator/node_modules
 *.log
 .env
 .env.*
@@ -14,6 +14,6 @@ build-mock-test
 coverage
 .nyc_output
 *.sqlite
-test/e2e-generator-mock/mock.sqlite
-test/e2e-generator-mock/projects/todo/db/*.db
+test/e2e-generator/mock.sqlite
+test/e2e-generator/projects/todo/db/*.db
 render.html

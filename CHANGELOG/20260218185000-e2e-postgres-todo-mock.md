@@ -5,8 +5,8 @@
 
 ## Arquivos modificados
 
-- `test/e2e-generator-mock/init-postgres.js` — inclusão de `todo` em `EXTRA_DBS` com schema `todo/db/schema.postgres.ddl` e tabela de checagem `tb_simple_item`.
-- `test/e2e-generator-mock/pg-init/00-init-extra.sh` — criação do banco `todo` e aplicação de `01-schema.sql` no primeiro init do container Postgres.
+- `test/e2e-generator/init-postgres.js` — inclusão de `todo` em `EXTRA_DBS` com schema `todo/db/schema.postgres.ddl` e tabela de checagem `tb_simple_item`.
+- `test/e2e-generator/pg-init/00-init-extra.sh` — criação do banco `todo` e aplicação de `01-schema.sql` no primeiro init do container Postgres.
 
 ## Regras/requisitos atendidos
 
