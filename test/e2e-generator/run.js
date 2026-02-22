@@ -397,7 +397,7 @@ const PROJECT_EXPECTED = {
     tables: ['country', 'state', 'city', 'address'],
     moduleNames: ['country', 'state', 'city', 'address'],
     entityFiles: ['country.ts', 'state.ts', 'city.ts', 'address.ts'],
-    postVerify: { path: '/country', body: { code: 'E2E', name: 'e2e-verify' }, table: 'country', whereColumn: 'code', whereValue: 'E2E' },
+    postVerify: { path: '/country', body: { code: 'E2', name: 'e2e-verify' }, table: 'country', whereColumn: 'code', whereValue: 'E2' },
   },
   auth: {
     tables: ['auth_session'],
