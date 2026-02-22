@@ -1,4 +1,5 @@
 -- test/e2e-generator/projects/schedule/db/database.mysql.sql
+USE schedule;
 INSERT INTO tb_resource (external_id, tenant, name, resource_type, capacity) VALUES
 ('a1eebc99-9c0b-4ef8-bb6d-6bb9bd380a01','a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11','Sala A','room',10);
 

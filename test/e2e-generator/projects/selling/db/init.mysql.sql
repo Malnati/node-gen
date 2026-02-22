@@ -3,6 +3,8 @@ CREATE DATABASE IF NOT EXISTS selling;
 CREATE DATABASE IF NOT EXISTS google_calendar;
 GRANT ALL PRIVILEGES ON selling.* TO 'e2e'@'%';
 GRANT ALL PRIVILEGES ON google_calendar.* TO 'e2e'@'%';
+CREATE DATABASE IF NOT EXISTS schedule;
+GRANT ALL PRIVILEGES ON schedule.* TO 'e2e'@'%';
 FLUSH PRIVILEGES;
 USE selling;
 

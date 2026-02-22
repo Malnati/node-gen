@@ -18,7 +18,7 @@ O script descobre **todos** os `connection.<dbType>.json` presentes em cada proj
 
 - **Node.js** instalado.
 - **Gerador compilado:** em `gen/` executar `npm run build` (ou na raiz do repositório `npm run build`) para gerar `gen/dist/main.js`.
-- **Mock disponível:** para SQLite o script usa `connection.sqlite.json` e cria `mock.sqlite` automaticamente se não existir (via `create-db.js`). Para MySQL, PostgreSQL e SQL Server é necessário ter o serviço rodando e o schema aplicado; os arquivos em `projects/todo/db/` (ex.: `database.mysql.ddl`, `database.postgres.ddl`) servem de referência.
+- **Mock disponível:** para SQLite o script usa `connection.sqlite.json` e cria `mock.sqlite` automaticamente se não existir (via `create-db.js`). Para MySQL, PostgreSQL e SQL Server é necessário ter o serviço rodando e o schema aplicado; os arquivos em `projects/<name>/db/` (ex.: `database.mysql.ddl`, `database.postgres.ddl`) servem de referência. Cada projeto (todo, selling, google_calendar, schedule) possui seu próprio banco nessas engines; o init é isolado por banco (um único container por engine, com cada script criando apenas seu próprio banco e DDL/dados).
 
 ## Comandos
 

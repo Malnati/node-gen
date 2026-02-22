@@ -1,4 +1,5 @@
 -- test/e2e-generator/projects/schedule/db/database.mysql.ddl
+USE schedule;
 CREATE TABLE tb_resource (
   id INT AUTO_INCREMENT PRIMARY KEY COMMENT 'Chave interna.',
   tenant CHAR(36) NOT NULL COMMENT 'Referência lógica ao locatário (serviço companies).',

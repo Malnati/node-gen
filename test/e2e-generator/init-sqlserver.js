@@ -9,6 +9,7 @@ const PROJECT_DBS = [
   { name: 'todo', dbName: 'todo', checkTable: 'tb_simple_item' },
   { name: 'selling', dbName: 'selling', checkTable: 'tb_order' },
   { name: 'google-calendar', dbName: 'google_calendar', checkTable: 'calendar_integration' },
+  { name: 'schedule', dbName: 'schedule', checkTable: 'tb_resource' },
 ];
 
 const host = process.env.DB_SQLSERVER_HOST || '127.0.0.1';
