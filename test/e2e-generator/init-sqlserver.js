@@ -6,10 +6,15 @@ const MOCK_DIR = path.resolve(__dirname);
 const PROJECTS_DIR = path.join(MOCK_DIR, 'projects');
 
 const FIRST_TABLE_REGEX = /CREATE\s+TABLE\s+(?:[\w.]+\.)?(\w+)/i;
+const GO_LINE_REGEX = /\r?\n\s*GO\s*\r?\n/i;
 
 function getFirstTableName(ddlContent) {
   const m = ddlContent.match(FIRST_TABLE_REGEX);
   return m ? m[1] : null;
+}
+
+function splitSqlServerBatches(ddlContent) {
+  return ddlContent.split(GO_LINE_REGEX).map((s) => s.trim()).filter(Boolean);
 }
 
 function discoverProjects() {
@@ -101,7 +106,10 @@ async function main() {
             continue;
           }
         }
-        await poolDb.request().query(ddlContent);
+        const batches = splitSqlServerBatches(ddlContent);
+        for (const batch of batches) {
+          await poolDb.request().query(batch);
+        }
         console.log('[init-sqlserver] Schema applied to', dbName);
       } finally {
         await poolDb.close();
