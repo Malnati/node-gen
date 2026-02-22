@@ -13,11 +13,6 @@ services:
       timeout: 5s
       retries: 30
       start_period: 120s
-    volumes:
-      - ./test/e2e-generator/projects/todo/db/database.mysql.ddl:/docker-entrypoint-initdb.d/01-schema.sql
-      - ./test/e2e-generator/projects/selling/db/init.mysql.sql:/docker-entrypoint-initdb.d/02-selling.sql
-      - ./test/e2e-generator/projects/schedule/db/database.mysql.ddl:/docker-entrypoint-initdb.d/03-schedule-schema.sql
-      - ./test/e2e-generator/projects/schedule/db/database.mysql.sql:/docker-entrypoint-initdb.d/04-schedule-data.sql
   postgres:
     image: postgres:16-alpine
     environment:
@@ -51,6 +46,8 @@ services:
       DB_MYSQL_PORT: "3306"
       DB_MYSQL_USER: e2e
       DB_MYSQL_PASSWORD: e2e
+      DB_MYSQL_INIT_USER: root
+      DB_MYSQL_INIT_PASSWORD: root
       DB_SQLSERVER_HOST: sqlserver
       DB_SQLSERVER_PORT: "1433"
       DB_SQLSERVER_PASSWORD: "YourStrong@Passw0rd"

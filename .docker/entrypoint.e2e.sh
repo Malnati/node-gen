@@ -24,7 +24,8 @@ if [ $# -eq 0 ]; then
       if [ "$i" -eq 120 ]; then echo "[e2e] MySQL nao respondeu."; exit 1; fi
       sleep 1.5
     done
-    echo "[e2e] MySQL pronto."
+    echo "[e2e] MySQL pronto. Inicializando bancos..."
+    node test/e2e-generator/init-mysql.js 2>/dev/null || true
   fi
   if echo ",${E2E_DB_TYPES}," | grep -q ',sqlserver,'; then
     echo "[e2e] Aguardando SQL Server em sqlserver:1433..."
