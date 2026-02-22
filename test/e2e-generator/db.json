@@ -1,0 +1,68 @@
+{
+  "projectsDirName": "projects",
+  "connectionFilePattern": "^connection\\.([a-z0-9]+)\\.json$",
+  "schemaDdlNames": ["schema", "database"],
+  "dataSqlSuffix": "database",
+  "engines": ["sqlite", "postgres", "mysql", "sqlserver"],
+  "postgres": {
+    "hostEnv": "DB_POSTGRES_HOST",
+    "portEnv": "DB_POSTGRES_PORT",
+    "userEnv": "DB_POSTGRES_USER",
+    "passwordEnv": "DB_POSTGRES_PASSWORD",
+    "hostDefault": "127.0.0.1",
+    "portDefault": "5432",
+    "userDefault": "postgres",
+    "passwordDefault": "postgres",
+    "connectionFileName": "connection.postgres.json",
+    "ddlExtensions": ["schema.postgres.ddl", "database.postgres.ddl"]
+  },
+  "mysql": {
+    "hostEnv": "DB_MYSQL_HOST",
+    "portEnv": "DB_MYSQL_PORT",
+    "userEnv": "DB_MYSQL_USER",
+    "passwordEnv": "DB_MYSQL_PASSWORD",
+    "initUserEnv": "DB_MYSQL_INIT_USER",
+    "initPasswordEnv": "DB_MYSQL_INIT_PASSWORD",
+    "hostDefault": "127.0.0.1",
+    "portDefault": "3306",
+    "userDefault": "e2e",
+    "passwordDefault": "e2e",
+    "initUserDefault": "root",
+    "initPasswordDefault": "root",
+    "connectionFileName": "connection.mysql.json",
+    "ddlExtensions": ["schema.mysql.ddl", "database.mysql.ddl"],
+    "dataExtension": "database.mysql.sql"
+  },
+  "sqlserver": {
+    "hostEnv": "DB_SQLSERVER_HOST",
+    "portEnv": "DB_SQLSERVER_PORT",
+    "userEnv": "DB_SQLSERVER_USER",
+    "passwordEnv": "DB_SQLSERVER_PASSWORD",
+    "hostDefault": "127.0.0.1",
+    "portDefault": "1433",
+    "userDefault": "sa",
+    "passwordDefault": "YourStrong@Passw0rd",
+    "connectionFileName": "connection.sqlserver.json",
+    "ddlExtensions": ["schema.sqlserver.ddl", "database.sqlserver.ddl"]
+  },
+  "sqlite": {
+    "connectionFileName": "connection.sqlite.json",
+    "ddlExtensions": ["database.sqlite.ddl", "schema.sqlite.ddl"],
+    "todoProjectName": "todo",
+    "todoMockFileName": "mock.sqlite",
+    "otherMockPrefix": "mock-",
+    "otherMockSuffix": ".sqlite",
+    "fixtureScriptName": "create-sqlite-fixture.js",
+    "fixtureOutputName": "fixture.sqlite"
+  },
+  "applyCommentsProjects": [
+    "contacts", "users", "tenant", "transactions", "auth", "communications",
+    "maps", "config", "roles", "notifications", "orders", "warehouse", "reports",
+    "google-calendar", "google-drive", "llm", "gmail", "logistics", "consents",
+    "todo", "selling", "schedule"
+  ],
+  "firstTableRegexPostgres": "CREATE\\s+TABLE\\s+(?:IF\\s+NOT\\s+EXISTS\\s+)?(?:[\\w.]+\\.)?(\\w+)",
+  "firstTableRegexSqlserver": "CREATE\\s+TABLE\\s+(?:[\\w.]+\\.)?(?:\\[([^\\]]+)\\]|(\\w+))",
+  "goLineRegex": "\\r?\\n\\s*GO\\s*\\r?\\n",
+  "incrementalLoadPolicy": "always"
+}

@@ -8,7 +8,7 @@ Este diretório concentra os recursos de teste do gerador de código (`gen/`): m
 
 | Diretório | Descrição |
 |-----------|-----------|
-| `e2e-generator/` | Testes E2E: executa o gerador contra o mock e valida artefatos. Conexões em `projects/todo/db/connection.<dbType>.json` (sqlite, mysql, postgres, sqlserver). Contém `create-db.js`, `projects/todo/db/schema.sql`, `create-sqlite-fixture.js`, `mock.sqlite` (gerado). Saída em `output/<project>/<dbType>/` na raiz (ex.: `output/e2e-mock-app/sqlite/`). DDL/dados por dialeto em `e2e-generator/projects/todo/db/` (database.{mysql,postgres,sqlite,sqlserver}.ddl e .sql). |
+| `e2e-generator/` | Testes E2E: executa o gerador contra o mock e valida artefatos. Conexões em `projects/<name>/db/connection.<dbType>.json` (sqlite, mysql, postgres, sqlserver). Contém `run.js`, `db.js`, `e2e.js` e JSONs de config; `db.js` cria mocks SQLite e inicializa Postgres/MySQL/SQL Server. Saída em `output/<project>/<dbType>/` na raiz. DDL/dados por dialeto em `e2e-generator/projects/<name>/db/` (database.{mysql,postgres,sqlite,sqlserver}.ddl e .sql). |
 
 ## Pré-requisitos
 
@@ -30,16 +30,16 @@ npm run test:e2e
 Ou diretamente:
 
 ```bash
-node test/e2e-generator/run.js
+node test/e2e-generator/run.js e2e
 ```
 
 **No diretório do E2E:**
 
 ```bash
-cd test/e2e-generator && node run.js
+cd test/e2e-generator && node run.js e2e
 ```
 
-Se `test/e2e-generator/mock.sqlite` não existir, o script executa `node test/e2e-generator/create-db.js` antes de rodar o gerador.
+Se o mock SQLite não existir, o script executa `node test/e2e-generator/db.js --resume` (via e2e.js) para criá-lo antes de rodar o gerador.
 
 **Via Docker (evita problemas de arquitetura com sqlite3/sharp):**
 
@@ -56,19 +56,25 @@ make e2e-build
 make e2e-run
 ```
 
-O ambiente usa `.docker/docker-compose.e2e.yml` e `.docker/Dockerfile.e2e` (Node 20, gen compilado, mock criado no build). Por padrão são executados **todos os tipos de banco** para os quais existir `connection.<dbType>.json` em cada projeto (`projects/<name>/db/`): SQLite, Postgres, MySQL e/ou SQL Server conforme os arquivos presentes. A variável **`E2E_DB_TYPES`** não restringe mais a matriz de teste; ela é usada apenas na verificação inicial de acessibilidade dos containers (quais DBs aguardar antes de rodar). As verificações de porta e de health usam loops com timeout de no máximo 1,5 s por tentativa. Postgres e MySQL são inicializados pelo serviço e2e via `init-postgres.js` e `init-mysql.js` (descoberta dinâmica de projetos por `connection.<engine>.json` e DDL em `projects/<name>/db/`); o sqlserver é inicializado via `init-sqlserver.js` com schema em cada `projects/<name>/db/`. O diretório `output/` na raiz é montado no container; após `make e2e-run` as aplicações geradas ficam em `output/<project>/<db>/` (ex.: `output/e2e-mock-app/sqlite/`, `output/e2e-mock-app/postgres/`, etc.). O E2E valida: (1) **compilação** — `npm run build` em cada aplicação gerada é obrigatório e deve concluir com sucesso; (2) **containers** — verificação de que os containers de DB (Postgres, MySQL, SQL Server) estão acessíveis antes de rodar; (3) **subida da API** — cada app é iniciada em processo (NODE_ENV=production), verifica-se a porta de escuta e requisições HTTP; (4) **logs** — os logs (stdout/stderr) da API devem conter mensagem de startup (Nest/Application/listening); (5) **endpoints** — cURL em `/health`, `/version` e em todos os endpoints de módulos (GET); (6) **banco** — após execução do endpoint de criação (POST), confirmação no banco de que o dado foi persistido. Loops de espera usam sleep de no máximo 1,5 s por tentativa.
+O ambiente usa `.docker/docker-compose.e2e.yml` e `.docker/Dockerfile.e2e` (Node 20, gen compilado, mock SQLite criado no build via `db.js`). Por padrão são executados **todos os tipos de banco** para os quais existir `connection.<dbType>.json` em cada projeto (`projects/<name>/db/`): SQLite, Postgres, MySQL e/ou SQL Server conforme os arquivos presentes. A variável **`E2E_DB_TYPES`** não restringe a matriz de teste; ela é usada na verificação de acessibilidade dos containers e para decidir quais engines o `db.js` inicializa. Postgres, MySQL e SQL Server são inicializados pelo serviço e2e via `db.js` (descoberta dinâmica por `connection.<engine>.json` e DDL em `projects/<name>/db/`). O diretório `output/` na raiz é montado no container; após `make e2e-run` as aplicações geradas ficam em `output/<project>/<db>/`. O E2E valida: (1) **compilação** — `npm run build` em cada aplicação gerada é obrigatório; (2) **containers** — verificação de que os containers de DB estão acessíveis; (3) **subida da API** — cada app é iniciada em processo (NODE_ENV=production), verifica-se a porta e requisições HTTP; (4) **logs** — mensagem de startup (Nest/Application/listening); (5) **endpoints** — cURL em `/health`, `/version` e em todos os endpoints de módulos (GET); (6) **banco** — confirmação no banco após POST. Loops de espera usam sleep de no máximo 1,5 s por tentativa.
 
 **Foco dos testes:** para cada projeto, são exercitados **todos os `connection.<dbType>.json`** encontrados no diretório `projects/<name>/db/` (tipos permitidos: sqlite, postgres, mysql, sqlserver). A matriz de teste não é restrita por `E2E_DB_TYPES`; essa variável afeta apenas quais containers de DB são aguardados na inicialização (ex.: `E2E_DB_TYPES=postgres,mysql` faz o entrypoint aguardar só Postgres e MySQL). Em ambientes arm64 o container SQL Server pode rodar em emulação; em amd64 o fluxo dos quatro bancos pode ser validado.
 
 ### 2. Criar o banco mock (quando necessário)
 
-Para (re)criar apenas o banco mock, na raiz:
+Para (re)criar os mocks e bancos, na raiz:
 
 ```bash
-node test/e2e-generator/create-db.js
+node test/e2e-generator/run.js db
 ```
 
-Gera `test/e2e-generator/mock.sqlite` a partir de `test/e2e-generator/projects/todo/db/schema.sql`.
+Ou apenas SQLite (todos os projetos com connection.sqlite.json):
+
+```bash
+E2E_DB_TYPES=sqlite node test/e2e-generator/db.js
+```
+
+Gera `test/e2e-generator/mock.sqlite` (projeto todo) e `mock-<project>.sqlite` para os demais, a partir dos DDLs em `projects/<name>/db/`.
 
 ### 3. Testes unitários do projeto gerado (opcional)
 
@@ -85,8 +91,8 @@ Cobertura: `npm run test:cov`. Para outro projeto ou banco, use `output/<project
 ## Ordem sugerida
 
 1. `npm run build` (raiz) — compila o gerador.
-2. `node test/e2e-generator/create-db.js` (raiz) — cria o mock, se ainda não existir.
-3. `npm run test:e2e` (raiz) — executa o E2E do gerador contra o mock (saída em `output/<project>/<db>/`).
+2. `node test/e2e-generator/run.js db` (raiz) — cria mocks e bancos, se necessário (ou use `run.js e2e`, que garante mock via db.js --resume).
+3. `npm run test:e2e` (raiz) — executa o E2E do gerador (saída em `output/<project>/<db>/`).
 4. Opcional: `cd output/e2e-mock-app/sqlite && npm install && npm test` — testes do projeto gerado.
 
 ## Referências

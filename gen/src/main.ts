@@ -1,5 +1,6 @@
-// /src/main.ts
+// gen/src/main.ts
 import path from "path";
+import { execSync } from "child_process";
 import * as readline from "readline";
 import { DbReader } from "./db.reader.postgres";
 import { ConfigUtil } from "./utils/ConfigUtil";
@@ -58,6 +59,21 @@ async function copyStaticFiles(destDir: string, templateDir?: string) {
         console.log('Arquivos estáticos copiados com sucesso.');
     } catch (err) {
         console.error('Erro ao copiar arquivos estáticos:', err);
+    }
+}
+
+function ensureGitRepo(outputDir: string): void {
+    const gitDir = path.join(outputDir, ".git");
+    if (fs.existsSync(gitDir)) {
+        return;
+    }
+    try {
+        execSync("git init", { cwd: outputDir, stdio: "pipe" });
+        execSync("git add .", { cwd: outputDir, stdio: "pipe" });
+        execSync("git commit -m \"Initial generated\"", { cwd: outputDir, stdio: "pipe" });
+    } catch (err) {
+        const msg = err instanceof Error ? err.message : String(err);
+        console.warn("[gen] Git repo init skipped (non-fatal):", msg);
     }
 }
 
@@ -189,6 +205,7 @@ async function main() {
         }
     }
 
+    ensureGitRepo(dbConfig.outputDir);
 }
 
 main();

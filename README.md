@@ -61,10 +61,10 @@ Você pode fornecer `--templateDir` para usar um diretório personalizado de tem
 
 ### Usando o SQLite para Testes
 
-Para executar o gerador contra um banco SQLite, use o mock (criar com `node test/e2e-generator/create-db.js`) ou os scripts em `test/e2e-generator/projects/todo/db/` (ex.: `database.sqlite.ddl`, `database.sqlite.sql`). Exemplo com o mock:
+Para executar o gerador contra um banco SQLite, use o mock (criar com `node test/e2e-generator/run.js db` ou `node test/e2e-generator/db.js`) ou os scripts em `test/e2e-generator/projects/todo/db/` (ex.: `database.sqlite.ddl`, `database.sqlite.sql`). Exemplo com o mock:
 
 ```bash
-node test/e2e-generator/create-db.js
+node test/e2e-generator/run.js db
 cd gen && node dist/main.js -a myapp -d ../test/e2e-generator/mock.sqlite -u x -pw x -o ../build -t sqlite -f "entities,services,interfaces,controllers,dtos,modules,app-module,main,env,package.json,readme,datasource,diagram"
 ```
 

@@ -1,0 +1,11 @@
+{
+  "repoRootRelative": ["..", ".."],
+  "genDirSegment": "gen",
+  "mockDirSegment": ["test", "e2e-generator"],
+  "projectsDirName": "projects",
+  "outDirBaseName": "output",
+  "distMainSegment": ["gen", "dist", "main.js"],
+  "scriptDb": "db.js",
+  "scriptE2e": "e2e.js",
+  "defaultDbTypes": ["sqlite", "postgres", "mysql", "sqlserver"]
+}

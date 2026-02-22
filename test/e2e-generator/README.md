@@ -18,14 +18,20 @@ O script descobre **todos** os `connection.<dbType>.json` presentes em cada proj
 
 - **Node.js** instalado.
 - **Gerador compilado:** em `gen/` executar `npm run build` (ou na raiz do repositório `npm run build`) para gerar `gen/dist/main.js`.
-- **Mock disponível:** para SQLite o script usa `connection.sqlite.json` e cria `mock.sqlite` automaticamente se não existir (via `create-db.js`). Para MySQL, PostgreSQL e SQL Server é necessário ter o serviço rodando e o schema aplicado; os arquivos em `projects/<name>/db/` (ex.: `database.mysql.ddl`, `database.postgres.ddl`) servem de referência. Cada projeto (todo, selling, google_calendar, schedule) possui seu próprio banco nessas engines; o init é isolado por banco (um único container por engine, com cada script criando apenas seu próprio banco e DDL/dados).
+- **Mock disponível:** para SQLite o script usa `connection.sqlite.json` e cria `mock.sqlite` (ou `mock-<project>.sqlite`) via `db.js`. Para MySQL, PostgreSQL e SQL Server é necessário ter o serviço rodando; `db.js` cria os bancos e aplica DDL/dados conforme os arquivos em `projects/<name>/db/`.
 
 ## Comandos
 
 Execução a partir da **raiz do repositório** (recomendado):
 
 ```bash
-node test/e2e-generator/run.js
+# Inicializar bancos (criação/carga; todos os projetos ou lista)
+node test/e2e-generator/run.js db
+node test/e2e-generator/run.js db todo selling
+
+# Executar E2E (geração, aferição, endpoints; todos os projetos ou lista)
+node test/e2e-generator/run.js e2e
+node test/e2e-generator/run.js e2e todo
 ```
 
 Ou via npm na raiz:
@@ -34,27 +40,25 @@ Ou via npm na raiz:
 npm run test:e2e
 ```
 
-Ou a partir do próprio diretório:
+**db.js** (chamado diretamente ou via `run.js db`):
+- `--full` (padrão): limpar e executar DDL e carga por completo.
+- `--resume` ou `--incremental`: verificar o que já existe e seguir de onde parou (banco/schema/tabelas/carga).
+- `--load`: incluir carga de dados (database.\*.sql) quando aplicável.
+- `--apply-comments`: aplicar COMMENT ON do Postgres aos DDLs MySQL/SQL Server/SQLite.
 
-```bash
-cd test/e2e-generator && node run.js
-```
+## O que cada script faz
 
-## O que o script faz
-
-1. **Descobrir conexões:** para cada projeto em `projects/`, lista todos os `connection.<dbType>.json` no diretório `db/` (sqlite, mysql, postgres, sqlserver). Não há filtro por `E2E_DB_TYPES`; todos os tipos encontrados são exercitados.
-2. **Por cada banco:** (a) carrega a conexão; (b) para SQLite, garante mock (cria `mock.sqlite` via `create-db.js` se não existir); (c) executa o gerador com os parâmetros da conexão; saída em `output/<project>/<dbType>/`; (d) aferição dos artefatos (schema `db.reader.<dbType>.json`, entidades, módulos, etc.) e **build obrigatório** (`npm run build`) no output; (e) **subida da API** — inicia a aplicação gerada em processo (NODE_ENV=production), aguarda a porta de escuta, faz requisição HTTP ao endpoint `/health` e verifica resposta 200; em falha, exibe os logs (stdout/stderr) do processo.
+- **run.js:** orquestrador. Primeiro argumento: `db` ou `e2e`. Restante: lista opcional de projetos (se vazio, todos). Chama `db.js` ou `e2e.js` com essa lista.
+- **db.js:** criação/carga de bancos. Cria mocks SQLite (todo: `mock.sqlite`; outros: `mock-<project>.sqlite` via create-sqlite-fixture.js); inicializa Postgres, MySQL e SQL Server (cria DBs, aplica DDL e opcionalmente dados). Modo full (padrão) ou incremental (--resume). Opcional: apply-ddl-comments.
+- **e2e.js:** para cada projeto e cada connection: garante mock (via db.js --resume se necessário), executa o gerador, aferição dos artefatos, build no output, subida da API e verificação de /health e endpoints (e confirmação no banco após POST).
 
 ## Estrutura
 
-- `package.json` — scripts (`test`, `run`).
-- `run.js` — script que executa o fluxo completo (uma chamada e2e por banco encontrado em `projects/todo/db/`).
-- `projects/todo/db/connection.<dbType>.json` — dados de conexão por banco (sqlite, mysql, postgres, sqlserver). Ex.: `connection.sqlite.json`, `connection.postgres.json`.
-- `projects/todo/db/database.sqlite.ddl` — DDL SQLite do mock (project, status, tag, todo, todo_tag, project_member, comment, attachment, note). Padrão distribuído com external_id e tenant. Ver DATA_DICTIONARY.md secção 25.
-- `create-db.js` — cria `mock.sqlite` a partir de `projects/todo/db/database.sqlite.ddl`.
-- `projects/todo/db/create-sqlite-fixture.js` — cria SQLite a partir de `database.sqlite.ddl` em diretório informado; usado pelo teste CLI em disco. Ver [plan-cli-test-execution.md](../../docs/issues/plan-cli-test-execution.md).
-- `mock.sqlite` — banco gerado (criado por `create-db.js`; ignorado pelo git).
-- Saída do gerador: `output/<project>/<dbType>/` na raiz do repositório (ex.: `output/e2e-mock-app/sqlite/`, `output/e2e-mock-app/postgres/`; ignorado pelo git). Vários projetos: use `E2E_APP_NAME` para alterar o nome do projeto.
+- `run.js`, `run.json` — orquestrador e constantes.
+- `db.js`, `db.json` — criação/carga de bancos e constantes.
+- `e2e.js`, `e2e.json` — geração, aferição, testes de endpoints e constantes (incl. PROJECT_EXPECTED).
+- `projects/<name>/db/` — `connection.<dbType>.json`, DDLs e opcionalmente `create-sqlite-fixture.js`, `database.*.sql`.
+- Saída do gerador: `output/<project>/<dbType>/` na raiz do repositório.
 - `README.md` — este arquivo.
 
 ## Referências
