@@ -8,12 +8,6 @@ const { spawnSync, spawn } = require('child_process');
 
 const E2E_DB_TYPES_ALLOWED = ['sqlite', 'postgres', 'mysql', 'sqlserver'];
 
-const E2E_POST_VERIFY = {
-  todo: { path: '/simple-item', body: { name: 'e2e-verify', tenant: '00000000-0000-0000-0000-000000000001', external_id: null }, uniqueExternalId: true, table: 'tb_simple_item', whereColumn: 'name', whereValue: 'e2e-verify' },
-  selling: { path: '/order', body: { status: 'confirmed', tenant: '00000000-0000-0000-0000-000000000001', account_id: '00000000-0000-0000-0000-000000000002', total: 0 }, table: 'tb_order', whereColumn: 'status', whereValue: 'confirmed' },
-  'google-calendar': { path: '/calendar-integration', body: { connected_email: 'calendar@example.com', tenant: '00000000-0000-0000-0000-000000000001', account_id: '00000000-0000-0000-0000-000000000002' }, table: 'calendar_integration', whereColumn: 'connected_email', whereValue: 'calendar@example.com' },
-};
-
 const REPO_ROOT = path.resolve(__dirname, '..', '..');
 const GEN_DIR = path.join(REPO_ROOT, 'gen');
 const MOCK_DIR = path.join(REPO_ROOT, 'test', 'e2e-generator-mock');
@@ -157,7 +151,8 @@ function curlHealth(port, timeoutMs) {
 }
 
 function postAndVerifyInDb(port, project, conn, timeoutMs) {
-  const spec = E2E_POST_VERIFY[project];
+  const expected = PROJECT_EXPECTED[project];
+  const spec = expected && expected.postVerify;
   if (!spec) return Promise.resolve(true);
   let body = spec.body && typeof spec.body === 'object' ? { ...spec.body } : spec.body;
   if (spec.uniqueExternalId && body && body.external_id === null) {
@@ -392,32 +387,162 @@ function waitForHealth(port, maxAttempts) {
 }
 
 const PROJECT_EXPECTED = {
-  accounts: { tables: ['account'], moduleNames: ['account'], entityFiles: ['account.ts'] },
-  addresses: { tables: ['country', 'state', 'city', 'address'], moduleNames: ['country', 'state', 'city', 'address'], entityFiles: ['country.ts', 'state.ts', 'city.ts', 'address.ts'] },
-  auth: { tables: ['auth_session'], moduleNames: ['auth-session'], entityFiles: ['auth_session.ts'] },
-  communications: { tables: ['email_template', 'smtp_config', 'send_history', 'delivery_tracking'], moduleNames: ['email-template', 'smtp-config', 'send-history', 'delivery-tracking'], entityFiles: ['email_template.ts', 'smtp_config.ts', 'send_history.ts', 'delivery_tracking.ts'] },
-  config: { tables: ['config', 'integration_config', 'webhook', 'branding', 'label'], moduleNames: ['config', 'integration-config', 'webhook', 'branding', 'label'], entityFiles: ['config.ts', 'integration_config.ts', 'webhook.ts', 'branding.ts', 'label.ts'] },
-  consents: { tables: ['consent_record', 'notification_preference'], moduleNames: ['consent-record', 'notification-preference'], entityFiles: ['consent_record.ts', 'notification_preference.ts'] },
-  contacts: { tables: ['contact'], moduleNames: ['contact'], entityFiles: ['contact.ts'] },
-  gmail: { tables: ['gmail_integration', 'gmail_message_template', 'gmail_message'], moduleNames: ['gmail-integration', 'gmail-message-template', 'gmail-message'], entityFiles: ['gmail_integration.ts', 'gmail_message_template.ts', 'gmail_message.ts'] },
-  'google-calendar': { tables: ['calendar_integration', 'calendar', 'calendar_event'], moduleNames: ['calendar-integration', 'calendar', 'calendar-event'], entityFiles: ['calendar_integration.ts', 'calendar.ts', 'calendar_event.ts'] },
-  'google-drive': { tables: ['drive_integration', 'drive_folder', 'drive_file'], moduleNames: ['drive-integration', 'drive-folder', 'drive-file'], entityFiles: ['drive_integration.ts', 'drive_folder.ts', 'drive_file.ts'] },
-  llm: { tables: ['llm_log', 'llm_provider_config', 'prompt_template', 'llm_execution_log', 'llm_usage_summary'], moduleNames: ['llm-log', 'llm-provider-config', 'prompt-template', 'llm-execution-log', 'llm-usage-summary'], entityFiles: ['llm_log.ts', 'llm_provider_config.ts', 'prompt_template.ts', 'llm_execution_log.ts', 'llm_usage_summary.ts'] },
-  logistics: { tables: ['shipment', 'shipment_event'], moduleNames: ['shipment', 'shipment-event'], entityFiles: ['shipment.ts', 'shipment_event.ts'] },
-  maps: { tables: ['map_provider_config', 'geocode_cache', 'route_cache'], moduleNames: ['map-provider-config', 'geocode-cache', 'route-cache'], entityFiles: ['map_provider_config.ts', 'geocode_cache.ts', 'route_cache.ts'] },
-  notifications: { tables: ['notification_template', 'notification'], moduleNames: ['notification-template', 'notification'], entityFiles: ['notification_template.ts', 'notification.ts'] },
-  orders: { tables: ['order', 'order_item'], moduleNames: ['order', 'order-item'], entityFiles: ['order.ts', 'order_item.ts'] },
-  payments: { tables: ['payment_type', 'payment'], moduleNames: ['payment-type', 'payment'], entityFiles: ['payment_type.ts', 'payment.ts'] },
-  products: { tables: ['currency', 'unit_of_measure', 'product'], moduleNames: ['currency', 'unit-of-measure', 'product'], entityFiles: ['currency.ts', 'unit_of_measure.ts', 'product.ts'] },
-  reports: { tables: ['consolidated_sales_monthly', 'current_warehouse_stock', 'logistics_performance'], moduleNames: ['consolidated-sales-monthly', 'current-warehouse-stock', 'logistics-performance'], entityFiles: ['consolidated_sales_monthly.ts', 'current_warehouse_stock.ts', 'logistics_performance.ts'] },
-  roles: { tables: ['role', 'feature', 'role_feature', 'user_role'], moduleNames: ['role', 'feature', 'role-feature', 'user-role'], entityFiles: ['role.ts', 'feature.ts', 'role_feature.ts', 'user_role.ts'] },
-  schedule: { tables: ['tb_resource', 'tb_slot', 'tb_recurrence_rule', 'tb_booking', 'tb_booking_participant', 'tb_booking_history'], moduleNames: ['resource', 'slot', 'recurrence-rule', 'booking', 'booking-participant', 'booking-history'], entityFiles: ['resource.ts', 'slot.ts', 'recurrence_rule.ts', 'booking.ts', 'booking_participant.ts', 'booking_history.ts'] },
-  selling: { tables: ['tb_order', 'tb_order_line'], moduleNames: ['order', 'order-line'], entityFiles: ['order.ts', 'order_line.ts'] },
-  tenant: { tables: ['tenant'], moduleNames: ['tenant'], entityFiles: ['tenant.ts'] },
-  todo: { tables: ['tb_category', 'tb_simple_item', 'tb_tag', 'tb_simple_item_tag'], moduleNames: ['category', 'simple-item', 'tag', 'simple-item-tag'], entityFiles: ['category.ts', 'simple_item.ts', 'tag.ts', 'simple_item_tag.ts'] },
-  transactions: { tables: ['transaction'], moduleNames: ['transaction'], entityFiles: ['transaction.ts'] },
-  users: { tables: ['app_user'], moduleNames: ['app-user'], entityFiles: ['app_user.ts'] },
-  warehouse: { tables: ['warehouse_stock'], moduleNames: ['warehouse-stock'], entityFiles: ['warehouse_stock.ts'] },
+  accounts: {
+    tables: ['account'],
+    moduleNames: ['account'],
+    entityFiles: ['account.ts'],
+    postVerify: { path: '/account', body: { tenant: '00000000-0000-0000-0000-000000000001', name: 'e2e-verify', status: 'active', external_id: null }, uniqueExternalId: true, table: 'account', whereColumn: 'name', whereValue: 'e2e-verify' },
+  },
+  addresses: {
+    tables: ['country', 'state', 'city', 'address'],
+    moduleNames: ['country', 'state', 'city', 'address'],
+    entityFiles: ['country.ts', 'state.ts', 'city.ts', 'address.ts'],
+    postVerify: { path: '/country', body: { code: 'E2E', name: 'e2e-verify' }, table: 'country', whereColumn: 'code', whereValue: 'E2E' },
+  },
+  auth: {
+    tables: ['auth_session'],
+    moduleNames: ['auth-session'],
+    entityFiles: ['auth_session.ts'],
+    postVerify: { path: '/auth-session', body: { tenant: '00000000-0000-0000-0000-000000000001', account_id: '00000000-0000-0000-0000-000000000002', user_id: '00000000-0000-0000-0000-000000000002', external_id: null }, uniqueExternalId: true, table: 'auth_session', whereColumn: 'user_id', whereValue: '00000000-0000-0000-0000-000000000002' },
+  },
+  communications: {
+    tables: ['email_template', 'smtp_config', 'send_history', 'delivery_tracking'],
+    moduleNames: ['email-template', 'smtp-config', 'send-history', 'delivery-tracking'],
+    entityFiles: ['email_template.ts', 'smtp_config.ts', 'send_history.ts', 'delivery_tracking.ts'],
+    postVerify: { path: '/email-template', body: { tenant: '00000000-0000-0000-0000-000000000001', code: 'e2e-verify', external_id: null }, uniqueExternalId: true, table: 'email_template', whereColumn: 'code', whereValue: 'e2e-verify' },
+  },
+  config: {
+    tables: ['config', 'integration_config', 'webhook', 'branding', 'label'],
+    moduleNames: ['config', 'integration-config', 'webhook', 'branding', 'label'],
+    entityFiles: ['config.ts', 'integration_config.ts', 'webhook.ts', 'branding.ts', 'label.ts'],
+    postVerify: { path: '/config', body: { tenant: '00000000-0000-0000-0000-000000000001', config_key: 'e2e-verify', config_value: '1', external_id: null }, uniqueExternalId: true, table: 'config', whereColumn: 'config_key', whereValue: 'e2e-verify' },
+  },
+  consents: {
+    tables: ['consent_record', 'notification_preference'],
+    moduleNames: ['consent-record', 'notification-preference'],
+    entityFiles: ['consent_record.ts', 'notification_preference.ts'],
+    postVerify: { path: '/consent-record', body: { tenant: '00000000-0000-0000-0000-000000000001', account_id: '00000000-0000-0000-0000-000000000002', consent_type: 'e2e-verify', external_id: null }, uniqueExternalId: true, table: 'consent_record', whereColumn: 'consent_type', whereValue: 'e2e-verify' },
+  },
+  contacts: {
+    tables: ['contact'],
+    moduleNames: ['contact'],
+    entityFiles: ['contact.ts'],
+    postVerify: { path: '/contact', body: { tenant: '00000000-0000-0000-0000-000000000001', account_id: '00000000-0000-0000-0000-000000000002', name: 'e2e-verify', external_id: null }, uniqueExternalId: true, table: 'contact', whereColumn: 'name', whereValue: 'e2e-verify' },
+  },
+  gmail: {
+    tables: ['gmail_integration', 'gmail_message_template', 'gmail_message'],
+    moduleNames: ['gmail-integration', 'gmail-message-template', 'gmail-message'],
+    entityFiles: ['gmail_integration.ts', 'gmail_message_template.ts', 'gmail_message.ts'],
+    postVerify: { path: '/gmail-integration', body: { tenant: '00000000-0000-0000-0000-000000000001', account_id: '00000000-0000-0000-0000-000000000002', connected_email: 'e2e@gmail.example.com', external_id: null }, uniqueExternalId: true, table: 'gmail_integration', whereColumn: 'connected_email', whereValue: 'e2e@gmail.example.com' },
+  },
+  'google-calendar': {
+    tables: ['calendar_integration', 'calendar', 'calendar_event'],
+    moduleNames: ['calendar-integration', 'calendar', 'calendar-event'],
+    entityFiles: ['calendar_integration.ts', 'calendar.ts', 'calendar_event.ts'],
+    postVerify: { path: '/calendar-integration', body: { connected_email: 'calendar@example.com', tenant: '00000000-0000-0000-0000-000000000001', account_id: '00000000-0000-0000-0000-000000000002' }, table: 'calendar_integration', whereColumn: 'connected_email', whereValue: 'calendar@example.com' },
+  },
+  'google-drive': {
+    tables: ['drive_integration', 'drive_folder', 'drive_file'],
+    moduleNames: ['drive-integration', 'drive-folder', 'drive-file'],
+    entityFiles: ['drive_integration.ts', 'drive_folder.ts', 'drive_file.ts'],
+    postVerify: { path: '/drive-integration', body: { tenant: '00000000-0000-0000-0000-000000000001', account_id: '00000000-0000-0000-0000-000000000002', connected_email: 'e2e@drive.example.com', external_id: null }, uniqueExternalId: true, table: 'drive_integration', whereColumn: 'connected_email', whereValue: 'e2e@drive.example.com' },
+  },
+  llm: {
+    tables: ['llm_log', 'llm_provider_config', 'prompt_template', 'llm_execution_log', 'llm_usage_summary'],
+    moduleNames: ['llm-log', 'llm-provider-config', 'prompt-template', 'llm-execution-log', 'llm-usage-summary'],
+    entityFiles: ['llm_log.ts', 'llm_provider_config.ts', 'prompt_template.ts', 'llm_execution_log.ts', 'llm_usage_summary.ts'],
+    postVerify: { path: '/llm-log', body: { tenant: '00000000-0000-0000-0000-000000000001', model_name: 'e2e-verify', external_id: null }, uniqueExternalId: true, table: 'llm_log', whereColumn: 'model_name', whereValue: 'e2e-verify' },
+  },
+  logistics: {
+    tables: ['shipment', 'shipment_event'],
+    moduleNames: ['shipment', 'shipment-event'],
+    entityFiles: ['shipment.ts', 'shipment_event.ts'],
+    postVerify: { path: '/shipment', body: { tenant: '00000000-0000-0000-0000-000000000001', order_id: '00000000-0000-0000-0000-000000000002', status: 'pending', external_id: null }, uniqueExternalId: true, table: 'shipment', whereColumn: 'status', whereValue: 'pending' },
+  },
+  maps: {
+    tables: ['map_provider_config', 'geocode_cache', 'route_cache'],
+    moduleNames: ['map-provider-config', 'geocode-cache', 'route-cache'],
+    entityFiles: ['map_provider_config.ts', 'geocode_cache.ts', 'route_cache.ts'],
+    postVerify: { path: '/map-provider-config', body: { tenant: '00000000-0000-0000-0000-000000000001', provider_code: 'e2e', external_id: null }, uniqueExternalId: true, table: 'map_provider_config', whereColumn: 'provider_code', whereValue: 'e2e' },
+  },
+  notifications: {
+    tables: ['notification_template', 'notification'],
+    moduleNames: ['notification-template', 'notification'],
+    entityFiles: ['notification_template.ts', 'notification.ts'],
+    postVerify: { path: '/notification-template', body: { tenant: '00000000-0000-0000-0000-000000000001', code: 'e2e-verify', external_id: null }, uniqueExternalId: true, table: 'notification_template', whereColumn: 'code', whereValue: 'e2e-verify' },
+  },
+  orders: {
+    tables: ['order', 'order_item'],
+    moduleNames: ['order', 'order-item'],
+    entityFiles: ['order.ts', 'order_item.ts'],
+    postVerify: { path: '/order', body: { tenant: '00000000-0000-0000-0000-000000000001', account_id: '00000000-0000-0000-0000-000000000002', status: 'draft', total: 0, external_id: null }, uniqueExternalId: true, table: 'order', whereColumn: 'status', whereValue: 'draft' },
+  },
+  payments: {
+    tables: ['payment_type', 'payment'],
+    moduleNames: ['payment-type', 'payment'],
+    entityFiles: ['payment_type.ts', 'payment.ts'],
+    postVerify: { path: '/payment-type', body: { code: 'E2E', name: 'e2e-verify', external_id: null }, uniqueExternalId: true, table: 'payment_type', whereColumn: 'code', whereValue: 'E2E' },
+  },
+  products: {
+    tables: ['currency', 'unit_of_measure', 'product'],
+    moduleNames: ['currency', 'unit-of-measure', 'product'],
+    entityFiles: ['currency.ts', 'unit_of_measure.ts', 'product.ts'],
+    postVerify: { path: '/currency', body: { code: 'E2E', name: 'e2e-verify', external_id: null }, uniqueExternalId: true, table: 'currency', whereColumn: 'code', whereValue: 'E2E' },
+  },
+  reports: {
+    tables: ['consolidated_sales_monthly', 'current_warehouse_stock', 'logistics_performance'],
+    moduleNames: ['consolidated-sales-monthly', 'current-warehouse-stock', 'logistics-performance'],
+    entityFiles: ['consolidated_sales_monthly.ts', 'current_warehouse_stock.ts', 'logistics_performance.ts'],
+    postVerify: { path: '/consolidated-sales-monthly', body: { tenant: '00000000-0000-0000-0000-000000000001', year_month: '2025-01', total_amount: 0, order_count: 0 }, table: 'consolidated_sales_monthly', whereColumn: 'year_month', whereValue: '2025-01' },
+  },
+  roles: {
+    tables: ['role', 'feature', 'role_feature', 'user_role'],
+    moduleNames: ['role', 'feature', 'role-feature', 'user-role'],
+    entityFiles: ['role.ts', 'feature.ts', 'role_feature.ts', 'user_role.ts'],
+    postVerify: { path: '/role', body: { tenant: '00000000-0000-0000-0000-000000000001', name: 'e2e-verify', external_id: null }, uniqueExternalId: true, table: 'role', whereColumn: 'name', whereValue: 'e2e-verify' },
+  },
+  schedule: {
+    tables: ['tb_resource', 'tb_slot', 'tb_recurrence_rule', 'tb_booking', 'tb_booking_participant', 'tb_booking_history'],
+    moduleNames: ['resource', 'slot', 'recurrence-rule', 'booking', 'booking-participant', 'booking-history'],
+    entityFiles: ['resource.ts', 'slot.ts', 'recurrence_rule.ts', 'booking.ts', 'booking_participant.ts', 'booking_history.ts'],
+    postVerify: { path: '/resource', body: { tenant: '00000000-0000-0000-0000-000000000001', name: 'e2e-verify', resource_type: 'room', external_id: null }, uniqueExternalId: true, table: 'tb_resource', whereColumn: 'name', whereValue: 'e2e-verify' },
+  },
+  selling: {
+    tables: ['tb_order', 'tb_order_line'],
+    moduleNames: ['order', 'order-line'],
+    entityFiles: ['order.ts', 'order_line.ts'],
+    postVerify: { path: '/order', body: { status: 'confirmed', tenant: '00000000-0000-0000-0000-000000000001', account_id: '00000000-0000-0000-0000-000000000002', total: 0 }, table: 'tb_order', whereColumn: 'status', whereValue: 'confirmed' },
+  },
+  tenant: {
+    tables: ['tenant'],
+    moduleNames: ['tenant'],
+    entityFiles: ['tenant.ts'],
+    postVerify: { path: '/tenant', body: { tenant: '00000000-0000-0000-0000-000000000001', account_id: '00000000-0000-0000-0000-000000000002', name: 'e2e-verify', external_id: null }, uniqueExternalId: true, table: 'tenant', whereColumn: 'name', whereValue: 'e2e-verify' },
+  },
+  todo: {
+    tables: ['tb_category', 'tb_simple_item', 'tb_tag', 'tb_simple_item_tag'],
+    moduleNames: ['category', 'simple-item', 'tag', 'simple-item-tag'],
+    entityFiles: ['category.ts', 'simple_item.ts', 'tag.ts', 'simple_item_tag.ts'],
+    postVerify: { path: '/simple-item', body: { name: 'e2e-verify', tenant: '00000000-0000-0000-0000-000000000001', external_id: null }, uniqueExternalId: true, table: 'tb_simple_item', whereColumn: 'name', whereValue: 'e2e-verify' },
+  },
+  transactions: {
+    tables: ['transaction'],
+    moduleNames: ['transaction'],
+    entityFiles: ['transaction.ts'],
+    postVerify: { path: '/transaction', body: { tenant: '00000000-0000-0000-0000-000000000001', account_id: '00000000-0000-0000-0000-000000000002', payment_id: '00000000-0000-0000-0000-000000000002', amount: 0, status: 'completed', external_id: null }, uniqueExternalId: true, table: 'transaction', whereColumn: 'status', whereValue: 'completed' },
+  },
+  users: {
+    tables: ['app_user'],
+    moduleNames: ['app-user'],
+    entityFiles: ['app_user.ts'],
+    postVerify: { path: '/app-user', body: { tenant: '00000000-0000-0000-0000-000000000001', account_id: '00000000-0000-0000-0000-000000000002', username: 'e2e-verify', email: 'e2e@example.com', external_id: null }, uniqueExternalId: true, table: 'app_user', whereColumn: 'username', whereValue: 'e2e-verify' },
+  },
+  warehouse: {
+    tables: ['warehouse_stock'],
+    moduleNames: ['warehouse-stock'],
+    entityFiles: ['warehouse_stock.ts'],
+    postVerify: { path: '/warehouse-stock', body: { tenant: '00000000-0000-0000-0000-000000000001', product_id: '00000000-0000-0000-0000-000000000010', address_id: '00000000-0000-0000-0000-000000000011', quantity: 0, external_id: null }, uniqueExternalId: true, table: 'warehouse_stock', whereColumn: 'product_id', whereValue: '00000000-0000-0000-0000-000000000010' },
+  },
 };
 
 function discoverProjects() {
