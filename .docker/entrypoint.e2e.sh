@@ -1,5 +1,7 @@
 #!/bin/bash
 # .docker/entrypoint.e2e.sh
+# E2E_DB_TYPES: usada apenas para decidir quais containers aguardar (postgres, mysql, sqlserver).
+# A matriz de teste em run.js é definida pelos connection.<dbType>.json encontrados em cada projeto; não é restrita por E2E_DB_TYPES.
 set -e
 if [ $# -eq 0 ]; then
   export NODE_PATH=/app/gen/node_modules

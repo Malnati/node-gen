@@ -438,6 +438,7 @@ function discoverProjects() {
   return out.sort();
 }
 
+/** Retorna todos os connection.<dbType>.json do diretório (dbType em E2E_DB_TYPES_ALLOWED). Não filtra por E2E_DB_TYPES; a matriz de teste é a união de todos os arquivos de conexão encontrados por projeto. */
 function discoverConnectionFiles(connectionDir) {
   if (!fs.existsSync(connectionDir)) {
     return [];
@@ -692,7 +693,10 @@ function assessResults(dbType, outDir, project) {
       { cwd: outDir, stdio: 'pipe', timeout: 300000, env: { ...process.env, npm_config_audit: 'false', npm_config_fund: 'false' } }
     );
     if (installResult.status !== 0) {
-      console.error('[e2e] npm install falhou. stderr:', (installResult.stderr && installResult.stderr.toString()) || '');
+      const out = (installResult.stdout && installResult.stdout.toString()) || '';
+      const err = (installResult.stderr && installResult.stderr.toString()) || '';
+      console.error('[e2e] npm install falhou. stdout:', out.slice(-2000));
+      if (err) console.error('[e2e] npm install falhou. stderr:', err.slice(-2000));
     }
     const buildResult =
       installResult.status === 0
@@ -743,7 +747,7 @@ async function main() {
   console.log('[e2e] Output base:', OUT_DIR_BASE);
   console.log('[e2e] Gen dir:', GEN_DIR);
   console.log('[e2e] Projetos:', projects.join(', '));
-  console.log('[e2e] DB types (cobertura):', E2E_DB_TYPES_ALLOWED.join(', '));
+  console.log('[e2e] DB types (cobertura): todos os connection.<dbType>.json encontrados por projeto (não restrito por E2E_DB_TYPES)');
 
   console.log('[e2e] Cobertura E2E: verificação de containers, logs das APIs, cURL em todos os endpoints e confirmação no banco após execução.');
   const containerStatus = await checkDbContainersReachable();

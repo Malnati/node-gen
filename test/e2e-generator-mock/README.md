@@ -6,13 +6,13 @@
 
 Este projeto orquestra o fluxo **garantir mock → executar node-gen → validar artefatos** para testar o aplicativo gerador de código-fonte (`gen/`) contra o mock. Não altera o gerador; apenas invoca e valida.
 
-**Parâmetros de entrada dos testes:** os dados de conexão vêm de um arquivo por tipo de banco em `test/e2e-generator-mock/projects/todo/db/`:
+**Parâmetros de entrada dos testes:** os dados de conexão vêm de um arquivo por tipo de banco em cada `test/e2e-generator-mock/projects/<name>/db/`:
 - `connection.sqlite.json` — SQLite (mock local)
 - `connection.mysql.json` — MySQL (host, port, user, password, database)
 - `connection.postgres.json` — PostgreSQL
 - `connection.sqlserver.json` — SQL Server
 
-O script descobre todos os `connection.<dbType>.json` presentes, executa uma chamada e2e para cada banco e grava a saída em `output/<project>/<dbType>/` (ex.: `output/e2e-mock-app/sqlite/`). O nome do projeto vem de `E2E_APP_NAME` (default `e2e-mock-app`), permitindo vários projetos com múltiplos bancos. Não há conexão única na raiz do mock.
+O script descobre **todos** os `connection.<dbType>.json` presentes em cada projeto (tipos permitidos: sqlite, postgres, mysql, sqlserver), executa uma chamada e2e para cada par projeto+banco e grava a saída em `output/<project>/<dbType>/`. A variável **`E2E_DB_TYPES`** não restringe essa matriz: são exercitados todos os arquivos de conexão encontrados por projeto. O nome do projeto vem do diretório em `projects/`; não há conexão única na raiz do mock.
 
 ## Pré-requisitos
 
@@ -42,7 +42,7 @@ cd test/e2e-generator-mock && node run.js
 
 ## O que o script faz
 
-1. **Descobrir conexões:** lista `projects/todo/db/connection.<dbType>.json` (sqlite, mysql, postgres, sqlserver, etc.).
+1. **Descobrir conexões:** para cada projeto em `projects/`, lista todos os `connection.<dbType>.json` no diretório `db/` (sqlite, mysql, postgres, sqlserver). Não há filtro por `E2E_DB_TYPES`; todos os tipos encontrados são exercitados.
 2. **Por cada banco:** (a) carrega a conexão; (b) para SQLite, garante mock (cria `mock.sqlite` via `create-db.js` se não existir); (c) executa o gerador com os parâmetros da conexão; saída em `output/<project>/<dbType>/`; (d) aferição dos artefatos (schema `db.reader.<dbType>.json`, entidades, módulos, etc.) e **build obrigatório** (`npm run build`) no output; (e) **subida da API** — inicia a aplicação gerada em processo (NODE_ENV=production), aguarda a porta de escuta, faz requisição HTTP ao endpoint `/health` e verifica resposta 200; em falha, exibe os logs (stdout/stderr) do processo.
 
 ## Estrutura
