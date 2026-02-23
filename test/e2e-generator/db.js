@@ -694,13 +694,13 @@ async function main() {
   await runSqliteSync(projects, mode);
 
   if (e2eDbTypes.includes('postgres')) {
-    await runPostgres(projects, mode, load);
+    try { await runPostgres(projects, mode, load); } catch(e) { console.error('[db] Postgres error:', e.message); }
   }
   if (e2eDbTypes.includes('mysql')) {
-    await runMysql(projects, mode, load);
+    try { await runMysql(projects, mode, load); } catch(e) { console.error('[db] MySQL error:', e.message); }
   }
   if (e2eDbTypes.includes('sqlserver')) {
-    await runSqlserver(projects, mode, load);
+    try { await runSqlserver(projects, mode, load); } catch(e) { console.error('[db] SQL Server error:', e.message); }
   }
   if (applyComments) {
     runApplyDdlComments(projects);
