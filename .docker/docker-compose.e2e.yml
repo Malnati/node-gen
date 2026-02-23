@@ -23,10 +23,18 @@ services:
       timeout: 5s
       retries: 10
   sqlserver:
-    image: mcr.microsoft.com/mssql/server:2022-latest
+    build:
+      context: .
+      dockerfile: .docker/Dockerfile.sqlserver
     environment:
       ACCEPT_EULA: "Y"
       MSSQL_SA_PASSWORD: "YourStrong@Passw0rd"
+    healthcheck:
+      test: ["CMD-SHELL", "pgrep -x sqlservr || exit 1"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+      start_period: 120s
   e2e:
     build:
       context: .
@@ -54,4 +62,4 @@ services:
       postgres:
         condition: service_healthy
       sqlserver:
-        condition: service_started
+        condition: service_healthy

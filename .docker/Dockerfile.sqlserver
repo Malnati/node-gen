@@ -1,2 +1,3 @@
-FROM mcr.microsoft.com/mssql/server:2019-latest
-ENTRYPOINT ["/app/.docker/entrypoint.sqlserver.sh"]
+FROM mcr.microsoft.com/mssql/server:2022-latest
+COPY .docker/entrypoint.sqlserver.sh /app/.docker/entrypoint.sqlserver.sh
+ENTRYPOINT ["bash", "/app/.docker/entrypoint.sqlserver.sh"]

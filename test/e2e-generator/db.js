@@ -335,6 +335,23 @@ async function runSqlserver(projectList, mode, load) {
     return ddlContent.split(goLineRegex).map((s) => s.trim()).filter(Boolean);
   }
 
+  async function connectWithRetry(config, maxRetries = 10, delayMs = 5000) {
+    let lastError;
+    for (let i = 1; i <= maxRetries; i++) {
+      try {
+        const pool = await new mssql.ConnectionPool(config).connect();
+        return pool;
+      } catch (err) {
+        lastError = err;
+        console.log('[db] SQL Server connection attempt', i, 'failed:', err.message);
+        if (i < maxRetries) {
+          await new Promise((resolve) => setTimeout(resolve, delayMs));
+        }
+      }
+    }
+    throw new Error('Failed to connect to SQL Server after ' + maxRetries + ' attempts: ' + lastError.message);
+  }
+
   const configMaster = {
     user,
     password,
@@ -345,7 +362,7 @@ async function runSqlserver(projectList, mode, load) {
     connectionTimeout: 60000,
     requestTimeout: 60000,
   };
-  const pool = await new mssql.ConnectionPool(configMaster).connect();
+  const pool = await connectWithRetry(configMaster);
   try {
     for (const p of projects) {
       const dbNameEscaped = p.dbName.replace(/'/g, "''");

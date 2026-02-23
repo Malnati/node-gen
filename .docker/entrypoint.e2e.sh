@@ -24,9 +24,17 @@ if [ $# -eq 0 ]; then
   fi
   if echo ",${E2E_DB_TYPES}," | grep -q ',sqlserver,'; then
     echo "[e2e] Aguardando SQL Server em sqlserver:1433..."
-    for i in $(seq 1 60); do
-      if (echo >/dev/tcp/sqlserver/1433) 2>/dev/null; then break; fi
-      if [ "$i" -eq 60 ]; then echo "[e2e] SQL Server nao respondeu."; exit 1; fi
+    for i in $(seq 1 120); do
+      if (echo >/dev/tcp/sqlserver/1433) 2>/dev/null; then
+        sleep 5
+        if node -e "
+          const mssql = require('mssql');
+          mssql.connect({server: 'sqlserver', user: 'sa', password: 'YourStrong@Passw0rd', database: 'master', options: {trustServerCertificate: true}}).then(() => {console.log('OK'); process.exit(0);}).catch(() => {process.exit(1);});
+        " 2>/dev/null; then
+          break
+        fi
+      fi
+      if [ "$i" -eq 120 ]; then echo "[e2e] SQL Server nao respondeu."; exit 1; fi
       sleep 1.5
     done
   fi
