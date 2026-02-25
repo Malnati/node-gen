@@ -145,7 +145,7 @@ export class ${entityName}PersistDTO implements I${entityName}PersistDTO {
     if (mappedType === 'string') {
       decorators.push('@IsString()');
       usedValidators.add('IsString');
-      if (column.characterMaximumLength > 0) {
+      if (column.characterMaximumLength != null && column.characterMaximumLength > 0) {
         decorators.push(`@MaxLength(${column.characterMaximumLength})`);
         usedValidators.add('MaxLength');
       }

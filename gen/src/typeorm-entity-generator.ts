@@ -94,7 +94,7 @@ export class TypeORMEntityGenerator {
 
 		const ormType = typeMapping[column.dataType] ?? typeMapping[column.dataType?.toLowerCase()] ?? (column.dataType?.toLowerCase() || column.dataType)
 		const lengthSupported = ["string", "varchar", "char", "nvarchar", "nchar"]
-		if (column.characterMaximumLength > 0 && lengthSupported.includes(String(ormType))) {
+		if (column.characterMaximumLength != null && column.characterMaximumLength > 0 && lengthSupported.includes(String(ormType))) {
 			options.push(`length: ${column.characterMaximumLength}`)
 		}
 		const columnOptions = [`type: '${ormType}'`, ...options]
