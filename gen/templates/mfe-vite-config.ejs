@@ -6,12 +6,12 @@ export default defineConfig({
   plugins: [
     react(),
     singleSpa({
-      name: '{{name}}',
+      name: '<%= name %>',
       lib: 'main',
     }),
   ],
   server: {
-    port: {{port}},
+    port: <%= port %>,
     headers: {
       'Access-Control-Allow-Origin': '*',
     },

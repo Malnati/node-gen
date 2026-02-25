@@ -118,6 +118,8 @@ async function main() {
         .map((c) => c.trim().toLowerCase());
     }
 
+    let mfeConfigs: import('./microfrontend-generator').MFEConfig[] = [];
+
     for (const component of components) {
         if (component) {
             console.log(`Executando comando para ${component}`);
@@ -203,21 +205,17 @@ async function main() {
 
                 case "mfes": {
                     const mfeGenerator = new MicrofrontendGenerator(schemaPath, dbConfig);
-                    const mfeList = await mfeGenerator.generate();
-                    
-                    const appShellEnabled = !dbConfig.components.includes('app-shell') || dbConfig.components.includes('app-shell');
-                    if (appShellEnabled) {
-                        const appShellGenerator = new AppShellGenerator(dbConfig);
-                        appShellGenerator.generate(mfeList);
-                    }
+                    mfeConfigs = await mfeGenerator.generate();
                     break;
                 }
 
                 case "app-shell": {
-                    const mfeGenerator = new MicrofrontendGenerator(schemaPath, dbConfig);
-                    const mfeList = await mfeGenerator.generate();
+                    if (mfeConfigs.length === 0) {
+                        const mfeGenerator = new MicrofrontendGenerator(schemaPath, dbConfig);
+                        mfeConfigs = await mfeGenerator.generate();
+                    }
                     const appShellGenerator = new AppShellGenerator(dbConfig);
-                    appShellGenerator.generate(mfeList);
+                    appShellGenerator.generate(mfeConfigs);
                     break;
                 }
 

@@ -1,20 +1,20 @@
 import { useEffect, useState } from 'react';
-import { {{camelName}}Api } from '../api/client';
+import { <%= camelName %>Api } from '../api/client';
 import { Loading } from '../components/Loading';
 import { ErrorBoundary } from '../components/ErrorBoundary';
 
-interface {{pascalName}}Data {
-  id: {{idType}};
+interface <%= pascalName %>Data {
+  id: <%= idType %>;
   external_id?: string;
   created_at?: string;
   updated_at?: string;
-  {{#each columns}}
-  {{columnName}}: {{typescriptType}};
-  {{/each}}
+<% columns.forEach(function(col) { %>
+  <%= col.columnName %>: <%= col.typescriptType %>;
+<% }); %>
 }
 
-export function {{pascalName}}ListPage() {
-  const [data, setData] = useState<{{pascalName}}Data[]>([]);
+export function <%= pascalName %>ListPage() {
+  const [data, setData] = useState<<%= pascalName %>Data[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -25,7 +25,7 @@ export function {{pascalName}}ListPage() {
   const loadData = async () => {
     try {
       setLoading(true);
-      const response = await {{camelName}}Api.getAll();
+      const response = await <%= camelName %>Api.getAll();
       setData(response.data);
       setError(null);
     } catch (err) {
@@ -36,10 +36,10 @@ export function {{pascalName}}ListPage() {
     }
   };
 
-  const handleDelete = async (id: {{idType}}) => {
+  const handleDelete = async (id: <%= idType %>) => {
     if (!confirm('Confirmar exclusão?')) return;
     try {
-      await {{camelName}}Api.delete(id);
+      await <%= camelName %>Api.delete(id);
       loadData();
     } catch (err) {
       alert('Erro ao excluir');
@@ -53,10 +53,10 @@ export function {{pascalName}}ListPage() {
     <ErrorBoundary>
       <div data-testid="mfe-list-page" style={{ padding: '16px' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '16px' }}>
-          <h1>{{title}}</h1>
+          <h1><%= pascalName %></h1>
           <button
             data-testid="mfe-list-new-button"
-            onClick={() => window.location.href = '{{route}}/' + (data[0]?.id || 'new')}
+            onClick={() => window.location.href = '<%= route %>/' + (data[0]?.id || 'new')}
             style={{ padding: '8px 16px', background: '#00B5B8', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
           >
             Novo
@@ -66,9 +66,9 @@ export function {{pascalName}}ListPage() {
         <table data-testid="mfe-list-table" style={{ width: '100%', borderCollapse: 'collapse' }}>
           <thead>
             <tr>
-              {{#each columns}}
-              <th style={{ padding: '8px', textAlign: 'left', borderBottom: '2px solid #D9DBE7' }}>{{displayName}}</th>
-              {{/each}}
+<% columns.forEach(function(col) { %>
+              <th style={{ padding: '8px', textAlign: 'left', borderBottom: '2px solid #D9DBE7' }}><%= col.displayName %></th>
+<% }); %>
               <th style={{ padding: '8px', textAlign: 'left', borderBottom: '2px solid #D9DBE7' }}>Ações</th>
             </tr>
           </thead>
@@ -79,13 +79,13 @@ export function {{pascalName}}ListPage() {
                 data-testid="mfe-list-row"
                 style={{ borderBottom: '1px solid #D9DBE7' }}
               >
-                {{#each columns}}
-                <td style={{ padding: '8px' }}>{item.{{columnName}}}</td>
-                {{/each}}
+<% columns.forEach(function(col) { %>
+                <td style={{ padding: '8px' }}>{String(item.<%= col.columnName %>)}</td>
+<% }); %>
                 <td style={{ padding: '8px' }}>
                   <button
                     data-testid="mfe-list-edit-button"
-                    onClick={() => window.location.href = `{{route}}/${item.id}`}
+                    onClick={() => window.location.href = `<%= route %>/${item.id}`}
                     style={{ marginRight: '8px', padding: '4px 8px', cursor: 'pointer' }}
                   >
                     Editar

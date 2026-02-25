@@ -1,23 +1,23 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { {{camelName}}Api } from '../api/client';
+import { <%= camelName %>Api } from '../api/client';
 import { Loading } from '../components/Loading';
 import { ErrorBoundary } from '../components/ErrorBoundary';
 
-interface {{pascalName}}Data {
-  id: {{idType}};
+interface <%= pascalName %>Data {
+  id: <%= idType %>;
   external_id?: string;
   created_at?: string;
   updated_at?: string;
-  {{#each columns}}
-  {{columnName}}: {{typescriptType}};
-  {{/each}}
+<% formFields.forEach(function(f) { %>
+  <%= f.name %>: <%= f.isNumeric ? 'number' : 'string' %>;
+<% }); %>
 }
 
-export function {{pascalName}}DetailsPage() {
+export function <%= pascalName %>DetailsPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const [data, setData] = useState<{{pascalName}}Data | null>(null);
+  const [data, setData] = useState<<%= pascalName %>Data | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -31,10 +31,10 @@ export function {{pascalName}}DetailsPage() {
     } else {
       setLoading(false);
       setData({
-        id: 0 as {{idType}},
-        {{#each columns}}
-        {{columnName}}: {{defaultValue}},
-        {{/each}}
+        id: 0 as <%= idType %>,
+<% formFields.forEach(function(f) { %>
+        <%= f.name %>: <%= f.defaultValue %>,
+<% }); %>
       });
     }
   }, [id]);
@@ -42,7 +42,7 @@ export function {{pascalName}}DetailsPage() {
   const loadData = async () => {
     try {
       setLoading(true);
-      const response = await {{camelName}}Api.getById(id!);
+      const response = await <%= camelName %>Api.getById(id!);
       setData(response.data);
       setError(null);
     } catch (err) {
@@ -68,13 +68,13 @@ export function {{pascalName}}DetailsPage() {
 
     try {
       if (isNew) {
-        await {{camelName}}Api.create(data);
+        await <%= camelName %>Api.create(data);
       } else {
-        await {{camelName}}Api.update(id!, data);
+        await <%= camelName %>Api.update(id!, data);
       }
       setSuccess(true);
       setTimeout(() => {
-        navigate('{{route}}');
+        navigate('<%= route %>');
       }, 1500);
     } catch (err) {
       setError('Erro ao salvar');
@@ -89,7 +89,7 @@ export function {{pascalName}}DetailsPage() {
   return (
     <ErrorBoundary>
       <div data-testid="mfe-details-page" style={{ padding: '16px', maxWidth: '600px', margin: '0 auto' }}>
-        <h1>{{title}} - {isNew ? 'Novo' : 'Editar'}</h1>
+        <h1><%= pascalName %> - {isNew ? 'Novo' : 'Editar'}</h1>
 
         {success && (
           <div data-testid="mfe-toast-success" style={{ padding: '12px', background: '#1DB954', color: 'white', borderRadius: '4px', marginBottom: '16px' }}>
@@ -104,42 +104,21 @@ export function {{pascalName}}DetailsPage() {
         )}
 
         <form data-testid="mfe-details-form" onSubmit={handleSubmit}>
-          {{#each formFields}}
+<% formFields.forEach(function(f) { %>
           <div style={{ marginBottom: '16px' }}>
-            <label style={{ display: 'block', marginBottom: '4px', fontWeight: '500' }}>{{label}}</label>
-            {{#if isSelect}}
-            <select
-              data-testid="field-{{name}}"
-              value={data?.{{name}} ?? ''}
-              onChange={(e) => handleChange('{{name}}', e.target.value)}
-              style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #D9DBE7' }}
-              {{#if required}}required{{/if}}
-            >
-              <option value="">Selecione...</option>
-              {{#each options}}
-              <option value="{{value}}">{{label}}</option>
-              {{/each}}
-            </select>
-            {{else if isTextarea}}
-            <textarea
-              data-testid="field-{{name}}"
-              value={data?.{{name}} ?? ''}
-              onChange={(e) => handleChange('{{name}}', e.target.value)}
-              style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #D9DBE7', minHeight: '80px' }}
-              {{#if required}}required{{/if}}
-            />
-            {{else}}
+            <label style={{ display: 'block', marginBottom: '4px', fontWeight: '500' }}><%= f.label %></label>
             <input
-              type="{{inputType}}"
-              data-testid="field-{{name}}"
-              value={data?.{{name}} ?? ''}
-              onChange={(e) => handleChange('{{name}}', {{#if isNumeric}}Number(e.target.value){{else}}e.target.value{{/if}})}
+              type="<%= f.inputType %>"
+              data-testid="field-<%= f.name %>"
+              value={data?.<%= f.name %> ?? ''}
+              onChange={(e) => handleChange('<%= f.name %>', <%= f.isNumeric %> ? Number(e.target.value) : e.target.value)}
               style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #D9DBE7' }}
-              {{#if required}}required{{/if}}
+<% if (f.required) { %>
+              required
+<% } %>
             />
-            {{/if}}
           </div>
-          {{/each}}
+<% }); %>
 
           <div style={{ display: 'flex', gap: '8px', marginTop: '24px' }}>
             <button
@@ -152,7 +131,7 @@ export function {{pascalName}}DetailsPage() {
             </button>
             <button
               type="button"
-              onClick={() => navigate('{{route}}')}
+              onClick={() => navigate('<%= route %>')}
               style={{ padding: '10px 24px', background: '#6B7280', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
             >
               Cancelar

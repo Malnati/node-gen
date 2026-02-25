@@ -1,0 +1,21 @@
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+<% mfeList.forEach(function(mfe) { %>
+import { <%= mfe.pascalName %>ListPage } from '../<%= mfe.kebabName %>-mfe/src/pages/<%= mfe.kebabName %>-list-page';
+import { <%= mfe.pascalName %>DetailsPage } from '../<%= mfe.kebabName %>-mfe/src/pages/<%= mfe.kebabName %>-details-page';
+<% }); %>
+
+function App() {
+  return (
+    <BrowserRouter>
+      <Routes>
+<% mfeList.forEach(function(mfe) { %>
+        <Route path="<%= mfe.route %>" element={<<%= mfe.pascalName %>ListPage />} />
+        <Route path="<%= mfe.route %>/:id" element={<<%= mfe.pascalName %>DetailsPage />} />
+<% }); %>
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </BrowserRouter>
+  );
+}
+
+export default App;

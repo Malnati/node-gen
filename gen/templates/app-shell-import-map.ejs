@@ -1,0 +1,15 @@
+{
+  "imports": {
+    "react": "https://esm.sh/react@18.2.0",
+    "react-dom": "https://esm.sh/react-dom@18.2.0",
+    "react-dom/client": "https://esm.sh/react-dom@18.2.0/client",
+    "single-spa": "https://esm.sh/single-spa@5.9.4",
+    "react-router-dom": "https://esm.sh/react-router-dom@6.20.0",
+    "axios": "https://esm.sh/axios@1.6.2"<% if (mfeList.length > 0) { %>,
+<% mfeList.forEach(function(mfe, index) { %>
+    "<%= mfe.name %>": "http://localhost:9000/mfes/<%= mfe.kebabName %>-mfe/main.js"<%= index < mfeList.length - 1 ? ',' : '' %>
+<% }); %>
+<% } %>
+
+  }
+}
