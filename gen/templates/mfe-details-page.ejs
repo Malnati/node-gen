@@ -1,0 +1,165 @@
+import { useEffect, useState } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { {{camelName}}Api } from '../api/client';
+import { Loading } from '../components/Loading';
+import { ErrorBoundary } from '../components/ErrorBoundary';
+
+interface {{pascalName}}Data {
+  id: {{idType}};
+  external_id?: string;
+  created_at?: string;
+  updated_at?: string;
+  {{#each columns}}
+  {{columnName}}: {{typescriptType}};
+  {{/each}}
+}
+
+export function {{pascalName}}DetailsPage() {
+  const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
+  const [data, setData] = useState<{{pascalName}}Data | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState(false);
+
+  const isNew = !id || id === 'new';
+
+  useEffect(() => {
+    if (!isNew) {
+      loadData();
+    } else {
+      setLoading(false);
+      setData({
+        id: 0 as {{idType}},
+        {{#each columns}}
+        {{columnName}}: {{defaultValue}},
+        {{/each}}
+      });
+    }
+  }, [id]);
+
+  const loadData = async () => {
+    try {
+      setLoading(true);
+      const response = await {{camelName}}Api.getById(id!);
+      setData(response.data);
+      setError(null);
+    } catch (err) {
+      setError('Erro ao carregar dados');
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleChange = (field: string, value: unknown) => {
+    if (data) {
+      setData({ ...data, [field]: value });
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!data) return;
+
+    setSaving(true);
+    setSuccess(false);
+
+    try {
+      if (isNew) {
+        await {{camelName}}Api.create(data);
+      } else {
+        await {{camelName}}Api.update(id!, data);
+      }
+      setSuccess(true);
+      setTimeout(() => {
+        navigate('{{route}}');
+      }, 1500);
+    } catch (err) {
+      setError('Erro ao salvar');
+      console.error(err);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  if (loading) return <Loading />;
+
+  return (
+    <ErrorBoundary>
+      <div data-testid="mfe-details-page" style={{ padding: '16px', maxWidth: '600px', margin: '0 auto' }}>
+        <h1>{{title}} - {isNew ? 'Novo' : 'Editar'}</h1>
+
+        {success && (
+          <div data-testid="mfe-toast-success" style={{ padding: '12px', background: '#1DB954', color: 'white', borderRadius: '4px', marginBottom: '16px' }}>
+            Salvo com sucesso!
+          </div>
+        )}
+
+        {error && (
+          <div data-testid="mfe-details-error" style={{ padding: '12px', background: '#E63946', color: 'white', borderRadius: '4px', marginBottom: '16px' }}>
+            {error}
+          </div>
+        )}
+
+        <form data-testid="mfe-details-form" onSubmit={handleSubmit}>
+          {{#each formFields}}
+          <div style={{ marginBottom: '16px' }}>
+            <label style={{ display: 'block', marginBottom: '4px', fontWeight: '500' }}>{{label}}</label>
+            {{#if isSelect}}
+            <select
+              data-testid="field-{{name}}"
+              value={data?.{{name}} ?? ''}
+              onChange={(e) => handleChange('{{name}}', e.target.value)}
+              style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #D9DBE7' }}
+              {{#if required}}required{{/if}}
+            >
+              <option value="">Selecione...</option>
+              {{#each options}}
+              <option value="{{value}}">{{label}}</option>
+              {{/each}}
+            </select>
+            {{else if isTextarea}}
+            <textarea
+              data-testid="field-{{name}}"
+              value={data?.{{name}} ?? ''}
+              onChange={(e) => handleChange('{{name}}', e.target.value)}
+              style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #D9DBE7', minHeight: '80px' }}
+              {{#if required}}required{{/if}}
+            />
+            {{else}}
+            <input
+              type="{{inputType}}"
+              data-testid="field-{{name}}"
+              value={data?.{{name}} ?? ''}
+              onChange={(e) => handleChange('{{name}}', {{#if isNumeric}}Number(e.target.value){{else}}e.target.value{{/if}})}
+              style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #D9DBE7' }}
+              {{#if required}}required{{/if}}
+            />
+            {{/if}}
+          </div>
+          {{/each}}
+
+          <div style={{ display: 'flex', gap: '8px', marginTop: '24px' }}>
+            <button
+              type="submit"
+              data-testid="mfe-details-submit"
+              disabled={saving}
+              style={{ padding: '10px 24px', background: '#00B5B8', color: 'white', border: 'none', borderRadius: '4px', cursor: saving ? 'not-allowed' : 'pointer', opacity: saving ? 0.7 : 1 }}
+            >
+              {saving ? 'Salvando...' : 'Salvar'}
+            </button>
+            <button
+              type="button"
+              onClick={() => navigate('{{route}}')}
+              style={{ padding: '10px 24px', background: '#6B7280', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
+            >
+              Cancelar
+            </button>
+          </div>
+        </form>
+      </div>
+    </ErrorBoundary>
+  );
+}

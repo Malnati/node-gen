@@ -16,6 +16,8 @@ import { EnvGenerator } from "./env-generator";
 import { PackageJsonGenerator } from "./package-json-generator";
 import { ReadmeGenerator } from "./readme-generator";
 import { DataSourceGenerator } from "./datasource-generator";
+import { MicrofrontendGenerator } from "./microfrontend-generator";
+import { AppShellGenerator } from "./appshell-generator";
 import fs from 'fs-extra';
 import { DbReaderMysql } from "./db.reader.mysql";
 import { DbReaderSqlServer } from "./db.reader.sqlserver";
@@ -109,7 +111,7 @@ async function main() {
     } else {
         const response = await askQuestion(
             "Especifique quais componentes gerar \n" +
-            "(entities, services, interfaces, controllers, dtos, modules, app-module, main, env, package.json, readme, datasource, diagram): "
+            "(entities, services, interfaces, controllers, dtos, modules, app-module, main, env, package.json, readme, datasource, diagram, mfes, app-shell): "
         );
         components = response.replace("\"", "")
         .split(",")
@@ -196,6 +198,26 @@ async function main() {
                     const { DiagramGenerator } = await import("./diagram-generator");
                     const diagramGenerator = new DiagramGenerator(schemaPath, dbConfig);
                     await diagramGenerator.generateDiagram();
+                    break;
+                }
+
+                case "mfes": {
+                    const mfeGenerator = new MicrofrontendGenerator(schemaPath, dbConfig);
+                    const mfeList = await mfeGenerator.generate();
+                    
+                    const appShellEnabled = !dbConfig.components.includes('app-shell') || dbConfig.components.includes('app-shell');
+                    if (appShellEnabled) {
+                        const appShellGenerator = new AppShellGenerator(dbConfig);
+                        appShellGenerator.generate(mfeList);
+                    }
+                    break;
+                }
+
+                case "app-shell": {
+                    const mfeGenerator = new MicrofrontendGenerator(schemaPath, dbConfig);
+                    const mfeList = await mfeGenerator.generate();
+                    const appShellGenerator = new AppShellGenerator(dbConfig);
+                    appShellGenerator.generate(mfeList);
                     break;
                 }
 

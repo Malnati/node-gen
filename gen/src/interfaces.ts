@@ -47,7 +47,9 @@ export interface DbReaderConfig {
     'package.json' |
     'readme' |
     'datasource' |
-    'diagram'
+    'diagram' |
+    'mfes' |
+    'app-shell'
   ];
   dbType: string;
 }

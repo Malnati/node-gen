@@ -1,0 +1,114 @@
+import { useEffect, useState } from 'react';
+import { {{camelName}}Api } from '../api/client';
+import { Loading } from '../components/Loading';
+import { ErrorBoundary } from '../components/ErrorBoundary';
+
+interface {{pascalName}}Data {
+  id: {{idType}};
+  external_id?: string;
+  created_at?: string;
+  updated_at?: string;
+  {{#each columns}}
+  {{columnName}}: {{typescriptType}};
+  {{/each}}
+}
+
+export function {{pascalName}}ListPage() {
+  const [data, setData] = useState<{{pascalName}}Data[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    loadData();
+  }, []);
+
+  const loadData = async () => {
+    try {
+      setLoading(true);
+      const response = await {{camelName}}Api.getAll();
+      setData(response.data);
+      setError(null);
+    } catch (err) {
+      setError('Erro ao carregar dados');
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDelete = async (id: {{idType}}) => {
+    if (!confirm('Confirmar exclusão?')) return;
+    try {
+      await {{camelName}}Api.delete(id);
+      loadData();
+    } catch (err) {
+      alert('Erro ao excluir');
+    }
+  };
+
+  if (loading) return <Loading />;
+  if (error) return <div data-testid="mfe-list-error">{error}</div>;
+
+  return (
+    <ErrorBoundary>
+      <div data-testid="mfe-list-page" style={{ padding: '16px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '16px' }}>
+          <h1>{{title}}</h1>
+          <button
+            data-testid="mfe-list-new-button"
+            onClick={() => window.location.href = '{{route}}/' + (data[0]?.id || 'new')}
+            style={{ padding: '8px 16px', background: '#00B5B8', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
+          >
+            Novo
+          </button>
+        </div>
+
+        <table data-testid="mfe-list-table" style={{ width: '100%', borderCollapse: 'collapse' }}>
+          <thead>
+            <tr>
+              {{#each columns}}
+              <th style={{ padding: '8px', textAlign: 'left', borderBottom: '2px solid #D9DBE7' }}>{{displayName}}</th>
+              {{/each}}
+              <th style={{ padding: '8px', textAlign: 'left', borderBottom: '2px solid #D9DBE7' }}>Ações</th>
+            </tr>
+          </thead>
+          <tbody>
+            {data.map((item) => (
+              <tr
+                key={item.id}
+                data-testid="mfe-list-row"
+                style={{ borderBottom: '1px solid #D9DBE7' }}
+              >
+                {{#each columns}}
+                <td style={{ padding: '8px' }}>{item.{{columnName}}}</td>
+                {{/each}}
+                <td style={{ padding: '8px' }}>
+                  <button
+                    data-testid="mfe-list-edit-button"
+                    onClick={() => window.location.href = `{{route}}/${item.id}`}
+                    style={{ marginRight: '8px', padding: '4px 8px', cursor: 'pointer' }}
+                  >
+                    Editar
+                  </button>
+                  <button
+                    data-testid="mfe-list-delete-button"
+                    onClick={() => handleDelete(item.id)}
+                    style={{ padding: '4px 8px', cursor: 'pointer', color: '#E63946' }}
+                  >
+                    Excluir
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+
+        {data.length === 0 && (
+          <div data-testid="mfe-list-empty" style={{ padding: '32px', textAlign: 'center', color: '#6B7280' }}>
+            Nenhum registro encontrado
+          </div>
+        )}
+      </div>
+    </ErrorBoundary>
+  );
+}
