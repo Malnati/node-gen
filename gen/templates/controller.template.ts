@@ -36,7 +36,9 @@ export class {{entityName}}Controller {
       try {
         return await this.{{kebabCaseServiceName}}Service.create(dto);
       } catch (error) {
-        if (error.code === '23505') {
+        const errCode = error.code || error.driverError?.code;
+        const errNumber = error.number || error.driverError?.number;
+        if (errCode === '23505' || errCode === 'ER_DUP_ENTRY' || errNumber === 2627 || errNumber === 2601) {
           this.logger.warn('Duplicate {{camelCaseName}}');
           throw new BadRequestException('{{entityName}} já existe');
         }
