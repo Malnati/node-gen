@@ -29,7 +29,7 @@ export class DbReaderSqlite {
     const schemaInfo: Table[] = []
     for (const tableName of tables) {
       const columns: Column[] = await new Promise((resolve, reject) => {
-        db.all(`PRAGMA table_info(${tableName})`, (err, rows) => {
+        db.all(`PRAGMA table_info("${tableName}")`, (err, rows) => {
           if (err) return reject(err)
           resolve(
             rows.map((row: any) => ({
@@ -46,7 +46,7 @@ export class DbReaderSqlite {
       })
 
       const relations: Relation[] = await new Promise((resolve, reject) => {
-        db.all(`PRAGMA foreign_key_list(${tableName})`, (err, rows) => {
+        db.all(`PRAGMA foreign_key_list("${tableName}")`, (err, rows) => {
           if (err) return reject(err)
           resolve(
             rows.map((r: any) => ({

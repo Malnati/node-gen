@@ -5,6 +5,11 @@ import { Table, DbReaderConfig } from './interfaces';
 import { toKebabCase, toPascalCase } from './utils/string';
 import { loadTemplate } from './utils/template-loader';
 
+const RESERVED_MODULE_NAMES = new Set([
+  'ConfigModule', 'Module', 'ServeStaticModule',
+  'HealthModule', 'VersionModule', 'JwtAuthGuardModule', 'AppModule',
+]);
+
 export class AppModuleGenerator {
   private schema: Table[];
   private config: DbReaderConfig;
@@ -25,12 +30,17 @@ export class AppModuleGenerator {
     const moduleImports = this.schema.map(table => {
       const entityName = toPascalCase(table.tableName);
       const kebabCaseName = toKebabCase(table.tableName);
-      return `import { ${entityName}Module } from './${kebabCaseName}/${kebabCaseName}.module';`;
+      const moduleName = `${entityName}Module`;
+      if (RESERVED_MODULE_NAMES.has(moduleName)) {
+        return `import { ${moduleName} as App${moduleName} } from './${kebabCaseName}/${kebabCaseName}.module';`;
+      }
+      return `import { ${moduleName} } from './${kebabCaseName}/${kebabCaseName}.module';`;
     }).join('\n');
 
     const moduleList = this.schema.map(table => {
       const entityName = toPascalCase(table.tableName);
-      return `${entityName}Module`;
+      const moduleName = `${entityName}Module`;
+      return RESERVED_MODULE_NAMES.has(moduleName) ? `App${moduleName}` : moduleName;
     }).join(',\n    ');
 
     const appModuleContent = this.generateAppModuleContent(moduleImports, moduleList);

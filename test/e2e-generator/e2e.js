@@ -164,7 +164,10 @@ function postAndVerifyInDb(port, project, conn, timeoutMs) {
       return false;
     }
     const dbType = (conn.dbType || 'sqlite').toLowerCase();
-    const tableRef = dbType === 'sqlite' ? '"' + spec.table + '"' : (dbType === 'sqlserver' ? '[' + spec.table + ']' : spec.table);
+    const tableRef = dbType === 'sqlite' ? '"' + spec.table + '"'
+      : dbType === 'sqlserver' ? '[' + spec.table + ']'
+      : dbType === 'mysql' ? '`' + spec.table + '`'
+      : '"' + spec.table + '"';
     const whereClause = spec.whereColumn + " = '" + String(spec.whereValue).replace(/'/g, "''") + "'";
     const sql = dbType === 'sqlserver'
       ? 'SELECT TOP 1 1 AS ok FROM ' + tableRef + ' WHERE ' + whereClause
@@ -452,8 +455,6 @@ function loadMockConnection(connectionFilePath) {
     if (process.env.DB_MYSQL_PORT != null && process.env.DB_MYSQL_PORT !== '') {
       conn.port = parseInt(process.env.DB_MYSQL_PORT, 10);
     }
-    if (process.env.DB_MYSQL_USER) conn.user = process.env.DB_MYSQL_USER;
-    if (process.env.DB_MYSQL_PASSWORD) conn.password = process.env.DB_MYSQL_PASSWORD;
   }
   if (dbType === 'sqlserver') {
     if (process.env.DB_SQLSERVER_HOST) conn.host = process.env.DB_SQLSERVER_HOST;
