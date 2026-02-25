@@ -177,53 +177,57 @@ async function runPostgres(projectList, mode, load) {
   await client.connect();
   try {
     for (const p of projects) {
-      const dbExists = await client.query('SELECT 1 FROM pg_database WHERE datname = $1', [p.dbName]);
-      if (dbExists.rows.length === 0) {
-        await client.query('CREATE DATABASE ' + p.dbName);
-        console.log('[db] Postgres database', p.dbName, 'created.');
-      } else if (mode === 'full') {
-        await client.query('DROP DATABASE IF EXISTS ' + p.dbName);
-        await client.query('CREATE DATABASE ' + p.dbName);
-        console.log('[db] Postgres database', p.dbName, 'recreated.');
-      } else {
-        console.log('[db] Postgres database', p.dbName, 'already exists.');
-      }
-
-      const poolDb = new pg.Client({ host, port, user, password, database: p.dbName });
-      await poolDb.connect();
       try {
-        const ddlContent = fs.readFileSync(p.ddlPath, 'utf-8');
-        const checkTable = getFirstTableName(ddlContent, 'postgres');
-        if (checkTable && mode === 'incremental') {
-          const check = await poolDb.query(
-            "SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = $1",
-            [checkTable]
-          );
-          if (check.rows.length > 0) {
-            console.log('[db] Postgres schema already present in', p.dbName);
-            if (load) {
-              const dataPath = path.join(p.dbDir, 'database.postgres.sql');
-              if (fs.existsSync(dataPath)) {
-                const data = fs.readFileSync(dataPath, 'utf-8');
-                await poolDb.query(data);
-                console.log('[db] Postgres data applied to', p.dbName);
+        const dbExists = await client.query('SELECT 1 FROM pg_database WHERE datname = $1', [p.dbName]);
+        if (dbExists.rows.length === 0) {
+          await client.query('CREATE DATABASE ' + p.dbName);
+          console.log('[db] Postgres database', p.dbName, 'created.');
+        } else if (mode === 'full') {
+          await client.query('DROP DATABASE IF EXISTS ' + p.dbName);
+          await client.query('CREATE DATABASE ' + p.dbName);
+          console.log('[db] Postgres database', p.dbName, 'recreated.');
+        } else {
+          console.log('[db] Postgres database', p.dbName, 'already exists.');
+        }
+
+        const poolDb = new pg.Client({ host, port, user, password, database: p.dbName });
+        await poolDb.connect();
+        try {
+          const ddlContent = fs.readFileSync(p.ddlPath, 'utf-8');
+          const checkTable = getFirstTableName(ddlContent, 'postgres');
+          if (checkTable && mode === 'incremental') {
+            const check = await poolDb.query(
+              "SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = $1",
+              [checkTable]
+            );
+            if (check.rows.length > 0) {
+              console.log('[db] Postgres schema already present in', p.dbName);
+              if (load) {
+                const dataPath = path.join(p.dbDir, 'database.postgres.sql');
+                if (fs.existsSync(dataPath)) {
+                  const data = fs.readFileSync(dataPath, 'utf-8');
+                  await poolDb.query(data);
+                  console.log('[db] Postgres data applied to', p.dbName);
+                }
               }
+              continue;
             }
-            continue;
           }
-        }
-        await poolDb.query(ddlContent);
-        console.log('[db] Postgres schema applied to', p.dbName);
-        if (load) {
-          const dataPath = path.join(p.dbDir, 'database.postgres.sql');
-          if (fs.existsSync(dataPath)) {
-            const data = fs.readFileSync(dataPath, 'utf-8');
-            await poolDb.query(data);
-            console.log('[db] Postgres data applied to', p.dbName);
+          await poolDb.query(ddlContent);
+          console.log('[db] Postgres schema applied to', p.dbName);
+          if (load) {
+            const dataPath = path.join(p.dbDir, 'database.postgres.sql');
+            if (fs.existsSync(dataPath)) {
+              const data = fs.readFileSync(dataPath, 'utf-8');
+              await poolDb.query(data);
+              console.log('[db] Postgres data applied to', p.dbName);
+            }
           }
+        } finally {
+          await poolDb.end();
         }
-      } finally {
-        await poolDb.end();
+      } catch (e) {
+        console.error('[db] Postgres error for', p.name, ':', e.message);
       }
     }
   } finally {
@@ -266,45 +270,49 @@ async function runMysql(projectList, mode, load) {
     await conn.query('FLUSH PRIVILEGES');
 
     for (const p of projects) {
-      if (mode === 'full') {
-        await conn.query('DROP DATABASE IF EXISTS `' + p.dbName.replace(/`/g, '``') + '`');
-      }
-      await conn.query('CREATE DATABASE IF NOT EXISTS `' + p.dbName.replace(/`/g, '``') + '`');
       try {
-        await conn.query('GRANT ALL PRIVILEGES ON `' + p.dbName.replace(/`/g, '``') + '`.* TO `' + e2eUser.replace(/`/g, '``') + '`@\'%\'');
-      } catch (grantErr) {
-        if (grantErr.code !== 'ER_CANNOT_USER') throw grantErr;
-      }
-      console.log('[db] MySQL database', p.dbName, 'ready.');
+        if (mode === 'full') {
+          await conn.query('DROP DATABASE IF EXISTS `' + p.dbName.replace(/`/g, '``') + '`');
+        }
+        await conn.query('CREATE DATABASE IF NOT EXISTS `' + p.dbName.replace(/`/g, '``') + '`');
+        try {
+          await conn.query('GRANT ALL PRIVILEGES ON `' + p.dbName.replace(/`/g, '``') + '`.* TO `' + e2eUser.replace(/`/g, '``') + '`@\'%\'');
+        } catch (grantErr) {
+          if (grantErr.code !== 'ER_CANNOT_USER') throw grantErr;
+        }
+        console.log('[db] MySQL database', p.dbName, 'ready.');
 
-      const connDb = await mysql.createConnection({ ...connConfig, database: p.dbName });
-      try {
-        const ddlContent = fs.readFileSync(p.ddlPath, 'utf-8');
-        const checkTable = getFirstTableName(ddlContent, 'postgres');
-        let applyDdl = true;
-        if (checkTable && mode === 'incremental') {
-          const [rows] = await connDb.execute(
-            "SELECT 1 AS ok FROM information_schema.tables WHERE table_schema = ? AND table_name = ? LIMIT 1",
-            [p.dbName, checkTable]
-          );
-          if (rows && rows.length > 0) applyDdl = false;
-        }
-        if (applyDdl) {
-          await connDb.query(ddlContent);
-          console.log('[db] MySQL schema applied to', p.dbName);
-        } else {
-          console.log('[db] MySQL schema already present in', p.dbName);
-        }
-        if (load) {
-          const dataPath = path.join(p.dbDir, mysqlConfig.dataExtension);
-          if (fs.existsSync(dataPath)) {
-            const data = fs.readFileSync(dataPath, 'utf-8');
-            await connDb.query(data);
-            console.log('[db] MySQL data applied to', p.dbName);
+        const connDb = await mysql.createConnection({ ...connConfig, database: p.dbName });
+        try {
+          const ddlContent = fs.readFileSync(p.ddlPath, 'utf-8');
+          const checkTable = getFirstTableName(ddlContent, 'postgres');
+          let applyDdl = true;
+          if (checkTable && mode === 'incremental') {
+            const [rows] = await connDb.execute(
+              "SELECT 1 AS ok FROM information_schema.tables WHERE table_schema = ? AND table_name = ? LIMIT 1",
+              [p.dbName, checkTable]
+            );
+            if (rows && rows.length > 0) applyDdl = false;
           }
+          if (applyDdl) {
+            await connDb.query(ddlContent);
+            console.log('[db] MySQL schema applied to', p.dbName);
+          } else {
+            console.log('[db] MySQL schema already present in', p.dbName);
+          }
+          if (load) {
+            const dataPath = path.join(p.dbDir, mysqlConfig.dataExtension);
+            if (fs.existsSync(dataPath)) {
+              const data = fs.readFileSync(dataPath, 'utf-8');
+              await connDb.query(data);
+              console.log('[db] MySQL data applied to', p.dbName);
+            }
+          }
+        } finally {
+          await connDb.end();
         }
-      } finally {
-        await connDb.end();
+      } catch (e) {
+        console.error('[db] MySQL error for', p.name, ':', e.message);
       }
     }
     await conn.query('FLUSH PRIVILEGES');
@@ -365,52 +373,56 @@ async function runSqlserver(projectList, mode, load) {
   const pool = await connectWithRetry(configMaster);
   try {
     for (const p of projects) {
-      const dbNameEscaped = p.dbName.replace(/'/g, "''");
-      const dbNameBracket = p.dbName.replace(/]/g, ']]');
-      if (mode === 'full') {
-        await pool.request().query(
-          "IF EXISTS (SELECT * FROM sys.databases WHERE name = N'" + dbNameEscaped + "') DROP DATABASE [" + dbNameBracket + "]"
-        );
-      }
-      await pool.request().query(
-        "IF NOT EXISTS (SELECT * FROM sys.databases WHERE name = N'" + dbNameEscaped + "') CREATE DATABASE [" + dbNameBracket + "]"
-      );
-      console.log('[db] SQL Server database', p.dbName, 'ready.');
-
-      const poolDb = await new mssql.ConnectionPool({ ...configMaster, database: p.dbName }).connect();
       try {
-        const ddlContent = fs.readFileSync(p.ddlPath, 'utf-8');
-        const checkTable = getFirstTableName(ddlContent, 'sqlserver');
-        let applyDdl = true;
-        if (checkTable && mode === 'incremental') {
-          const checkTableEscaped = checkTable.replace(/'/g, "''");
-          const check = await poolDb.request().query(
-            "SELECT 1 AS ok FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = 'dbo' AND TABLE_NAME = N'" + checkTableEscaped + "'"
+        const dbNameEscaped = p.dbName.replace(/'/g, "''");
+        const dbNameBracket = p.dbName.replace(/]/g, ']]');
+        if (mode === 'full') {
+          await pool.request().query(
+            "IF EXISTS (SELECT * FROM sys.databases WHERE name = N'" + dbNameEscaped + "') DROP DATABASE [" + dbNameBracket + "]"
           );
-          if (check.recordset && check.recordset.length > 0) applyDdl = false;
         }
-        if (applyDdl) {
-          const batches = splitBatches(ddlContent);
-          for (const batch of batches) {
-            await poolDb.request().query(batch);
+        await pool.request().query(
+          "IF NOT EXISTS (SELECT * FROM sys.databases WHERE name = N'" + dbNameEscaped + "') CREATE DATABASE [" + dbNameBracket + "]"
+        );
+        console.log('[db] SQL Server database', p.dbName, 'ready.');
+
+        const poolDb = await new mssql.ConnectionPool({ ...configMaster, database: p.dbName }).connect();
+        try {
+          const ddlContent = fs.readFileSync(p.ddlPath, 'utf-8');
+          const checkTable = getFirstTableName(ddlContent, 'sqlserver');
+          let applyDdl = true;
+          if (checkTable && mode === 'incremental') {
+            const checkTableEscaped = checkTable.replace(/'/g, "''");
+            const check = await poolDb.request().query(
+              "SELECT 1 AS ok FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = 'dbo' AND TABLE_NAME = N'" + checkTableEscaped + "'"
+            );
+            if (check.recordset && check.recordset.length > 0) applyDdl = false;
           }
-          console.log('[db] SQL Server schema applied to', p.dbName);
-        } else {
-          console.log('[db] SQL Server schema already present in', p.dbName);
-        }
-        if (load) {
-          const dataPath = path.join(p.dbDir, 'database.sqlserver.sql');
-          if (fs.existsSync(dataPath)) {
-            const data = fs.readFileSync(dataPath, 'utf-8');
-            const batches = splitBatches(data);
+          if (applyDdl) {
+            const batches = splitBatches(ddlContent);
             for (const batch of batches) {
               await poolDb.request().query(batch);
             }
-            console.log('[db] SQL Server data applied to', p.dbName);
+            console.log('[db] SQL Server schema applied to', p.dbName);
+          } else {
+            console.log('[db] SQL Server schema already present in', p.dbName);
           }
+          if (load) {
+            const dataPath = path.join(p.dbDir, 'database.sqlserver.sql');
+            if (fs.existsSync(dataPath)) {
+              const data = fs.readFileSync(dataPath, 'utf-8');
+              const batches = splitBatches(data);
+              for (const batch of batches) {
+                await poolDb.request().query(batch);
+              }
+              console.log('[db] SQL Server data applied to', p.dbName);
+            }
+          }
+        } finally {
+          await poolDb.close();
         }
-      } finally {
-        await poolDb.close();
+      } catch (e) {
+        console.error('[db] SQL Server error for', p.name, ':', e.message);
       }
     }
   } finally {
