@@ -4,6 +4,11 @@ DOCKERFILE     ?= .docker/Dockerfile.node-gen
 
 COMPOSE_CMD := $(shell (docker compose version >/dev/null 2>&1 && echo "docker compose") || echo "docker-compose")
 
+ifeq (e2e,$(firstword $(MAKECMDGOALS)))
+  E2E_PROJECTS := $(wordlist 2,$(words $(MAKECMDGOALS)),$(MAKECMDGOALS))
+  $(eval $(E2E_PROJECTS):;@:)
+endif
+
 define compose_main
 	DOCKER_CONFIG=$(DOCKER_CONFIG) $(COMPOSE_CMD) -f .docker/docker-compose.yml --project-directory . $(1)
 endef
@@ -46,6 +51,6 @@ e2e-build:
 
 e2e-run:
 	@echo "🧪  Executando testes E2E no container..."
-	$(call compose_e2e,run --rm e2e)
+	$(call compose_e2e,run --rm -e E2E_PROJECTS="$(E2E_PROJECTS)" e2e)
 
 e2e: e2e-build e2e-run

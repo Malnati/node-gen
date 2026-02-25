@@ -40,6 +40,6 @@ if [ $# -eq 0 ]; then
   fi
   echo "[e2e] Inicializando bancos (db.js)..."
   node test/e2e-generator/db.js 2>/dev/null || true
-  exec node test/e2e-generator/run.js e2e
+  exec node test/e2e-generator/run.js e2e $E2E_PROJECTS
 fi
 exec "$@"
