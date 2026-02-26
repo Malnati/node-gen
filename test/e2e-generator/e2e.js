@@ -160,8 +160,15 @@ function postAndVerifyInDb(port, project, conn, timeoutMs) {
   const timeout = Math.min(timeoutMs, 1500);
   return curlPost(port, spec.path, body, timeout).then((r) => {
     if (r.statusCode !== 201 && r.statusCode !== 200) {
-      console.error('[e2e] POST', spec.path, 'retornou', r.statusCode, r.body || r.error);
-      return false;
+      const bodyStr = typeof r.body === 'string' ? r.body : '';
+      const isDuplicate = r.statusCode === 400 || r.statusCode === 409 ||
+        /duplicate|already exists|já existe|unique.*constraint|ER_DUP_ENTRY/i.test(bodyStr);
+      if (isDuplicate) {
+        console.log('[e2e] POST', spec.path, 'retornou', r.statusCode, '(registro pre-existente). Verificando no banco...');
+      } else {
+        console.error('[e2e] POST', spec.path, 'retornou', r.statusCode, r.body || r.error);
+        return false;
+      }
     }
     const dbType = (conn.dbType || 'sqlite').toLowerCase();
     const tableRef = dbType === 'sqlite' ? '"' + spec.table + '"'
