@@ -5,7 +5,7 @@ import {
   HealthIndicatorResult,
   HealthCheckError,
 } from "@nestjs/terminus";
-import { DataSourceService } from "@app/config/datasource.service";
+import { DataSourceService } from "src/modules/config/datasource.service";
 
 @Injectable()
 export class CustomDatabaseHealthIndicator extends HealthIndicator {
