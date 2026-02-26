@@ -1,0 +1,46 @@
+import { test, expect } from '@playwright/test';
+
+const BASE_URL = process.env.APP_SHELL_URL || 'http://localhost:9000';
+
+test.describe('<%= pascalName %> MFE', () => {
+
+  test.beforeEach(async ({ page }) => {
+    await page.goto(BASE_URL);
+  });
+
+  test('Listagem - carrega dados da API', async ({ page }) => {
+    await page.goto(`${BASE_URL}/<%= route %>`);
+
+    await expect(page.locator('[data-testid="mfe-list-table"]')).toBeVisible();
+    await expect(page.locator('[data-testid="mfe-list-loading"]')).not.toBeVisible();
+  });
+
+  test('Navegação para detalhes - novo registro', async ({ page }) => {
+    await page.goto(`${BASE_URL}/<%= route %>`);
+
+    await page.click('[data-testid="mfe-list-new-button"]');
+
+    await expect(page.url()).toContain('/<%= route %>/');
+    await expect(page.locator('[data-testid="mfe-details-form"]')).toBeVisible();
+  });
+
+  test('Edição - PUT /:id', async ({ page }) => {
+    await page.goto(`${BASE_URL}/<%= route %>`);
+
+    const firstRow = page.locator('[data-testid="mfe-list-row"]').first();
+    await firstRow.click();
+
+    await expect(page.locator('[data-testid="mfe-details-form"]')).toBeVisible();
+
+    await page.fill('[data-testid="field-<%= firstField %>"]', 'test-update');
+    await page.click('[data-testid="mfe-details-submit"]');
+
+    await expect(page.locator('[data-testid="mfe-toast-success"]')).toBeVisible();
+  });
+
+  test('Listagem - erro ao carregar', async ({ page }) => {
+    await page.goto(`${BASE_URL}/<%= route %>`);
+
+    await expect(page.locator('[data-testid="mfe-list-error"]')).not.toBeVisible();
+  });
+});

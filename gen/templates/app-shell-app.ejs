@@ -1,0 +1,57 @@
+import { navigateToUrl } from 'single-spa';
+
+const navStyle: React.CSSProperties = {
+  display: 'flex',
+  gap: '8px',
+  padding: '16px',
+  background: '#2D0F55',
+  color: '#FFFFFF',
+  alignItems: 'center',
+};
+
+const linkStyle: React.CSSProperties = {
+  color: '#00B5B8',
+  textDecoration: 'none',
+  padding: '8px 16px',
+  borderRadius: '4px',
+  cursor: 'pointer',
+  fontSize: '14px',
+};
+
+const activeLinkStyle: React.CSSProperties = {
+  ...linkStyle,
+  background: 'rgba(0, 181, 184, 0.15)',
+};
+
+function AppShell() {
+  const currentPath = window.location.pathname;
+
+  const handleNav = (e: React.MouseEvent<HTMLAnchorElement>, route: string) => {
+    e.preventDefault();
+    navigateToUrl(route);
+  };
+
+  return (
+    <div>
+      <nav style={navStyle}>
+        <strong style={{ marginRight: '16px', fontSize: '16px' }}>App Shell</strong>
+<% mfeList.forEach(function(mfe) { %>
+        <a
+          href="<%= mfe.route %>"
+          onClick={(e) => handleNav(e, '<%= mfe.route %>')}
+          style={currentPath.startsWith('<%= mfe.route %>') ? activeLinkStyle : linkStyle}
+        >
+          <%= mfe.pascalName %>
+        </a>
+<% }); %>
+      </nav>
+      <main id="single-spa-container" style={{ padding: '16px' }}>
+<% mfeList.forEach(function(mfe) { %>
+        <div id="single-spa-application:<%= mfe.name %>"></div>
+<% }); %>
+      </main>
+    </div>
+  );
+}
+
+export default AppShell;

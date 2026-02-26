@@ -1,0 +1,11 @@
+import { registerApplication, start } from 'single-spa';
+
+<% mfeApps.forEach(function(app) { %>
+registerApplication(
+  '<%= app.name %>',
+  () => System.import('<%= app.name %>'),
+  (location) => location.pathname.startsWith('<%= app.route %>')
+);
+<% }); %>
+
+start();
