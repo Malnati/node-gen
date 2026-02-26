@@ -1,0 +1,155 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+BASE_DIR="${1:-output}"
+OWNER="${GITHUB_OWNER:-milleniumbrasil}"
+PREFIX="${REPO_PREFIX:-mod}"
+VISIBILITY="${REPO_VISIBILITY:-private}"
+PUSH_MODE="${PUSH_MODE:-upsert}"
+DEFAULT_BRANCH="${DEFAULT_BRANCH:-main}"
+COMMIT_MESSAGE="${COMMIT_MESSAGE:-chore: initial import}"
+SIGN_COMMITS="${SIGN_COMMITS:-false}"
+
+if [[ ! -d "$BASE_DIR" ]]; then
+  echo "Diretório não encontrado: $BASE_DIR" >&2
+  exit 1
+fi
+
+abs_base_dir="$(cd "$BASE_DIR" && pwd)"
+
+git_commit() {
+  if [[ "$SIGN_COMMITS" == "true" ]]; then
+    git commit -S -m "$COMMIT_MESSAGE" >/dev/null
+  else
+    git commit -m "$COMMIT_MESSAGE" >/dev/null
+  fi
+}
+
+repo_exists() {
+  gh repo view "$1" >/dev/null 2>&1
+}
+
+create_repo() {
+  local full="$1"
+  local vis_flag="--private"
+  if [[ "$VISIBILITY" == "public" ]]; then
+    vis_flag="--public"
+  fi
+  gh repo create "$full" "$vis_flag" >/dev/null
+}
+
+remote_url() {
+  echo "https://github.com/$1.git"
+}
+
+push_repo() {
+  local full="$1"
+  local url
+  url="$(remote_url "$full")"
+
+  git branch -M "$DEFAULT_BRANCH" >/dev/null
+
+  if git remote get-url origin >/dev/null 2>&1; then
+    git remote set-url origin "$url" >/dev/null
+  else
+    git remote add origin "$url" >/dev/null
+  fi
+
+  if [[ "$PUSH_MODE" == "force" ]]; then
+    git push -u origin "$DEFAULT_BRANCH" --force >/dev/null
+  else
+    git push -u origin "$DEFAULT_BRANCH" >/dev/null
+  fi
+}
+
+sanitize_repo_dir() {
+  rm -rf node_modules dist .DS_Store >/dev/null 2>&1 || true
+
+  if [[ -d ".git" ]]; then
+    rm -rf .git >/dev/null 2>&1 || true
+  fi
+
+  if [[ ! -f .gitignore ]]; then
+    : > .gitignore
+  fi
+
+  python3 - <<'PY'
+import pathlib
+
+p = pathlib.Path(".gitignore")
+existing = set()
+for line in p.read_text(encoding="utf-8", errors="ignore").splitlines():
+    s = line.strip()
+    if s:
+        existing.add(s)
+
+needed = [
+    "node_modules/",
+    "dist/",
+    ".env",
+    ".env.*",
+    "*.log",
+    ".DS_Store",
+]
+out = p.read_text(encoding="utf-8", errors="ignore").splitlines()
+changed = False
+if out and out[-1].strip() != "":
+    out.append("")
+    changed = True
+
+for n in needed:
+    if n not in existing:
+        out.append(n)
+        changed = True
+
+if changed:
+    p.write_text("\n".join(out).rstrip("\n") + "\n", encoding="utf-8")
+PY
+}
+
+publish_one() {
+  local project="$1"
+  local db="$2"
+  local dir="$3"
+
+  local repo="${PREFIX}-${project}-${db}"
+  local full="${OWNER}/${repo}"
+
+  echo "==> ${full}"
+  cd "$dir"
+
+  sanitize_repo_dir
+
+  git init >/dev/null
+  git add -A >/dev/null
+  git_commit
+
+  if repo_exists "$full"; then
+    if [[ "$PUSH_MODE" == "create-only" ]]; then
+      echo "SKIP (já existe): ${full}"
+      cd "$abs_base_dir"
+      return
+    fi
+  else
+    create_repo "$full"
+  fi
+
+  push_repo "$full"
+
+  cd "$abs_base_dir"
+}
+
+cd "$abs_base_dir"
+
+for project_dir in "$abs_base_dir"/*; do
+  [[ -d "$project_dir" ]] || continue
+  project="$(basename "$project_dir")"
+
+  for db_dir in "$project_dir"/*; do
+    [[ -d "$db_dir" ]] || continue
+    db="$(basename "$db_dir")"
+    publish_one "$project" "$db" "$db_dir"
+  done
+done
+
+echo "OK"
