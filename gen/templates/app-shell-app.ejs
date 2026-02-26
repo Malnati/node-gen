@@ -1,21 +1,57 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-<% mfeList.forEach(function(mfe) { %>
-import { <%= mfe.pascalName %>ListPage } from '../<%= mfe.kebabName %>-mfe/src/pages/<%= mfe.kebabName %>-list-page';
-import { <%= mfe.pascalName %>DetailsPage } from '../<%= mfe.kebabName %>-mfe/src/pages/<%= mfe.kebabName %>-details-page';
-<% }); %>
+import { navigateToUrl } from 'single-spa';
 
-function App() {
+const navStyle: React.CSSProperties = {
+  display: 'flex',
+  gap: '8px',
+  padding: '16px',
+  background: '#2D0F55',
+  color: '#FFFFFF',
+  alignItems: 'center',
+};
+
+const linkStyle: React.CSSProperties = {
+  color: '#00B5B8',
+  textDecoration: 'none',
+  padding: '8px 16px',
+  borderRadius: '4px',
+  cursor: 'pointer',
+  fontSize: '14px',
+};
+
+const activeLinkStyle: React.CSSProperties = {
+  ...linkStyle,
+  background: 'rgba(0, 181, 184, 0.15)',
+};
+
+function AppShell() {
+  const currentPath = window.location.pathname;
+
+  const handleNav = (e: React.MouseEvent<HTMLAnchorElement>, route: string) => {
+    e.preventDefault();
+    navigateToUrl(route);
+  };
+
   return (
-    <BrowserRouter>
-      <Routes>
+    <div>
+      <nav style={navStyle}>
+        <strong style={{ marginRight: '16px', fontSize: '16px' }}>App Shell</strong>
 <% mfeList.forEach(function(mfe) { %>
-        <Route path="<%= mfe.route %>" element={<<%= mfe.pascalName %>ListPage />} />
-        <Route path="<%= mfe.route %>/:id" element={<<%= mfe.pascalName %>DetailsPage />} />
+        <a
+          href="<%= mfe.route %>"
+          onClick={(e) => handleNav(e, '<%= mfe.route %>')}
+          style={currentPath.startsWith('<%= mfe.route %>') ? activeLinkStyle : linkStyle}
+        >
+          <%= mfe.pascalName %>
+        </a>
 <% }); %>
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
-    </BrowserRouter>
+      </nav>
+      <main id="single-spa-container" style={{ padding: '16px' }}>
+<% mfeList.forEach(function(mfe) { %>
+        <div id="single-spa-application:<%= mfe.name %>"></div>
+<% }); %>
+      </main>
+    </div>
   );
 }
 
-export default App;
+export default AppShell;

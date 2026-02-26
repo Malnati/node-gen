@@ -12,6 +12,7 @@ export interface MFEConfig {
   camelName: string;
   port: number;
   route: string;
+  apiEndpoint: string;
   idType: string;
   idParam: string;
   columns: Column[];
@@ -63,6 +64,8 @@ export class MicrofrontendGenerator {
 
     const idInfo = this.getIdInfo(table);
 
+    const apiEndpoint = route;
+
     const mfeConfig: MFEConfig = {
       name: `@mfe/${kebabName}`,
       kebabName,
@@ -70,6 +73,7 @@ export class MicrofrontendGenerator {
       camelName,
       port,
       route,
+      apiEndpoint,
       idType: idInfo.idType,
       idParam: idInfo.idParam,
       columns: table.columns.filter(c => !c.isPrimaryKey && c.columnName !== 'created_at' && c.columnName !== 'updated_at' && c.columnName !== 'deleted_at'),
@@ -77,11 +81,14 @@ export class MicrofrontendGenerator {
     };
 
     this.copyStaticMFE(mfeDir);
+    this.cleanupPlaceholders(mfeDir);
+    this.generateApiClient(mfeDir, mfeConfig);
     this.generateListPage(mfeDir, mfeConfig);
     this.generateDetailsPage(mfeDir, mfeConfig);
     this.generateViteConfig(mfeDir, mfeConfig);
     this.generateTest(mfeDir, mfeConfig);
     this.generateAppTsx(mfeDir, mfeConfig);
+    this.generateDockerfile(mfeDir, mfeConfig);
     this.updatePackageJson(mfeDir, mfeConfig);
     this.updateIndexHtml(mfeDir, mfeConfig);
 
@@ -89,8 +96,47 @@ export class MicrofrontendGenerator {
   }
 
   private copyStaticMFE(destDir: string): void {
-    fs.cpSync(this.staticMfePath, destDir, { recursive: true });
+    fs.cpSync(this.staticMfePath, destDir, {
+      recursive: true,
+      filter: (src) => {
+        const rel = path.relative(this.staticMfePath, src);
+        if (rel === 'app-shell' || rel.startsWith('app-shell/')) return false;
+        if (rel === 'root-config.js') return false;
+        return true;
+      },
+    });
     console.log(`Copied static MFE to ${destDir}`);
+  }
+
+  private cleanupPlaceholders(dir: string): void {
+    const placeholders = [
+      path.join(dir, 'src', 'pages', 'placeholder-list-page.tsx'),
+      path.join(dir, 'src', 'pages', 'placeholder-details-page.tsx'),
+    ];
+    placeholders.forEach(f => {
+      if (fs.existsSync(f)) fs.unlinkSync(f);
+    });
+  }
+
+  private generateApiClient(dir: string, config: MFEConfig): void {
+    const apiDir = path.join(dir, 'src', 'api');
+    if (!fs.existsSync(apiDir)) {
+      fs.mkdirSync(apiDir, { recursive: true });
+    }
+
+    const content = renderTemplate('mfe-api-client.ejs', {
+      apiEndpoint: config.apiEndpoint,
+      camelName: config.camelName,
+    });
+    fs.writeFileSync(path.join(apiDir, 'client.ts'), content);
+  }
+
+  private generateDockerfile(dir: string, config: MFEConfig): void {
+    const content = renderTemplate('mfe-dockerfile.ejs', {
+      kebabName: config.kebabName,
+      port: config.port,
+    });
+    fs.writeFileSync(path.join(dir, 'Dockerfile'), content);
   }
 
   private generateListPage(dir: string, config: MFEConfig): void {

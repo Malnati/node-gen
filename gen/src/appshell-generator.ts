@@ -22,12 +22,16 @@ export class AppShellGenerator {
       fs.mkdirSync(outputDir, { recursive: true });
     }
 
+    const frontendDir = path.join(this.config.outputDir, 'frontend');
+
     this.copyBoilerplate(outputDir);
     this.copyStaticAppShellFiles(outputDir);
     this.generateRootConfig(outputDir, mfeList);
     this.generateImportMap(outputDir, mfeList);
     this.generateAppShellTsx(outputDir, mfeList);
     this.generateIndexHtml(outputDir, mfeList);
+    this.generateDockerCompose(frontendDir, mfeList);
+    this.generateAppShellDockerfile(outputDir);
 
     console.log(`AppShell has been generated in ${outputDir}`);
   }
@@ -36,7 +40,6 @@ export class AppShellGenerator {
     const filesToCopy = [
       'src/main.tsx',
       'src/Bootstrap.tsx',
-      'src/api/client.ts',
       'src/components/Loading.tsx',
       'src/components/ErrorBoundary.tsx',
     ];
@@ -51,35 +54,13 @@ export class AppShellGenerator {
       }
 
       if (fs.existsSync(srcPath)) {
-        let content = fs.readFileSync(srcPath, 'utf-8');
-        content = content.replace(/import \* as ReactDOM from 'react-dom';/g, "import ReactDOM from 'react-dom';");
-        fs.writeFileSync(destFilePath, content);
+        fs.copyFileSync(srcPath, destFilePath);
       }
     });
-
-    const componentsDir = path.join(destDir, 'src', 'components');
-    const apiDir = path.join(destDir, 'src', 'api');
-
-    if (!fs.existsSync(componentsDir)) fs.mkdirSync(componentsDir, { recursive: true });
-    if (!fs.existsSync(apiDir)) fs.mkdirSync(apiDir, { recursive: true });
-
-    ['Loading.tsx', 'ErrorBoundary.tsx'].forEach(file => {
-      const srcPath = path.join(this.staticMfePath, 'src', 'components', file);
-      const destPath = path.join(componentsDir, file);
-      if (fs.existsSync(srcPath)) {
-        fs.copyFileSync(srcPath, destPath);
-      }
-    });
-
-    const apiClientSrc = path.join(this.staticMfePath, 'src', 'api', 'client.ts');
-    const apiClientDest = path.join(apiDir, 'client.ts');
-    if (fs.existsSync(apiClientSrc)) {
-      fs.copyFileSync(apiClientSrc, apiClientDest);
-    }
   }
 
   private copyStaticAppShellFiles(destDir: string): void {
-    const staticFiles = ['package.json', 'vite.config.ts', 'tsconfig.json'];
+    const staticFiles = ['package.json', 'vite.config.ts', 'tsconfig.json', 'tsconfig.node.json'];
     staticFiles.forEach(file => {
       const srcPath = path.join(this.staticAppShellPath, file);
       if (fs.existsSync(srcPath)) {
@@ -117,6 +98,19 @@ export class AppShellGenerator {
     const importMapJson = renderTemplate('app-shell-import-map.ejs', { mfeList });
     const content = renderTemplate('app-shell-index-html.ejs', { importMapJson });
     fs.writeFileSync(path.join(destDir, 'index.html'), content);
+  }
+
+  private generateDockerCompose(frontendDir: string, mfeList: MFEConfig[]): void {
+    const content = renderTemplate('mfe-docker-compose.ejs', { mfeList });
+    fs.writeFileSync(path.join(frontendDir, 'docker-compose.mfe.yml'), content);
+  }
+
+  private generateAppShellDockerfile(destDir: string): void {
+    const content = renderTemplate('mfe-dockerfile.ejs', {
+      kebabName: 'app-shell',
+      port: 9000,
+    });
+    fs.writeFileSync(path.join(destDir, 'Dockerfile'), content);
   }
 
 }
