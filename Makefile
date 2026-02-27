@@ -54,3 +54,13 @@ e2e-run:
 	$(call compose_e2e,run --rm -e E2E_PROJECTS="$(E2E_PROJECTS)" e2e)
 
 e2e: e2e-build e2e-run
+
+E2E_PROJECTS_LIST := accounts addresses auth communications config consents contacts gmail google-calendar google-drive llm logistics maps notifications orders payments products reports roles schedule selling tenant todo transactions users warehouse
+
+define e2e-project-target
+e2e-$(1):
+	@echo "🧪  Executando E2E para projeto $(1)..."
+	E2E_PROJECTS=$(1) $(MAKE) e2e-build e2e-run
+endef
+
+$(foreach p,$(E2E_PROJECTS_LIST),$(eval $(call e2e-project-target,$(p))))

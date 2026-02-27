@@ -145,6 +145,50 @@ function curlPost(port, pathname, body, timeoutMs) {
   });
 }
 
+function curlPut(port, pathname, body, timeoutMs) {
+  return new Promise((resolve) => {
+    const data = JSON.stringify(body);
+    const opts = {
+      hostname: '127.0.0.1',
+      port,
+      path: pathname,
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json', 'Content-Length': Buffer.byteLength(data) },
+      timeout: timeoutMs,
+    };
+    const req = http.request(opts, (res) => {
+      let resBody = '';
+      res.on('data', (chunk) => { resBody += chunk; });
+      res.on('end', () => resolve({ statusCode: res.statusCode, body: resBody }));
+    });
+    req.on('error', (err) => resolve({ statusCode: 0, error: err.message }));
+    req.on('timeout', () => { req.destroy(); resolve({ statusCode: 0, error: 'timeout' }); });
+    req.write(data);
+    req.end();
+  });
+}
+
+function curlDelete(port, pathname, timeoutMs) {
+  return new Promise((resolve) => {
+    const opts = {
+      hostname: '127.0.0.1',
+      port,
+      path: pathname,
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      timeout: timeoutMs,
+    };
+    const req = http.request(opts, (res) => {
+      let resBody = '';
+      res.on('data', (chunk) => { resBody += chunk; });
+      res.on('end', () => resolve({ statusCode: res.statusCode, body: resBody }));
+    });
+    req.on('error', (err) => resolve({ statusCode: 0, error: err.message }));
+    req.on('timeout', () => { req.destroy(); resolve({ statusCode: 0, error: 'timeout' }); });
+    req.end();
+  });
+}
+
 function curlHealth(port, timeoutMs) {
   return curlGet(port, '/health', timeoutMs);
 }
@@ -187,6 +231,115 @@ function postAndVerifyInDb(port, project, conn, timeoutMs) {
   }).catch((e) => {
     console.error('[e2e] postAndVerifyInDb', e.message);
     return false;
+  });
+}
+
+function extractIdFromResponse(bodyStr, idField) {
+  if (!bodyStr) return null;
+  try {
+    const parsed = JSON.parse(bodyStr);
+    return parsed[idField] || parsed.id || parsed.external_id || null;
+  } catch (e) {
+    return null;
+  }
+}
+
+function testCrudOperations(port, project, timeoutMs) {
+  const expected = PROJECT_EXPECTED[project];
+  const spec = expected && expected.postVerify;
+  if (!spec) {
+    console.log('[e2e] Pulando CRUD: sem postVerify para', project);
+    return Promise.resolve(true);
+  }
+
+  const timeout = Math.min(timeoutMs, 1500);
+  const basePath = spec.path;
+  const testId = crypto.randomUUID();
+
+  let postBody = spec.body && typeof spec.body === 'object' ? { ...spec.body } : spec.body;
+  if (spec.uniqueExternalId) {
+    if (postBody && typeof postBody === 'object') {
+      postBody.external_id = testId;
+    }
+  }
+
+  const updateBody = spec.body && typeof spec.body === 'object' ? { ...spec.body } : spec.body;
+  const updatedTestValue = spec.uniqueExternalId ? 'updated-' + testId.slice(0, 8) : 'updated-' + Date.now();
+
+  return curlPost(port, basePath, postBody, timeout).then((postResult) => {
+    if (postResult.statusCode !== 201 && postResult.statusCode !== 200) {
+      if (postResult.statusCode === 400 || postResult.statusCode === 409) {
+        console.log('[e2e] CRUD POST', basePath, 'retornou', postResult.statusCode, '(já existe), usando ID fixo para testes');
+      } else {
+        console.error('[e2e] CRUD POST', basePath, 'falhou:', postResult.statusCode, postResult.body);
+        return { allOk: false, failures: ['CRUD POST ' + basePath + ' retornou ' + postResult.statusCode] };
+      }
+    }
+
+    const recordId = extractIdFromResponse(postResult.body, 'id') || testId;
+    const getPath = basePath + '/' + recordId;
+
+    return curlGet(port, getPath, timeout).then((getResult) => {
+      const getOk = getResult.statusCode === 200;
+      if (!getOk) {
+        console.error('[e2e] CRUD GET', getPath, 'falhou:', getResult.statusCode);
+        return { allOk: false, failures: ['CRUD GET ' + getPath + ' retornou ' + getResult.statusCode] };
+      }
+      console.log('[e2e] CRUD GET', getPath, 'OK (200)');
+
+      const putBody = updateBody && typeof updateBody === 'object' ? { ...updateBody } : updateBody;
+      if (putBody && typeof putBody === 'object') {
+        if (spec.whereColumn && spec.whereValue) {
+          putBody[spec.whereColumn] = updatedTestValue;
+        }
+        if (putBody.external_id) {
+          putBody.external_id = testId;
+        }
+      }
+
+      return curlPut(port, getPath, putBody, timeout).then((putResult) => {
+        const putOk = putResult.statusCode === 200;
+        if (!putOk) {
+          console.error('[e2e] CRUD PUT', getPath, 'falhou:', putResult.statusCode, putResult.body);
+          return { allOk: false, failures: ['CRUD PUT ' + getPath + ' retornou ' + putResult.statusCode] };
+        }
+        console.log('[e2e] CRUD PUT', getPath, 'OK (200)');
+
+        return curlDelete(port, getPath, timeout).then((deleteResult) => {
+          const deleteOk = deleteResult.statusCode === 200;
+          if (!deleteOk) {
+            console.error('[e2e] CRUD DELETE', getPath, 'falhou:', deleteResult.statusCode, deleteResult.body);
+            return { allOk: false, failures: ['CRUD DELETE ' + getPath + ' retornou ' + deleteResult.statusCode] };
+          }
+          console.log('[e2e] CRUD DELETE', getPath, 'OK (200)');
+
+          return curlGet(port, getPath, timeout).then((getAfterDeleteResult) => {
+            const notFoundOk = getAfterDeleteResult.statusCode === 404;
+            if (!notFoundOk) {
+              console.error('[e2e] CRUD GET após DELETE', getPath, 'falhou: esperava 404, obteve', getAfterDeleteResult.statusCode);
+              return { allOk: false, failures: ['CRUD GET após DELETE deveria retornar 404, obteve ' + getAfterDeleteResult.statusCode] };
+            }
+            console.log('[e2e] CRUD GET após DELETE', getPath, 'OK (404 não encontrado)');
+
+            const fakeIdPath = basePath + '/00000000-0000-0000-0000-000000000999';
+            return curlGet(port, fakeIdPath, timeout).then((getNotFoundResult) => {
+              const fakeNotFoundOk = getNotFoundResult.statusCode === 404;
+              if (!fakeNotFoundOk) {
+                console.error('[e2e] CRUD GET ID inexistente', fakeIdPath, 'falhou: esperava 404, obteve', getNotFoundResult.statusCode);
+                return { allOk: false, failures: ['CRUD GET ID inexistente deveria retornar 404, obteve ' + getNotFoundResult.statusCode] };
+              }
+              console.log('[e2e] CRUD GET ID inexistente', fakeIdPath, 'OK (404)');
+
+              console.log('[e2e] CRUD completo: POST → GET → PUT → DELETE → GET(404) → GET(404 inexistente) OK');
+              return { allOk: true, failures: [] };
+            });
+          });
+        });
+      });
+    });
+  }).catch((e) => {
+    console.error('[e2e] testCrudOperations erro:', e.message);
+    return { allOk: false, failures: ['CRUD erro: ' + e.message] };
   });
 }
 
@@ -341,16 +494,31 @@ function startAppAndCheckHealth(outDir, dbType, project, conn) {
           console.log('[e2e] Cobertura cURL: /health, /version e todos os endpoints GET OK (porta ' + port + '). Cobertura logs: OK. Verificando banco após execução dos endpoints.');
           postAndVerifyInDb(port, project, conn, HEALTH_REQUEST_TIMEOUT_MS)
             .then((dbOk) => {
-              clearTimeout(t);
               if (!dbOk) {
+                clearTimeout(t);
                 done(false, 'Cobertura banco: verificação no banco de dados após execução do endpoint falhou.');
                 resolve(false);
                 return;
               }
-              try { child.kill('SIGTERM'); } catch (e) { try { child.kill('SIGKILL'); } catch (_) {} }
-              resolved = true;
-              console.log('[e2e] Cobertura banco: dados confirmados no banco após endpoint (porta ' + port + ').');
-              resolve(true);
+              console.log('[e2e] Cobertura banco: dados confirmados no banco após endpoint (porta ' + port + '). Testando operações CRUD (POST → GET → PUT → DELETE → GET(404))...');
+              testCrudOperations(port, project, HEALTH_REQUEST_TIMEOUT_MS)
+                .then((crudResult) => {
+                  clearTimeout(t);
+                  if (!crudResult.allOk) {
+                    done(false, 'Cobertura CRUD: falha em ' + crudResult.failures.join(', '));
+                    resolve(false);
+                    return;
+                  }
+                  try { child.kill('SIGTERM'); } catch (e) { try { child.kill('SIGKILL'); } catch (_) {} }
+                  resolved = true;
+                  console.log('[e2e] Cobertura CRUD: todas as operações passaram (porta ' + port + ').');
+                  resolve(true);
+                })
+                .catch((e) => {
+                  clearTimeout(t);
+                  done(false, 'Erro ao testar CRUD: ' + (e && e.message));
+                  resolve(false);
+                });
             })
             .catch((e) => {
               clearTimeout(t);
