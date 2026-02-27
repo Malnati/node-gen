@@ -11,15 +11,16 @@ services:
     volumes:
       - postgres-data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      test: ["CMD-SHELL", "pg_isready -U postgres -d postgres"]
       interval: 2s
       timeout: 5s
       retries: 10
 
   apis:
+    image: node-gen-apis:latest
     build:
-      context: ..
-      dockerfile: .docker/Dockerfile.projects.postgres
+      context: /
+      dockerfile: root/w/node-gen/.docker/Dockerfile.projects.postgres
     container_name: nodegen-apis
     ports:
       - "3001-3026:3000"
@@ -32,8 +33,8 @@ services:
       DATABASE_USER: postgres
       DATABASE_PASSWORD: postgres
     volumes:
-      - ../output:/output
-      - ../test/e2e-generator/projects:/projects-source
+      - /root/w/node-gen/output:/output
+      - /root/w/node-gen/test/e2e-generator/projects:/projects-source
     entrypoint: ["/entrypoint.projects.postgres.sh"]
 
 volumes:
