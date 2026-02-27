@@ -25,7 +25,8 @@ export class ApiDataSourceGenerator {
 
     const entityImports = this.schema.map(table => {
       const entityName = toPascalCase(table.tableName);
-      return `import { ${entityName}Entity } from "../../entities/${toSnakeCase(entityName)}";`;
+      const kebabName = toSnakeCase(entityName).replace(/_/g, '-');
+      return `import { ${entityName}Entity } from "../${kebabName}/${kebabName}.entity";`;
     }).join('\n');
 
     const entitiesArray = this.schema.map(table => {

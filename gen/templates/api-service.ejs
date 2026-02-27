@@ -1,8 +1,8 @@
 // gen/templates/api-service.ejs
 import { Injectable, Logger, NotFoundException } from "@nestjs/common";
 import { FindOptionsWhere, Repository } from "typeorm";
-import { DataSourceService } from "../config/datasource.service";
-import { <%= entityName %>Entity } from "@app/entities/<%= toSnakeCase(entityName) %>";
+import { DataSourceService } from "../../modules/config/datasource.service";
+import { <%= entityName %>Entity } from "./<%= kebabCaseName %>.entity";
 import { <%= entityName %>QueryDTO, <%= entityName %>PersistDTO } from "./<%= kebabCaseName %>.dto";
 <%- imports %>
 

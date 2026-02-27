@@ -2,7 +2,7 @@
 import * as fs from "fs";
 import * as path from "path";
 import { Table, Column, Relation, DbReaderConfig } from "./interfaces";
-import { toPascalCase, toSnakeCase, removeTbPrefix } from "./utils/string";
+import { toPascalCase, toSnakeCase, toKebabCase, removeTbPrefix } from "./utils/string";
 import { loadTemplate } from "./utils/template-loader";
 
 export class ApiEntityGenerator {
@@ -17,20 +17,27 @@ export class ApiEntityGenerator {
   }
 
   generateEntities() {
-    // Nova estrutura: <output>/api/src/entities/
-    const outputDir = path.join(this.config.outputDir, "api", "src", "entities");
+    // Nova estrutura: <output>/api/src/modules/<entity>/
+    const modulesDir = path.join(this.config.outputDir, "api", "src", "modules");
 
-    if (!fs.existsSync(outputDir)) {
-      fs.mkdirSync(outputDir, { recursive: true });
+    if (!fs.existsSync(modulesDir)) {
+      fs.mkdirSync(modulesDir, { recursive: true });
     }
 
     this.schema.forEach((table) => {
+      const kebabName = toKebabCase(table.tableName);
+      const subDir = path.join(modulesDir, kebabName);
+
+      if (!fs.existsSync(subDir)) {
+        fs.mkdirSync(subDir, { recursive: true });
+      }
+
       const entityContent = this.generateEntityContent(table);
-      const filePath = path.join(outputDir, `${removeTbPrefix(table.tableName)}.ts`);
+      const filePath = path.join(subDir, `${kebabName}.entity.ts`);
       fs.writeFileSync(filePath, entityContent);
     });
 
-    console.log(`API Entities have been generated in ${outputDir}`);
+    console.log(`API Entities have been generated in ${modulesDir}`);
   }
 
   private generateEntityContent(table: Table): string {
