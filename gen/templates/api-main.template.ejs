@@ -5,10 +5,10 @@ import { MicroserviceOptions, Transport } from "@nestjs/microservices";
 import { SwaggerModule, DocumentBuilder } from "@nestjs/swagger";
 import { Logger } from "@nestjs/common";
 import { AppModule } from "./app.module";
-import { DataSourceService } from "./config/datasource.service";
-import { EnvironmentService } from "./config/environment.service";
-import { HealthService } from "./health/health.service";
-import { AppReadinessService } from "./config/app.readiness.service";
+import { DataSourceService } from "./modules/config/datasource.service";
+import { EnvironmentService } from "./modules/config/environment.service";
+import { HealthService } from "./modules/health/health.service";
+import { AppReadinessService } from "./modules/config/app.readiness.service";
 
 /**
  * Bootstraps the NestJS application.

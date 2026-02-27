@@ -49,7 +49,17 @@ export interface DbReaderConfig {
     'datasource' |
     'diagram' |
     'mfes' |
-    'app-shell'
+    'app-shell' |
+    'api-entities' |
+    'api-services' |
+    'api-interfaces' |
+    'api-controllers' |
+    'api-dtos' |
+    'api-modules' |
+    'api-app-module' |
+    'api-main' |
+    'api-datasource' |
+    'api-readme'
   ];
   dbType: string;
 }

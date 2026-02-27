@@ -3,7 +3,7 @@ import { Controller, Get, Post, Put, Delete, Body, Param, NotFoundException, Bad
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { {{entityName}}Service } from './{{kebabCaseName}}.service';
 import { {{entityName}}QueryDTO, {{entityName}}PersistDTO } from './{{kebabCaseName}}.dto';
-import { JwtAuthGuard } from '../middleware/jwt-auth.guard';
+import { JwtAuthGuard } from '../../middleware/jwt-auth.guard';
 
 @ApiTags('{{kebabCaseName}}')
 @UseGuards(JwtAuthGuard)
