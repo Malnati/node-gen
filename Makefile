@@ -64,3 +64,25 @@ e2e-$(1):
 endef
 
 $(foreach p,$(E2E_PROJECTS_LIST),$(eval $(call e2e-project-target,$(p))))
+
+define compose_projects
+	DOCKER_CONFIG=$(DOCKER_CONFIG) $(COMPOSE_CMD) -f .docker/docker-compose.projects.postgres.yml --project-directory . $(1)
+endef
+
+projects-build:
+	@echo "🛠️  Buildando imagem para projetos PostgreSQL..."
+	$(call compose_projects,build)
+
+projects-up:
+	@echo "🚀  Subindo todas as APIs PostgreSQL..."
+	$(call compose_projects,up -d)
+
+projects-down:
+	@echo "🛑  Parando todas as APIs PostgreSQL..."
+	$(call compose_projects,down)
+
+projects-logs:
+	@echo "📜  Exibindo logs de todas as APIs PostgreSQL..."
+	$(call compose_projects,logs -f)
+
+projects-restart: projects-down projects-up
