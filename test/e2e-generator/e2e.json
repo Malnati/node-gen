@@ -52,7 +52,28 @@
         "table": "country",
         "whereColumn": "code",
         "whereValue": "E2"
-      }
+      },
+      "crudVerify": [
+        {
+          "path": "/country",
+          "body": {
+            "code": "E2",
+            "name": "e2e-verify"
+          },
+          "table": "country",
+          "whereColumn": "code",
+          "whereValue": "E2"
+        },
+        {
+          "path": "/state"
+        },
+        {
+          "path": "/city"
+        },
+        {
+          "path": "/address"
+        }
+      ]
     },
     "auth": {
       "tables": [
@@ -108,7 +129,30 @@
         "table": "email_template",
         "whereColumn": "code",
         "whereValue": "e2e-verify"
-      }
+      },
+      "crudVerify": [
+        {
+          "path": "/email-template",
+          "body": {
+            "tenant": "00000000-0000-0000-0000-000000000001",
+            "code": "e2e-verify",
+            "external_id": null
+          },
+          "uniqueExternalId": true,
+          "table": "email_template",
+          "whereColumn": "code",
+          "whereValue": "e2e-verify"
+        },
+        {
+          "path": "/smtp-config"
+        },
+        {
+          "path": "/send-history"
+        },
+        {
+          "path": "/delivery-tracking"
+        }
+      ]
     },
     "config": {
       "tables": [
@@ -144,7 +188,34 @@
         "table": "config",
         "whereColumn": "config_key",
         "whereValue": "e2e-verify"
-      }
+      },
+      "crudVerify": [
+        {
+          "path": "/config",
+          "body": {
+            "tenant": "00000000-0000-0000-0000-000000000001",
+            "config_key": "e2e-verify",
+            "config_value": "1",
+            "external_id": null
+          },
+          "uniqueExternalId": true,
+          "table": "config",
+          "whereColumn": "config_key",
+          "whereValue": "e2e-verify"
+        },
+        {
+          "path": "/integration-config"
+        },
+        {
+          "path": "/webhook"
+        },
+        {
+          "path": "/branding"
+        },
+        {
+          "path": "/label"
+        }
+      ]
     },
     "consents": {
       "tables": [
@@ -171,7 +242,25 @@
         "table": "consent_record",
         "whereColumn": "consent_type",
         "whereValue": "e2e-verify"
-      }
+      },
+      "crudVerify": [
+        {
+          "path": "/consent-record",
+          "body": {
+            "tenant": "00000000-0000-0000-0000-000000000001",
+            "account_id": "00000000-0000-0000-0000-000000000002",
+            "consent_type": "e2e-verify",
+            "external_id": null
+          },
+          "uniqueExternalId": true,
+          "table": "consent_record",
+          "whereColumn": "consent_type",
+          "whereValue": "e2e-verify"
+        },
+        {
+          "path": "/notification-preference"
+        }
+      ]
     },
     "contacts": {
       "tables": [
@@ -225,7 +314,28 @@
         "table": "gmail_integration",
         "whereColumn": "connected_email",
         "whereValue": "e2e@gmail.example.com"
-      }
+      },
+      "crudVerify": [
+        {
+          "path": "/gmail-integration",
+          "body": {
+            "tenant": "00000000-0000-0000-0000-000000000001",
+            "account_id": "00000000-0000-0000-0000-000000000002",
+            "connected_email": "e2e@gmail.example.com",
+            "external_id": null
+          },
+          "uniqueExternalId": true,
+          "table": "gmail_integration",
+          "whereColumn": "connected_email",
+          "whereValue": "e2e@gmail.example.com"
+        },
+        {
+          "path": "/gmail-message-template"
+        },
+        {
+          "path": "/gmail-message"
+        }
+      ]
     },
     "google-calendar": {
       "tables": [
@@ -253,7 +363,26 @@
         "table": "calendar_integration",
         "whereColumn": "connected_email",
         "whereValue": "calendar@example.com"
-      }
+      },
+      "crudVerify": [
+        {
+          "path": "/calendar-integration",
+          "body": {
+            "connected_email": "calendar@example.com",
+            "tenant": "00000000-0000-0000-0000-000000000001",
+            "account_id": "00000000-0000-0000-0000-000000000002"
+          },
+          "table": "calendar_integration",
+          "whereColumn": "connected_email",
+          "whereValue": "calendar@example.com"
+        },
+        {
+          "path": "/calendar"
+        },
+        {
+          "path": "/calendar-event"
+        }
+      ]
     },
     "google-drive": {
       "tables": [
@@ -283,7 +412,28 @@
         "table": "drive_integration",
         "whereColumn": "connected_email",
         "whereValue": "e2e@drive.example.com"
-      }
+      },
+      "crudVerify": [
+        {
+          "path": "/drive-integration",
+          "body": {
+            "tenant": "00000000-0000-0000-0000-000000000001",
+            "account_id": "00000000-0000-0000-0000-000000000002",
+            "connected_email": "e2e@drive.example.com",
+            "external_id": null
+          },
+          "uniqueExternalId": true,
+          "table": "drive_integration",
+          "whereColumn": "connected_email",
+          "whereValue": "e2e@drive.example.com"
+        },
+        {
+          "path": "/drive-folder"
+        },
+        {
+          "path": "/drive-file"
+        }
+      ]
     },
     "llm": {
       "tables": [
@@ -318,7 +468,33 @@
         "table": "llm_log",
         "whereColumn": "model_name",
         "whereValue": "e2e-verify"
-      }
+      },
+      "crudVerify": [
+        {
+          "path": "/llm-log",
+          "body": {
+            "tenant": "00000000-0000-0000-0000-000000000001",
+            "model_name": "e2e-verify",
+            "external_id": null
+          },
+          "uniqueExternalId": true,
+          "table": "llm_log",
+          "whereColumn": "model_name",
+          "whereValue": "e2e-verify"
+        },
+        {
+          "path": "/llm-provider-config"
+        },
+        {
+          "path": "/prompt-template"
+        },
+        {
+          "path": "/llm-execution-log"
+        },
+        {
+          "path": "/llm-usage-summary"
+        }
+      ]
     },
     "logistics": {
       "tables": [
@@ -345,7 +521,25 @@
         "table": "shipment",
         "whereColumn": "status",
         "whereValue": "pending"
-      }
+      },
+      "crudVerify": [
+        {
+          "path": "/shipment",
+          "body": {
+            "tenant": "00000000-0000-0000-0000-000000000001",
+            "order_id": "00000000-0000-0000-0000-000000000002",
+            "status": "pending",
+            "external_id": null
+          },
+          "uniqueExternalId": true,
+          "table": "shipment",
+          "whereColumn": "status",
+          "whereValue": "pending"
+        },
+        {
+          "path": "/shipment-event"
+        }
+      ]
     },
     "maps": {
       "tables": [
@@ -374,7 +568,27 @@
         "table": "map_provider_config",
         "whereColumn": "provider_code",
         "whereValue": "e2e"
-      }
+      },
+      "crudVerify": [
+        {
+          "path": "/map-provider-config",
+          "body": {
+            "tenant": "00000000-0000-0000-0000-000000000001",
+            "provider_code": "e2e",
+            "external_id": null
+          },
+          "uniqueExternalId": true,
+          "table": "map_provider_config",
+          "whereColumn": "provider_code",
+          "whereValue": "e2e"
+        },
+        {
+          "path": "/geocode-cache"
+        },
+        {
+          "path": "/route-cache"
+        }
+      ]
     },
     "notifications": {
       "tables": [
@@ -400,7 +614,37 @@
         "table": "notification_template",
         "whereColumn": "code",
         "whereValue": "e2e-verify"
-      }
+      },
+      "crudVerify": [
+        {
+          "path": "/notification-template",
+          "body": {
+            "tenant": "00000000-0000-0000-0000-000000000001",
+            "code": "e2e-verify",
+            "external_id": null
+          },
+          "uniqueExternalId": true,
+          "table": "notification_template",
+          "whereColumn": "code",
+          "whereValue": "e2e-verify"
+        },
+        {
+          "path": "/notification",
+          "body": {
+            "tenant": "00000000-0000-0000-0000-000000000001",
+            "account_id": "e1eebc99-9c0b-4ef8-bb6d-6bb9bd380a11",
+            "channel": "email",
+            "priority": "normal",
+            "subject": "e2e-notification",
+            "body": "Mensagem de verificacao E2E.",
+            "external_id": null
+          },
+          "uniqueExternalId": true,
+          "table": "notification",
+          "whereColumn": "subject",
+          "whereValue": "e2e-notification"
+        }
+      ]
     },
     "orders": {
       "tables": [
@@ -428,7 +672,26 @@
         "table": "order",
         "whereColumn": "status",
         "whereValue": "draft"
-      }
+      },
+      "crudVerify": [
+        {
+          "path": "/order",
+          "body": {
+            "tenant": "00000000-0000-0000-0000-000000000001",
+            "account_id": "00000000-0000-0000-0000-000000000002",
+            "status": "draft",
+            "total": 0,
+            "external_id": null
+          },
+          "uniqueExternalId": true,
+          "table": "order",
+          "whereColumn": "status",
+          "whereValue": "draft"
+        },
+        {
+          "path": "/order-item"
+        }
+      ]
     },
     "payments": {
       "tables": [
@@ -454,7 +717,24 @@
         "table": "payment_type",
         "whereColumn": "code",
         "whereValue": "E2E"
-      }
+      },
+      "crudVerify": [
+        {
+          "path": "/payment-type",
+          "body": {
+            "code": "E2E",
+            "name": "e2e-verify",
+            "external_id": null
+          },
+          "uniqueExternalId": true,
+          "table": "payment_type",
+          "whereColumn": "code",
+          "whereValue": "E2E"
+        },
+        {
+          "path": "/payment"
+        }
+      ]
     },
     "products": {
       "tables": [
@@ -483,7 +763,27 @@
         "table": "currency",
         "whereColumn": "code",
         "whereValue": "E2E"
-      }
+      },
+      "crudVerify": [
+        {
+          "path": "/currency",
+          "body": {
+            "code": "E2E",
+            "name": "e2e-verify",
+            "external_id": null
+          },
+          "uniqueExternalId": true,
+          "table": "currency",
+          "whereColumn": "code",
+          "whereValue": "E2E"
+        },
+        {
+          "path": "/unit-of-measure"
+        },
+        {
+          "path": "/product"
+        }
+      ]
     },
     "reports": {
       "tables": [
@@ -512,7 +812,27 @@
         "table": "consolidated_sales_monthly",
         "whereColumn": "year_month",
         "whereValue": "2025-01"
-      }
+      },
+      "crudVerify": [
+        {
+          "path": "/consolidated-sales-monthly",
+          "body": {
+            "tenant": "00000000-0000-0000-0000-000000000001",
+            "year_month": "2025-01",
+            "total_amount": 0,
+            "order_count": 0
+          },
+          "table": "consolidated_sales_monthly",
+          "whereColumn": "year_month",
+          "whereValue": "2025-01"
+        },
+        {
+          "path": "/current-warehouse-stock"
+        },
+        {
+          "path": "/logistics-performance"
+        }
+      ]
     },
     "roles": {
       "tables": [
@@ -544,7 +864,30 @@
         "table": "role",
         "whereColumn": "name",
         "whereValue": "e2e-verify"
-      }
+      },
+      "crudVerify": [
+        {
+          "path": "/role",
+          "body": {
+            "tenant": "00000000-0000-0000-0000-000000000001",
+            "name": "e2e-verify",
+            "external_id": null
+          },
+          "uniqueExternalId": true,
+          "table": "role",
+          "whereColumn": "name",
+          "whereValue": "e2e-verify"
+        },
+        {
+          "path": "/feature"
+        },
+        {
+          "path": "/role-feature"
+        },
+        {
+          "path": "/user-role"
+        }
+      ]
     },
     "schedule": {
       "tables": [
@@ -583,7 +926,37 @@
         "table": "tb_resource",
         "whereColumn": "name",
         "whereValue": "e2e-verify"
-      }
+      },
+      "crudVerify": [
+        {
+          "path": "/resource",
+          "body": {
+            "tenant": "00000000-0000-0000-0000-000000000001",
+            "name": "e2e-verify",
+            "resource_type": "room",
+            "external_id": null
+          },
+          "uniqueExternalId": true,
+          "table": "tb_resource",
+          "whereColumn": "name",
+          "whereValue": "e2e-verify"
+        },
+        {
+          "path": "/slot"
+        },
+        {
+          "path": "/recurrence-rule"
+        },
+        {
+          "path": "/booking"
+        },
+        {
+          "path": "/booking-participant"
+        },
+        {
+          "path": "/booking-history"
+        }
+      ]
     },
     "selling": {
       "tables": [
@@ -609,7 +982,24 @@
         "table": "tb_order",
         "whereColumn": "status",
         "whereValue": "confirmed"
-      }
+      },
+      "crudVerify": [
+        {
+          "path": "/order",
+          "body": {
+            "status": "confirmed",
+            "tenant": "00000000-0000-0000-0000-000000000001",
+            "account_id": "00000000-0000-0000-0000-000000000002",
+            "total": 0
+          },
+          "table": "tb_order",
+          "whereColumn": "status",
+          "whereValue": "confirmed"
+        },
+        {
+          "path": "/order-line"
+        }
+      ]
     },
     "tenant": {
       "tables": [
@@ -665,7 +1055,30 @@
         "table": "tb_simple_item",
         "whereColumn": "name",
         "whereValue": "e2e-verify"
-      }
+      },
+      "crudVerify": [
+        {
+          "path": "/simple-item",
+          "body": {
+            "name": "e2e-verify",
+            "tenant": "00000000-0000-0000-0000-000000000001",
+            "external_id": null
+          },
+          "uniqueExternalId": true,
+          "table": "tb_simple_item",
+          "whereColumn": "name",
+          "whereValue": "e2e-verify"
+        },
+        {
+          "path": "/category"
+        },
+        {
+          "path": "/tag"
+        },
+        {
+          "path": "/simple-item-tag"
+        }
+      ]
     },
     "transactions": {
       "tables": [

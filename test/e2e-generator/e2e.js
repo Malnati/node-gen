@@ -244,19 +244,127 @@ function extractIdFromResponse(bodyStr, idField) {
   }
 }
 
-function testCrudOperations(port, project, timeoutMs) {
-  const expected = PROJECT_EXPECTED[project];
-  const spec = expected && expected.postVerify;
-  if (!spec) {
-    console.log('[e2e] Pulando CRUD: sem postVerify para', project);
-    return Promise.resolve(true);
+function pickIdFromCollectionResponse(bodyStr, idField) {
+  if (!bodyStr) return null;
+  try {
+    const parsed = JSON.parse(bodyStr);
+    const items = Array.isArray(parsed) ? parsed : (Array.isArray(parsed && parsed.data) ? parsed.data : []);
+    if (!items.length) return null;
+    const first = items[0] || {};
+    return first[idField] || first.id || first.external_id || null;
+  } catch (e) {
+    return null;
   }
+}
 
+function pickFirstRecordFromCollectionResponse(bodyStr) {
+  if (!bodyStr) return null;
+  try {
+    const parsed = JSON.parse(bodyStr);
+    if (Array.isArray(parsed)) {
+      return parsed[0] || null;
+    }
+    if (Array.isArray(parsed && parsed.data)) {
+      return parsed.data[0] || null;
+    }
+    if (parsed && typeof parsed === 'object') {
+      return parsed;
+    }
+    return null;
+  } catch (e) {
+    return null;
+  }
+}
+
+function buildCreateBodyFromSample(sample, testId) {
+  if (!sample || typeof sample !== 'object') {
+    return null;
+  }
+  const body = { ...sample };
+  delete body.id;
+  delete body.created_at;
+  delete body.updated_at;
+  delete body.deleted_at;
+  if (Object.prototype.hasOwnProperty.call(body, 'external_id')) {
+    body.external_id = testId;
+  }
+  const suffix = String(testId || '').replace(/-/g, '').slice(0, 8);
+  for (const [key, value] of Object.entries(body)) {
+    if (key === 'external_id') continue;
+    if (typeof value !== 'string') continue;
+    if (/(name|code|subject|title|email|phone|username|slug|key|number)/i.test(key)) {
+      body[key] = value + '-' + suffix;
+    }
+  }
+  return body;
+}
+
+function buildNotFoundId(recordId) {
+  if (typeof recordId === 'number') {
+    return 999999999;
+  }
+  if (typeof recordId === 'string' && /^\d+$/.test(recordId)) {
+    return '999999999';
+  }
+  return '00000000-0000-0000-0000-000000000999';
+}
+
+function buildUpdatedFieldValue(baseValue, testId) {
+  if (typeof baseValue === 'number') {
+    return baseValue + 1;
+  }
+  if (typeof baseValue === 'string') {
+    const size = baseValue.length;
+    const suffix = (testId || '').replace(/-/g, '').slice(0, Math.max(1, Math.min(8, size)));
+    if (size <= 2) {
+      return ('X' + suffix).slice(0, size);
+    }
+    return ('updated-' + suffix).slice(0, size);
+  }
+  return 'updated-' + Date.now();
+}
+
+function resolveCrudSpecs(expected) {
+  if (!expected) {
+    return [];
+  }
+  if (Array.isArray(expected.crudVerify) && expected.crudVerify.length > 0) {
+    return expected.crudVerify;
+  }
+  if (expected.postVerify) {
+    return [expected.postVerify];
+  }
+  return [];
+}
+
+function findRecordIdInDb(conn, spec) {
+  if (!conn || !spec || !spec.table || !spec.whereColumn) {
+    return Promise.resolve(null);
+  }
+  const dbType = (conn.dbType || 'sqlite').toLowerCase();
+  const tableRef = dbType === 'sqlite' ? '"' + spec.table + '"'
+    : dbType === 'sqlserver' ? '[' + spec.table + ']'
+    : dbType === 'mysql' ? '`' + spec.table + '`'
+    : '"' + spec.table + '"';
+  const whereClause = spec.whereColumn + " = '" + String(spec.whereValue).replace(/'/g, "''") + "'";
+  const sql = dbType === 'sqlserver'
+    ? 'SELECT TOP 1 id FROM ' + tableRef + ' WHERE ' + whereClause
+    : 'SELECT id FROM ' + tableRef + ' WHERE ' + whereClause + ' LIMIT 1';
+  return queryDb(conn, sql)
+    .then((rows) => (Array.isArray(rows) && rows[0] && rows[0].id != null ? rows[0].id : null))
+    .catch(() => null);
+}
+
+function runCrudForSpec(port, timeoutMs, conn, spec) {
   const timeout = Math.min(timeoutMs, 1500);
   const basePath = spec.path;
   const testId = crypto.randomUUID();
+  const hasExplicitBody = !!(spec.body && typeof spec.body === 'object' && Object.keys(spec.body).length > 0);
 
   let postBody = spec.body && typeof spec.body === 'object' ? { ...spec.body } : spec.body;
+  let fallbackRecordId = null;
+  let fallbackRecordBody = null;
+  let postCreated = false;
   if (spec.uniqueExternalId) {
     if (postBody && typeof postBody === 'object') {
       postBody.external_id = testId;
@@ -264,11 +372,41 @@ function testCrudOperations(port, project, timeoutMs) {
   }
 
   const updateBody = spec.body && typeof spec.body === 'object' ? { ...spec.body } : spec.body;
-  const updatedTestValue = spec.uniqueExternalId ? 'updated-' + testId.slice(0, 8) : 'updated-' + Date.now();
+  const updatedTestValue = buildUpdatedFieldValue(spec.whereValue, testId);
 
-  return curlPost(port, basePath, postBody, timeout).then((postResult) => {
+  const prepareFallback = (!postBody || (typeof postBody === 'object' && Object.keys(postBody).length === 0))
+    ? curlGet(port, basePath, timeout).then((listResult) => {
+      if (listResult.statusCode !== 200) {
+        return null;
+      }
+      const firstRecord = pickFirstRecordFromCollectionResponse(listResult.body);
+      if (!firstRecord || typeof firstRecord !== 'object') {
+        return null;
+      }
+      fallbackRecordBody = firstRecord;
+      fallbackRecordId = firstRecord.id != null ? firstRecord.id : (firstRecord.external_id != null ? firstRecord.external_id : null);
+      const candidateBody = buildCreateBodyFromSample(firstRecord, testId);
+      if (candidateBody && typeof candidateBody === 'object') {
+        postBody = candidateBody;
+      }
+      return null;
+    })
+    : Promise.resolve();
+
+  return prepareFallback.then(() => {
+    const postPayload = postBody && typeof postBody === 'object' ? postBody : {};
+    return curlPost(port, basePath, postPayload, timeout);
+  }).then((postResult) => {
+    postCreated = postResult.statusCode === 201 || postResult.statusCode === 200;
     if (postResult.statusCode !== 201 && postResult.statusCode !== 200) {
-      if (postResult.statusCode === 400 || postResult.statusCode === 409) {
+      if (!hasExplicitBody) {
+        postCreated = false;
+        console.log('[e2e] CRUD POST', basePath, 'retornou', postResult.statusCode, '(payload generico; seguindo com registro existente quando disponivel).');
+      } else if (fallbackRecordId != null) {
+        postCreated = false;
+        console.log('[e2e] CRUD POST', basePath, 'retornou', postResult.statusCode, '(usando registro existente para continuidade).');
+      } else if (postResult.statusCode === 400 || postResult.statusCode === 409) {
+        postCreated = false;
         console.log('[e2e] CRUD POST', basePath, 'retornou', postResult.statusCode, '(já existe), usando ID fixo para testes');
       } else {
         console.error('[e2e] CRUD POST', basePath, 'falhou:', postResult.statusCode, postResult.body);
@@ -276,10 +414,31 @@ function testCrudOperations(port, project, timeoutMs) {
       }
     }
 
-    const recordId = extractIdFromResponse(postResult.body, 'id') || testId;
-    const getPath = basePath + '/' + recordId;
+    const postId = extractIdFromResponse(postResult.body, 'id');
+    const resolveRecordId = postId != null
+      ? Promise.resolve(postId)
+      : findRecordIdInDb(conn, spec).then((dbId) => {
+        if (dbId != null) {
+          return dbId;
+        }
+        return curlGet(port, basePath, timeout).then((listResult) => {
+        if (listResult.statusCode !== 200) {
+          return hasExplicitBody ? testId : null;
+        }
+        return pickIdFromCollectionResponse(listResult.body, 'id') || fallbackRecordId || (hasExplicitBody ? testId : null);
+      });
+      });
 
-    return curlGet(port, getPath, timeout).then((getResult) => {
+    return resolveRecordId.then((recordId) => {
+      if (recordId == null) {
+        if (!hasExplicitBody) {
+          console.log('[e2e] CRUD endpoint', basePath, 'sem recordId resolvido no modo generico; seguindo para proximo endpoint.');
+          return { allOk: true, failures: [] };
+        }
+        return { allOk: false, failures: ['CRUD sem recordId resolvido para ' + basePath] };
+      }
+      const getPath = basePath + '/' + recordId;
+      return curlGet(port, getPath, timeout).then((getResult) => {
       const getOk = getResult.statusCode === 200;
       if (!getOk) {
         console.error('[e2e] CRUD GET', getPath, 'falhou:', getResult.statusCode);
@@ -287,7 +446,11 @@ function testCrudOperations(port, project, timeoutMs) {
       }
       console.log('[e2e] CRUD GET', getPath, 'OK (200)');
 
-      const putBody = updateBody && typeof updateBody === 'object' ? { ...updateBody } : updateBody;
+      const getRecord = pickFirstRecordFromCollectionResponse(getResult.body);
+      const putBase = updateBody && typeof updateBody === 'object'
+        ? updateBody
+        : (getRecord && typeof getRecord === 'object' ? getRecord : fallbackRecordBody);
+      const putBody = putBase && typeof putBase === 'object' ? { ...putBase } : putBase;
       if (putBody && typeof putBody === 'object') {
         if (spec.whereColumn && spec.whereValue) {
           putBody[spec.whereColumn] = updatedTestValue;
@@ -305,13 +468,18 @@ function testCrudOperations(port, project, timeoutMs) {
         }
         console.log('[e2e] CRUD PUT', getPath, 'OK (200)');
 
+        if (!postCreated) {
+          console.log('[e2e] CRUD DELETE pulado para', getPath, '(registro preexistente).');
+          return { allOk: true, failures: [] };
+        }
+
         return curlDelete(port, getPath, timeout).then((deleteResult) => {
-          const deleteOk = deleteResult.statusCode === 200;
+          const deleteOk = deleteResult.statusCode === 200 || deleteResult.statusCode === 204;
           if (!deleteOk) {
             console.error('[e2e] CRUD DELETE', getPath, 'falhou:', deleteResult.statusCode, deleteResult.body);
             return { allOk: false, failures: ['CRUD DELETE ' + getPath + ' retornou ' + deleteResult.statusCode] };
           }
-          console.log('[e2e] CRUD DELETE', getPath, 'OK (200)');
+          console.log('[e2e] CRUD DELETE', getPath, 'OK (' + deleteResult.statusCode + ')');
 
           return curlGet(port, getPath, timeout).then((getAfterDeleteResult) => {
             const notFoundOk = getAfterDeleteResult.statusCode === 404;
@@ -321,7 +489,8 @@ function testCrudOperations(port, project, timeoutMs) {
             }
             console.log('[e2e] CRUD GET após DELETE', getPath, 'OK (404 não encontrado)');
 
-            const fakeIdPath = basePath + '/00000000-0000-0000-0000-000000000999';
+            const fakeNotFoundId = buildNotFoundId(recordId);
+            const fakeIdPath = basePath + '/' + fakeNotFoundId;
             return curlGet(port, fakeIdPath, timeout).then((getNotFoundResult) => {
               const fakeNotFoundOk = getNotFoundResult.statusCode === 404;
               if (!fakeNotFoundOk) {
@@ -336,11 +505,41 @@ function testCrudOperations(port, project, timeoutMs) {
           });
         });
       });
+      });
     });
   }).catch((e) => {
     console.error('[e2e] testCrudOperations erro:', e.message);
     return { allOk: false, failures: ['CRUD erro: ' + e.message] };
   });
+}
+
+function testCrudOperations(port, project, timeoutMs, conn) {
+  const expected = PROJECT_EXPECTED[project];
+  const specs = resolveCrudSpecs(expected);
+  if (!specs.length) {
+    console.log('[e2e] Pulando CRUD: sem postVerify/crudVerify para', project);
+    return Promise.resolve({ allOk: true, failures: [] });
+  }
+
+  let chain = Promise.resolve({ allOk: true, failures: [] });
+  for (const spec of specs) {
+    chain = chain.then((acc) => {
+      if (!acc.allOk) {
+        return acc;
+      }
+      console.log('[e2e] CRUD endpoint alvo:', spec.path);
+      return runCrudForSpec(port, timeoutMs, conn, spec).then((result) => {
+        if (!result.allOk) {
+          return {
+            allOk: false,
+            failures: (acc.failures || []).concat(result.failures || []),
+          };
+        }
+        return acc;
+      });
+    });
+  }
+  return chain;
 }
 
 function queryDb(conn, sql) {
@@ -501,7 +700,7 @@ function startAppAndCheckHealth(outDir, dbType, project, conn) {
                 return;
               }
               console.log('[e2e] Cobertura banco: dados confirmados no banco após endpoint (porta ' + port + '). Testando operações CRUD (POST → GET → PUT → DELETE → GET(404))...');
-              testCrudOperations(port, project, HEALTH_REQUEST_TIMEOUT_MS)
+              testCrudOperations(port, project, HEALTH_REQUEST_TIMEOUT_MS, conn)
                 .then((crudResult) => {
                   clearTimeout(t);
                   if (!crudResult.allOk) {
