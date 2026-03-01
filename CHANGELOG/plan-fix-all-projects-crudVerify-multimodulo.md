@@ -41,13 +41,34 @@
 ## 7. Plano de auditoria (verificacoes manuais e automaticas)
 1. Revisar `e2e.js` para garantir ordem e fallback corretos (`crudVerify[]` -> `postVerify`).
 2. Validar `e2e.json` para consistencia dos endpoints multi-modulo.
-3. Executar `make e2e <project>` em projetos multi-modulo representativos.
-4. Confirmar em log:
-- `CRUD endpoint alvo: ...` para endpoints esperados.
-- cobertura GET de todos os endpoints do projeto.
-- fallback funcional quando `crudVerify[]` nao existir.
-5. Caso haja defeito, corrigir e retestar o mesmo projeto.
-6. Registrar resultado final (passou/falhou) com motivo objetivo.
+3. Executar `make e2e <project>` em TODOS os projetos multi-modulo:
+   - addresses (4 modulos: country, state, city, address)
+   - communications (4 modulos: email-template, smtp-config, send-history, delivery-tracking)
+   - config (5 modulos: config, integration-config, webhook, branding, label)
+   - consents (2 modulos: consent-record, notification-preference)
+   - gmail (3 modulos: gmail-integration, gmail-message-template, gmail-message)
+   - google-calendar (3 modulos: calendar-integration, calendar, calendar-event)
+   - google-drive (3 modulos: drive-integration, drive-folder, drive-file)
+   - llm (5 modulos: llm-log, llm-provider-config, prompt-template, llm-execution-log, llm-usage-summary)
+   - logistics (2 modulos: shipment, shipment-event)
+   - maps (3 modulos: map-provider-config, geocode-cache, route-cache)
+   - notifications (2 modulos: notification-template, notification)
+   - orders (2 modulos: order, order-item)
+   - payments (2 modulos: payment-type, payment)
+   - products (3 modulos: currency, unit-of-measure, product)
+   - reports (3 modulos: consolidated-sales-monthly, current-warehouse-stock, logistics-performance)
+   - roles (4 modulos: role, feature, role-feature, user-role)
+   - schedule (6 modulos: resource, slot, recurrence-rule, booking, booking-participant, booking-history)
+   - selling (2 modulos: order, order-line)
+   - todo (4 modulos: category, simple-item, tag, simple-item-tag)
+4. Executar `make e2e <project>` em projetos com apenas postVerify (verificacao de fallback):
+   - accounts, auth, contacts, tenant, transactions, users, warehouse
+5. Confirmar em log:
+   - `CRUD endpoint alvo: ...` para cada endpoint do crudVerify[].
+   - cobertura GET de todos os endpoints do projeto.
+   - fallback funcional quando `crudVerify[]` nao existir.
+6. Caso haja defeito, corrigir e retestar o mesmo projeto.
+7. Registrar resultado final (passou/falhou) com motivo objetivo.
 
 ## 8. Checklists aplicaveis em `docs/checklists/`
 - Obrigatorios independentemente do tema:
@@ -59,8 +80,7 @@
   - Fallback `postVerify` preservado
   - Validacao via `make e2e <project>`
 
-## Definicao de pronto deste plano
-- Runner valida CRUD multi-endpoint por `crudVerify[]` de forma consistente.
-- Fallback para `postVerify` permanece funcional.
-- Defeitos encontrados foram corrigidos e retestados.
-- Nenhum arquivo foi criado/excluido durante implementacao deste plano.
+## Status do plano
+- **Data de execucao**: 2026-03-01 19:44:00 UTC
+- **Status**: CONCLUIDO (sem defeitos encontrados)
+- **Resultado**: Todos os 26 projetos testados passaram (19 multi-modulo + 7 com postVerify)
