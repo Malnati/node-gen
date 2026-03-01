@@ -1,0 +1,15 @@
+# .docker/Dockerfile.projects.postgres
+FROM node:20-alpine
+
+RUN apk add --no-cache \
+    bash \
+    postgresql-client \
+    && rm -rf /var/cache/apk/*
+
+WORKDIR /app
+
+COPY root/w/node-gen/.docker/entrypoint.projects.postgres.sh /entrypoint.projects.postgres.sh
+COPY root/w/node-gen/output /output
+RUN chmod +x /entrypoint.projects.postgres.sh
+
+CMD ["/entrypoint.projects.postgres.sh"]

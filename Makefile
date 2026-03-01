@@ -54,3 +54,35 @@ e2e-run:
 	$(call compose_e2e,run --rm -e E2E_PROJECTS="$(E2E_PROJECTS)" e2e)
 
 e2e: e2e-build e2e-run
+
+E2E_PROJECTS_LIST := accounts addresses auth communications config consents contacts gmail google-calendar google-drive llm logistics maps notifications orders payments products reports roles schedule selling tenant todo transactions users warehouse
+
+define e2e-project-target
+e2e-$(1):
+	@echo "🧪  Executando E2E para projeto $(1)..."
+	E2E_PROJECTS=$(1) $(MAKE) e2e-build e2e-run
+endef
+
+$(foreach p,$(E2E_PROJECTS_LIST),$(eval $(call e2e-project-target,$(p))))
+
+define compose_projects
+	DOCKER_CONFIG=$(DOCKER_CONFIG) $(COMPOSE_CMD) -f .docker/docker-compose.projects.postgres.yml --project-directory . $(1)
+endef
+
+projects-build:
+	@echo "🛠️  Buildando imagem para projetos PostgreSQL..."
+	$(call compose_projects,build)
+
+projects-up:
+	@echo "🚀  Subindo todas as APIs PostgreSQL..."
+	$(call compose_projects,up -d)
+
+projects-down:
+	@echo "🛑  Parando todas as APIs PostgreSQL..."
+	$(call compose_projects,down)
+
+projects-logs:
+	@echo "📜  Exibindo logs de todas as APIs PostgreSQL..."
+	$(call compose_projects,logs -f)
+
+projects-restart: projects-down projects-up

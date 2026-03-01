@@ -18,6 +18,17 @@ import { ReadmeGenerator } from "./readme-generator";
 import { DataSourceGenerator } from "./datasource-generator";
 import { MicrofrontendGenerator } from "./microfrontend-generator";
 import { AppShellGenerator } from "./appshell-generator";
+// API Generators
+import { ApiEntityGenerator } from "./api-entity-generator";
+import { ApiServiceGenerator } from "./api-service-generator";
+import { ApiControllerGenerator } from "./api-controller-generator";
+import { ApiDTOGenerator } from "./api-dto-generator";
+import { ApiModuleGenerator } from "./api-module-generator";
+import { ApiAppModuleGenerator } from "./api-app-module-generator";
+import { ApiMainGenerator } from "./api-main-generator";
+import { ApiDataSourceGenerator } from "./api-datasource-generator";
+import { ApiInterfaceGenerator } from "./api-interface-generator";
+import { ApiReadmeGenerator } from "./api-readme-generator";
 import fs from 'fs-extra';
 import { DbReaderMysql } from "./db.reader.mysql";
 import { DbReaderSqlServer } from "./db.reader.sqlserver";
@@ -61,6 +72,19 @@ async function copyStaticFiles(destDir: string, templateDir?: string) {
         console.log('Arquivos estáticos copiados com sucesso.');
     } catch (err) {
         console.error('Erro ao copiar arquivos estáticos:', err);
+    }
+}
+
+async function copyStaticApiFiles(destDir: string, templateDir?: string) {
+    try {
+        const staticApiPath = templateDir ? path.resolve(templateDir, '../static-api') : path.resolve(__dirname, '../static-api');
+        const outputApiDir = path.join(destDir, 'api');
+        await fs.copy(staticApiPath, outputApiDir, {
+            overwrite: true,
+        });
+        console.log('Arquivos estáticos API copiados com sucesso.');
+    } catch (err) {
+        console.error('Erro ao copiar arquivos estáticos API:', err);
     }
 }
 
@@ -111,11 +135,17 @@ async function main() {
     } else {
         const response = await askQuestion(
             "Especifique quais componentes gerar \n" +
-            "(entities, services, interfaces, controllers, dtos, modules, app-module, main, env, package.json, readme, datasource, diagram, mfes, app-shell): "
+            "(entities, services, interfaces, controllers, dtos, modules, app-module, main, env, package.json, readme, datasource, diagram, mfes, app-shell, api-entities, api-services, api-interfaces, api-controllers, api-dtos, api-modules, api-app-module, api-main, api-datasource, api-readme): "
         );
         components = response.replace("\"", "")
         .split(",")
         .map((c) => c.trim().toLowerCase());
+    }
+
+    // Verificar se algum componente API foi solicitado
+    const hasApiComponent = components.some(c => c.startsWith('api-'));
+    if (hasApiComponent) {
+        await copyStaticApiFiles(dbConfig.outputDir, dbConfig.templateDir);
     }
 
     let mfeConfigs: import('./microfrontend-generator').MFEConfig[] = [];
@@ -216,6 +246,67 @@ async function main() {
                     }
                     const appShellGenerator = new AppShellGenerator(dbConfig);
                     appShellGenerator.generate(mfeConfigs);
+                    break;
+                }
+
+                // API Components
+                case "api-entities": {
+                    const entityGenerator = new ApiEntityGenerator(schemaPath, dbConfig);
+                    await entityGenerator.generateEntities();
+                    break;
+                }
+
+                case "api-services": {
+                    const serviceGenerator = new ApiServiceGenerator(schemaPath, dbConfig);
+                    await serviceGenerator.generateServices();
+                    break;
+                }
+
+                case "api-interfaces": {
+                    const interfaceGenerator = new ApiInterfaceGenerator(schemaPath, dbConfig);
+                    await interfaceGenerator.generateInterfaces();
+                    break;
+                }
+
+                case "api-controllers": {
+                    const controllersGenerator = new ApiControllerGenerator(schemaPath, dbConfig);
+                    await controllersGenerator.generateControllers();
+                    break;
+                }
+
+                case "api-dtos": {
+                    const dtosGenerator = new ApiDTOGenerator(schemaPath, dbConfig);
+                    await dtosGenerator.generateDTOs();
+                    break;
+                }
+
+                case "api-modules": {
+                    const modulesGenerator = new ApiModuleGenerator(schemaPath, dbConfig);
+                    await modulesGenerator.generateModules();
+                    break;
+                }
+
+                case "api-app-module": {
+                    const appModuleGenerator = new ApiAppModuleGenerator(schemaPath, dbConfig);
+                    await appModuleGenerator.generateAppModule();
+                    break;
+                }
+
+                case "api-main": {
+                    const mainGenerator = new ApiMainGenerator(dbConfig);
+                    await mainGenerator.generateMainFile();
+                    break;
+                }
+
+                case "api-datasource": {
+                    const dsGenerator = new ApiDataSourceGenerator(schemaPath, dbConfig);
+                    await dsGenerator.generateDataSourceFile();
+                    break;
+                }
+
+                case "api-readme": {
+                    const readmeGenerator = new ApiReadmeGenerator(schemaPath, dbConfig);
+                    await readmeGenerator.generateReadme();
                     break;
                 }
 
