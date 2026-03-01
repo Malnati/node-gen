@@ -23,7 +23,7 @@ services:
       dockerfile: root/w/node-gen/.docker/Dockerfile.projects.postgres
     container_name: nodegen-apis
     ports:
-      - "3001-3026:3000"
+      - "3001-3099:3001-3099"
     depends_on:
       postgres-shared:
         condition: service_healthy
@@ -33,7 +33,6 @@ services:
       DATABASE_USER: postgres
       DATABASE_PASSWORD: postgres
     volumes:
-      - /root/w/node-gen/output:/output
       - /root/w/node-gen/test/e2e-generator/projects:/projects-source
     entrypoint: ["/entrypoint.projects.postgres.sh"]
 
