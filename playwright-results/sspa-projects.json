@@ -265,7 +265,7 @@
           }
         },
         "endpoints": {
-          "list": "/auth_session"
+          "list": "/auth-session"
         }
       }
     }
@@ -321,7 +321,7 @@
           }
         },
         "endpoints": {
-          "list": "/email_template"
+          "list": "/email-template"
         }
       },
       "smtp_config": {
@@ -374,7 +374,7 @@
           }
         },
         "endpoints": {
-          "list": "/smtp_config"
+          "list": "/smtp-config"
         }
       },
       "send_history": {
@@ -423,7 +423,7 @@
           }
         },
         "endpoints": {
-          "list": "/send_history"
+          "list": "/send-history"
         }
       },
       "delivery_tracking": {
@@ -468,7 +468,7 @@
           }
         },
         "endpoints": {
-          "list": "/delivery_tracking"
+          "list": "/delivery-tracking"
         }
       }
     }
@@ -569,7 +569,7 @@
           }
         },
         "endpoints": {
-          "list": "/integration_config"
+          "list": "/integration-config"
         }
       },
       "webhook": {
@@ -780,7 +780,7 @@
           }
         },
         "endpoints": {
-          "list": "/consent_record"
+          "list": "/consent-record"
         }
       },
       "notification_preference": {
@@ -829,7 +829,7 @@
           }
         },
         "endpoints": {
-          "list": "/notification_preference"
+          "list": "/notification-preference"
         }
       }
     }
@@ -949,7 +949,7 @@
           }
         },
         "endpoints": {
-          "list": "/gmail_integration"
+          "list": "/gmail-integration"
         }
       },
       "gmail_message_template": {
@@ -1002,7 +1002,7 @@
           }
         },
         "endpoints": {
-          "list": "/gmail_message_template"
+          "list": "/gmail-message-template"
         }
       },
       "gmail_message": {
@@ -1075,7 +1075,7 @@
           }
         },
         "endpoints": {
-          "list": "/gmail_message"
+          "list": "/gmail-message"
         }
       }
     }
@@ -1131,7 +1131,7 @@
           }
         },
         "endpoints": {
-          "list": "/calendar_integration"
+          "list": "/calendar-integration"
         }
       },
       "calendar": {
@@ -1257,7 +1257,7 @@
           }
         },
         "endpoints": {
-          "list": "/calendar_event"
+          "list": "/calendar-event"
         }
       }
     }
@@ -1313,7 +1313,7 @@
           }
         },
         "endpoints": {
-          "list": "/drive_integration"
+          "list": "/drive-integration"
         }
       },
       "drive_folder": {
@@ -1366,7 +1366,7 @@
           }
         },
         "endpoints": {
-          "list": "/drive_folder"
+          "list": "/drive-folder"
         }
       },
       "drive_file": {
@@ -1427,7 +1427,7 @@
           }
         },
         "endpoints": {
-          "list": "/drive_file"
+          "list": "/drive-file"
         }
       }
     }
@@ -1487,7 +1487,7 @@
           }
         },
         "endpoints": {
-          "list": "/llm_log"
+          "list": "/llm-log"
         }
       },
       "llm_provider_config": {
@@ -1544,7 +1544,7 @@
           }
         },
         "endpoints": {
-          "list": "/llm_provider_config"
+          "list": "/llm-provider-config"
         }
       },
       "prompt_template": {
@@ -1589,7 +1589,7 @@
           }
         },
         "endpoints": {
-          "list": "/prompt_template"
+          "list": "/prompt-template"
         }
       },
       "llm_execution_log": {
@@ -1638,7 +1638,7 @@
           }
         },
         "endpoints": {
-          "list": "/llm_execution_log"
+          "list": "/llm-execution-log"
         }
       },
       "llm_usage_summary": {
@@ -1699,7 +1699,7 @@
           }
         },
         "endpoints": {
-          "list": "/llm_usage_summary"
+          "list": "/llm-usage-summary"
         }
       }
     }
@@ -1832,7 +1832,7 @@
           }
         },
         "endpoints": {
-          "list": "/shipment_event"
+          "list": "/shipment-event"
         }
       }
     }
@@ -1884,7 +1884,7 @@
           }
         },
         "endpoints": {
-          "list": "/map_provider_config"
+          "list": "/map-provider-config"
         }
       },
       "geocode_cache": {
@@ -1933,7 +1933,7 @@
           }
         },
         "endpoints": {
-          "list": "/geocode_cache"
+          "list": "/geocode-cache"
         }
       },
       "route_cache": {
@@ -1982,7 +1982,7 @@
           }
         },
         "endpoints": {
-          "list": "/route_cache"
+          "list": "/route-cache"
         }
       }
     }
@@ -2042,7 +2042,7 @@
           }
         },
         "endpoints": {
-          "list": "/notification_template"
+          "list": "/notification-template"
         }
       },
       "notification": {
@@ -2228,7 +2228,7 @@
           }
         },
         "endpoints": {
-          "list": "/order_item"
+          "list": "/order-item"
         }
       }
     }
@@ -2280,7 +2280,7 @@
           }
         },
         "endpoints": {
-          "list": "/payment_type"
+          "list": "/payment-type"
         }
       },
       "payment": {
@@ -2507,7 +2507,7 @@
           }
         },
         "endpoints": {
-          "list": "/unit_of_measure"
+          "list": "/unit-of-measure"
         }
       }
     }
@@ -2551,7 +2551,7 @@
           }
         },
         "endpoints": {
-          "list": "/consolidated_sales_monthly"
+          "list": "/consolidated-sales-monthly"
         }
       },
       "current_warehouse_stock": {
@@ -2580,7 +2580,7 @@
           }
         },
         "endpoints": {
-          "list": "/current_warehouse_stock"
+          "list": "/current-warehouse-stock"
         }
       },
       "logistics_performance": {
@@ -2617,7 +2617,7 @@
           }
         },
         "endpoints": {
-          "list": "/logistics_performance"
+          "list": "/logistics-performance"
         }
       },
       "v_sales_monthly": {
@@ -2654,7 +2654,7 @@
           }
         },
         "endpoints": {
-          "list": "/v_sales_monthly"
+          "list": "/v-sales-monthly"
         }
       },
       "v_warehouse_stock": {
@@ -2683,7 +2683,7 @@
           }
         },
         "endpoints": {
-          "list": "/v_warehouse_stock"
+          "list": "/v-warehouse-stock"
         }
       },
       "v_logistics_performance": {
@@ -2720,7 +2720,7 @@
           }
         },
         "endpoints": {
-          "list": "/v_logistics_performance"
+          "list": "/v-logistics-performance"
         }
       }
     }
@@ -2854,7 +2854,7 @@
           }
         },
         "endpoints": {
-          "list": "/role_feature"
+          "list": "/role-feature"
         }
       },
       "user_role": {
@@ -2899,7 +2899,7 @@
           }
         },
         "endpoints": {
-          "list": "/user_role"
+          "list": "/user-role"
         }
       }
     }
@@ -3102,7 +3102,7 @@
           }
         },
         "endpoints": {
-          "list": "/recurrence_rule"
+          "list": "/recurrence-rule"
         }
       },
       "booking_participant": {
@@ -3143,7 +3143,7 @@
           }
         },
         "endpoints": {
-          "list": "/booking_participant"
+          "list": "/booking-participant"
         }
       },
       "booking_history": {
@@ -3192,7 +3192,7 @@
           }
         },
         "endpoints": {
-          "list": "/booking_history"
+          "list": "/booking-history"
         }
       }
     }
@@ -3321,7 +3321,7 @@
           }
         },
         "endpoints": {
-          "list": "/order_line"
+          "list": "/order-line"
         }
       }
     }
@@ -3498,7 +3498,7 @@
           }
         },
         "endpoints": {
-          "list": "/simple_item"
+          "list": "/simple-item"
         }
       },
       "simple_item_tag": {
@@ -3535,7 +3535,7 @@
           }
         },
         "endpoints": {
-          "list": "/simple_item_tag"
+          "list": "/simple-item-tag"
         }
       },
       "tag": {
@@ -3704,7 +3704,7 @@
           }
         },
         "endpoints": {
-          "list": "/app_user"
+          "list": "/app-user"
         }
       }
     }
@@ -3760,7 +3760,7 @@
           }
         },
         "endpoints": {
-          "list": "/warehouse_stock"
+          "list": "/warehouse-stock"
         }
       }
     }

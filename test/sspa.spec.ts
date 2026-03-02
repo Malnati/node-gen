@@ -4,6 +4,7 @@ import fs from 'node:fs/promises';
 import { expect, test } from '@playwright/test';
 
 type SspaEntity = {
+  columns?: Record<string, unknown>;
   endpoints?: {
     list?: string;
   };
@@ -28,17 +29,17 @@ type CardValidationRow = {
   card_visible: boolean;
   orchestrator_route_status: number;
   api_health_status: number;
-  sample_entity: string;
-  sample_entity_status: number;
+  entity: string;
+  entity_status: number;
 };
 
 const ORCHESTRATOR_BASE = 'http://localhost:9000';
 
-const ACCEPTED_READ_CODES = new Set([200, 204, 400, 401, 403, 404, 405]);
-const ACCEPTED_WRITE_CODES = new Set([200, 201, 202, 204, 400, 401, 403, 404, 405, 409, 415, 422, 429]);
+const ACCEPTED_LIST_CODES = new Set([200, 204, 400, 401, 403, 405]);
+const ACCEPTED_CREATE_CODES = new Set([200, 201, 202, 204, 400, 401, 403, 405, 409, 415, 422, 429]);
+const ACCEPTED_MUTATION_BY_ID_CODES = new Set([200, 201, 202, 204, 400, 401, 403, 404, 405, 409, 415, 422, 429]);
 const ACCEPTED_SECURITY_CODES = new Set([400, 401, 403, 404]);
-const ACCEPTED_CARD_ENTITY_CODES = new Set([200, 204, 400, 401, 403, 404, 405]);
-const ENTITY_SAMPLE_SIZE = 3;
+const ACCEPTED_CARD_ENTITY_CODES = new Set([200, 204, 400, 401, 403, 405]);
 
 async function withRetry<T>(operation: () => Promise<T>, retries = 5, delayMs = 300): Promise<T> {
   let lastError: unknown;
@@ -83,7 +84,7 @@ function selectLikelyEntities(entities: Record<string, SspaEntity>): Array<[stri
   const entries = Object.entries(entities);
   const prioritized = entries.filter(([entityKey]) => !/^(event|event_body)$/i.test(entityKey));
   const source = prioritized.length > 0 ? prioritized : entries;
-  return source.slice(0, ENTITY_SAMPLE_SIZE);
+  return source;
 }
 
 test.describe('SSPA Dashboard - Cobertura Abrangente', () => {
@@ -128,30 +129,33 @@ test.describe('SSPA Dashboard - Cobertura Abrangente', () => {
     try {
       for (const [projectKey, project] of Object.entries(projects)) {
         const entities = project.entities ?? {};
-        const firstEntity = Object.entries(entities)[0];
+        const entityEntries = Object.entries(entities);
         const apiPort = project.apiPort ?? 3001;
         const orchestratorRouteStatus = await tryStatusNoRetry(() => request.get(`${ORCHESTRATOR_BASE}/${projectKey}/`));
         const apiHealthStatus = await tryStatusNoRetry(() => request.get(`http://localhost:${apiPort}/health`));
         const cardVisible = (await page.locator(`.project-card[data-project="${projectKey}"]`).count()) > 0;
-        let sampleEntity = '-';
-        let sampleEntityStatus = 0;
+        const safeEntityEntries: Array<[string, SspaEntity]> = entityEntries.length > 0 ? entityEntries : [['-', {} as SspaEntity]];
 
-        if (firstEntity) {
-          const [entityKey, entity] = firstEntity;
+        for (const [entityKey, entity] of safeEntityEntries) {
           const endpoint = entity.endpoints?.list ?? `/${entityKey}`;
-          sampleEntity = entityKey;
-          sampleEntityStatus = await tryStatusNoRetry(() => request.get(`http://localhost:${apiPort}${endpoint}`));
-        }
+          const entityStatus = entityKey === '-'
+            ? 0
+            : await tryStatusNoRetry(() => request.get(`http://localhost:${apiPort}${endpoint}`));
 
-        rows.push({
-          project: projectKey,
-          api_port: apiPort,
-          card_visible: cardVisible,
-          orchestrator_route_status: orchestratorRouteStatus,
-          api_health_status: apiHealthStatus,
-          sample_entity: sampleEntity,
-          sample_entity_status: sampleEntityStatus
-        });
+          rows.push({
+            project: projectKey,
+            api_port: apiPort,
+            card_visible: cardVisible,
+            orchestrator_route_status: orchestratorRouteStatus,
+            api_health_status: apiHealthStatus,
+            entity: entityKey,
+            entity_status: entityStatus
+          });
+
+          if (entityKey !== '-' && !ACCEPTED_CARD_ENTITY_CODES.has(entityStatus)) {
+            failures.push(`${projectKey}/${entityKey}: status inesperado ${entityStatus} no endpoint principal`);
+          }
+        }
 
         if (!cardVisible) {
           failures.push(`${projectKey}: card não visível na UI`);
@@ -161,9 +165,6 @@ test.describe('SSPA Dashboard - Cobertura Abrangente', () => {
         }
         if (apiHealthStatus !== 200) {
           failures.push(`${projectKey}: /health retornou ${apiHealthStatus} na porta ${apiPort}`);
-        }
-        if (sampleEntity !== '-' && !ACCEPTED_CARD_ENTITY_CODES.has(sampleEntityStatus)) {
-          failures.push(`${projectKey}/${sampleEntity}: status inesperado ${sampleEntityStatus} no endpoint principal`);
         }
       }
     } finally {
@@ -197,6 +198,7 @@ test.describe('SSPA Dashboard - Cobertura Abrangente', () => {
           const apiPort = project.apiPort ?? 3001;
           const baseUrl = `http://localhost:${apiPort}${endpoint}`;
           const resourceUrl = `${baseUrl}/1`;
+          const hasExternalId = Object.prototype.hasOwnProperty.call(entity.columns ?? {}, 'external_id');
           const healthStatus = portHealth.has(apiPort)
             ? (portHealth.get(apiPort) ?? 0)
             : await tryStatusNoRetry(() => request.get(`http://localhost:${apiPort}/health`));
@@ -211,8 +213,9 @@ test.describe('SSPA Dashboard - Cobertura Abrangente', () => {
               get_malformed_token: 0,
               post_unauth: 0,
               post_invalid_token: 0,
-              patch_unauth: 0,
-              delete_unauth: 0
+              patch_unauth: hasExternalId ? 0 : -1,
+              delete_unauth: hasExternalId ? 0 : -1,
+              has_external_id: hasExternalId ? 1 : 0
             });
             continue;
           }
@@ -243,13 +246,17 @@ test.describe('SSPA Dashboard - Cobertura Abrangente', () => {
               data: { name: 'playwright-probe-invalid-token' }
             })
           );
-          const unauthPatch = await tryStatus(() =>
-            request.patch(resourceUrl, {
-              headers: { 'Content-Type': 'application/json' },
-              data: { name: 'playwright-probe-edit' }
-            })
-          );
-          const unauthDelete = await tryStatus(() => request.delete(resourceUrl));
+          const unauthPatch = hasExternalId
+            ? await tryStatus(() =>
+              request.patch(resourceUrl, {
+                headers: { 'Content-Type': 'application/json' },
+                data: { name: 'playwright-probe-edit' }
+              })
+            )
+            : -1;
+          const unauthDelete = hasExternalId
+            ? await tryStatus(() => request.delete(resourceUrl))
+            : -1;
 
           const row = {
             project: projectKey,
@@ -260,7 +267,8 @@ test.describe('SSPA Dashboard - Cobertura Abrangente', () => {
             post_unauth: unauthPost,
             post_invalid_token: invalidTokenPost,
             patch_unauth: unauthPatch,
-            delete_unauth: unauthDelete
+            delete_unauth: unauthDelete,
+            has_external_id: hasExternalId ? 1 : 0
           };
           matrix.push(row);
 
@@ -269,6 +277,9 @@ test.describe('SSPA Dashboard - Cobertura Abrangente', () => {
               continue;
             }
             const statusCode = Number(status);
+            if (statusCode < 0) {
+              continue;
+            }
             if (statusCode >= 500) {
               anomalies.push({
                 project: projectKey,
@@ -281,13 +292,15 @@ test.describe('SSPA Dashboard - Cobertura Abrangente', () => {
 
           if (row.get_unauth !== 0) {
             validatedRows += 1;
-            expect.soft(ACCEPTED_READ_CODES.has(row.get_unauth), `GET sem auth inesperado em ${projectKey}/${entityKey}: ${row.get_unauth}`).toBeTruthy();
-            expect.soft(ACCEPTED_READ_CODES.has(row.get_invalid_token), `GET com token inválido inesperado em ${projectKey}/${entityKey}: ${row.get_invalid_token}`).toBeTruthy();
-            expect.soft(ACCEPTED_READ_CODES.has(row.get_malformed_token), `GET com header malformado inesperado em ${projectKey}/${entityKey}: ${row.get_malformed_token}`).toBeTruthy();
-            expect.soft(ACCEPTED_WRITE_CODES.has(row.post_unauth), `POST sem auth inesperado em ${projectKey}/${entityKey}: ${row.post_unauth}`).toBeTruthy();
-            expect.soft(ACCEPTED_WRITE_CODES.has(row.post_invalid_token), `POST com token inválido inesperado em ${projectKey}/${entityKey}: ${row.post_invalid_token}`).toBeTruthy();
-            expect.soft(ACCEPTED_WRITE_CODES.has(row.patch_unauth), `PATCH sem auth inesperado em ${projectKey}/${entityKey}: ${row.patch_unauth}`).toBeTruthy();
-            expect.soft(ACCEPTED_WRITE_CODES.has(row.delete_unauth), `DELETE sem auth inesperado em ${projectKey}/${entityKey}: ${row.delete_unauth}`).toBeTruthy();
+            expect.soft(ACCEPTED_LIST_CODES.has(row.get_unauth), `GET sem auth inesperado em ${projectKey}/${entityKey}: ${row.get_unauth}`).toBeTruthy();
+            expect.soft(ACCEPTED_LIST_CODES.has(row.get_invalid_token), `GET com token inválido inesperado em ${projectKey}/${entityKey}: ${row.get_invalid_token}`).toBeTruthy();
+            expect.soft(ACCEPTED_LIST_CODES.has(row.get_malformed_token), `GET com header malformado inesperado em ${projectKey}/${entityKey}: ${row.get_malformed_token}`).toBeTruthy();
+            expect.soft(ACCEPTED_CREATE_CODES.has(row.post_unauth), `POST sem auth inesperado em ${projectKey}/${entityKey}: ${row.post_unauth}`).toBeTruthy();
+            expect.soft(ACCEPTED_CREATE_CODES.has(row.post_invalid_token), `POST com token inválido inesperado em ${projectKey}/${entityKey}: ${row.post_invalid_token}`).toBeTruthy();
+            if (Number(row.has_external_id) === 1) {
+              expect.soft(ACCEPTED_MUTATION_BY_ID_CODES.has(row.patch_unauth), `PATCH sem auth inesperado em ${projectKey}/${entityKey}: ${row.patch_unauth}`).toBeTruthy();
+              expect.soft(ACCEPTED_MUTATION_BY_ID_CODES.has(row.delete_unauth), `DELETE sem auth inesperado em ${projectKey}/${entityKey}: ${row.delete_unauth}`).toBeTruthy();
+            }
           }
         }
       }

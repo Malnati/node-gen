@@ -8,7 +8,8 @@
     "post_unauth": 400,
     "post_invalid_token": 400,
     "patch_unauth": 404,
-    "delete_unauth": 400
+    "delete_unauth": 400,
+    "has_external_id": 1
   },
   {
     "project": "addresses",
@@ -18,8 +19,9 @@
     "get_malformed_token": 200,
     "post_unauth": 400,
     "post_invalid_token": 400,
-    "patch_unauth": 404,
-    "delete_unauth": 404
+    "patch_unauth": -1,
+    "delete_unauth": -1,
+    "has_external_id": 0
   },
   {
     "project": "addresses",
@@ -29,8 +31,9 @@
     "get_malformed_token": 200,
     "post_unauth": 400,
     "post_invalid_token": 400,
-    "patch_unauth": 404,
-    "delete_unauth": 404
+    "patch_unauth": -1,
+    "delete_unauth": -1,
+    "has_external_id": 0
   },
   {
     "project": "addresses",
@@ -40,52 +43,81 @@
     "get_malformed_token": 200,
     "post_unauth": 201,
     "post_invalid_token": 201,
+    "patch_unauth": -1,
+    "delete_unauth": -1,
+    "has_external_id": 0
+  },
+  {
+    "project": "addresses",
+    "entity": "address",
+    "get_unauth": 200,
+    "get_invalid_token": 200,
+    "get_malformed_token": 200,
+    "post_unauth": 400,
+    "post_invalid_token": 400,
     "patch_unauth": 404,
-    "delete_unauth": 404
+    "delete_unauth": 400,
+    "has_external_id": 1
   },
   {
     "project": "auth",
     "entity": "auth_session",
-    "get_unauth": 404,
-    "get_invalid_token": 404,
-    "get_malformed_token": 404,
-    "post_unauth": 404,
-    "post_invalid_token": 404,
+    "get_unauth": 200,
+    "get_invalid_token": 200,
+    "get_malformed_token": 200,
+    "post_unauth": 400,
+    "post_invalid_token": 400,
     "patch_unauth": 404,
-    "delete_unauth": 404
+    "delete_unauth": 400,
+    "has_external_id": 1
   },
   {
     "project": "communications",
     "entity": "email_template",
-    "get_unauth": 404,
-    "get_invalid_token": 404,
-    "get_malformed_token": 404,
-    "post_unauth": 404,
-    "post_invalid_token": 404,
+    "get_unauth": 200,
+    "get_invalid_token": 200,
+    "get_malformed_token": 200,
+    "post_unauth": 400,
+    "post_invalid_token": 400,
     "patch_unauth": 404,
-    "delete_unauth": 404
+    "delete_unauth": 400,
+    "has_external_id": 1
   },
   {
     "project": "communications",
     "entity": "smtp_config",
-    "get_unauth": 404,
-    "get_invalid_token": 404,
-    "get_malformed_token": 404,
-    "post_unauth": 404,
-    "post_invalid_token": 404,
+    "get_unauth": 200,
+    "get_invalid_token": 200,
+    "get_malformed_token": 200,
+    "post_unauth": 400,
+    "post_invalid_token": 400,
     "patch_unauth": 404,
-    "delete_unauth": 404
+    "delete_unauth": 400,
+    "has_external_id": 1
   },
   {
     "project": "communications",
     "entity": "send_history",
-    "get_unauth": 404,
-    "get_invalid_token": 404,
-    "get_malformed_token": 404,
-    "post_unauth": 404,
-    "post_invalid_token": 404,
+    "get_unauth": 200,
+    "get_invalid_token": 200,
+    "get_malformed_token": 200,
+    "post_unauth": 400,
+    "post_invalid_token": 400,
     "patch_unauth": 404,
-    "delete_unauth": 404
+    "delete_unauth": 400,
+    "has_external_id": 1
+  },
+  {
+    "project": "communications",
+    "entity": "delivery_tracking",
+    "get_unauth": 200,
+    "get_invalid_token": 200,
+    "get_malformed_token": 200,
+    "post_unauth": 400,
+    "post_invalid_token": 400,
+    "patch_unauth": 404,
+    "delete_unauth": 400,
+    "has_external_id": 1
   },
   {
     "project": "config",
@@ -96,18 +128,20 @@
     "post_unauth": 400,
     "post_invalid_token": 400,
     "patch_unauth": 404,
-    "delete_unauth": 400
+    "delete_unauth": 400,
+    "has_external_id": 1
   },
   {
     "project": "config",
     "entity": "integration_config",
-    "get_unauth": 404,
-    "get_invalid_token": 404,
-    "get_malformed_token": 404,
-    "post_unauth": 404,
-    "post_invalid_token": 404,
+    "get_unauth": 200,
+    "get_invalid_token": 200,
+    "get_malformed_token": 200,
+    "post_unauth": 400,
+    "post_invalid_token": 400,
     "patch_unauth": 404,
-    "delete_unauth": 404
+    "delete_unauth": 400,
+    "has_external_id": 1
   },
   {
     "project": "config",
@@ -118,29 +152,56 @@
     "post_unauth": 400,
     "post_invalid_token": 400,
     "patch_unauth": 404,
-    "delete_unauth": 400
+    "delete_unauth": 400,
+    "has_external_id": 1
+  },
+  {
+    "project": "config",
+    "entity": "branding",
+    "get_unauth": 200,
+    "get_invalid_token": 200,
+    "get_malformed_token": 200,
+    "post_unauth": 400,
+    "post_invalid_token": 400,
+    "patch_unauth": 404,
+    "delete_unauth": 400,
+    "has_external_id": 1
+  },
+  {
+    "project": "config",
+    "entity": "label",
+    "get_unauth": 200,
+    "get_invalid_token": 200,
+    "get_malformed_token": 200,
+    "post_unauth": 400,
+    "post_invalid_token": 400,
+    "patch_unauth": 404,
+    "delete_unauth": 400,
+    "has_external_id": 1
   },
   {
     "project": "consents",
     "entity": "consent_record",
-    "get_unauth": 404,
-    "get_invalid_token": 404,
-    "get_malformed_token": 404,
-    "post_unauth": 404,
-    "post_invalid_token": 404,
+    "get_unauth": 200,
+    "get_invalid_token": 200,
+    "get_malformed_token": 200,
+    "post_unauth": 400,
+    "post_invalid_token": 400,
     "patch_unauth": 404,
-    "delete_unauth": 404
+    "delete_unauth": 400,
+    "has_external_id": 1
   },
   {
     "project": "consents",
     "entity": "notification_preference",
-    "get_unauth": 404,
-    "get_invalid_token": 404,
-    "get_malformed_token": 404,
-    "post_unauth": 404,
-    "post_invalid_token": 404,
+    "get_unauth": 200,
+    "get_invalid_token": 200,
+    "get_malformed_token": 200,
+    "post_unauth": 400,
+    "post_invalid_token": 400,
     "patch_unauth": 404,
-    "delete_unauth": 404
+    "delete_unauth": 400,
+    "has_external_id": 1
   },
   {
     "project": "contacts",
@@ -151,51 +212,56 @@
     "post_unauth": 400,
     "post_invalid_token": 400,
     "patch_unauth": 404,
-    "delete_unauth": 400
+    "delete_unauth": 400,
+    "has_external_id": 1
   },
   {
     "project": "gmail",
     "entity": "gmail_integration",
-    "get_unauth": 404,
-    "get_invalid_token": 404,
-    "get_malformed_token": 404,
-    "post_unauth": 404,
-    "post_invalid_token": 404,
+    "get_unauth": 200,
+    "get_invalid_token": 200,
+    "get_malformed_token": 200,
+    "post_unauth": 400,
+    "post_invalid_token": 400,
     "patch_unauth": 404,
-    "delete_unauth": 404
+    "delete_unauth": 400,
+    "has_external_id": 1
   },
   {
     "project": "gmail",
     "entity": "gmail_message_template",
-    "get_unauth": 404,
-    "get_invalid_token": 404,
-    "get_malformed_token": 404,
-    "post_unauth": 404,
-    "post_invalid_token": 404,
+    "get_unauth": 200,
+    "get_invalid_token": 200,
+    "get_malformed_token": 200,
+    "post_unauth": 400,
+    "post_invalid_token": 400,
     "patch_unauth": 404,
-    "delete_unauth": 404
+    "delete_unauth": 400,
+    "has_external_id": 1
   },
   {
     "project": "gmail",
     "entity": "gmail_message",
-    "get_unauth": 404,
-    "get_invalid_token": 404,
-    "get_malformed_token": 404,
-    "post_unauth": 404,
-    "post_invalid_token": 404,
+    "get_unauth": 200,
+    "get_invalid_token": 200,
+    "get_malformed_token": 200,
+    "post_unauth": 400,
+    "post_invalid_token": 400,
     "patch_unauth": 404,
-    "delete_unauth": 404
+    "delete_unauth": 400,
+    "has_external_id": 1
   },
   {
     "project": "google-calendar",
     "entity": "calendar_integration",
-    "get_unauth": 404,
-    "get_invalid_token": 404,
-    "get_malformed_token": 404,
-    "post_unauth": 404,
-    "post_invalid_token": 404,
+    "get_unauth": 200,
+    "get_invalid_token": 200,
+    "get_malformed_token": 200,
+    "post_unauth": 400,
+    "post_invalid_token": 400,
     "patch_unauth": 404,
-    "delete_unauth": 404
+    "delete_unauth": 400,
+    "has_external_id": 1
   },
   {
     "project": "google-calendar",
@@ -206,84 +272,116 @@
     "post_unauth": 400,
     "post_invalid_token": 400,
     "patch_unauth": 404,
-    "delete_unauth": 400
+    "delete_unauth": 400,
+    "has_external_id": 1
   },
   {
     "project": "google-calendar",
     "entity": "calendar_event",
-    "get_unauth": 404,
-    "get_invalid_token": 404,
-    "get_malformed_token": 404,
-    "post_unauth": 404,
-    "post_invalid_token": 404,
+    "get_unauth": 200,
+    "get_invalid_token": 200,
+    "get_malformed_token": 200,
+    "post_unauth": 400,
+    "post_invalid_token": 400,
     "patch_unauth": 404,
-    "delete_unauth": 404
+    "delete_unauth": 400,
+    "has_external_id": 1
   },
   {
     "project": "google-drive",
     "entity": "drive_integration",
-    "get_unauth": 404,
-    "get_invalid_token": 404,
-    "get_malformed_token": 404,
-    "post_unauth": 404,
-    "post_invalid_token": 404,
+    "get_unauth": 200,
+    "get_invalid_token": 200,
+    "get_malformed_token": 200,
+    "post_unauth": 400,
+    "post_invalid_token": 400,
     "patch_unauth": 404,
-    "delete_unauth": 404
+    "delete_unauth": 400,
+    "has_external_id": 1
   },
   {
     "project": "google-drive",
     "entity": "drive_folder",
-    "get_unauth": 404,
-    "get_invalid_token": 404,
-    "get_malformed_token": 404,
-    "post_unauth": 404,
-    "post_invalid_token": 404,
+    "get_unauth": 200,
+    "get_invalid_token": 200,
+    "get_malformed_token": 200,
+    "post_unauth": 400,
+    "post_invalid_token": 400,
     "patch_unauth": 404,
-    "delete_unauth": 404
+    "delete_unauth": 400,
+    "has_external_id": 1
   },
   {
     "project": "google-drive",
     "entity": "drive_file",
-    "get_unauth": 404,
-    "get_invalid_token": 404,
-    "get_malformed_token": 404,
-    "post_unauth": 404,
-    "post_invalid_token": 404,
+    "get_unauth": 200,
+    "get_invalid_token": 200,
+    "get_malformed_token": 200,
+    "post_unauth": 400,
+    "post_invalid_token": 400,
     "patch_unauth": 404,
-    "delete_unauth": 404
+    "delete_unauth": 400,
+    "has_external_id": 1
   },
   {
     "project": "llm",
     "entity": "llm_log",
-    "get_unauth": 404,
-    "get_invalid_token": 404,
-    "get_malformed_token": 404,
-    "post_unauth": 404,
-    "post_invalid_token": 404,
+    "get_unauth": 200,
+    "get_invalid_token": 200,
+    "get_malformed_token": 200,
+    "post_unauth": 400,
+    "post_invalid_token": 400,
     "patch_unauth": 404,
-    "delete_unauth": 404
+    "delete_unauth": 400,
+    "has_external_id": 1
   },
   {
     "project": "llm",
     "entity": "llm_provider_config",
-    "get_unauth": 404,
-    "get_invalid_token": 404,
-    "get_malformed_token": 404,
-    "post_unauth": 404,
-    "post_invalid_token": 404,
+    "get_unauth": 200,
+    "get_invalid_token": 200,
+    "get_malformed_token": 200,
+    "post_unauth": 400,
+    "post_invalid_token": 400,
     "patch_unauth": 404,
-    "delete_unauth": 404
+    "delete_unauth": 400,
+    "has_external_id": 1
   },
   {
     "project": "llm",
     "entity": "prompt_template",
-    "get_unauth": 404,
-    "get_invalid_token": 404,
-    "get_malformed_token": 404,
-    "post_unauth": 404,
-    "post_invalid_token": 404,
+    "get_unauth": 200,
+    "get_invalid_token": 200,
+    "get_malformed_token": 200,
+    "post_unauth": 400,
+    "post_invalid_token": 400,
     "patch_unauth": 404,
-    "delete_unauth": 404
+    "delete_unauth": 400,
+    "has_external_id": 1
+  },
+  {
+    "project": "llm",
+    "entity": "llm_execution_log",
+    "get_unauth": 200,
+    "get_invalid_token": 200,
+    "get_malformed_token": 200,
+    "post_unauth": 400,
+    "post_invalid_token": 400,
+    "patch_unauth": 404,
+    "delete_unauth": 400,
+    "has_external_id": 1
+  },
+  {
+    "project": "llm",
+    "entity": "llm_usage_summary",
+    "get_unauth": 200,
+    "get_invalid_token": 200,
+    "get_malformed_token": 200,
+    "post_unauth": 400,
+    "post_invalid_token": 400,
+    "patch_unauth": 404,
+    "delete_unauth": 400,
+    "has_external_id": 1
   },
   {
     "project": "logistics",
@@ -294,62 +392,68 @@
     "post_unauth": 400,
     "post_invalid_token": 400,
     "patch_unauth": 404,
-    "delete_unauth": 400
+    "delete_unauth": 400,
+    "has_external_id": 1
   },
   {
     "project": "logistics",
     "entity": "shipment_event",
-    "get_unauth": 404,
-    "get_invalid_token": 404,
-    "get_malformed_token": 404,
-    "post_unauth": 404,
-    "post_invalid_token": 404,
+    "get_unauth": 200,
+    "get_invalid_token": 200,
+    "get_malformed_token": 200,
+    "post_unauth": 400,
+    "post_invalid_token": 400,
     "patch_unauth": 404,
-    "delete_unauth": 404
+    "delete_unauth": 400,
+    "has_external_id": 1
   },
   {
     "project": "maps",
     "entity": "map_provider_config",
-    "get_unauth": 404,
-    "get_invalid_token": 404,
-    "get_malformed_token": 404,
-    "post_unauth": 404,
-    "post_invalid_token": 404,
+    "get_unauth": 200,
+    "get_invalid_token": 200,
+    "get_malformed_token": 200,
+    "post_unauth": 400,
+    "post_invalid_token": 400,
     "patch_unauth": 404,
-    "delete_unauth": 404
+    "delete_unauth": 400,
+    "has_external_id": 1
   },
   {
     "project": "maps",
     "entity": "geocode_cache",
-    "get_unauth": 404,
-    "get_invalid_token": 404,
-    "get_malformed_token": 404,
-    "post_unauth": 404,
-    "post_invalid_token": 404,
+    "get_unauth": 200,
+    "get_invalid_token": 200,
+    "get_malformed_token": 200,
+    "post_unauth": 400,
+    "post_invalid_token": 400,
     "patch_unauth": 404,
-    "delete_unauth": 404
+    "delete_unauth": 400,
+    "has_external_id": 1
   },
   {
     "project": "maps",
     "entity": "route_cache",
-    "get_unauth": 404,
-    "get_invalid_token": 404,
-    "get_malformed_token": 404,
-    "post_unauth": 404,
-    "post_invalid_token": 404,
+    "get_unauth": 200,
+    "get_invalid_token": 200,
+    "get_malformed_token": 200,
+    "post_unauth": 400,
+    "post_invalid_token": 400,
     "patch_unauth": 404,
-    "delete_unauth": 404
+    "delete_unauth": 400,
+    "has_external_id": 1
   },
   {
     "project": "notifications",
     "entity": "notification_template",
-    "get_unauth": 404,
-    "get_invalid_token": 404,
-    "get_malformed_token": 404,
-    "post_unauth": 404,
-    "post_invalid_token": 404,
+    "get_unauth": 200,
+    "get_invalid_token": 200,
+    "get_malformed_token": 200,
+    "post_unauth": 400,
+    "post_invalid_token": 400,
     "patch_unauth": 404,
-    "delete_unauth": 404
+    "delete_unauth": 400,
+    "has_external_id": 1
   },
   {
     "project": "notifications",
@@ -360,7 +464,8 @@
     "post_unauth": 400,
     "post_invalid_token": 400,
     "patch_unauth": 404,
-    "delete_unauth": 400
+    "delete_unauth": 400,
+    "has_external_id": 1
   },
   {
     "project": "orders",
@@ -371,29 +476,32 @@
     "post_unauth": 400,
     "post_invalid_token": 400,
     "patch_unauth": 404,
-    "delete_unauth": 400
+    "delete_unauth": 400,
+    "has_external_id": 1
   },
   {
     "project": "orders",
     "entity": "order_item",
-    "get_unauth": 404,
-    "get_invalid_token": 404,
-    "get_malformed_token": 404,
-    "post_unauth": 404,
-    "post_invalid_token": 404,
+    "get_unauth": 200,
+    "get_invalid_token": 200,
+    "get_malformed_token": 200,
+    "post_unauth": 400,
+    "post_invalid_token": 400,
     "patch_unauth": 404,
-    "delete_unauth": 404
+    "delete_unauth": 400,
+    "has_external_id": 1
   },
   {
     "project": "payments",
     "entity": "payment_type",
-    "get_unauth": 404,
-    "get_invalid_token": 404,
-    "get_malformed_token": 404,
-    "post_unauth": 404,
-    "post_invalid_token": 404,
+    "get_unauth": 200,
+    "get_invalid_token": 200,
+    "get_malformed_token": 200,
+    "post_unauth": 400,
+    "post_invalid_token": 400,
     "patch_unauth": 404,
-    "delete_unauth": 404
+    "delete_unauth": 400,
+    "has_external_id": 1
   },
   {
     "project": "payments",
@@ -404,7 +512,8 @@
     "post_unauth": 400,
     "post_invalid_token": 400,
     "patch_unauth": 404,
-    "delete_unauth": 400
+    "delete_unauth": 400,
+    "has_external_id": 1
   },
   {
     "project": "products",
@@ -415,7 +524,8 @@
     "post_unauth": 400,
     "post_invalid_token": 400,
     "patch_unauth": 404,
-    "delete_unauth": 400
+    "delete_unauth": 400,
+    "has_external_id": 1
   },
   {
     "project": "products",
@@ -426,51 +536,92 @@
     "post_unauth": 400,
     "post_invalid_token": 400,
     "patch_unauth": 404,
-    "delete_unauth": 400
+    "delete_unauth": 400,
+    "has_external_id": 1
   },
   {
     "project": "products",
     "entity": "unit_of_measure",
-    "get_unauth": 404,
-    "get_invalid_token": 404,
-    "get_malformed_token": 404,
-    "post_unauth": 404,
-    "post_invalid_token": 404,
+    "get_unauth": 200,
+    "get_invalid_token": 200,
+    "get_malformed_token": 200,
+    "post_unauth": 400,
+    "post_invalid_token": 400,
     "patch_unauth": 404,
-    "delete_unauth": 404
+    "delete_unauth": 400,
+    "has_external_id": 1
   },
   {
     "project": "reports",
     "entity": "consolidated_sales_monthly",
-    "get_unauth": 404,
-    "get_invalid_token": 404,
-    "get_malformed_token": 404,
-    "post_unauth": 404,
-    "post_invalid_token": 404,
-    "patch_unauth": 404,
-    "delete_unauth": 404
+    "get_unauth": 200,
+    "get_invalid_token": 200,
+    "get_malformed_token": 200,
+    "post_unauth": 400,
+    "post_invalid_token": 400,
+    "patch_unauth": -1,
+    "delete_unauth": -1,
+    "has_external_id": 0
   },
   {
     "project": "reports",
     "entity": "current_warehouse_stock",
-    "get_unauth": 404,
-    "get_invalid_token": 404,
-    "get_malformed_token": 404,
-    "post_unauth": 404,
-    "post_invalid_token": 404,
-    "patch_unauth": 404,
-    "delete_unauth": 404
+    "get_unauth": 200,
+    "get_invalid_token": 200,
+    "get_malformed_token": 200,
+    "post_unauth": 400,
+    "post_invalid_token": 400,
+    "patch_unauth": -1,
+    "delete_unauth": -1,
+    "has_external_id": 0
   },
   {
     "project": "reports",
     "entity": "logistics_performance",
-    "get_unauth": 404,
-    "get_invalid_token": 404,
-    "get_malformed_token": 404,
-    "post_unauth": 404,
-    "post_invalid_token": 404,
-    "patch_unauth": 404,
-    "delete_unauth": 404
+    "get_unauth": 200,
+    "get_invalid_token": 200,
+    "get_malformed_token": 200,
+    "post_unauth": 400,
+    "post_invalid_token": 400,
+    "patch_unauth": -1,
+    "delete_unauth": -1,
+    "has_external_id": 0
+  },
+  {
+    "project": "reports",
+    "entity": "v_sales_monthly",
+    "get_unauth": 200,
+    "get_invalid_token": 200,
+    "get_malformed_token": 200,
+    "post_unauth": 400,
+    "post_invalid_token": 400,
+    "patch_unauth": -1,
+    "delete_unauth": -1,
+    "has_external_id": 0
+  },
+  {
+    "project": "reports",
+    "entity": "v_warehouse_stock",
+    "get_unauth": 200,
+    "get_invalid_token": 200,
+    "get_malformed_token": 200,
+    "post_unauth": 400,
+    "post_invalid_token": 400,
+    "patch_unauth": -1,
+    "delete_unauth": -1,
+    "has_external_id": 0
+  },
+  {
+    "project": "reports",
+    "entity": "v_logistics_performance",
+    "get_unauth": 200,
+    "get_invalid_token": 200,
+    "get_malformed_token": 200,
+    "post_unauth": 400,
+    "post_invalid_token": 400,
+    "patch_unauth": -1,
+    "delete_unauth": -1,
+    "has_external_id": 0
   },
   {
     "project": "roles",
@@ -481,7 +632,8 @@
     "post_unauth": 400,
     "post_invalid_token": 400,
     "patch_unauth": 404,
-    "delete_unauth": 400
+    "delete_unauth": 400,
+    "has_external_id": 1
   },
   {
     "project": "roles",
@@ -492,18 +644,32 @@
     "post_unauth": 400,
     "post_invalid_token": 400,
     "patch_unauth": 404,
-    "delete_unauth": 400
+    "delete_unauth": 400,
+    "has_external_id": 1
   },
   {
     "project": "roles",
     "entity": "role_feature",
-    "get_unauth": 404,
-    "get_invalid_token": 404,
-    "get_malformed_token": 404,
-    "post_unauth": 404,
-    "post_invalid_token": 404,
+    "get_unauth": 200,
+    "get_invalid_token": 200,
+    "get_malformed_token": 200,
+    "post_unauth": 400,
+    "post_invalid_token": 400,
     "patch_unauth": 404,
-    "delete_unauth": 404
+    "delete_unauth": 400,
+    "has_external_id": 1
+  },
+  {
+    "project": "roles",
+    "entity": "user_role",
+    "get_unauth": 200,
+    "get_invalid_token": 200,
+    "get_malformed_token": 200,
+    "post_unauth": 400,
+    "post_invalid_token": 400,
+    "patch_unauth": 404,
+    "delete_unauth": 400,
+    "has_external_id": 1
   },
   {
     "project": "schedule",
@@ -514,7 +680,8 @@
     "post_unauth": 400,
     "post_invalid_token": 400,
     "patch_unauth": 404,
-    "delete_unauth": 400
+    "delete_unauth": 400,
+    "has_external_id": 1
   },
   {
     "project": "schedule",
@@ -525,7 +692,8 @@
     "post_unauth": 400,
     "post_invalid_token": 400,
     "patch_unauth": 404,
-    "delete_unauth": 400
+    "delete_unauth": 400,
+    "has_external_id": 1
   },
   {
     "project": "schedule",
@@ -536,7 +704,44 @@
     "post_unauth": 400,
     "post_invalid_token": 400,
     "patch_unauth": 404,
-    "delete_unauth": 400
+    "delete_unauth": 400,
+    "has_external_id": 1
+  },
+  {
+    "project": "schedule",
+    "entity": "recurrence_rule",
+    "get_unauth": 200,
+    "get_invalid_token": 200,
+    "get_malformed_token": 200,
+    "post_unauth": 400,
+    "post_invalid_token": 400,
+    "patch_unauth": 404,
+    "delete_unauth": 400,
+    "has_external_id": 1
+  },
+  {
+    "project": "schedule",
+    "entity": "booking_participant",
+    "get_unauth": 200,
+    "get_invalid_token": 200,
+    "get_malformed_token": 200,
+    "post_unauth": 400,
+    "post_invalid_token": 400,
+    "patch_unauth": 404,
+    "delete_unauth": 400,
+    "has_external_id": 1
+  },
+  {
+    "project": "schedule",
+    "entity": "booking_history",
+    "get_unauth": 200,
+    "get_invalid_token": 200,
+    "get_malformed_token": 200,
+    "post_unauth": 400,
+    "post_invalid_token": 400,
+    "patch_unauth": 404,
+    "delete_unauth": 400,
+    "has_external_id": 1
   },
   {
     "project": "selling",
@@ -547,18 +752,20 @@
     "post_unauth": 400,
     "post_invalid_token": 400,
     "patch_unauth": 404,
-    "delete_unauth": 400
+    "delete_unauth": 400,
+    "has_external_id": 1
   },
   {
     "project": "selling",
     "entity": "order_line",
-    "get_unauth": 404,
-    "get_invalid_token": 404,
-    "get_malformed_token": 404,
-    "post_unauth": 404,
-    "post_invalid_token": 404,
+    "get_unauth": 200,
+    "get_invalid_token": 200,
+    "get_malformed_token": 200,
+    "post_unauth": 400,
+    "post_invalid_token": 400,
     "patch_unauth": 404,
-    "delete_unauth": 404
+    "delete_unauth": 400,
+    "has_external_id": 1
   },
   {
     "project": "tenant",
@@ -569,7 +776,8 @@
     "post_unauth": 400,
     "post_invalid_token": 400,
     "patch_unauth": 404,
-    "delete_unauth": 400
+    "delete_unauth": 400,
+    "has_external_id": 1
   },
   {
     "project": "todo",
@@ -580,29 +788,44 @@
     "post_unauth": 400,
     "post_invalid_token": 400,
     "patch_unauth": 404,
-    "delete_unauth": 400
+    "delete_unauth": 400,
+    "has_external_id": 1
   },
   {
     "project": "todo",
     "entity": "simple_item",
-    "get_unauth": 404,
-    "get_invalid_token": 404,
-    "get_malformed_token": 404,
-    "post_unauth": 404,
-    "post_invalid_token": 404,
+    "get_unauth": 200,
+    "get_invalid_token": 200,
+    "get_malformed_token": 200,
+    "post_unauth": 400,
+    "post_invalid_token": 400,
     "patch_unauth": 404,
-    "delete_unauth": 404
+    "delete_unauth": 400,
+    "has_external_id": 1
   },
   {
     "project": "todo",
     "entity": "simple_item_tag",
-    "get_unauth": 404,
-    "get_invalid_token": 404,
-    "get_malformed_token": 404,
-    "post_unauth": 404,
-    "post_invalid_token": 404,
+    "get_unauth": 200,
+    "get_invalid_token": 200,
+    "get_malformed_token": 200,
+    "post_unauth": 400,
+    "post_invalid_token": 400,
     "patch_unauth": 404,
-    "delete_unauth": 404
+    "delete_unauth": 400,
+    "has_external_id": 1
+  },
+  {
+    "project": "todo",
+    "entity": "tag",
+    "get_unauth": 200,
+    "get_invalid_token": 200,
+    "get_malformed_token": 200,
+    "post_unauth": 400,
+    "post_invalid_token": 400,
+    "patch_unauth": 404,
+    "delete_unauth": 400,
+    "has_external_id": 1
   },
   {
     "project": "transactions",
@@ -613,28 +836,31 @@
     "post_unauth": 400,
     "post_invalid_token": 400,
     "patch_unauth": 404,
-    "delete_unauth": 400
+    "delete_unauth": 400,
+    "has_external_id": 1
   },
   {
     "project": "users",
     "entity": "app_user",
-    "get_unauth": 404,
-    "get_invalid_token": 404,
-    "get_malformed_token": 404,
-    "post_unauth": 404,
-    "post_invalid_token": 404,
+    "get_unauth": 200,
+    "get_invalid_token": 200,
+    "get_malformed_token": 200,
+    "post_unauth": 400,
+    "post_invalid_token": 400,
     "patch_unauth": 404,
-    "delete_unauth": 404
+    "delete_unauth": 400,
+    "has_external_id": 1
   },
   {
     "project": "warehouse",
     "entity": "warehouse_stock",
-    "get_unauth": 404,
-    "get_invalid_token": 404,
-    "get_malformed_token": 404,
-    "post_unauth": 404,
-    "post_invalid_token": 404,
+    "get_unauth": 200,
+    "get_invalid_token": 200,
+    "get_malformed_token": 200,
+    "post_unauth": 400,
+    "post_invalid_token": 400,
     "patch_unauth": 404,
-    "delete_unauth": 404
+    "delete_unauth": 400,
+    "has_external_id": 1
   }
 ]

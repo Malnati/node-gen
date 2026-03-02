@@ -5,8 +5,8 @@
     "card_visible": true,
     "orchestrator_route_status": 200,
     "api_health_status": 200,
-    "sample_entity": "account",
-    "sample_entity_status": 200
+    "entity": "account",
+    "entity_status": 200
   },
   {
     "project": "addresses",
@@ -14,8 +14,35 @@
     "card_visible": true,
     "orchestrator_route_status": 200,
     "api_health_status": 200,
-    "sample_entity": "country",
-    "sample_entity_status": 200
+    "entity": "country",
+    "entity_status": 200
+  },
+  {
+    "project": "addresses",
+    "api_port": 3002,
+    "card_visible": true,
+    "orchestrator_route_status": 200,
+    "api_health_status": 200,
+    "entity": "state",
+    "entity_status": 200
+  },
+  {
+    "project": "addresses",
+    "api_port": 3002,
+    "card_visible": true,
+    "orchestrator_route_status": 200,
+    "api_health_status": 200,
+    "entity": "city",
+    "entity_status": 200
+  },
+  {
+    "project": "addresses",
+    "api_port": 3002,
+    "card_visible": true,
+    "orchestrator_route_status": 200,
+    "api_health_status": 200,
+    "entity": "address",
+    "entity_status": 200
   },
   {
     "project": "auth",
@@ -23,8 +50,8 @@
     "card_visible": true,
     "orchestrator_route_status": 200,
     "api_health_status": 200,
-    "sample_entity": "auth_session",
-    "sample_entity_status": 404
+    "entity": "auth_session",
+    "entity_status": 200
   },
   {
     "project": "communications",
@@ -32,8 +59,35 @@
     "card_visible": true,
     "orchestrator_route_status": 200,
     "api_health_status": 200,
-    "sample_entity": "email_template",
-    "sample_entity_status": 404
+    "entity": "email_template",
+    "entity_status": 200
+  },
+  {
+    "project": "communications",
+    "api_port": 3004,
+    "card_visible": true,
+    "orchestrator_route_status": 200,
+    "api_health_status": 200,
+    "entity": "smtp_config",
+    "entity_status": 200
+  },
+  {
+    "project": "communications",
+    "api_port": 3004,
+    "card_visible": true,
+    "orchestrator_route_status": 200,
+    "api_health_status": 200,
+    "entity": "send_history",
+    "entity_status": 200
+  },
+  {
+    "project": "communications",
+    "api_port": 3004,
+    "card_visible": true,
+    "orchestrator_route_status": 200,
+    "api_health_status": 200,
+    "entity": "delivery_tracking",
+    "entity_status": 200
   },
   {
     "project": "config",
@@ -41,8 +95,44 @@
     "card_visible": true,
     "orchestrator_route_status": 200,
     "api_health_status": 200,
-    "sample_entity": "config",
-    "sample_entity_status": 200
+    "entity": "config",
+    "entity_status": 200
+  },
+  {
+    "project": "config",
+    "api_port": 3005,
+    "card_visible": true,
+    "orchestrator_route_status": 200,
+    "api_health_status": 200,
+    "entity": "integration_config",
+    "entity_status": 200
+  },
+  {
+    "project": "config",
+    "api_port": 3005,
+    "card_visible": true,
+    "orchestrator_route_status": 200,
+    "api_health_status": 200,
+    "entity": "webhook",
+    "entity_status": 200
+  },
+  {
+    "project": "config",
+    "api_port": 3005,
+    "card_visible": true,
+    "orchestrator_route_status": 200,
+    "api_health_status": 200,
+    "entity": "branding",
+    "entity_status": 200
+  },
+  {
+    "project": "config",
+    "api_port": 3005,
+    "card_visible": true,
+    "orchestrator_route_status": 200,
+    "api_health_status": 200,
+    "entity": "label",
+    "entity_status": 200
   },
   {
     "project": "consents",
@@ -50,8 +140,17 @@
     "card_visible": true,
     "orchestrator_route_status": 200,
     "api_health_status": 200,
-    "sample_entity": "consent_record",
-    "sample_entity_status": 404
+    "entity": "consent_record",
+    "entity_status": 200
+  },
+  {
+    "project": "consents",
+    "api_port": 3006,
+    "card_visible": true,
+    "orchestrator_route_status": 200,
+    "api_health_status": 200,
+    "entity": "notification_preference",
+    "entity_status": 200
   },
   {
     "project": "contacts",
@@ -59,8 +158,8 @@
     "card_visible": true,
     "orchestrator_route_status": 200,
     "api_health_status": 200,
-    "sample_entity": "contact",
-    "sample_entity_status": 200
+    "entity": "contact",
+    "entity_status": 200
   },
   {
     "project": "gmail",
@@ -68,8 +167,26 @@
     "card_visible": true,
     "orchestrator_route_status": 200,
     "api_health_status": 200,
-    "sample_entity": "gmail_integration",
-    "sample_entity_status": 404
+    "entity": "gmail_integration",
+    "entity_status": 200
+  },
+  {
+    "project": "gmail",
+    "api_port": 3008,
+    "card_visible": true,
+    "orchestrator_route_status": 200,
+    "api_health_status": 200,
+    "entity": "gmail_message_template",
+    "entity_status": 200
+  },
+  {
+    "project": "gmail",
+    "api_port": 3008,
+    "card_visible": true,
+    "orchestrator_route_status": 200,
+    "api_health_status": 200,
+    "entity": "gmail_message",
+    "entity_status": 200
   },
   {
     "project": "google-calendar",
@@ -77,8 +194,26 @@
     "card_visible": true,
     "orchestrator_route_status": 200,
     "api_health_status": 200,
-    "sample_entity": "calendar_integration",
-    "sample_entity_status": 404
+    "entity": "calendar_integration",
+    "entity_status": 200
+  },
+  {
+    "project": "google-calendar",
+    "api_port": 3009,
+    "card_visible": true,
+    "orchestrator_route_status": 200,
+    "api_health_status": 200,
+    "entity": "calendar",
+    "entity_status": 200
+  },
+  {
+    "project": "google-calendar",
+    "api_port": 3009,
+    "card_visible": true,
+    "orchestrator_route_status": 200,
+    "api_health_status": 200,
+    "entity": "calendar_event",
+    "entity_status": 200
   },
   {
     "project": "google-drive",
@@ -86,8 +221,26 @@
     "card_visible": true,
     "orchestrator_route_status": 200,
     "api_health_status": 200,
-    "sample_entity": "drive_integration",
-    "sample_entity_status": 404
+    "entity": "drive_integration",
+    "entity_status": 200
+  },
+  {
+    "project": "google-drive",
+    "api_port": 3010,
+    "card_visible": true,
+    "orchestrator_route_status": 200,
+    "api_health_status": 200,
+    "entity": "drive_folder",
+    "entity_status": 200
+  },
+  {
+    "project": "google-drive",
+    "api_port": 3010,
+    "card_visible": true,
+    "orchestrator_route_status": 200,
+    "api_health_status": 200,
+    "entity": "drive_file",
+    "entity_status": 200
   },
   {
     "project": "llm",
@@ -95,8 +248,44 @@
     "card_visible": true,
     "orchestrator_route_status": 200,
     "api_health_status": 200,
-    "sample_entity": "llm_log",
-    "sample_entity_status": 404
+    "entity": "llm_log",
+    "entity_status": 200
+  },
+  {
+    "project": "llm",
+    "api_port": 3011,
+    "card_visible": true,
+    "orchestrator_route_status": 200,
+    "api_health_status": 200,
+    "entity": "llm_provider_config",
+    "entity_status": 200
+  },
+  {
+    "project": "llm",
+    "api_port": 3011,
+    "card_visible": true,
+    "orchestrator_route_status": 200,
+    "api_health_status": 200,
+    "entity": "prompt_template",
+    "entity_status": 200
+  },
+  {
+    "project": "llm",
+    "api_port": 3011,
+    "card_visible": true,
+    "orchestrator_route_status": 200,
+    "api_health_status": 200,
+    "entity": "llm_execution_log",
+    "entity_status": 200
+  },
+  {
+    "project": "llm",
+    "api_port": 3011,
+    "card_visible": true,
+    "orchestrator_route_status": 200,
+    "api_health_status": 200,
+    "entity": "llm_usage_summary",
+    "entity_status": 200
   },
   {
     "project": "logistics",
@@ -104,8 +293,17 @@
     "card_visible": true,
     "orchestrator_route_status": 200,
     "api_health_status": 200,
-    "sample_entity": "shipment",
-    "sample_entity_status": 200
+    "entity": "shipment",
+    "entity_status": 200
+  },
+  {
+    "project": "logistics",
+    "api_port": 3012,
+    "card_visible": true,
+    "orchestrator_route_status": 200,
+    "api_health_status": 200,
+    "entity": "shipment_event",
+    "entity_status": 200
   },
   {
     "project": "maps",
@@ -113,8 +311,26 @@
     "card_visible": true,
     "orchestrator_route_status": 200,
     "api_health_status": 200,
-    "sample_entity": "map_provider_config",
-    "sample_entity_status": 404
+    "entity": "map_provider_config",
+    "entity_status": 200
+  },
+  {
+    "project": "maps",
+    "api_port": 3013,
+    "card_visible": true,
+    "orchestrator_route_status": 200,
+    "api_health_status": 200,
+    "entity": "geocode_cache",
+    "entity_status": 200
+  },
+  {
+    "project": "maps",
+    "api_port": 3013,
+    "card_visible": true,
+    "orchestrator_route_status": 200,
+    "api_health_status": 200,
+    "entity": "route_cache",
+    "entity_status": 200
   },
   {
     "project": "notifications",
@@ -122,8 +338,17 @@
     "card_visible": true,
     "orchestrator_route_status": 200,
     "api_health_status": 200,
-    "sample_entity": "notification_template",
-    "sample_entity_status": 404
+    "entity": "notification_template",
+    "entity_status": 200
+  },
+  {
+    "project": "notifications",
+    "api_port": 3014,
+    "card_visible": true,
+    "orchestrator_route_status": 200,
+    "api_health_status": 200,
+    "entity": "notification",
+    "entity_status": 200
   },
   {
     "project": "orders",
@@ -131,8 +356,17 @@
     "card_visible": true,
     "orchestrator_route_status": 200,
     "api_health_status": 200,
-    "sample_entity": "order",
-    "sample_entity_status": 200
+    "entity": "order",
+    "entity_status": 200
+  },
+  {
+    "project": "orders",
+    "api_port": 3015,
+    "card_visible": true,
+    "orchestrator_route_status": 200,
+    "api_health_status": 200,
+    "entity": "order_item",
+    "entity_status": 200
   },
   {
     "project": "payments",
@@ -140,8 +374,17 @@
     "card_visible": true,
     "orchestrator_route_status": 200,
     "api_health_status": 200,
-    "sample_entity": "payment_type",
-    "sample_entity_status": 404
+    "entity": "payment_type",
+    "entity_status": 200
+  },
+  {
+    "project": "payments",
+    "api_port": 3016,
+    "card_visible": true,
+    "orchestrator_route_status": 200,
+    "api_health_status": 200,
+    "entity": "payment",
+    "entity_status": 200
   },
   {
     "project": "products",
@@ -149,8 +392,26 @@
     "card_visible": true,
     "orchestrator_route_status": 200,
     "api_health_status": 200,
-    "sample_entity": "currency",
-    "sample_entity_status": 200
+    "entity": "currency",
+    "entity_status": 200
+  },
+  {
+    "project": "products",
+    "api_port": 3017,
+    "card_visible": true,
+    "orchestrator_route_status": 200,
+    "api_health_status": 200,
+    "entity": "product",
+    "entity_status": 200
+  },
+  {
+    "project": "products",
+    "api_port": 3017,
+    "card_visible": true,
+    "orchestrator_route_status": 200,
+    "api_health_status": 200,
+    "entity": "unit_of_measure",
+    "entity_status": 200
   },
   {
     "project": "reports",
@@ -158,8 +419,53 @@
     "card_visible": true,
     "orchestrator_route_status": 200,
     "api_health_status": 200,
-    "sample_entity": "consolidated_sales_monthly",
-    "sample_entity_status": 404
+    "entity": "consolidated_sales_monthly",
+    "entity_status": 200
+  },
+  {
+    "project": "reports",
+    "api_port": 3018,
+    "card_visible": true,
+    "orchestrator_route_status": 200,
+    "api_health_status": 200,
+    "entity": "current_warehouse_stock",
+    "entity_status": 200
+  },
+  {
+    "project": "reports",
+    "api_port": 3018,
+    "card_visible": true,
+    "orchestrator_route_status": 200,
+    "api_health_status": 200,
+    "entity": "logistics_performance",
+    "entity_status": 200
+  },
+  {
+    "project": "reports",
+    "api_port": 3018,
+    "card_visible": true,
+    "orchestrator_route_status": 200,
+    "api_health_status": 200,
+    "entity": "v_sales_monthly",
+    "entity_status": 200
+  },
+  {
+    "project": "reports",
+    "api_port": 3018,
+    "card_visible": true,
+    "orchestrator_route_status": 200,
+    "api_health_status": 200,
+    "entity": "v_warehouse_stock",
+    "entity_status": 200
+  },
+  {
+    "project": "reports",
+    "api_port": 3018,
+    "card_visible": true,
+    "orchestrator_route_status": 200,
+    "api_health_status": 200,
+    "entity": "v_logistics_performance",
+    "entity_status": 200
   },
   {
     "project": "roles",
@@ -167,8 +473,35 @@
     "card_visible": true,
     "orchestrator_route_status": 200,
     "api_health_status": 200,
-    "sample_entity": "role",
-    "sample_entity_status": 200
+    "entity": "role",
+    "entity_status": 200
+  },
+  {
+    "project": "roles",
+    "api_port": 3019,
+    "card_visible": true,
+    "orchestrator_route_status": 200,
+    "api_health_status": 200,
+    "entity": "feature",
+    "entity_status": 200
+  },
+  {
+    "project": "roles",
+    "api_port": 3019,
+    "card_visible": true,
+    "orchestrator_route_status": 200,
+    "api_health_status": 200,
+    "entity": "role_feature",
+    "entity_status": 200
+  },
+  {
+    "project": "roles",
+    "api_port": 3019,
+    "card_visible": true,
+    "orchestrator_route_status": 200,
+    "api_health_status": 200,
+    "entity": "user_role",
+    "entity_status": 200
   },
   {
     "project": "schedule",
@@ -176,8 +509,53 @@
     "card_visible": true,
     "orchestrator_route_status": 200,
     "api_health_status": 200,
-    "sample_entity": "resource",
-    "sample_entity_status": 200
+    "entity": "resource",
+    "entity_status": 200
+  },
+  {
+    "project": "schedule",
+    "api_port": 3020,
+    "card_visible": true,
+    "orchestrator_route_status": 200,
+    "api_health_status": 200,
+    "entity": "slot",
+    "entity_status": 200
+  },
+  {
+    "project": "schedule",
+    "api_port": 3020,
+    "card_visible": true,
+    "orchestrator_route_status": 200,
+    "api_health_status": 200,
+    "entity": "booking",
+    "entity_status": 200
+  },
+  {
+    "project": "schedule",
+    "api_port": 3020,
+    "card_visible": true,
+    "orchestrator_route_status": 200,
+    "api_health_status": 200,
+    "entity": "recurrence_rule",
+    "entity_status": 200
+  },
+  {
+    "project": "schedule",
+    "api_port": 3020,
+    "card_visible": true,
+    "orchestrator_route_status": 200,
+    "api_health_status": 200,
+    "entity": "booking_participant",
+    "entity_status": 200
+  },
+  {
+    "project": "schedule",
+    "api_port": 3020,
+    "card_visible": true,
+    "orchestrator_route_status": 200,
+    "api_health_status": 200,
+    "entity": "booking_history",
+    "entity_status": 200
   },
   {
     "project": "selling",
@@ -185,8 +563,17 @@
     "card_visible": true,
     "orchestrator_route_status": 200,
     "api_health_status": 200,
-    "sample_entity": "order",
-    "sample_entity_status": 200
+    "entity": "order",
+    "entity_status": 200
+  },
+  {
+    "project": "selling",
+    "api_port": 3021,
+    "card_visible": true,
+    "orchestrator_route_status": 200,
+    "api_health_status": 200,
+    "entity": "order_line",
+    "entity_status": 200
   },
   {
     "project": "tenant",
@@ -194,8 +581,8 @@
     "card_visible": true,
     "orchestrator_route_status": 200,
     "api_health_status": 200,
-    "sample_entity": "tenant",
-    "sample_entity_status": 200
+    "entity": "tenant",
+    "entity_status": 200
   },
   {
     "project": "todo",
@@ -203,8 +590,35 @@
     "card_visible": true,
     "orchestrator_route_status": 200,
     "api_health_status": 200,
-    "sample_entity": "category",
-    "sample_entity_status": 200
+    "entity": "category",
+    "entity_status": 200
+  },
+  {
+    "project": "todo",
+    "api_port": 3023,
+    "card_visible": true,
+    "orchestrator_route_status": 200,
+    "api_health_status": 200,
+    "entity": "simple_item",
+    "entity_status": 200
+  },
+  {
+    "project": "todo",
+    "api_port": 3023,
+    "card_visible": true,
+    "orchestrator_route_status": 200,
+    "api_health_status": 200,
+    "entity": "simple_item_tag",
+    "entity_status": 200
+  },
+  {
+    "project": "todo",
+    "api_port": 3023,
+    "card_visible": true,
+    "orchestrator_route_status": 200,
+    "api_health_status": 200,
+    "entity": "tag",
+    "entity_status": 200
   },
   {
     "project": "transactions",
@@ -212,8 +626,8 @@
     "card_visible": true,
     "orchestrator_route_status": 200,
     "api_health_status": 200,
-    "sample_entity": "transaction",
-    "sample_entity_status": 200
+    "entity": "transaction",
+    "entity_status": 200
   },
   {
     "project": "users",
@@ -221,8 +635,8 @@
     "card_visible": true,
     "orchestrator_route_status": 200,
     "api_health_status": 200,
-    "sample_entity": "app_user",
-    "sample_entity_status": 404
+    "entity": "app_user",
+    "entity_status": 200
   },
   {
     "project": "warehouse",
@@ -230,7 +644,7 @@
     "card_visible": true,
     "orchestrator_route_status": 200,
     "api_health_status": 200,
-    "sample_entity": "warehouse_stock",
-    "sample_entity_status": 404
+    "entity": "warehouse_stock",
+    "entity_status": 200
   }
 ]
