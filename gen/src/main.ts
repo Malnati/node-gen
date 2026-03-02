@@ -4,18 +4,6 @@ import { execSync } from "child_process";
 import * as readline from "readline";
 import { DbReader } from "./db.reader.postgres";
 import { ConfigUtil } from "./utils/ConfigUtil";
-import { TypeORMEntityGenerator } from "./typeorm-entity-generator";
-import { ServiceGenerator } from "./service-generator";
-import { InterfaceGenerator } from "./interface-generator";
-import { ControllerGenerator } from "./controller-generator";
-import { DTOGenerator } from "./dto-generator";
-import { ModuleGenerator } from "./module-generator";
-import { AppModuleGenerator } from "./app-module-generator";
-import { MainFileGenerator } from "./main-generator";
-import { EnvGenerator } from "./env-generator";
-import { PackageJsonGenerator } from "./package-json-generator";
-import { ReadmeGenerator } from "./readme-generator";
-import { DataSourceGenerator } from "./datasource-generator";
 import { MicrofrontendGenerator } from "./microfrontend-generator";
 import { AppShellGenerator } from "./appshell-generator";
 // API Generators
@@ -63,18 +51,6 @@ function askQuestion(query: string): Promise<string> {
     );
 }
 
-async function copyStaticFiles(destDir: string, templateDir?: string) {
-    try {
-        const staticPath = templateDir ? path.resolve(templateDir) : path.resolve(__dirname, '../static');
-        await fs.copy(staticPath, destDir, {
-            overwrite: true,
-        });
-        console.log('Arquivos estáticos copiados com sucesso.');
-    } catch (err) {
-        console.error('Erro ao copiar arquivos estáticos:', err);
-    }
-}
-
 async function copyStaticApiFiles(destDir: string, templateDir?: string) {
     try {
         const staticApiPath = templateDir ? path.resolve(templateDir, '../static-api') : path.resolve(__dirname, '../static-api');
@@ -106,7 +82,8 @@ function ensureGitRepo(outputDir: string): void {
 }
 
 async function main() {
-    await copyStaticFiles(dbConfig.outputDir, dbConfig.templateDir);
+    // Copiar arquivos estáticos API para o diretório de saída
+    await copyStaticApiFiles(dbConfig.outputDir, dbConfig.templateDir);
     let schemaPath;
 
     let dbReader;
@@ -135,17 +112,11 @@ async function main() {
     } else {
         const response = await askQuestion(
             "Especifique quais componentes gerar \n" +
-            "(entities, services, interfaces, controllers, dtos, modules, app-module, main, env, package.json, readme, datasource, diagram, mfes, app-shell, api-entities, api-services, api-interfaces, api-controllers, api-dtos, api-modules, api-app-module, api-main, api-datasource, api-readme): "
+            "(api-entities, api-services, api-interfaces, api-controllers, api-dtos, api-modules, api-app-module, api-main, api-datasource, api-readme, mfes, app-shell): "
         );
         components = response.replace("\"", "")
         .split(",")
         .map((c) => c.trim().toLowerCase());
-    }
-
-    // Verificar se algum componente API foi solicitado
-    const hasApiComponent = components.some(c => c.startsWith('api-'));
-    if (hasApiComponent) {
-        await copyStaticApiFiles(dbConfig.outputDir, dbConfig.templateDir);
     }
 
     let mfeConfigs: import('./microfrontend-generator').MFEConfig[] = [];
@@ -154,85 +125,7 @@ async function main() {
         if (component) {
             console.log(`Executando comando para ${component}`);
             switch (component) {
-                case "entities": {
-                    const entityGenerator = new TypeORMEntityGenerator(schemaPath, dbConfig);
-                    await entityGenerator.generateEntities();
-                    break;
-                }
-
-                case "services": {
-                    const serviceGenerator = new ServiceGenerator(schemaPath, dbConfig);
-                    await serviceGenerator.generateServices();
-                    break;
-                }
-
-                case "interfaces": {
-                    const interfaceGenerator = new InterfaceGenerator(schemaPath, dbConfig);
-                    await interfaceGenerator.generateInterfaces();
-                    break;
-                }
-
-                case "controllers": {
-                    const controllersGenerator = new ControllerGenerator(schemaPath, dbConfig);
-                    await controllersGenerator.generateControllers();
-                    break;
-                }
-
-                case "dtos": {
-                    const dtosGenerator = new DTOGenerator(schemaPath, dbConfig);
-                    await dtosGenerator.generateDTOs();
-                    break;
-                }
-
-                case "modules": {
-                    const modulesGenerator = new ModuleGenerator(schemaPath, dbConfig);
-                    await modulesGenerator.generateModules();
-                    break;
-                }
-
-                case "app-module": {
-                    const appModuleGenerator = new AppModuleGenerator(schemaPath, dbConfig);
-                    await appModuleGenerator.generateAppModule();
-                    break;
-                }
-
-                case "main": {
-                    const mainGenerator = new MainFileGenerator(dbConfig);
-                    await mainGenerator.generateMainFile();
-                    break;
-                }
-
-                case "env": {
-                    const envGenerator = new EnvGenerator(dbConfig);
-                    await envGenerator.generateEnvFile();
-                    break;
-                }
-
-                case "package.json": {
-                    const packageJsonGenerator = new PackageJsonGenerator(dbConfig);
-                    await packageJsonGenerator.generatePackageJsonFile();
-                    break;
-                }
-
-                case "readme": {
-                    const readmeGenerator = new ReadmeGenerator(schemaPath, dbConfig);
-                    await readmeGenerator.generateReadme();
-                    break;
-                }
-
-                case "datasource": {
-                    const dsGenerator = new DataSourceGenerator(schemaPath, dbConfig);
-                    await dsGenerator.generateDataSourceFile();
-                    break;
-                }
-
-                case "diagram": {
-                    const { DiagramGenerator } = await import("./diagram-generator");
-                    const diagramGenerator = new DiagramGenerator(schemaPath, dbConfig);
-                    await diagramGenerator.generateDiagram();
-                    break;
-                }
-
+                // MFE Components
                 case "mfes": {
                     const mfeGenerator = new MicrofrontendGenerator(schemaPath, dbConfig);
                     mfeConfigs = await mfeGenerator.generate();
