@@ -52,6 +52,7 @@ services:
         condition: service_started
     environment:
       MFES_DIR: /mfe-output
+      SSPA_SKIP_AUTH: "${SSPA_SKIP_AUTH:-true}"
     volumes:
       - /root/w/node-gen/output:/mfe-output:ro
 

@@ -225,6 +225,11 @@ Toda governança, planos, decisões e rastreabilidade devem ser registrados excl
 - Health checks e métricas obrigatórias estão descritos em [`docs/05-entrega-e-implantacao/ambientes-e-configuracoes.md`](docs/05-entrega-e-implantacao/ambientes-e-configuracoes.md). Exponha no mínimo `/health` e `/metrics` para cada serviço containerizado.
 - Ajustes em portas, coletores ou dashboards devem ser documentados previamente nos artefatos de Entrega e Governança (`docs/05-entrega-e-implantacao/` e `docs/06-governanca-tecnica-e-controle-de-qualidade/`).
 
+## Regra obrigatória do SSPA
+- Ao expor MFEs pelo orquestrador `sspa` em `.docker/docker-compose.projects.postgres.yml`, mantenha `E2E_SKIP_JWT=true` no serviço `apis` e `SSPA_SKIP_AUTH=true` no serviço `sspa`.
+- O frontend do SSPA deve respeitar `SSPA_SKIP_AUTH` para não exigir `SSPA_AUTH_TOKEN` quando o bypass estiver ativo.
+- É proibido remover ou sobrescrever essa combinação sem atualização explícita de plano e changelog do ciclo correspondente.
+
 ## Documentação
 - Atualize os READMEs específicos dos serviços e `docs/README.md` sempre que adicionar variáveis de ambiente, endpoints ou alterações arquiteturais relevantes.
 - Mantenha as descrições alinhadas ao comportamento real do código e dos arquivos de configuração.
