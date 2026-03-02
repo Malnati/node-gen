@@ -1,0 +1,255 @@
+{
+  "config": {
+    "configFile": "/root/w/node-gen/playwright.config.ts",
+    "rootDir": "/root/w/node-gen/test",
+    "forbidOnly": false,
+    "fullyParallel": true,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/root/w/node-gen/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium",
+        "name": "chromium",
+        "testDir": "/root/w/node-gen/test",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "html",
+        {
+          "outputFolder": "playwright-report"
+        }
+      ],
+      [
+        "json",
+        {
+          "outputFile": "playwright-results/results.json"
+        }
+      ],
+      [
+        "list",
+        null
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "runAgents": "none",
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.58.2",
+    "workers": 4,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "sspa.spec.ts",
+      "file": "sspa.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "SSPA Dashboard - Cobertura Abrangente",
+          "file": "sspa.spec.ts",
+          "line": 55,
+          "column": 6,
+          "specs": [
+            {
+              "title": "dashboard carrega com menu e cards",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1176,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-03-02T11:08:45.573Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "a42535faff86ef3f1343-023b2f29609dd954070b",
+              "file": "sspa.spec.ts",
+              "line": 58,
+              "column": 7
+            },
+            {
+              "title": "rotas do orquestrador por projeto não retornam 404",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 406,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-03-02T11:08:47.262Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "a42535faff86ef3f1343-753bb3df9ef578d81a70",
+              "file": "sspa.spec.ts",
+              "line": 75,
+              "column": 7
+            },
+            {
+              "title": "matriz de autenticação, autorização e CRUD provável por projeto",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 240000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 381,
+                      "error": {
+                        "message": "Error: POST sem auth inesperado em accounts/account: 500\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeTruthy\u001b[2m()\u001b[22m\n\nReceived: \u001b[31mfalse\u001b[39m",
+                        "stack": "Error: POST sem auth inesperado em accounts/account: 500\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeTruthy\u001b[2m()\u001b[22m\n\nReceived: \u001b[31mfalse\u001b[39m\n    at /root/w/node-gen/test/sspa.spec.ts:141:137",
+                        "location": {
+                          "file": "/root/w/node-gen/test/sspa.spec.ts",
+                          "column": 137,
+                          "line": 141
+                        },
+                        "snippet": "  139 |         expect(ACCEPTED_READ_CODES.has(row.get_unauth), `GET sem auth inesperado em ${projectKey}/${entityKey}: ${row.get_unauth}`).toBeTruthy();\n  140 |         expect(ACCEPTED_READ_CODES.has(row.get_invalid_token), `GET com token inválido inesperado em ${projectKey}/${entityKey}: ${row.get_invalid_token}`).toBeTruthy();\n> 141 |         expect(ACCEPTED_WRITE_CODES.has(row.post_unauth), `POST sem auth inesperado em ${projectKey}/${entityKey}: ${row.post_unauth}`).toBeTruthy();\n      |                                                                                                                                         ^\n  142 |         expect(ACCEPTED_WRITE_CODES.has(row.patch_unauth), `PATCH sem auth inesperado em ${projectKey}/${entityKey}: ${row.patch_unauth}`).toBeTruthy();\n  143 |         expect(ACCEPTED_WRITE_CODES.has(row.delete_unauth), `DELETE sem auth inesperado em ${projectKey}/${entityKey}: ${row.delete_unauth}`).toBeTruthy();\n  144 |       }"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/root/w/node-gen/test/sspa.spec.ts",
+                            "column": 137,
+                            "line": 141
+                          },
+                          "message": "Error: POST sem auth inesperado em accounts/account: 500\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeTruthy\u001b[2m()\u001b[22m\n\nReceived: \u001b[31mfalse\u001b[39m\n\n  139 |         expect(ACCEPTED_READ_CODES.has(row.get_unauth), `GET sem auth inesperado em ${projectKey}/${entityKey}: ${row.get_unauth}`).toBeTruthy();\n  140 |         expect(ACCEPTED_READ_CODES.has(row.get_invalid_token), `GET com token inválido inesperado em ${projectKey}/${entityKey}: ${row.get_invalid_token}`).toBeTruthy();\n> 141 |         expect(ACCEPTED_WRITE_CODES.has(row.post_unauth), `POST sem auth inesperado em ${projectKey}/${entityKey}: ${row.post_unauth}`).toBeTruthy();\n      |                                                                                                                                         ^\n  142 |         expect(ACCEPTED_WRITE_CODES.has(row.patch_unauth), `PATCH sem auth inesperado em ${projectKey}/${entityKey}: ${row.patch_unauth}`).toBeTruthy();\n  143 |         expect(ACCEPTED_WRITE_CODES.has(row.delete_unauth), `DELETE sem auth inesperado em ${projectKey}/${entityKey}: ${row.delete_unauth}`).toBeTruthy();\n  144 |       }\n    at /root/w/node-gen/test/sspa.spec.ts:141:137"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-03-02T11:08:47.744Z",
+                      "annotations": [],
+                      "attachments": [],
+                      "errorLocation": {
+                        "file": "/root/w/node-gen/test/sspa.spec.ts",
+                        "column": 137,
+                        "line": 141
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "a42535faff86ef3f1343-d272942f860710b5c84e",
+              "file": "sspa.spec.ts",
+              "line": 86,
+              "column": 7
+            },
+            {
+              "title": "segurança básica: path traversal no orquestrador não retorna 200",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": -1,
+                      "parallelIndex": -1,
+                      "status": "skipped",
+                      "duration": 0,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-03-02T11:08:48.351Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "skipped"
+                }
+              ],
+              "id": "a42535faff86ef3f1343-624bddb45cd8f452a85a",
+              "file": "sspa.spec.ts",
+              "line": 153,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-03-02T11:08:41.184Z",
+    "duration": 7314.974,
+    "expected": 2,
+    "skipped": 1,
+    "unexpected": 1,
+    "flaky": 0
+  }
+}

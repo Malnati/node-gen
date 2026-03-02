@@ -128,6 +128,7 @@ for project_dir in "$OUTPUT_DIR"/*/postgres; do
     echo "DATABASE_PASSWORD=$DATABASE_PASSWORD" >> .env.local
     echo "DATABASE_TYPE=postgres" >> .env.local
     echo "DATABASE_PATH=" >> .env.local
+    echo "E2E_SKIP_JWT=true" >> .env.local
     echo "ENDPOINT_SESSION_TOKEN=https://localhost/session/verify" >> .env.local
     echo "ENDPOINT_SESSION_HEALTHCHECK=https://localhost/health" >> .env.local
     echo "MICROSERVICE_NAME=$project_name" >> .env.local
@@ -150,6 +151,7 @@ for project_dir in "$OUTPUT_DIR"/*/postgres; do
     DATABASE_USER="$DATABASE_USER" \
     DATABASE_PASSWORD="$DATABASE_PASSWORD" \
     DATABASE_TYPE=postgres \
+    E2E_SKIP_JWT=true \
     nohup node dist/main.js > /tmp/$project_name.log 2>&1 &
 
     # Aguardar a API iniciar
