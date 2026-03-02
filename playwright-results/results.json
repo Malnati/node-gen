@@ -75,7 +75,7 @@
         {
           "title": "SSPA Dashboard - Cobertura Abrangente",
           "file": "sspa.spec.ts",
-          "line": 90,
+          "line": 97,
           "column": 6,
           "specs": [
             {
@@ -94,12 +94,12 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 1820,
+                      "duration": 1905,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-03-02T19:44:30.276Z",
+                      "startTime": "2026-03-02T20:45:36.244Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -109,7 +109,7 @@
               ],
               "id": "a42535faff86ef3f1343-023b2f29609dd954070b",
               "file": "sspa.spec.ts",
-              "line": 91,
+              "line": 98,
               "column": 7
             },
             {
@@ -128,12 +128,12 @@
                       "workerIndex": 1,
                       "parallelIndex": 1,
                       "status": "passed",
-                      "duration": 581,
+                      "duration": 1093,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-03-02T19:44:32.805Z",
+                      "startTime": "2026-03-02T20:45:35.325Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -143,7 +143,7 @@
               ],
               "id": "a42535faff86ef3f1343-753bb3df9ef578d81a70",
               "file": "sspa.spec.ts",
-              "line": 108,
+              "line": 115,
               "column": 7
             },
             {
@@ -162,12 +162,12 @@
                       "workerIndex": 2,
                       "parallelIndex": 2,
                       "status": "passed",
-                      "duration": 7696,
+                      "duration": 11073,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-03-02T19:44:30.389Z",
+                      "startTime": "2026-03-02T20:45:37.082Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -177,7 +177,41 @@
               ],
               "id": "a42535faff86ef3f1343-b1321e8d304225afccfe",
               "file": "sspa.spec.ts",
-              "line": 119,
+              "line": 126,
+              "column": 7
+            },
+            {
+              "title": "navegação UI por card e entidade não exibe erro de carregamento",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 420000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 3,
+                      "status": "passed",
+                      "duration": 47485,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-03-02T20:45:36.447Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "a42535faff86ef3f1343-7e3751bdd0ce559d5fcc",
+              "file": "sspa.spec.ts",
+              "line": 186,
               "column": 7
             },
             {
@@ -193,15 +227,15 @@
                   "projectName": "chromium",
                   "results": [
                     {
-                      "workerIndex": 3,
-                      "parallelIndex": 3,
+                      "workerIndex": 1,
+                      "parallelIndex": 1,
                       "status": "passed",
-                      "duration": 13989,
+                      "duration": 19071,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-03-02T19:44:31.949Z",
+                      "startTime": "2026-03-02T20:45:36.635Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -211,7 +245,7 @@
               ],
               "id": "a42535faff86ef3f1343-d272942f860710b5c84e",
               "file": "sspa.spec.ts",
-              "line": 179,
+              "line": 240,
               "column": 7
             },
             {
@@ -230,12 +264,12 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 180,
+                      "duration": 241,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-03-02T19:44:32.701Z",
+                      "startTime": "2026-03-02T20:45:39.000Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -245,7 +279,7 @@
               ],
               "id": "a42535faff86ef3f1343-624bddb45cd8f452a85a",
               "file": "sspa.spec.ts",
-              "line": 318,
+              "line": 379,
               "column": 7
             }
           ]
@@ -255,9 +289,9 @@
   ],
   "errors": [],
   "stats": {
-    "startTime": "2026-03-02T19:44:23.627Z",
-    "duration": 22493.485,
-    "expected": 5,
+    "startTime": "2026-03-02T20:45:27.031Z",
+    "duration": 57805.396,
+    "expected": 6,
     "skipped": 0,
     "unexpected": 0,
     "flaky": 0

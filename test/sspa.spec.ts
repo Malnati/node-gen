@@ -32,6 +32,13 @@ type CardValidationRow = {
   entity: string;
   entity_status: number;
 };
+type UiEntityNavigationRow = {
+  project: string;
+  entity: string;
+  has_error_message: boolean;
+  row_count: number;
+  status: string;
+};
 
 const ORCHESTRATOR_BASE = 'http://localhost:9000';
 
@@ -174,6 +181,60 @@ test.describe('SSPA Dashboard - Cobertura Abrangente', () => {
 
     expect(rows.length).toBeGreaterThan(0);
     expect(failures, `Falhas na validação card-a-card: ${failures.join(' | ')}`).toEqual([]);
+  });
+
+  test('navegação UI por card e entidade não exibe erro de carregamento', async ({ page, request }) => {
+    test.setTimeout(420000);
+    const projects = await loadProjects(request);
+    const rows: UiEntityNavigationRow[] = [];
+    const failures: string[] = [];
+
+    try {
+      for (const [projectKey, project] of Object.entries(projects)) {
+        const entities = Object.entries(project.entities ?? {});
+
+        for (const [entityKey] of entities) {
+          await page.goto('/');
+          const card = page.locator(`.project-card[data-project="${projectKey}"]`);
+          await expect(card, `Card não encontrado para ${projectKey}`).toBeVisible();
+          await card.click();
+
+          const entityItem = page.locator(`.entity-item[data-project="${projectKey}"][data-entity="${entityKey}"]`);
+          await expect(entityItem, `Entidade não encontrada para ${projectKey}/${entityKey}`).toBeVisible();
+          await entityItem.click();
+
+          const tbody = page.locator('#entity-tbody');
+          await expect(tbody, `Tabela não carregou para ${projectKey}/${entityKey}`).toBeVisible();
+          await expect(tbody.locator('tr').first()).toBeVisible();
+
+          const bodyText = (await tbody.innerText()).trim();
+          const hasErrorMessage =
+            bodyText.includes('Falha HTTP') ||
+            bodyText.includes('Erro:') ||
+            bodyText.includes('Token sem permissao') ||
+            bodyText.includes('Autenticacao necessaria');
+          const rowCount = await tbody.locator('tr').count();
+
+          rows.push({
+            project: projectKey,
+            entity: entityKey,
+            has_error_message: hasErrorMessage,
+            row_count: rowCount,
+            status: hasErrorMessage ? 'error' : 'ok'
+          });
+
+          if (hasErrorMessage) {
+            failures.push(`${projectKey}/${entityKey}: ${bodyText}`);
+          }
+        }
+      }
+    } finally {
+      await fs.mkdir('playwright-results', { recursive: true });
+      await fs.writeFile('playwright-results/ui-entity-navigation.json', JSON.stringify(rows, null, 2));
+    }
+
+    expect(rows.length).toBeGreaterThan(0);
+    expect(failures, `Falhas na navegação UI por entidade: ${failures.join(' | ')}`).toEqual([]);
   });
 
   test('matriz de autenticação, autorização e CRUD provável por projeto', async ({ request }) => {

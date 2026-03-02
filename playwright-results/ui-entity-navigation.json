@@ -1,0 +1,506 @@
+[
+  {
+    "project": "accounts",
+    "entity": "account",
+    "has_error_message": false,
+    "row_count": 3,
+    "status": "ok"
+  },
+  {
+    "project": "addresses",
+    "entity": "country",
+    "has_error_message": false,
+    "row_count": 20,
+    "status": "ok"
+  },
+  {
+    "project": "addresses",
+    "entity": "state",
+    "has_error_message": false,
+    "row_count": 16,
+    "status": "ok"
+  },
+  {
+    "project": "addresses",
+    "entity": "city",
+    "has_error_message": false,
+    "row_count": 20,
+    "status": "ok"
+  },
+  {
+    "project": "addresses",
+    "entity": "address",
+    "has_error_message": false,
+    "row_count": 3,
+    "status": "ok"
+  },
+  {
+    "project": "auth",
+    "entity": "auth_session",
+    "has_error_message": false,
+    "row_count": 1,
+    "status": "ok"
+  },
+  {
+    "project": "communications",
+    "entity": "email_template",
+    "has_error_message": false,
+    "row_count": 1,
+    "status": "ok"
+  },
+  {
+    "project": "communications",
+    "entity": "smtp_config",
+    "has_error_message": false,
+    "row_count": 1,
+    "status": "ok"
+  },
+  {
+    "project": "communications",
+    "entity": "send_history",
+    "has_error_message": false,
+    "row_count": 1,
+    "status": "ok"
+  },
+  {
+    "project": "communications",
+    "entity": "delivery_tracking",
+    "has_error_message": false,
+    "row_count": 1,
+    "status": "ok"
+  },
+  {
+    "project": "config",
+    "entity": "config",
+    "has_error_message": false,
+    "row_count": 1,
+    "status": "ok"
+  },
+  {
+    "project": "config",
+    "entity": "integration_config",
+    "has_error_message": false,
+    "row_count": 1,
+    "status": "ok"
+  },
+  {
+    "project": "config",
+    "entity": "webhook",
+    "has_error_message": false,
+    "row_count": 1,
+    "status": "ok"
+  },
+  {
+    "project": "config",
+    "entity": "branding",
+    "has_error_message": false,
+    "row_count": 1,
+    "status": "ok"
+  },
+  {
+    "project": "config",
+    "entity": "label",
+    "has_error_message": false,
+    "row_count": 1,
+    "status": "ok"
+  },
+  {
+    "project": "consents",
+    "entity": "consent_record",
+    "has_error_message": false,
+    "row_count": 1,
+    "status": "ok"
+  },
+  {
+    "project": "consents",
+    "entity": "notification_preference",
+    "has_error_message": false,
+    "row_count": 1,
+    "status": "ok"
+  },
+  {
+    "project": "contacts",
+    "entity": "contact",
+    "has_error_message": false,
+    "row_count": 3,
+    "status": "ok"
+  },
+  {
+    "project": "gmail",
+    "entity": "gmail_integration",
+    "has_error_message": false,
+    "row_count": 1,
+    "status": "ok"
+  },
+  {
+    "project": "gmail",
+    "entity": "gmail_message_template",
+    "has_error_message": false,
+    "row_count": 1,
+    "status": "ok"
+  },
+  {
+    "project": "gmail",
+    "entity": "gmail_message",
+    "has_error_message": false,
+    "row_count": 1,
+    "status": "ok"
+  },
+  {
+    "project": "google-calendar",
+    "entity": "calendar_integration",
+    "has_error_message": false,
+    "row_count": 1,
+    "status": "ok"
+  },
+  {
+    "project": "google-calendar",
+    "entity": "calendar",
+    "has_error_message": false,
+    "row_count": 1,
+    "status": "ok"
+  },
+  {
+    "project": "google-calendar",
+    "entity": "calendar_event",
+    "has_error_message": false,
+    "row_count": 1,
+    "status": "ok"
+  },
+  {
+    "project": "google-drive",
+    "entity": "drive_integration",
+    "has_error_message": false,
+    "row_count": 1,
+    "status": "ok"
+  },
+  {
+    "project": "google-drive",
+    "entity": "drive_folder",
+    "has_error_message": false,
+    "row_count": 1,
+    "status": "ok"
+  },
+  {
+    "project": "google-drive",
+    "entity": "drive_file",
+    "has_error_message": false,
+    "row_count": 1,
+    "status": "ok"
+  },
+  {
+    "project": "llm",
+    "entity": "llm_log",
+    "has_error_message": false,
+    "row_count": 1,
+    "status": "ok"
+  },
+  {
+    "project": "llm",
+    "entity": "llm_provider_config",
+    "has_error_message": false,
+    "row_count": 1,
+    "status": "ok"
+  },
+  {
+    "project": "llm",
+    "entity": "prompt_template",
+    "has_error_message": false,
+    "row_count": 1,
+    "status": "ok"
+  },
+  {
+    "project": "llm",
+    "entity": "llm_execution_log",
+    "has_error_message": false,
+    "row_count": 1,
+    "status": "ok"
+  },
+  {
+    "project": "llm",
+    "entity": "llm_usage_summary",
+    "has_error_message": false,
+    "row_count": 1,
+    "status": "ok"
+  },
+  {
+    "project": "logistics",
+    "entity": "shipment",
+    "has_error_message": false,
+    "row_count": 1,
+    "status": "ok"
+  },
+  {
+    "project": "logistics",
+    "entity": "shipment_event",
+    "has_error_message": false,
+    "row_count": 1,
+    "status": "ok"
+  },
+  {
+    "project": "maps",
+    "entity": "map_provider_config",
+    "has_error_message": false,
+    "row_count": 1,
+    "status": "ok"
+  },
+  {
+    "project": "maps",
+    "entity": "geocode_cache",
+    "has_error_message": false,
+    "row_count": 1,
+    "status": "ok"
+  },
+  {
+    "project": "maps",
+    "entity": "route_cache",
+    "has_error_message": false,
+    "row_count": 1,
+    "status": "ok"
+  },
+  {
+    "project": "notifications",
+    "entity": "notification_template",
+    "has_error_message": false,
+    "row_count": 1,
+    "status": "ok"
+  },
+  {
+    "project": "notifications",
+    "entity": "notification",
+    "has_error_message": false,
+    "row_count": 1,
+    "status": "ok"
+  },
+  {
+    "project": "orders",
+    "entity": "order",
+    "has_error_message": false,
+    "row_count": 1,
+    "status": "ok"
+  },
+  {
+    "project": "orders",
+    "entity": "order_item",
+    "has_error_message": false,
+    "row_count": 1,
+    "status": "ok"
+  },
+  {
+    "project": "payments",
+    "entity": "payment_type",
+    "has_error_message": false,
+    "row_count": 8,
+    "status": "ok"
+  },
+  {
+    "project": "payments",
+    "entity": "payment",
+    "has_error_message": false,
+    "row_count": 1,
+    "status": "ok"
+  },
+  {
+    "project": "products",
+    "entity": "currency",
+    "has_error_message": false,
+    "row_count": 11,
+    "status": "ok"
+  },
+  {
+    "project": "products",
+    "entity": "product",
+    "has_error_message": false,
+    "row_count": 3,
+    "status": "ok"
+  },
+  {
+    "project": "products",
+    "entity": "unit_of_measure",
+    "has_error_message": false,
+    "row_count": 18,
+    "status": "ok"
+  },
+  {
+    "project": "reports",
+    "entity": "consolidated_sales_monthly",
+    "has_error_message": false,
+    "row_count": 4,
+    "status": "ok"
+  },
+  {
+    "project": "reports",
+    "entity": "current_warehouse_stock",
+    "has_error_message": false,
+    "row_count": 1,
+    "status": "ok"
+  },
+  {
+    "project": "reports",
+    "entity": "logistics_performance",
+    "has_error_message": false,
+    "row_count": 2,
+    "status": "ok"
+  },
+  {
+    "project": "reports",
+    "entity": "v_sales_monthly",
+    "has_error_message": false,
+    "row_count": 4,
+    "status": "ok"
+  },
+  {
+    "project": "reports",
+    "entity": "v_warehouse_stock",
+    "has_error_message": false,
+    "row_count": 1,
+    "status": "ok"
+  },
+  {
+    "project": "reports",
+    "entity": "v_logistics_performance",
+    "has_error_message": false,
+    "row_count": 2,
+    "status": "ok"
+  },
+  {
+    "project": "roles",
+    "entity": "role",
+    "has_error_message": false,
+    "row_count": 1,
+    "status": "ok"
+  },
+  {
+    "project": "roles",
+    "entity": "feature",
+    "has_error_message": false,
+    "row_count": 1,
+    "status": "ok"
+  },
+  {
+    "project": "roles",
+    "entity": "role_feature",
+    "has_error_message": false,
+    "row_count": 1,
+    "status": "ok"
+  },
+  {
+    "project": "roles",
+    "entity": "user_role",
+    "has_error_message": false,
+    "row_count": 1,
+    "status": "ok"
+  },
+  {
+    "project": "schedule",
+    "entity": "resource",
+    "has_error_message": false,
+    "row_count": 1,
+    "status": "ok"
+  },
+  {
+    "project": "schedule",
+    "entity": "slot",
+    "has_error_message": false,
+    "row_count": 1,
+    "status": "ok"
+  },
+  {
+    "project": "schedule",
+    "entity": "booking",
+    "has_error_message": false,
+    "row_count": 1,
+    "status": "ok"
+  },
+  {
+    "project": "schedule",
+    "entity": "recurrence_rule",
+    "has_error_message": false,
+    "row_count": 1,
+    "status": "ok"
+  },
+  {
+    "project": "schedule",
+    "entity": "booking_participant",
+    "has_error_message": false,
+    "row_count": 1,
+    "status": "ok"
+  },
+  {
+    "project": "schedule",
+    "entity": "booking_history",
+    "has_error_message": false,
+    "row_count": 1,
+    "status": "ok"
+  },
+  {
+    "project": "selling",
+    "entity": "order",
+    "has_error_message": false,
+    "row_count": 1,
+    "status": "ok"
+  },
+  {
+    "project": "selling",
+    "entity": "order_line",
+    "has_error_message": false,
+    "row_count": 1,
+    "status": "ok"
+  },
+  {
+    "project": "tenant",
+    "entity": "tenant",
+    "has_error_message": false,
+    "row_count": 1,
+    "status": "ok"
+  },
+  {
+    "project": "todo",
+    "entity": "category",
+    "has_error_message": false,
+    "row_count": 1,
+    "status": "ok"
+  },
+  {
+    "project": "todo",
+    "entity": "simple_item",
+    "has_error_message": false,
+    "row_count": 1,
+    "status": "ok"
+  },
+  {
+    "project": "todo",
+    "entity": "simple_item_tag",
+    "has_error_message": false,
+    "row_count": 1,
+    "status": "ok"
+  },
+  {
+    "project": "todo",
+    "entity": "tag",
+    "has_error_message": false,
+    "row_count": 1,
+    "status": "ok"
+  },
+  {
+    "project": "transactions",
+    "entity": "transaction",
+    "has_error_message": false,
+    "row_count": 1,
+    "status": "ok"
+  },
+  {
+    "project": "users",
+    "entity": "app_user",
+    "has_error_message": false,
+    "row_count": 1,
+    "status": "ok"
+  },
+  {
+    "project": "warehouse",
+    "entity": "warehouse_stock",
+    "has_error_message": false,
+    "row_count": 1,
+    "status": "ok"
+  }
+]
