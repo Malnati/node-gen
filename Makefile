@@ -197,3 +197,55 @@ projects-logs:
 	$(call compose_projects,logs -f)
 
 projects-restart: projects-down projects-up
+
+# ==============================================================================
+# TESTES PLAYWRIGHT SSPA
+# ==============================================================================
+
+playwright-install:
+	@echo "📦  Instalando dependências Playwright..."
+	npm install
+	npx playwright install --with-deps chromium
+
+playwright-up:
+	@echo "🚀  Subindo container SSPA..."
+	$(call compose_projects,up -d sspa)
+	@echo "⏳  Aguardando SSPA estar disponível..."
+	@for i in $$(seq 1 30); do \
+		if curl -s http://localhost:9000 > /dev/null 2>&1; then \
+			echo "✅  SSPA disponível na porta 9000"; \
+			break; \
+		fi; \
+		echo "⏳  Aguardando... ($$i/30)"; \
+		sleep 2; \
+	done
+
+playwright-down:
+	@echo "🛑  Parando container SSPA..."
+	$(call compose_projects,stop sspa)
+
+playwright-test: playwright-up
+	@echo "🧪  Executando testes Playwright..."
+	@mkdir -p playwright-report playwright-results test-results
+	npx playwright test --reporter=list,html,json
+	@echo "📊  Relatórios disponíveis em:"
+	@echo "   - HTML: playwright-report/index.html"
+	@echo "   - JSON: playwright-results/results.json"
+	@echo "   - Screenshots: test-results/"
+
+playwright-test-headed: playwright-up
+	@echo "🧪  Executando testes Playwright (headed mode)..."
+	npx playwright test --headed
+
+playwright-test-ui: playwright-up
+	@echo "🧪  Executando testes Playwright (UI mode)..."
+	npx playwright test --ui
+
+playwright-report:
+	@echo "📊  Abrindo relatório Playwright..."
+	npx playwright show-report
+
+playwright-clean:
+	@echo "🧹  Removendo relatórios e resultados..."
+	rm -rf playwright-report playwright-results test-results
+

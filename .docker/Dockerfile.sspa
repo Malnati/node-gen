@@ -1,0 +1,253 @@
+# .docker/Dockerfile.sspa
+FROM nginx:alpine
+
+RUN apk add --no-cache bash nodejs npm
+
+# Criar diretórios
+RUN mkdir -p /usr/share/nginx/html/css /usr/share/nginx/html/js /usr/share/nginx/html/data /usr/share/nginx/html/entity
+
+# ============================================
+# 1. CSS do Dashboard (60-30-10)
+# ============================================
+RUN cat > /usr/share/nginx/html/css/dashboard.css << 'CSSEOF'
+:root { --primary: #2D0F55; --secondary: #00B5B8; --accent: #FF6B35; --surface: #F4F5FB; --text: #1C1D22; --text-secondary: #6B7280; --border: #D9DBE7; --white: #FFFFFF; --success: #1DB954; --warning: #FF9F1C; --danger: #E63946; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--surface); color: var(--text); min-height: 100vh; display: flex; }
+.sidebar { width: 280px; background: var(--primary); color: var(--white); min-height: 100vh; position: fixed; left: 0; top: 0; overflow-y: auto; z-index: 100; }
+.sidebar-header { padding: 24px; border-bottom: 1px solid rgba(255,255,255,0.1); }
+.sidebar-header h1 { font-size: 20px; font-weight: 600; }
+.sidebar-menu { padding: 16px 0; }
+.menu-item { padding: 12px 24px; cursor: pointer; transition: background 0.2s; display: flex; align-items: center; justify-content: space-between; }
+.menu-item:hover { background: rgba(255,255,255,0.1); }
+.menu-item.active { background: var(--secondary); }
+.menu-item .arrow { transition: transform 0.2s; font-size: 10px; }
+.menu-item.expanded .arrow { transform: rotate(90deg); }
+.sub-items { display: none; background: rgba(0,0,0,0.2); }
+.sub-items.show { display: block; }
+.sub-item { padding: 10px 24px 10px 40px; cursor: pointer; font-size: 14px; color: rgba(255,255,255,0.8); }
+.sub-item:hover { background: rgba(255,255,255,0.1); color: var(--white); }
+.main { margin-left: 280px; flex: 1; padding: 32px; min-height: 100vh; }
+.dashboard-title { font-size: 28px; margin-bottom: 24px; color: var(--primary); }
+.projects-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 24px; }
+.project-card { background: var(--white); border-radius: 12px; padding: 24px; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 2px 8px rgba(0,0,0,0.08); border: 2px solid transparent; }
+.project-card:hover { transform: translateY(-4px); box-shadow: 0 8px 24px rgba(0,0,0,0.12); border-color: var(--secondary); }
+.project-card.expanded { grid-column: 1 / -1; background: var(--white); }
+.project-card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+.project-name { font-size: 18px; font-weight: 600; color: var(--primary); text-transform: uppercase; }
+.project-count { background: var(--secondary); color: var(--white); padding: 4px 12px; border-radius: 20px; font-size: 12px; }
+.project-description { color: var(--text-secondary); font-size: 14px; }
+.entity-grid { display: none; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px; margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--border); }
+.entity-grid.show { display: grid; }
+.entity-item { background: var(--surface); padding: 16px; border-radius: 8px; cursor: pointer; transition: all 0.2s; text-align: center; }
+.entity-item:hover { background: var(--secondary); color: var(--white); }
+.entity-name { font-weight: 500; margin-bottom: 4px; }
+.entity-comment { font-size: 12px; opacity: 0.8; }
+.entity-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+.entity-title { font-size: 24px; color: var(--primary); }
+.entity-actions { display: flex; gap: 12px; }
+.btn { padding: 10px 20px; border: none; border-radius: 8px; cursor: pointer; font-weight: 500; transition: all 0.2s; display: inline-flex; align-items: center; gap: 8px; }
+.btn-primary { background: var(--secondary); color: var(--white); }
+.btn-primary:hover { background: #009A9D; }
+.btn-success { background: var(--success); color: var(--white); }
+.btn-danger { background: var(--danger); color: var(--white); }
+.btn-warning { background: var(--warning); color: var(--white); }
+.table-container { background: var(--white); border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+table { width: 100%; border-collapse: collapse; }
+th { background: var(--primary); color: var(--white); padding: 16px; text-align: left; font-weight: 500; }
+td { padding: 14px 16px; border-bottom: 1px solid var(--border); }
+tr:hover { background: var(--surface); }
+.action-btns { display: flex; gap: 8px; }
+.action-btn { width: 32px; height: 32px; border: none; border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 14px; }
+.action-btn.view { background: var(--secondary); color: white; }
+.action-btn.edit { background: var(--warning); color: white; }
+.action-btn.delete { background: var(--danger); color: white; }
+.pagination { display: flex; justify-content: center; gap: 8px; padding: 24px; }
+.page-btn { padding: 8px 16px; border: 1px solid var(--border); background: var(--white); cursor: pointer; border-radius: 6px; }
+.page-btn.active { background: var(--secondary); color: var(--white); border-color: var(--secondary); }
+@media (max-width: 768px) { .sidebar { transform: translateX(-100%); } .main { margin-left: 0; } }
+CSSEOF
+
+# ============================================
+# 2. JavaScript do Dashboard (SPA)
+# ============================================
+RUN cat > /usr/share/nginx/html/js/app.js << 'JSEOF'
+let projects = {};
+let currentProject = null;
+let currentEntity = null;
+
+async function loadProjects() {
+    try {
+        const resp = await fetch('/data/projects.json');
+        projects = await resp.json();
+        renderDashboard();
+        renderSidebar();
+    } catch (e) {
+        console.error('Failed to load projects:', e);
+        document.querySelector('.main').innerHTML = '<p>Erro ao carregar projetos.</p>';
+    }
+}
+
+function renderDashboard() {
+    const main = document.querySelector('.main');
+    const pCount = Object.keys(projects).length;
+    main.innerHTML = '<h1 class="dashboard-title">SSPA Dashboard</h1><p style="margin-bottom:20px;color:#666">' + pCount + ' projetos disponíveis</p><div class="projects-grid">' + 
+        Object.entries(projects).map(([key, p]) => renderProjectCard(key, p)).join('') + '</div>';
+    
+    document.querySelectorAll('.project-card').forEach(card => {
+        card.addEventListener('click', (e) => {
+            if (e.target.closest('.entity-item')) return;
+            const projectKey = card.dataset.project;
+            toggleProjectCard(projectKey);
+        });
+    });
+    
+    document.querySelectorAll('.entity-item').forEach(item => {
+        item.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const projectKey = item.dataset.project;
+            const entityKey = item.dataset.entity;
+            navigateToEntity(projectKey, entityKey);
+        });
+    });
+}
+
+function renderProjectCard(key, project) {
+    const entities = project.entities || {};
+    const entityCount = Object.keys(entities).length;
+    return '<div class="project-card" data-project="' + key + '"><div class="project-card-header"><span class="project-name">' + project.name + '</span><span class="project-count">' + entityCount + '</span></div><p class="project-description">' + (project.description || '') + '</p><div class="entity-grid" id="entities-' + key + '">' + 
+        Object.entries(entities).map(([ek, e]) => '<div class="entity-item" data-project="' + key + '" data-entity="' + ek + '"><div class="entity-name">' + e.name + '</div><div class="entity-comment">' + (e.comment || '') + '</div></div>').join('') + 
+        '</div></div>';
+}
+
+function toggleProjectCard(projectKey) {
+    const card = document.querySelector('.project-card[data-project="' + projectKey + '"]');
+    const entityGrid = card.querySelector('.entity-grid');
+    
+    document.querySelectorAll('.project-card.expanded').forEach(c => {
+        if (c !== card) {
+            c.classList.remove('expanded');
+            c.querySelector('.entity-grid').classList.remove('show');
+        }
+    });
+    
+    card.classList.toggle('expanded');
+    entityGrid.classList.toggle('show');
+}
+
+function renderSidebar() {
+    const sidebar = document.querySelector('.sidebar-menu');
+    sidebar.innerHTML = Object.entries(projects).map(([key, p]) => 
+        '<div class="menu-item" data-project="' + key + '"><span>' + p.name + '</span><span class="arrow">▶</span></div>'
+    ).join('');
+    
+    document.querySelectorAll('.menu-item').forEach(item => {
+        item.addEventListener('click', () => {
+            const projectKey = item.dataset.project;
+            toggleProjectCard(projectKey);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+    });
+}
+
+function navigateToEntity(projectKey, entityKey) {
+    const project = projects[projectKey];
+    const entity = project?.entities?.[entityKey];
+    if (!entity) return;
+    
+    currentProject = projectKey;
+    currentEntity = entityKey;
+    
+    const main = document.querySelector('.main');
+    main.innerHTML = '<div class="entity-header"><h1 class="entity-title">' + entity.name + '</h1><div class="entity-actions"><button class="btn btn-primary" data-action="create">+ Novo</button></div></div><div class="table-container"><table><thead><tr><th>ID</th>' + 
+        Object.keys(entity.columns || {}).slice(0, 5).map(c => '<th>' + c + '</th>').join('') + '<th>Ações</th></tr></thead><tbody id="entity-tbody"><tr><td colspan="10" style="text-align:center">Carregando...</td></tr></tbody></table></div>';
+    
+    loadEntityData(projectKey, entityKey, project.apiBase);
+    
+    document.querySelector('.btn-primary')?.addEventListener('click', () => alert('Criar novo: ' + entityKey));
+}
+
+async function loadEntityData(projectKey, entityKey, apiBase) {
+    const project = projects[projectKey];
+    const entity = project?.entities?.[entityKey];
+    if (!entity) return;
+    
+    const endpoint = entity.endpoints?.list || '/' + entityKey;
+    const url = (apiBase || 'http://localhost:3001') + endpoint;
+    
+    try {
+        const resp = await fetch(url);
+        const data = await resp.json();
+        
+        const tbody = document.getElementById('entity-tbody');
+        if (Array.isArray(data) && data.length > 0) {
+            tbody.innerHTML = data.slice(0, 20).map(row => 
+                '<tr><td>' + (row.id || '-') + '</td>' + 
+                Object.keys(entity.columns || {}).slice(0, 5).map(c => '<td>' + (row[c] || '-') + '</td>').join('') + 
+                '<td><div class="action-btns"><button class="action-btn view" title="Ver">👁</button><button class="action-btn edit" title="Editar">✏</button><button class="action-btn delete" title="Excluir">🗑</button></div></td></tr>'
+            ).join('');
+        } else {
+            tbody.innerHTML = '<tr><td colspan="10" style="text-align:center">Nenhum registro</td></tr>';
+        }
+    } catch (e) {
+        document.getElementById('entity-tbody').innerHTML = '<tr><td colspan="10" style="text-align:center;color:var(--danger)">Erro: ' + e.message + '</td></tr>';
+    }
+}
+
+document.addEventListener('DOMContentLoaded', loadProjects);
+JSEOF
+
+# ============================================
+# 3. HTML Principal
+# ============================================
+RUN cat > /usr/share/nginx/html/index.html << 'HTMLEOF'
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SSPA Dashboard</title>
+    <link rel="stylesheet" href="/css/dashboard.css">
+</head>
+<body>
+    <nav class="sidebar">
+        <div class="sidebar-header"><h1>SSPA Dashboard</h1></div>
+        <div class="sidebar-menu"></div>
+    </nav>
+    <main class="main"></main>
+    <script src="/js/app.js"></script>
+</body>
+</html>
+HTMLEOF
+
+# ============================================
+# 4. Nginx Config
+# ============================================
+RUN cat > /etc/nginx/conf.d/sspa.conf << 'NGINXEOF'
+server {
+    listen 9000;
+    server_name localhost;
+    root /usr/share/nginx/html;
+    index index.html;
+    location / { try_files $uri $uri/ /index.html; }
+}
+NGINXEOF
+
+RUN rm -f /etc/nginx/http.d/default.conf
+
+EXPOSE 9000
+
+# ============================================
+# 5. Gerar projects.json na inicialização
+# ============================================
+CMD /bin/sh -c '
+echo "[sspa] Starting..." && 
+echo "{}" > /usr/share/nginx/html/data/projects.json &&
+for f in /mfe-output/*/postgres/db.reader.*.json; do
+    if [ -f "$f" ]; then
+        echo "[sspa] Processing: $f"
+        break
+    fi
+done &&
+echo "[sspa] projects.json initialized" &&
+nginx -g "daemon off;"
+'

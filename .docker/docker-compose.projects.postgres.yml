@@ -36,5 +36,21 @@ services:
       - /root/w/node-gen/test/e2e-generator/projects:/projects-source
     entrypoint: ["/entrypoint.projects.postgres.sh"]
 
+  sspa:
+    image: node-gen-sspa:latest
+    build:
+      context: /root/w/node-gen
+      dockerfile: .docker/Dockerfile.sspa
+    container_name: nodegen-sspa
+    ports:
+      - "9000:9000"
+    depends_on:
+      apis:
+        condition: service_started
+    environment:
+      MFES_DIR: /mfe-output
+    volumes:
+      - /root/w/node-gen/output:/mfe-output:ro
+
 volumes:
   postgres-data:
