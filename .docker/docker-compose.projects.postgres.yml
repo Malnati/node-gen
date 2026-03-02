@@ -19,8 +19,8 @@ services:
   apis:
     image: node-gen-apis:latest
     build:
-      context: /
-      dockerfile: root/w/node-gen/.docker/Dockerfile.projects.postgres
+      context: /root/w/node-gen
+      dockerfile: .docker/Dockerfile.projects.postgres
     container_name: nodegen-apis
     ports:
       - "3001-3099:3001-3099"
@@ -34,6 +34,7 @@ services:
       DATABASE_PASSWORD: postgres
     volumes:
       - /root/w/node-gen/test/e2e-generator/projects:/projects-source
+      - /root/w/node-gen/output:/output
     entrypoint: ["/entrypoint.projects.postgres.sh"]
 
   sspa:

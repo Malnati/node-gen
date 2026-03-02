@@ -52,6 +52,7 @@ test.describe('SSPA Dashboard', () => {
     await expect(page.locator('.entity-title')).toBeVisible();
     await expect(page.locator('.table-container')).toBeVisible();
     await expect(page.locator('.btn-primary')).toBeVisible();
+    await expect(page.locator('#entity-tbody')).not.toContainText('Erro:');
   });
 
   test('fluxo principal nao retorna 404 no orquestrador', async ({ page }) => {
@@ -67,6 +68,8 @@ test.describe('SSPA Dashboard', () => {
     await page.locator('.menu-item').first().click();
     await page.locator('.project-card.expanded .entity-item').first().click();
     await expect(page.locator('.entity-title')).toBeVisible();
+    await page.goto('/accounts/');
+    await expect(page.locator('.dashboard-title')).toBeVisible();
     expect(orchestrator404s).toEqual([]);
   });
 });

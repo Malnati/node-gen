@@ -80,17 +80,20 @@ for project_dir in "$OUTPUT_DIR"/*/postgres; do
     fi
 
     project_name=$(basename "$(dirname "$project_dir")")
-    echo "[entrypoint] Buildando API: $project_name"
-
     cd "$project_dir"
 
     # Instalar dependências (apenas se necessário)
     if [ ! -d "node_modules" ]; then
+        echo "[entrypoint] Instalando dependências da API: $project_name"
         npm install --legacy-peer-deps --no-audit --ignore-scripts 2>/dev/null
     fi
 
-    # Build
-    npm run build 2>/dev/null
+    if [ -f "dist/main.js" ]; then
+        echo "[entrypoint] Build já existente para API: $project_name"
+    else
+        echo "[entrypoint] Buildando API: $project_name"
+        npm run build 2>/dev/null
+    fi
 
     cd /app
 done

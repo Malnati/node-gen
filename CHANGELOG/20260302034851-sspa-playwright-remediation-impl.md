@@ -1,61 +1,76 @@
 <!-- CHANGELOG/20260302034851-sspa-playwright-remediation-impl.md -->
-# Implementação 2026-03-02 03:48:51 UTC - Remediação SSPA + Playwright
+# Implementação 2026-03-02 05:58:00 UTC - Remediação SSPA + Playwright (Revisão 2)
 
 ## Arquivos alterados
+- `/root/w/node-gen/.docker/Dockerfile.projects.postgres`
 - `/root/w/node-gen/.docker/Dockerfile.sspa`
+- `/root/w/node-gen/.docker/docker-compose.projects.postgres.yml`
+- `/root/w/node-gen/.docker/entrypoint.projects.postgres.sh`
 - `/root/w/node-gen/Makefile`
-- `/root/w/node-gen/playwright.config.ts`
 - `/root/w/node-gen/test/sspa.spec.ts`
-- `/root/w/node-gen/CHANGELOG/20260302034851-sspa-playwright-remediation-plan.md`
 - `/root/w/node-gen/CHANGELOG/20260302034851-sspa-playwright-remediation-audit.md`
+- `/root/w/node-gen/CHANGELOG/20260302034851-sspa-playwright-remediation-plan.md`
 - `/root/w/node-gen/CHANGELOG/20260302034851-sspa-playwright-remediation-impl.md`
 
 ## Mudanças implementadas
-- `Makefile`
-  - `playwright-up` atualizado para `up -d --build --no-deps sspa` (rebuild apenas do orquestrador).
-  - `playwright-test` agora depende de `playwright-install` e `playwright-up`.
-  - execução Playwright com `tee` para log persistido em `playwright-results/playwright-run.log`.
-  - removido override `--reporter` para respeitar `playwright.config.ts` e gerar `playwright-results/results.json`.
-- `playwright.config.ts`
-  - removido `webServer` para evitar concorrência com a orquestração via Makefile.
+- `.docker/docker-compose.projects.postgres.yml`
+  - corrigido `build.context` do serviço `apis` para `/root/w/node-gen`.
+  - corrigido `build.dockerfile` para `.docker/Dockerfile.projects.postgres`.
+  - adicionado volume `- /root/w/node-gen/output:/output` no `apis` para garantir disponibilidade dos projetos no runtime.
+- `.docker/Dockerfile.projects.postgres`
+  - atualizado `COPY` do entrypoint para caminho relativo ao novo contexto.
+  - removido `COPY output /output` para compatibilidade com `.dockerignore` e uso de volume runtime.
+- `.docker/entrypoint.projects.postgres.sh`
+  - build das APIs agora é condicional: se `dist/main.js` já existir, reaproveita artefato e evita recompilação desnecessária.
+  - mantida instalação condicional de dependências quando `node_modules` não existe.
 - `.docker/Dockerfile.sspa`
-  - geração de `/usr/share/nginx/html/data/projects.json` a partir de `output/*/postgres/db.reader.postgres.json`.
-  - estrutura de projetos/entidades usada pelo dashboard para menu/cards.
+  - removido hardcode de `apiBase=http://localhost:<porta>` no `projects.json`; agora exporta `apiPort`.
+  - frontend passou a derivar base da API com `window.location.protocol` + `window.location.hostname` + `apiPort`, evitando erro de conexão em ambientes remotos/port-forward.
+- `Makefile`
+  - `projects-up` agora usa `up -d --build` e valida prontidão do SSPA.
+  - `playwright-up` passou a chamar `$(MAKE) projects-up` (orquestrador real da stack), com espera explícita de disponibilidade da API base em `:3001`.
+  - `playwright-test` agora depende de `playwright-install` e `playwright-up`.
 - `test/sspa.spec.ts`
-  - suíte reduzida e determinística para fluxo real do SSPA:
-    - dashboard com menu e cards
-    - expansão via menu
-    - navegação card -> entidade
-    - assertiva de ausência de `404` no orquestrador durante fluxo principal
+  - adicionada validação de ausência de erro de carregamento de entidade (`#entity-tbody` sem texto `Erro:`).
+  - adicionada validação de rota `/accounts/` sem `404` (carregando dashboard).
 
 ## Comandos executados
-- `git status --short`
-- `date -u +%Y%m%d%H%M%S`
-- `make playwright-test` (execução inicial; falhou por parse de Dockerfile)
-- `make playwright-test` (execução final; passou)
-- `curl -sS http://localhost:9000 | sed -n '1,120p'`
-- `curl -sS http://localhost:9000/data/projects.json | jq 'keys | length'`
+- `make projects-down`
+- `make projects-up`
+- `make playwright-clean`
+- `make playwright-test` (tentativas intermediárias com falha e tentativa final com sucesso)
+- `docker logs --tail=200 nodegen-sspa`
+- `docker logs --tail=200 nodegen-apis`
+- `docker exec nodegen-apis sh -lc "ps -ef | grep 'node dist/main.js' | grep -v grep | wc -l"`
+- `docker compose -f .docker/docker-compose.projects.postgres.yml --project-directory . logs --tail=120 sspa apis`
+- `docker ps --format 'table {{.Names}}\t{{.Status}}\t{{.Ports}}'`
+- `rm -rf package-lock.json playwright-report playwright-results test-results`
 
 ## Resultado resumido
-- `make playwright-test`: **PASSOU** (4 passed, 0 failed, 11.1s na execução final).
-- endpoint raiz `http://localhost:9000`: **PASSOU** (renderizando HTML do dashboard planejado).
-- `projects.json`: **PASSOU** (26 projetos gerados no ambiente verificado).
+- `make playwright-test`: **PASSOU** na execução final (`4 passed`, `0 failed`, `10.7s`).
+- stack de projeto: **PASSOU** para o fluxo planejado (`projects-up` + espera de API em `3001` no `playwright-up`).
+- logs de runtime: **PASSOU** com evidência de geração de `projects.json`, inicialização do SSPA e inicialização das APIs `accounts` a `warehouse`.
 
 ## Evidências objetivas
-- Playwright: `4 passed (11.1s)` na rodada final.
-- Logs dos testes gerados em execução: `playwright-results/playwright-run.log`.
-- Resultado JSON gerado em execução: `playwright-results/results.json`.
+- Playwright: `4 passed (10.7s)` na execução final.
+- Compose logs: `GET /accounts/ HTTP/1.1" 200` no `nodegen-sspa` e sequência `Iniciando <serviço> na porta 3001..3026` no `nodegen-apis`.
+- arquivos de relatório/log foram gerados durante a execução (`playwright-results/*`, `playwright-report/*`) e removidos ao final para cumprir a restrição de não criar/manter novos arquivos no workspace versionado.
 
 ## Definição de pronto (item a item)
 - [x] Executar Playwright via Makefile contra o orquestrador SSPA.
 - [x] Obter logs dos testes em disco.
 - [x] Corrigir problemas encontrados na execução.
 - [x] Cobrir dashboard/menu/cards e fluxo principal no Playwright.
-- [x] Eliminar regressão observada de página inicial fora do planejado (dashboard agora entregue pela imagem atual do SSPA).
-- [x] Registrar plano em disco e manter rastreabilidade com auditoria e implementação.
+- [x] Eliminar regressão observada de página inicial fora do planejado (dashboard/menu/cards + rota `/accounts/` sem `404` no teste automatizado).
+- [x] Corrigir erro de conexão das APIs no fluxo do orquestrador (ajustes de compose/context/volume/startup).
+- [x] Registrar plano/auditoria/implementação em disco com rastreabilidade.
+- [x] Cumprir restrição operacional: sem criar ou excluir arquivos versionados.
 
 ## Observações
-- O alvo `playwright-install` executa `npx playwright install --with-deps chromium`, que imprime avisos de shell local (`.bashrc`) sem impactar o resultado dos testes.
+- Ocorreram falhas intermediárias resolvidas durante a implementação:
+  - build da imagem `apis` quebrando por caminhos de `COPY` após ajuste de contexto;
+  - timeout de prontidão devido recompilação integral de APIs em toda subida.
+- Ambas foram corrigidas no ciclo atual e validadas na execução final.
 
 ## Referências cruzadas
 - Plano: `/root/w/node-gen/CHANGELOG/20260302034851-sspa-playwright-remediation-plan.md`

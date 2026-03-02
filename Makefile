@@ -186,7 +186,19 @@ projects-build:
 
 projects-up:
 	@echo "🚀  Subindo todas as APIs PostgreSQL..."
-	$(call compose_projects,up -d)
+	$(call compose_projects,up -d --build)
+	@echo "⏳  Aguardando SSPA ficar acessível..."
+	@for i in $$(seq 1 60); do \
+		if curl -s http://localhost:9000 > /dev/null 2>&1; then \
+			echo "✅  SSPA pronto (porta 9000)"; \
+			break; \
+		fi; \
+		if [ $$i -eq 60 ]; then \
+			echo "❌  Timeout aguardando SSPA ficar pronto"; \
+			exit 1; \
+		fi; \
+		sleep 2; \
+	done
 
 projects-down:
 	@echo "🛑  Parando todas as APIs PostgreSQL..."
@@ -208,8 +220,8 @@ playwright-install:
 	npx playwright install --with-deps chromium
 
 playwright-up:
-	@echo "🚀  Subindo container SSPA..."
-	$(call compose_projects,up -d --build --no-deps sspa)
+	@echo "🚀  Subindo stack de projetos para testes Playwright..."
+	$(MAKE) projects-up
 	@echo "⏳  Aguardando SSPA estar disponível..."
 	@for i in $$(seq 1 30); do \
 		if curl -s http://localhost:9000 > /dev/null 2>&1; then \
@@ -217,6 +229,18 @@ playwright-up:
 			break; \
 		fi; \
 		echo "⏳  Aguardando... ($$i/30)"; \
+		sleep 2; \
+	done
+	@echo "⏳  Aguardando API base (porta 3001) estar disponível..."
+	@for i in $$(seq 1 300); do \
+		if curl -s http://localhost:3001 > /dev/null 2>&1; then \
+			echo "✅  API base disponível na porta 3001"; \
+			break; \
+		fi; \
+		if [ $$i -eq 300 ]; then \
+			echo "❌  Timeout aguardando API na porta 3001"; \
+			exit 1; \
+		fi; \
 		sleep 2; \
 	done
 
