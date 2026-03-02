@@ -140,7 +140,9 @@ for project_dir in "$OUTPUT_DIR"/*/postgres; do
     # Subir microserviço em background
     echo "[entrypoint] Iniciando $project_name na porta $port..."
 
-    PORT=$port \
+    env \
+    PORT="$port" \
+    HOST="0.0.0.0" \
     NODE_ENV=production \
     DATABASE_HOST="$DATABASE_HOST" \
     DATABASE_PORT="$DATABASE_PORT" \

@@ -177,12 +177,34 @@ async function loadEntityData(projectKey, entityKey, apiBase) {
     const derivedBase = protocol + '//' + host + ':' + String(project.apiPort || 3001);
     const base = apiBase || derivedBase;
     const url = base + endpoint;
+    const tbody = document.getElementById('entity-tbody');
+    const rawToken = localStorage.getItem('SSPA_AUTH_TOKEN') || sessionStorage.getItem('SSPA_AUTH_TOKEN') || '';
+    const token = rawToken.trim();
     
     try {
-        const resp = await fetch(url);
+        if (!token) {
+            tbody.innerHTML = '<tr><td colspan="10" style="text-align:center;color:var(--warning)">Autenticacao necessaria. Defina SSPA_AUTH_TOKEN no localStorage/sessionStorage para consultar a API.</td></tr>';
+            return;
+        }
+
+        const resp = await fetch(url, {
+            headers: {
+                Authorization: 'Bearer ' + token
+            }
+        });
+
+        if (resp.status === 401 || resp.status === 403) {
+            tbody.innerHTML = '<tr><td colspan="10" style="text-align:center;color:var(--warning)">Token sem permissao para este recurso.</td></tr>';
+            return;
+        }
+
+        if (!resp.ok) {
+            tbody.innerHTML = '<tr><td colspan="10" style="text-align:center;color:var(--danger)">Falha HTTP ' + resp.status + ' ao consultar a API.</td></tr>';
+            return;
+        }
+
         const data = await resp.json();
-        
-        const tbody = document.getElementById('entity-tbody');
+
         if (Array.isArray(data) && data.length > 0) {
             tbody.innerHTML = data.slice(0, 20).map(row => 
                 '<tr><td>' + (row.id || '-') + '</td>' + 
@@ -193,7 +215,7 @@ async function loadEntityData(projectKey, entityKey, apiBase) {
             tbody.innerHTML = '<tr><td colspan="10" style="text-align:center">Nenhum registro</td></tr>';
         }
     } catch (e) {
-        document.getElementById('entity-tbody').innerHTML = '<tr><td colspan="10" style="text-align:center;color:var(--danger)">Erro: ' + e.message + '</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="10" style="text-align:center;color:var(--danger)">Erro: ' + e.message + '</td></tr>';
     }
 }
 
@@ -232,7 +254,16 @@ server {
     server_name localhost;
     root /usr/share/nginx/html;
     index index.html;
-    location / { try_files $uri $uri/ /index.html; }
+    set $is_orchestrator_route 0;
+    if ($uri = "/") { set $is_orchestrator_route 1; }
+    if ($uri ~* "^/(accounts|addresses|auth|communications|config|consents|contacts|gmail|google-calendar|google-drive|llm|logistics|maps|notifications|orders|payments|products|reports|roles|schedule|selling|tenant|todo|transactions|users|warehouse)/?$") { set $is_orchestrator_route 1; }
+
+    location / { try_files $uri $uri/ @spa; }
+
+    location @spa {
+        if ($is_orchestrator_route = 0) { return 404; }
+        rewrite ^ /index.html break;
+    }
 }
 NGINXEOF
 

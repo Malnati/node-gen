@@ -243,6 +243,14 @@ playwright-up:
 		fi; \
 		sleep 2; \
 	done
+	@echo "ℹ️  Snapshot de disponibilidade das portas 3001-3026 (não bloqueante)..."
+	@for p in $$(seq 3001 3026); do \
+		if curl -s --connect-timeout 1 --max-time 1 "http://localhost:$$p" > /dev/null 2>&1; then \
+			echo "✅  API disponível na porta $$p"; \
+		else \
+			echo "⚠️  API indisponível na porta $$p no momento da checagem"; \
+		fi; \
+	done
 
 playwright-down:
 	@echo "🛑  Parando container SSPA..."
@@ -251,11 +259,13 @@ playwright-down:
 playwright-test: playwright-install playwright-up
 	@echo "🧪  Executando testes Playwright..."
 	@mkdir -p playwright-report playwright-results test-results
-	bash -lc 'set -o pipefail; npx playwright test 2>&1 | tee playwright-results/playwright-run.log'
+	bash -lc 'set -o pipefail; npx playwright test 2>&1 | tee playwright-results/playwright-run.log; status=$$?; DOCKER_CONFIG=$(DOCKER_CONFIG) $(COMPOSE_CMD) -f .docker/docker-compose.projects.postgres.yml --project-directory . logs --tail=400 sspa > playwright-results/containers-sspa.log 2>&1 || true; DOCKER_CONFIG=$(DOCKER_CONFIG) $(COMPOSE_CMD) -f .docker/docker-compose.projects.postgres.yml --project-directory . logs --tail=400 apis > playwright-results/containers-apis.log 2>&1 || true; DOCKER_CONFIG=$(DOCKER_CONFIG) $(COMPOSE_CMD) -f .docker/docker-compose.projects.postgres.yml --project-directory . logs --tail=400 postgres-shared > playwright-results/containers-postgres.log 2>&1 || true; DOCKER_CONFIG=$(DOCKER_CONFIG) $(COMPOSE_CMD) -f .docker/docker-compose.projects.postgres.yml --project-directory . ps > playwright-results/containers-ps.log 2>&1 || true; exit $$status'
 	@echo "📊  Relatórios disponíveis em:"
 	@echo "   - HTML: playwright-report/index.html"
 	@echo "   - JSON: playwright-results/results.json"
 	@echo "   - LOG: playwright-results/playwright-run.log"
+	@echo "   - HTTP Matrix: playwright-results/http-matrix.json"
+	@echo "   - Containers: playwright-results/containers-*.log"
 	@echo "   - Screenshots: test-results/"
 
 playwright-test-headed: playwright-up
