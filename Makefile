@@ -209,7 +209,7 @@ playwright-install:
 
 playwright-up:
 	@echo "🚀  Subindo container SSPA..."
-	$(call compose_projects,up -d sspa)
+	$(call compose_projects,up -d --build --no-deps sspa)
 	@echo "⏳  Aguardando SSPA estar disponível..."
 	@for i in $$(seq 1 30); do \
 		if curl -s http://localhost:9000 > /dev/null 2>&1; then \
@@ -224,13 +224,14 @@ playwright-down:
 	@echo "🛑  Parando container SSPA..."
 	$(call compose_projects,stop sspa)
 
-playwright-test: playwright-up
+playwright-test: playwright-install playwright-up
 	@echo "🧪  Executando testes Playwright..."
 	@mkdir -p playwright-report playwright-results test-results
-	npx playwright test --reporter=list,html,json
+	bash -lc 'set -o pipefail; npx playwright test 2>&1 | tee playwright-results/playwright-run.log'
 	@echo "📊  Relatórios disponíveis em:"
 	@echo "   - HTML: playwright-report/index.html"
 	@echo "   - JSON: playwright-results/results.json"
+	@echo "   - LOG: playwright-results/playwright-run.log"
 	@echo "   - Screenshots: test-results/"
 
 playwright-test-headed: playwright-up
@@ -248,4 +249,3 @@ playwright-report:
 playwright-clean:
 	@echo "🧹  Removendo relatórios e resultados..."
 	rm -rf playwright-report playwright-results test-results
-

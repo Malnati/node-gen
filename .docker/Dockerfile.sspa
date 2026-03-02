@@ -239,15 +239,4 @@ EXPOSE 9000
 # ============================================
 # 5. Gerar projects.json na inicialização
 # ============================================
-CMD /bin/sh -c '
-echo "[sspa] Starting..." && 
-echo "{}" > /usr/share/nginx/html/data/projects.json &&
-for f in /mfe-output/*/postgres/db.reader.*.json; do
-    if [ -f "$f" ]; then
-        echo "[sspa] Processing: $f"
-        break
-    fi
-done &&
-echo "[sspa] projects.json initialized" &&
-nginx -g "daemon off;"
-'
+CMD ["/bin/sh","-c","echo \"[sspa] Starting...\" && node -e 'const fs=require(\"fs\");const path=require(\"path\");const root=\"/mfe-output\";const projects={};let port=3001;if(fs.existsSync(root)){for(const dir of fs.readdirSync(root).sort()){const reader=path.join(root,dir,\"postgres\",\"db.reader.postgres.json\");if(!fs.existsSync(reader)) continue;const db=JSON.parse(fs.readFileSync(reader,\"utf8\"));const schema=Array.isArray(db.schema)?db.schema:[];const entities={};for(const table of schema){const tableName=table&&table.tableName?String(table.tableName):\"\";if(!tableName) continue;const entityKey=tableName.replace(/^tb_/,\"\");const columns={};for(const col of Array.isArray(table.columns)?table.columns:[]){if(!col||!col.columnName) continue;columns[col.columnName]={type:col.dataType||\"unknown\",nullable:Boolean(col.isNullable)};}entities[entityKey]={name:entityKey.replace(/_/g,\" \"),comment:table.tableComment||\"\",columns,endpoints:{list:\"/\"+entityKey}};}projects[dir]={name:db.projectName||dir,description:\"Projeto \"+dir,apiBase:\"http://localhost:\"+port,entities};port++;}}fs.mkdirSync(\"/usr/share/nginx/html/data\",{recursive:true});fs.writeFileSync(\"/usr/share/nginx/html/data/projects.json\",JSON.stringify(projects,null,2));console.log(\"[sspa] projects.json generated with \"+Object.keys(projects).length+\" project(s)\");' && echo \"[sspa] projects.json initialized\" && nginx -g \"daemon off;\""]
