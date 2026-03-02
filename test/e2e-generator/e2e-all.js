@@ -183,7 +183,7 @@ function runMfeGenerator(conn, outDir, appName) {
   const args = [
     DIST_MAIN,
     '-a', appName,
-    '--mfe',
+    '-f', 'mfes',
     '-d', conn.database,
     '-o', outDir,
     '-t', conn.dbType,

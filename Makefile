@@ -96,7 +96,7 @@ gen-mfe-internal:
 		echo "Exemplo: make gen-mfe GEN_PROJECT=test/e2e-generator/projects/accounts GEN_OUTPUT=output/accounts-mfe"; \
 		exit 1; \
 	fi
-	@node gen/dist/main.js -a $$(basename $(or $(GEN_PROJECT),$(PROJECT))) --mfe -d $$(or $(GEN_PROJECT),$(PROJECT))/db -o $(or $(GEN_OUTPUT),$(OUTPUT))
+	@node gen/dist/main.js -a $$(basename $(or $(GEN_PROJECT),$(PROJECT))) -f mfes -d $$(or $(GEN_PROJECT),$(PROJECT))/db -o $(or $(GEN_OUTPUT),$(OUTPUT))
 
 # ==============================================================================
 # TARGETS E2E — BANCOS DE DADOS
