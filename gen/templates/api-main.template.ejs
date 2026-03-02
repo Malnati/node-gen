@@ -21,7 +21,7 @@ async function bootstrap() {
 
   app.connectMicroservice<MicroserviceOptions>({
     transport: Transport.TCP,
-    options: { retryAttempts: 5, retryDelay: 3000 },
+    options: { port: Number(process.env.MICROSERVICE_TCP_PORT || 3000), retryAttempts: 5, retryDelay: 3000 },
   });
 
   app.enableCors({

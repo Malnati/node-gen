@@ -251,6 +251,23 @@ playwright-up:
 			echo "⚠️  API indisponível na porta $$p no momento da checagem"; \
 		fi; \
 	done
+	@echo "⏳  Aguardando healthcheck completo das APIs (3001-3026)..."
+	@for i in $$(seq 1 180); do \
+		pending=0; \
+		for p in $$(seq 3001 3026); do \
+			code=$$(curl -s -o /dev/null -w "%{http_code}" --connect-timeout 1 --max-time 2 "http://localhost:$$p/health" || echo "000"); \
+			if [ "$$code" != "200" ]; then pending=$$((pending + 1)); fi; \
+		done; \
+		if [ $$pending -eq 0 ]; then \
+			echo "✅  Todas as APIs responderam /health com 200"; \
+			break; \
+		fi; \
+		if [ $$i -eq 180 ]; then \
+			echo "❌  Timeout aguardando /health=200 em todas as APIs (faltando $$pending)"; \
+			exit 1; \
+		fi; \
+		sleep 1; \
+	done
 
 playwright-down:
 	@echo "🛑  Parando container SSPA..."
@@ -259,12 +276,16 @@ playwright-down:
 playwright-test: playwright-install playwright-up
 	@echo "🧪  Executando testes Playwright..."
 	@mkdir -p playwright-report playwright-results test-results
-	bash -lc 'set -o pipefail; npx playwright test 2>&1 | tee playwright-results/playwright-run.log; status=$$?; DOCKER_CONFIG=$(DOCKER_CONFIG) $(COMPOSE_CMD) -f .docker/docker-compose.projects.postgres.yml --project-directory . logs --tail=400 sspa > playwright-results/containers-sspa.log 2>&1 || true; DOCKER_CONFIG=$(DOCKER_CONFIG) $(COMPOSE_CMD) -f .docker/docker-compose.projects.postgres.yml --project-directory . logs --tail=400 apis > playwright-results/containers-apis.log 2>&1 || true; DOCKER_CONFIG=$(DOCKER_CONFIG) $(COMPOSE_CMD) -f .docker/docker-compose.projects.postgres.yml --project-directory . logs --tail=400 postgres-shared > playwright-results/containers-postgres.log 2>&1 || true; DOCKER_CONFIG=$(DOCKER_CONFIG) $(COMPOSE_CMD) -f .docker/docker-compose.projects.postgres.yml --project-directory . ps > playwright-results/containers-ps.log 2>&1 || true; exit $$status'
+	bash -lc 'set -o pipefail; npx playwright test 2>&1 | tee playwright-results/playwright-run.log; status=$$?; curl -sS http://localhost:9000/data/projects.json > playwright-results/sspa-projects.json 2>/dev/null || true; : > playwright-results/apis-health.log; for p in $$(seq 3001 3026); do code=$$(curl -s -o /dev/null -w "%{http_code}" --connect-timeout 1 --max-time 2 "http://localhost:$$p/health" || echo "000"); echo "port=$$p health=$$code" >> playwright-results/apis-health.log; done; DOCKER_CONFIG=$(DOCKER_CONFIG) $(COMPOSE_CMD) -f .docker/docker-compose.projects.postgres.yml --project-directory . logs --timestamps --tail=400 sspa > playwright-results/containers-sspa.log 2>&1 || true; DOCKER_CONFIG=$(DOCKER_CONFIG) $(COMPOSE_CMD) -f .docker/docker-compose.projects.postgres.yml --project-directory . logs --timestamps --tail=400 apis > playwright-results/containers-apis.log 2>&1 || true; DOCKER_CONFIG=$(DOCKER_CONFIG) $(COMPOSE_CMD) -f .docker/docker-compose.projects.postgres.yml --project-directory . logs --timestamps --tail=400 postgres-shared > playwright-results/containers-postgres.log 2>&1 || true; DOCKER_CONFIG=$(DOCKER_CONFIG) $(COMPOSE_CMD) -f .docker/docker-compose.projects.postgres.yml --project-directory . ps > playwright-results/containers-ps.log 2>&1 || true; exit $$status'
 	@echo "📊  Relatórios disponíveis em:"
 	@echo "   - HTML: playwright-report/index.html"
 	@echo "   - JSON: playwright-results/results.json"
 	@echo "   - LOG: playwright-results/playwright-run.log"
 	@echo "   - HTTP Matrix: playwright-results/http-matrix.json"
+	@echo "   - HTTP Matrix Anomalies: playwright-results/http-matrix-anomalies.json"
+	@echo "   - Card Validation: playwright-results/card-validation.json"
+	@echo "   - SSPA Projects Snapshot: playwright-results/sspa-projects.json"
+	@echo "   - APIs Health Snapshot: playwright-results/apis-health.log"
 	@echo "   - Containers: playwright-results/containers-*.log"
 	@echo "   - Screenshots: test-results/"
 

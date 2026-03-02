@@ -106,6 +106,7 @@ echo "[entrypoint] Todos os builds concluídos!"
 echo "[entrypoint] Iniciando todas as APIs..."
 
 port=3001
+tcp_port=13001
 
 for project_dir in "$OUTPUT_DIR"/*/postgres; do
     if [ ! -d "$project_dir" ]; then
@@ -132,6 +133,7 @@ for project_dir in "$OUTPUT_DIR"/*/postgres; do
     echo "ENDPOINT_SESSION_TOKEN=https://localhost/session/verify" >> .env.local
     echo "ENDPOINT_SESSION_HEALTHCHECK=https://localhost/health" >> .env.local
     echo "MICROSERVICE_NAME=$project_name" >> .env.local
+    echo "MICROSERVICE_TCP_PORT=$tcp_port" >> .env.local
     echo "HOST=0.0.0.0" >> .env.local
     echo "PORT=$port" >> .env.local
 
@@ -151,6 +153,7 @@ for project_dir in "$OUTPUT_DIR"/*/postgres; do
     DATABASE_USER="$DATABASE_USER" \
     DATABASE_PASSWORD="$DATABASE_PASSWORD" \
     DATABASE_TYPE=postgres \
+    MICROSERVICE_TCP_PORT="$tcp_port" \
     E2E_SKIP_JWT=true \
     nohup node dist/main.js > /tmp/$project_name.log 2>&1 &
 
@@ -159,6 +162,7 @@ for project_dir in "$OUTPUT_DIR"/*/postgres; do
 
     cd /app
     port=$((port + 1))
+    tcp_port=$((tcp_port + 1))
 done
 
 echo "[entrypoint] Todas as APIs iniciadas!"

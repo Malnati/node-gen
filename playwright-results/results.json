@@ -11,7 +11,7 @@
     "grepInvert": null,
     "maxFailures": 0,
     "metadata": {
-      "actualWorkers": 1
+      "actualWorkers": 4
     },
     "preserveOutput": "always",
     "projects": [
@@ -20,7 +20,7 @@
         "repeatEach": 1,
         "retries": 0,
         "metadata": {
-          "actualWorkers": 1
+          "actualWorkers": 4
         },
         "id": "chromium",
         "name": "chromium",
@@ -75,7 +75,7 @@
         {
           "title": "SSPA Dashboard - Cobertura Abrangente",
           "file": "sspa.spec.ts",
-          "line": 55,
+          "line": 89,
           "column": 6,
           "specs": [
             {
@@ -94,12 +94,12 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 1176,
+                      "duration": 2561,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-03-02T11:08:45.573Z",
+                      "startTime": "2026-03-02T18:32:07.712Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -109,7 +109,7 @@
               ],
               "id": "a42535faff86ef3f1343-023b2f29609dd954070b",
               "file": "sspa.spec.ts",
-              "line": 58,
+              "line": 90,
               "column": 7
             },
             {
@@ -125,15 +125,15 @@
                   "projectName": "chromium",
                   "results": [
                     {
-                      "workerIndex": 0,
-                      "parallelIndex": 0,
+                      "workerIndex": 1,
+                      "parallelIndex": 1,
                       "status": "passed",
-                      "duration": 406,
+                      "duration": 1033,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-03-02T11:08:47.262Z",
+                      "startTime": "2026-03-02T18:32:07.513Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -143,65 +143,75 @@
               ],
               "id": "a42535faff86ef3f1343-753bb3df9ef578d81a70",
               "file": "sspa.spec.ts",
-              "line": 75,
+              "line": 107,
               "column": 7
             },
             {
-              "title": "matriz de autenticação, autorização e CRUD provável por projeto",
-              "ok": false,
+              "title": "validação card-a-card: ui, health e endpoint principal por projeto",
+              "ok": true,
               "tags": [],
               "tests": [
                 {
-                  "timeout": 240000,
+                  "timeout": 420000,
                   "annotations": [],
                   "expectedStatus": "passed",
                   "projectId": "chromium",
                   "projectName": "chromium",
                   "results": [
                     {
-                      "workerIndex": 0,
-                      "parallelIndex": 0,
-                      "status": "failed",
-                      "duration": 381,
-                      "error": {
-                        "message": "Error: POST sem auth inesperado em accounts/account: 500\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeTruthy\u001b[2m()\u001b[22m\n\nReceived: \u001b[31mfalse\u001b[39m",
-                        "stack": "Error: POST sem auth inesperado em accounts/account: 500\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeTruthy\u001b[2m()\u001b[22m\n\nReceived: \u001b[31mfalse\u001b[39m\n    at /root/w/node-gen/test/sspa.spec.ts:141:137",
-                        "location": {
-                          "file": "/root/w/node-gen/test/sspa.spec.ts",
-                          "column": 137,
-                          "line": 141
-                        },
-                        "snippet": "  139 |         expect(ACCEPTED_READ_CODES.has(row.get_unauth), `GET sem auth inesperado em ${projectKey}/${entityKey}: ${row.get_unauth}`).toBeTruthy();\n  140 |         expect(ACCEPTED_READ_CODES.has(row.get_invalid_token), `GET com token inválido inesperado em ${projectKey}/${entityKey}: ${row.get_invalid_token}`).toBeTruthy();\n> 141 |         expect(ACCEPTED_WRITE_CODES.has(row.post_unauth), `POST sem auth inesperado em ${projectKey}/${entityKey}: ${row.post_unauth}`).toBeTruthy();\n      |                                                                                                                                         ^\n  142 |         expect(ACCEPTED_WRITE_CODES.has(row.patch_unauth), `PATCH sem auth inesperado em ${projectKey}/${entityKey}: ${row.patch_unauth}`).toBeTruthy();\n  143 |         expect(ACCEPTED_WRITE_CODES.has(row.delete_unauth), `DELETE sem auth inesperado em ${projectKey}/${entityKey}: ${row.delete_unauth}`).toBeTruthy();\n  144 |       }"
-                      },
-                      "errors": [
-                        {
-                          "location": {
-                            "file": "/root/w/node-gen/test/sspa.spec.ts",
-                            "column": 137,
-                            "line": 141
-                          },
-                          "message": "Error: POST sem auth inesperado em accounts/account: 500\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeTruthy\u001b[2m()\u001b[22m\n\nReceived: \u001b[31mfalse\u001b[39m\n\n  139 |         expect(ACCEPTED_READ_CODES.has(row.get_unauth), `GET sem auth inesperado em ${projectKey}/${entityKey}: ${row.get_unauth}`).toBeTruthy();\n  140 |         expect(ACCEPTED_READ_CODES.has(row.get_invalid_token), `GET com token inválido inesperado em ${projectKey}/${entityKey}: ${row.get_invalid_token}`).toBeTruthy();\n> 141 |         expect(ACCEPTED_WRITE_CODES.has(row.post_unauth), `POST sem auth inesperado em ${projectKey}/${entityKey}: ${row.post_unauth}`).toBeTruthy();\n      |                                                                                                                                         ^\n  142 |         expect(ACCEPTED_WRITE_CODES.has(row.patch_unauth), `PATCH sem auth inesperado em ${projectKey}/${entityKey}: ${row.patch_unauth}`).toBeTruthy();\n  143 |         expect(ACCEPTED_WRITE_CODES.has(row.delete_unauth), `DELETE sem auth inesperado em ${projectKey}/${entityKey}: ${row.delete_unauth}`).toBeTruthy();\n  144 |       }\n    at /root/w/node-gen/test/sspa.spec.ts:141:137"
-                        }
-                      ],
+                      "workerIndex": 2,
+                      "parallelIndex": 2,
+                      "status": "passed",
+                      "duration": 6647,
+                      "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-03-02T11:08:47.744Z",
+                      "startTime": "2026-03-02T18:32:09.102Z",
                       "annotations": [],
-                      "attachments": [],
-                      "errorLocation": {
-                        "file": "/root/w/node-gen/test/sspa.spec.ts",
-                        "column": 137,
-                        "line": 141
-                      }
+                      "attachments": []
                     }
                   ],
-                  "status": "unexpected"
+                  "status": "expected"
+                }
+              ],
+              "id": "a42535faff86ef3f1343-b1321e8d304225afccfe",
+              "file": "sspa.spec.ts",
+              "line": 118,
+              "column": 7
+            },
+            {
+              "title": "matriz de autenticação, autorização e CRUD provável por projeto",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 420000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 3,
+                      "status": "passed",
+                      "duration": 17816,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-03-02T18:32:07.975Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
                 }
               ],
               "id": "a42535faff86ef3f1343-d272942f860710b5c84e",
               "file": "sspa.spec.ts",
-              "line": 86,
+              "line": 178,
               "column": 7
             },
             {
@@ -217,25 +227,25 @@
                   "projectName": "chromium",
                   "results": [
                     {
-                      "workerIndex": -1,
-                      "parallelIndex": -1,
-                      "status": "skipped",
-                      "duration": 0,
+                      "workerIndex": 1,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 101,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-03-02T11:08:48.351Z",
+                      "startTime": "2026-03-02T18:32:08.838Z",
                       "annotations": [],
                       "attachments": []
                     }
                   ],
-                  "status": "skipped"
+                  "status": "expected"
                 }
               ],
               "id": "a42535faff86ef3f1343-624bddb45cd8f452a85a",
               "file": "sspa.spec.ts",
-              "line": 153,
+              "line": 305,
               "column": 7
             }
           ]
@@ -245,11 +255,11 @@
   ],
   "errors": [],
   "stats": {
-    "startTime": "2026-03-02T11:08:41.184Z",
-    "duration": 7314.974,
-    "expected": 2,
-    "skipped": 1,
-    "unexpected": 1,
+    "startTime": "2026-03-02T18:32:00.132Z",
+    "duration": 25961.267,
+    "expected": 5,
+    "skipped": 0,
+    "unexpected": 0,
     "flaky": 0
   }
 }

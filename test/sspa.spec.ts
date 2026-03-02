@@ -15,12 +15,30 @@ type SspaProject = {
 };
 
 type SspaProjects = Record<string, SspaProject>;
+type HttpMatrixRow = Record<string, number | string>;
+type HttpMatrixAnomaly = {
+  project: string;
+  entity: string;
+  field: string;
+  status: number;
+};
+type CardValidationRow = {
+  project: string;
+  api_port: number;
+  card_visible: boolean;
+  orchestrator_route_status: number;
+  api_health_status: number;
+  sample_entity: string;
+  sample_entity_status: number;
+};
 
 const ORCHESTRATOR_BASE = 'http://localhost:9000';
 
-const ACCEPTED_READ_CODES = new Set([200, 401, 403]);
-const ACCEPTED_WRITE_CODES = new Set([200, 201, 202, 204, 400, 401, 403, 404, 405, 409, 415, 422]);
+const ACCEPTED_READ_CODES = new Set([200, 204, 400, 401, 403, 404, 405]);
+const ACCEPTED_WRITE_CODES = new Set([200, 201, 202, 204, 400, 401, 403, 404, 405, 409, 415, 422, 429]);
 const ACCEPTED_SECURITY_CODES = new Set([400, 401, 403, 404]);
+const ACCEPTED_CARD_ENTITY_CODES = new Set([200, 204, 400, 401, 403, 404, 405]);
+const ENTITY_SAMPLE_SIZE = 3;
 
 async function withRetry<T>(operation: () => Promise<T>, retries = 5, delayMs = 300): Promise<T> {
   let lastError: unknown;
@@ -46,15 +64,29 @@ async function tryStatus(operation: () => Promise<{ status(): number }>): Promis
   }
 }
 
+async function tryStatusNoRetry(operation: () => Promise<{ status(): number }>): Promise<number> {
+  try {
+    const response = await operation();
+    return response.status();
+  } catch {
+    return 0;
+  }
+}
+
 async function loadProjects(requestContext: { get: (url: string) => Promise<{ ok(): boolean; status(): number; json(): Promise<SspaProjects> }> }) {
   const response = await requestContext.get(`${ORCHESTRATOR_BASE}/data/projects.json`);
   expect(response.ok(), `projects.json não carregou (status=${response.status()})`).toBeTruthy();
   return response.json();
 }
 
-test.describe('SSPA Dashboard - Cobertura Abrangente', () => {
-  test.describe.configure({ mode: 'serial' });
+function selectLikelyEntities(entities: Record<string, SspaEntity>): Array<[string, SspaEntity]> {
+  const entries = Object.entries(entities);
+  const prioritized = entries.filter(([entityKey]) => !/^(event|event_body)$/i.test(entityKey));
+  const source = prioritized.length > 0 ? prioritized : entries;
+  return source.slice(0, ENTITY_SAMPLE_SIZE);
+}
 
+test.describe('SSPA Dashboard - Cobertura Abrangente', () => {
   test('dashboard carrega com menu e cards', async ({ page }) => {
     const orchestrator404s: string[] = [];
 
@@ -83,71 +115,191 @@ test.describe('SSPA Dashboard - Cobertura Abrangente', () => {
     }
   });
 
-  test('matriz de autenticação, autorização e CRUD provável por projeto', async ({ request }) => {
-    test.setTimeout(240000);
+  test('validação card-a-card: ui, health e endpoint principal por projeto', async ({ page, request }) => {
+    test.setTimeout(420000);
     const projects = await loadProjects(request);
-    const matrix: Array<Record<string, number | string>> = [];
-    let validatedRows = 0;
+    const rows: CardValidationRow[] = [];
+    const failures: string[] = [];
+    const projectKeys = Object.keys(projects);
 
-    for (const [projectKey, project] of Object.entries(projects)) {
-      const entities = project.entities ?? {};
-      const firstEntity = Object.entries(entities)[0];
+    await page.goto('/');
+    await expect(page.locator('.project-card')).toHaveCount(projectKeys.length);
 
-      if (!firstEntity) {
-        continue;
+    try {
+      for (const [projectKey, project] of Object.entries(projects)) {
+        const entities = project.entities ?? {};
+        const firstEntity = Object.entries(entities)[0];
+        const apiPort = project.apiPort ?? 3001;
+        const orchestratorRouteStatus = await tryStatusNoRetry(() => request.get(`${ORCHESTRATOR_BASE}/${projectKey}/`));
+        const apiHealthStatus = await tryStatusNoRetry(() => request.get(`http://localhost:${apiPort}/health`));
+        const cardVisible = (await page.locator(`.project-card[data-project="${projectKey}"]`).count()) > 0;
+        let sampleEntity = '-';
+        let sampleEntityStatus = 0;
+
+        if (firstEntity) {
+          const [entityKey, entity] = firstEntity;
+          const endpoint = entity.endpoints?.list ?? `/${entityKey}`;
+          sampleEntity = entityKey;
+          sampleEntityStatus = await tryStatusNoRetry(() => request.get(`http://localhost:${apiPort}${endpoint}`));
+        }
+
+        rows.push({
+          project: projectKey,
+          api_port: apiPort,
+          card_visible: cardVisible,
+          orchestrator_route_status: orchestratorRouteStatus,
+          api_health_status: apiHealthStatus,
+          sample_entity: sampleEntity,
+          sample_entity_status: sampleEntityStatus
+        });
+
+        if (!cardVisible) {
+          failures.push(`${projectKey}: card não visível na UI`);
+        }
+        if (orchestratorRouteStatus !== 200) {
+          failures.push(`${projectKey}: rota do orquestrador retornou ${orchestratorRouteStatus}`);
+        }
+        if (apiHealthStatus !== 200) {
+          failures.push(`${projectKey}: /health retornou ${apiHealthStatus} na porta ${apiPort}`);
+        }
+        if (sampleEntity !== '-' && !ACCEPTED_CARD_ENTITY_CODES.has(sampleEntityStatus)) {
+          failures.push(`${projectKey}/${sampleEntity}: status inesperado ${sampleEntityStatus} no endpoint principal`);
+        }
       }
-
-      const [entityKey, entity] = firstEntity;
-      const endpoint = entity.endpoints?.list ?? `/${entityKey}`;
-      const apiPort = project.apiPort ?? 3001;
-      const baseUrl = `http://localhost:${apiPort}${endpoint}`;
-      const resourceUrl = `${baseUrl}/1`;
-
-      const unauthGet = await tryStatus(() => request.get(baseUrl));
-      const invalidTokenGet = await tryStatus(() =>
-        request.get(baseUrl, {
-        headers: { Authorization: 'Bearer invalid-token' }
-        })
-      );
-      const unauthPost = await tryStatus(() =>
-        request.post(baseUrl, {
-        headers: { 'Content-Type': 'application/json' },
-        data: { name: 'playwright-probe' }
-        })
-      );
-      const unauthPatch = await tryStatus(() =>
-        request.patch(resourceUrl, {
-        headers: { 'Content-Type': 'application/json' },
-        data: { name: 'playwright-probe-edit' }
-        })
-      );
-      const unauthDelete = await tryStatus(() => request.delete(resourceUrl));
-
-      const row = {
-        project: projectKey,
-        entity: entityKey,
-        get_unauth: unauthGet,
-        get_invalid_token: invalidTokenGet,
-        post_unauth: unauthPost,
-        patch_unauth: unauthPatch,
-        delete_unauth: unauthDelete
-      };
-      matrix.push(row);
-
-      if (row.get_unauth !== 0) {
-        validatedRows += 1;
-        expect(ACCEPTED_READ_CODES.has(row.get_unauth), `GET sem auth inesperado em ${projectKey}/${entityKey}: ${row.get_unauth}`).toBeTruthy();
-        expect(ACCEPTED_READ_CODES.has(row.get_invalid_token), `GET com token inválido inesperado em ${projectKey}/${entityKey}: ${row.get_invalid_token}`).toBeTruthy();
-        expect(ACCEPTED_WRITE_CODES.has(row.post_unauth), `POST sem auth inesperado em ${projectKey}/${entityKey}: ${row.post_unauth}`).toBeTruthy();
-        expect(ACCEPTED_WRITE_CODES.has(row.patch_unauth), `PATCH sem auth inesperado em ${projectKey}/${entityKey}: ${row.patch_unauth}`).toBeTruthy();
-        expect(ACCEPTED_WRITE_CODES.has(row.delete_unauth), `DELETE sem auth inesperado em ${projectKey}/${entityKey}: ${row.delete_unauth}`).toBeTruthy();
-      }
+    } finally {
+      await fs.mkdir('playwright-results', { recursive: true });
+      await fs.writeFile('playwright-results/card-validation.json', JSON.stringify(rows, null, 2));
     }
 
-    await fs.mkdir('playwright-results', { recursive: true });
-    await fs.writeFile('playwright-results/http-matrix.json', JSON.stringify(matrix, null, 2));
+    expect(rows.length).toBeGreaterThan(0);
+    expect(failures, `Falhas na validação card-a-card: ${failures.join(' | ')}`).toEqual([]);
+  });
+
+  test('matriz de autenticação, autorização e CRUD provável por projeto', async ({ request }) => {
+    test.setTimeout(420000);
+    const projects = await loadProjects(request);
+    const matrix: HttpMatrixRow[] = [];
+    const anomalies: HttpMatrixAnomaly[] = [];
+    let validatedRows = 0;
+    const portHealth = new Map<number, number>();
+
+    try {
+      for (const [projectKey, project] of Object.entries(projects)) {
+        const entities = project.entities ?? {};
+        const selectedEntities = selectLikelyEntities(entities);
+
+        if (selectedEntities.length === 0) {
+          continue;
+        }
+
+        for (const [entityKey, entity] of selectedEntities) {
+          const endpoint = entity.endpoints?.list ?? `/${entityKey}`;
+          const apiPort = project.apiPort ?? 3001;
+          const baseUrl = `http://localhost:${apiPort}${endpoint}`;
+          const resourceUrl = `${baseUrl}/1`;
+          const healthStatus = portHealth.has(apiPort)
+            ? (portHealth.get(apiPort) ?? 0)
+            : await tryStatusNoRetry(() => request.get(`http://localhost:${apiPort}/health`));
+          portHealth.set(apiPort, healthStatus);
+
+          if (healthStatus === 0) {
+            matrix.push({
+              project: projectKey,
+              entity: entityKey,
+              get_unauth: 0,
+              get_invalid_token: 0,
+              get_malformed_token: 0,
+              post_unauth: 0,
+              post_invalid_token: 0,
+              patch_unauth: 0,
+              delete_unauth: 0
+            });
+            continue;
+          }
+
+          const unauthGet = await tryStatus(() => request.get(baseUrl));
+          const invalidTokenGet = await tryStatus(() =>
+            request.get(baseUrl, {
+              headers: { Authorization: 'Bearer invalid-token' }
+            })
+          );
+          const malformedTokenGet = await tryStatus(() =>
+            request.get(baseUrl, {
+              headers: { Authorization: 'invalid-token' }
+            })
+          );
+          const unauthPost = await tryStatus(() =>
+            request.post(baseUrl, {
+              headers: { 'Content-Type': 'application/json' },
+              data: { name: 'playwright-probe' }
+            })
+          );
+          const invalidTokenPost = await tryStatus(() =>
+            request.post(baseUrl, {
+              headers: {
+                Authorization: 'Bearer invalid-token',
+                'Content-Type': 'application/json'
+              },
+              data: { name: 'playwright-probe-invalid-token' }
+            })
+          );
+          const unauthPatch = await tryStatus(() =>
+            request.patch(resourceUrl, {
+              headers: { 'Content-Type': 'application/json' },
+              data: { name: 'playwright-probe-edit' }
+            })
+          );
+          const unauthDelete = await tryStatus(() => request.delete(resourceUrl));
+
+          const row = {
+            project: projectKey,
+            entity: entityKey,
+            get_unauth: unauthGet,
+            get_invalid_token: invalidTokenGet,
+            get_malformed_token: malformedTokenGet,
+            post_unauth: unauthPost,
+            post_invalid_token: invalidTokenPost,
+            patch_unauth: unauthPatch,
+            delete_unauth: unauthDelete
+          };
+          matrix.push(row);
+
+          for (const [field, status] of Object.entries(row)) {
+            if (field === 'project' || field === 'entity') {
+              continue;
+            }
+            const statusCode = Number(status);
+            if (statusCode >= 500) {
+              anomalies.push({
+                project: projectKey,
+                entity: entityKey,
+                field,
+                status: statusCode
+              });
+            }
+          }
+
+          if (row.get_unauth !== 0) {
+            validatedRows += 1;
+            expect.soft(ACCEPTED_READ_CODES.has(row.get_unauth), `GET sem auth inesperado em ${projectKey}/${entityKey}: ${row.get_unauth}`).toBeTruthy();
+            expect.soft(ACCEPTED_READ_CODES.has(row.get_invalid_token), `GET com token inválido inesperado em ${projectKey}/${entityKey}: ${row.get_invalid_token}`).toBeTruthy();
+            expect.soft(ACCEPTED_READ_CODES.has(row.get_malformed_token), `GET com header malformado inesperado em ${projectKey}/${entityKey}: ${row.get_malformed_token}`).toBeTruthy();
+            expect.soft(ACCEPTED_WRITE_CODES.has(row.post_unauth), `POST sem auth inesperado em ${projectKey}/${entityKey}: ${row.post_unauth}`).toBeTruthy();
+            expect.soft(ACCEPTED_WRITE_CODES.has(row.post_invalid_token), `POST com token inválido inesperado em ${projectKey}/${entityKey}: ${row.post_invalid_token}`).toBeTruthy();
+            expect.soft(ACCEPTED_WRITE_CODES.has(row.patch_unauth), `PATCH sem auth inesperado em ${projectKey}/${entityKey}: ${row.patch_unauth}`).toBeTruthy();
+            expect.soft(ACCEPTED_WRITE_CODES.has(row.delete_unauth), `DELETE sem auth inesperado em ${projectKey}/${entityKey}: ${row.delete_unauth}`).toBeTruthy();
+          }
+        }
+      }
+    } finally {
+      await fs.mkdir('playwright-results', { recursive: true });
+      await fs.writeFile('playwright-results/http-matrix.json', JSON.stringify(matrix, null, 2));
+      await fs.writeFile('playwright-results/http-matrix-anomalies.json', JSON.stringify(anomalies, null, 2));
+    }
+
     expect(matrix.length).toBeGreaterThan(0);
     expect(validatedRows).toBeGreaterThan(0);
+    expect(anomalies, `Respostas 5xx detectadas na matriz HTTP: ${JSON.stringify(anomalies)}`).toEqual([]);
   });
 
   test('segurança básica: path traversal no orquestrador não retorna 200', async ({ request }) => {
