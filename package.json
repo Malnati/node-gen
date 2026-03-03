@@ -12,6 +12,7 @@
     "playwright:install": "playwright install --with-deps chromium"
   },
   "devDependencies": {
-    "@playwright/test": "^1.40.0"
+    "@playwright/test": "^1.40.0",
+    "shadcn": "^3.8.5"
   }
 }
