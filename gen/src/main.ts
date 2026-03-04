@@ -6,6 +6,7 @@ import { DbReader } from "./db.reader.postgres";
 import { ConfigUtil } from "./utils/ConfigUtil";
 import { MicrofrontendGenerator } from "./microfrontend-generator";
 import { AppShellGenerator } from "./appshell-generator";
+import { MFEParcelPagingGenerator } from "./mfe-parcel-paging-generator";
 // API Generators
 import { ApiEntityGenerator } from "./api-entity-generator";
 import { ApiServiceGenerator } from "./api-service-generator";
@@ -112,7 +113,7 @@ async function main() {
     } else {
         const response = await askQuestion(
             "Especifique quais componentes gerar \n" +
-            "(api-entities, api-services, api-interfaces, api-controllers, api-dtos, api-modules, api-app-module, api-main, api-datasource, api-readme, mfes, app-shell): "
+            "(api-entities, api-services, api-interfaces, api-controllers, api-dtos, api-modules, api-app-module, api-main, api-datasource, api-readme, mfes, mfe-parcel-paging, app-shell): "
         );
         components = response.replace("\"", "")
         .split(",")
@@ -139,6 +140,12 @@ async function main() {
                     }
                     const appShellGenerator = new AppShellGenerator(dbConfig);
                     appShellGenerator.generate(mfeConfigs);
+                    break;
+                }
+
+                case "mfe-parcel-paging": {
+                    const pagingGenerator = new MFEParcelPagingGenerator(schemaPath, dbConfig);
+                    await pagingGenerator.generate();
                     break;
                 }
 

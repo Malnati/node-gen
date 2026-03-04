@@ -1164,7 +1164,7 @@
   "e2eSkipApiStartForDbTypes": [
     "sqlite"
   ],
-  "components": "api-entities,api-services,api-interfaces,api-controllers,api-dtos,api-modules,api-app-module,api-main,api-datasource,api-readme,mfes,app-shell",
+  "components": "api-entities,api-services,api-interfaces,api-controllers,api-dtos,api-modules,api-app-module,api-main,api-datasource,api-readme,mfes,mfe-parcel-paging,app-shell",
   "e2eAppName": "e2e-mock-app",
   "repoRootRelative": [
     "..",

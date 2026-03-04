@@ -13,6 +13,7 @@ const scriptDb = path.join(MOCK_DIR, config.scriptDb);
 const scriptE2e = path.join(MOCK_DIR, config.scriptE2e);
 const scriptE2eMfe = path.join(MOCK_DIR, 'e2e-mfe.js');
 const scriptE2eAll = path.join(MOCK_DIR, 'e2e-all.js');
+const scriptE2ePaging = path.join(MOCK_DIR, 'e2e-paging.js');
 
 function discoverAllProjects() {
   if (!fs.existsSync(PROJECTS_DIR)) {
@@ -60,6 +61,8 @@ function main() {
       script = scriptE2eMfe;
     } else if (e2eMode === 'all') {
       script = scriptE2eAll;
+    } else if (e2eMode === 'paging') {
+      script = scriptE2ePaging;
     } else {
       // Default: API only (original e2e.js)
       script = scriptE2e;
@@ -117,11 +120,13 @@ function main() {
   console.error('  node run.js e2e [project1 project2 ...]        - Testes E2E (API)');
   console.error('  node run.js e2e-mfe [project1 ...]              - Testes E2E (MFE)');
   console.error('  node run.js e2e-all [project1 ...]              - Testes E2E (API + MFE)');
+  console.error('  node run.js e2e-paging [project1 ...]           - Testes E2E (MFE Parcel Paging)');
   console.error('');
   console.error('  Ambiente:');
-  console.error('    E2E_MODE=api    - Executar apenas API (padrão)');
+  console.error('    E2E_MODE=api    - Executar apenas API (padrao)');
   console.error('    E2E_MODE=mfe    - Executar apenas MFE');
   console.error('    E2E_MODE=all    - Executar API + MFE em paralelo');
+  console.error('    E2E_MODE=paging - Executar MFE Parcel Paging');
   process.exit(1);
 }
 

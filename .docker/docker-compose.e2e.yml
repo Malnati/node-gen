@@ -43,6 +43,7 @@ services:
     entrypoint: ["/app/.docker/entrypoint.e2e.sh"]
     environment:
       E2E_DB_TYPES: ${E2E_DB_TYPES:-sqlite,postgres,mysql,sqlserver}
+      E2E_PAGING_DB_TYPE: ${E2E_PAGING_DB_TYPE:-sqlite}
       DB_POSTGRES_HOST: postgres
       DB_POSTGRES_PORT: "5432"
       DB_MYSQL_HOST: mysql

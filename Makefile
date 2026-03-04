@@ -98,6 +98,75 @@ gen-mfe-internal:
 	fi
 	@node gen/dist/main.js -a $$(basename $(or $(GEN_PROJECT),$(PROJECT))) -f mfes -d $$(or $(GEN_PROJECT),$(PROJECT))/db -o $(or $(GEN_OUTPUT),$(OUTPUT))
 
+# Gera MFE Parcel Paging para um projeto específico
+# Uso: make gen-mfe-paging GEN_PROJECT=<path/project> GEN_OUTPUT=<path/output> GEN_DB_TYPE=<postgres|mysql|sqlite>
+# Exemplo: make gen-mfe-paging GEN_PROJECT=test/e2e-generator/projects/accounts GEN_OUTPUT=output/accounts-paging GEN_DB_TYPE=postgres
+gen-mfe-paging: gen-mfe-paging-internal
+	@:
+
+gen-mfe-paging-internal:
+	@echo "📑  Gerando MFE Parcel Paging para $(GEN_PROJECT) em $(GEN_OUTPUT)..."
+	@if [ -z "$(GEN_PROJECT)" ] || [ -z "$(GEN_OUTPUT)" ]; then \
+		echo "Uso: make gen-mfe-paging GEN_PROJECT=<path/project> GEN_OUTPUT=<path/output> GEN_DB_TYPE=<type>"; \
+		echo "Exemplo: make gen-mfe-paging GEN_PROJECT=test/e2e-generator/projects/accounts GEN_OUTPUT=output/accounts-paging GEN_DB_TYPE=postgres"; \
+		exit 1; \
+	fi
+	@DB_TYPE="$${GEN_DB_TYPE:-postgres}"; \
+	CONN_FILE="$(GEN_PROJECT)/db/connection.$$DB_TYPE.json"; \
+	if [ ! -f "$$CONN_FILE" ]; then echo "Arquivo de conexão não encontrado: $$CONN_FILE"; exit 1; fi; \
+	DB_NAME=$$(grep -o '"database":"[^"]*"' $$CONN_FILE | cut -d'"' -f4); \
+	DB_HOST=$$(grep -o '"host":"[^"]*"' $$CONN_FILE | cut -d'"' -f4); \
+	DB_USER=$$(grep -o '"user":"[^"]*"' $$CONN_FILE | cut -d'"' -f4); \
+	DB_PW=$$(grep -o '"password":"[^"]*"' $$CONN_FILE | cut -d'"' -f4); \
+	DB_PORT=$$(grep -o '"port":[0-9]*' $$CONN_FILE | cut -d':' -f2); \
+	APP_NAME=$$(basename "$(GEN_PROJECT)"); \
+	node gen/dist/main.js -a "$$APP_NAME" -f mfe-parcel-paging -d "$$DB_NAME" -o $(GEN_OUTPUT) -t $$DB_TYPE -h "$$DB_HOST" -u "$$DB_USER" -pw "$$DB_PW" -p "$$DB_PORT"
+
+# Gera API + MFE Parcel Paging para um projeto específico (em sequência)
+# Uso: make gen-api+paging GEN_PROJECT=<path/project> GEN_OUTPUT=<path/output> GEN_DB_TYPE=<postgres|mysql|sqlite>
+# Exemplo: make gen-api+paging GEN_PROJECT=test/e2e-generator/projects/addresses GEN_OUTPUT=output/addresses GEN_DB_TYPE=postgres
+gen-api+paging: gen-api+paging-internal
+	@:
+
+gen-api+paging-internal:
+	@echo "📦  Gerando API + MFE Parcel Paging..."
+	@PROJECT="$(GEN_PROJECT)" && OUTPUT="$(GEN_OUTPUT)" && DB_TYPE="$(GEN_DB_TYPE)" && \
+	CONN_FILE="$$PROJECT/db/connection.$${DB_TYPE:-postgres}.json" && \
+	if [ ! -f "$$CONN_FILE" ]; then echo "Arquivo de conexão não encontrado: $$CONN_FILE"; exit 1; fi && \
+	DB_NAME=$$(grep -o '"database":"[^"]*"' "$$CONN_FILE" | cut -d'"' -f4) && \
+	DB_HOST=$$(grep -o '"host":"[^"]*"' "$$CONN_FILE" | cut -d'"' -f4) && \
+	DB_USER=$$(grep -o '"user":"[^"]*"' "$$CONN_FILE" | cut -d'"' -f4) && \
+	DB_PW=$$(grep -o '"password":"[^"]*"' "$$CONN_FILE" | cut -d'"' -f4) && \
+	DB_PORT=$$(grep -o '"port":[0-9]*' "$$CONN_FILE" | cut -d':' -f2) && \
+	APP_NAME=$$(basename "$$PROJECT") && \
+	echo ">>> Gerando API ($$DB_NAME on $$DB_HOST:$$DB_PORT)..." && \
+	node gen/dist/main.js -a "$$APP_NAME" -d "$$DB_NAME" -o "$$OUTPUT" -t "$$DB_TYPE" -f "api-entities,api-services,api-interfaces,api-controllers,api-dtos,api-modules,api-app-module,api-main,api-datasource,api-readme" -h "$$DB_HOST" -u "$$DB_USER" -pw "$$DB_PW" -p "$$DB_PORT" && \
+	echo ">>> Gerando MFE Parcel Paging..." && \
+	node gen/dist/main.js -a "$$APP_NAME" -f mfe-parcel-paging -d "$$DB_NAME" -o "$$OUTPUT" -t "$$DB_TYPE" -h "$$DB_HOST" -u "$$DB_USER" -pw "$$DB_PW" -p "$$DB_PORT"
+
+# Gera API (NestJS) forçando PostgreSQL para um projeto específico
+# Uso: make gen-pg-api GEN_PROJECT=<path/project> GEN_OUTPUT=<path/output>
+# Exemplo: make gen-pg-api GEN_PROJECT=test/e2e-generator/projects/addresses GEN_OUTPUT=output/api/postgres/addresses
+gen-pg-api: gen-pg-api-internal
+	@:
+
+gen-pg-api-internal:
+	@echo "📦  Gerando API PostgreSQL para $(GEN_PROJECT) em $(GEN_OUTPUT)..."
+	@if [ -z "$(GEN_PROJECT)" ] || [ -z "$(GEN_OUTPUT)" ]; then \
+		echo "Uso: make gen-pg-api GEN_PROJECT=<path/project> GEN_OUTPUT=<path/output>"; \
+		echo "Exemplo: make gen-pg-api GEN_PROJECT=test/e2e-generator/projects/addresses GEN_OUTPUT=output/api/postgres/addresses"; \
+		exit 1; \
+	fi
+	@CONN_FILE="$(GEN_PROJECT)/db/connection.postgres.json"; \
+	if [ ! -f "$$CONN_FILE" ]; then echo "Arquivo de conexão não encontrado: $$CONN_FILE"; exit 1; fi; \
+	DB_NAME=$$(grep -o '"database":"[^"]*"' $$CONN_FILE | cut -d'"' -f4); \
+	DB_HOST=$$(grep -o '"host":"[^"]*"' $$CONN_FILE | cut -d'"' -f4); \
+	DB_USER=$$(grep -o '"user":"[^"]*"' $$CONN_FILE | cut -d'"' -f4); \
+	DB_PW=$$(grep -o '"password":"[^"]*"' $$CONN_FILE | cut -d'"' -f4); \
+	DB_PORT=$$(grep -o '"port":[0-9]*' $$CONN_FILE | cut -d':' -f2); \
+	APP_NAME=$$(basename "$(GEN_PROJECT)"); \
+	node gen/dist/main.js -a "$$APP_NAME" -d "$$DB_NAME" -o $(GEN_OUTPUT) -t postgres -f "api-entities,api-services,api-interfaces,api-controllers,api-dtos,api-modules,api-app-module,api-main,api-datasource,api-readme" -h "$$DB_HOST" -u "$$DB_USER" -pw "$$DB_PW" -p "$$DB_PORT"
+
 # ==============================================================================
 # TARGETS E2E — BANCOS DE DADOS
 # ==============================================================================
@@ -140,6 +209,11 @@ e2e-all: e2e-dbs e2e-build
 	@echo "⚡  Executando E2E completo (API + MFE)..."
 	$(call compose_e2e,run --rm -e E2E_MODE=all -e E2E_PROJECTS="$(E2E_PROJECTS)" e2e)
 
+# E2E MFE Parcel Paging
+e2e-paging: e2e-dbs e2e-build
+	@echo "📑  Executando E2E MFE Parcel Paging para todos os projetos..."
+	$(call compose_e2e,run --rm -e E2E_MODE=paging -e E2E_PROJECTS="$(E2E_PROJECTS)" e2e)
+
 # ==============================================================================
 # TARGETS E2E POR PROJETO INDIVIDUAL
 # ==============================================================================
@@ -168,9 +242,52 @@ e2e-all-$(1):
 	$(call compose_e2e,run --rm -e E2E_MODE=all -e E2E_PROJECTS=$(1) e2e)
 endef
 
+define e2e-paging-project-target
+e2e-paging-$(1):
+	@echo "📑  Executando E2E MFE Parcel Paging para projeto $(1)..."
+	E2E_MODE=paging E2E_PROJECTS=$(1) $(MAKE) e2e-build
+	$(call compose_e2e,run --rm -e E2E_MODE=paging -e E2E_PROJECTS=$(1) e2e)
+endef
+
+define gen-pg-api-project-target
+gen-$(1)-pg-api:
+	@echo "📦  Gerando API PostgreSQL para projeto $(1)..."
+	$(MAKE) gen-pg-api GEN_PROJECT=test/e2e-generator/projects/$(1) GEN_OUTPUT=output/api/postgres/$(1)
+endef
+
+define gen-pg-parcel-paging-project-target
+gen-$(1)-pg-parcel-paging:
+	@echo "📑  Gerando MFE Parcel Paging PostgreSQL para projeto $(1)..."
+	$(MAKE) gen-mfe-paging GEN_PROJECT=test/e2e-generator/projects/$(1) GEN_OUTPUT=output/parcel/postgres/$(1)/mfe-parcel-paging GEN_DB_TYPE=postgres
+endef
+
+define e2e-pg-api-project-target
+e2e-$(1)-pg-api:
+	@echo "🧪  Executando E2E API PostgreSQL para projeto $(1)..."
+	E2E_DB_TYPES=postgres $(MAKE) e2e-dbs
+	E2E_DB_TYPES=postgres E2E_PROJECTS=$(1) $(MAKE) e2e-build
+	$(call compose_e2e,run --rm -e E2E_MODE=api -e E2E_PROJECTS=$(1) -e E2E_DB_TYPES=postgres e2e)
+endef
+
+define e2e-pg-parcel-paging-project-target
+e2e-$(1)-pg-parcel-paging:
+	@echo "🧪  Executando E2E Parcel Paging PostgreSQL + Playwright para projeto $(1)..."
+	$(MAKE) gen-$(1)-pg-api
+	$(MAKE) gen-$(1)-pg-parcel-paging
+	E2E_DB_TYPES=postgres E2E_PAGING_DB_TYPE=postgres $(MAKE) e2e-dbs
+	E2E_DB_TYPES=postgres E2E_PAGING_DB_TYPE=postgres E2E_PROJECTS=$(1) $(MAKE) e2e-build
+	$(call compose_e2e,run --rm -e E2E_MODE=paging -e E2E_PROJECTS=$(1) -e E2E_DB_TYPES=postgres -e E2E_PAGING_DB_TYPE=postgres e2e)
+	PLAYWRIGHT_PROJECT=$(1) $(MAKE) playwright-test
+endef
+
 $(foreach p,$(E2E_PROJECTS_LIST),$(eval $(call e2e-api-project-target,$(p))))
 $(foreach p,$(E2E_PROJECTS_LIST),$(eval $(call e2e-mfe-project-target,$(p))))
 $(foreach p,$(E2E_PROJECTS_LIST),$(eval $(call e2e-all-project-target,$(p))))
+$(foreach p,$(E2E_PROJECTS_LIST),$(eval $(call e2e-paging-project-target,$(p))))
+$(foreach p,$(E2E_PROJECTS_LIST),$(eval $(call gen-pg-api-project-target,$(p))))
+$(foreach p,$(E2E_PROJECTS_LIST),$(eval $(call gen-pg-parcel-paging-project-target,$(p))))
+$(foreach p,$(E2E_PROJECTS_LIST),$(eval $(call e2e-pg-api-project-target,$(p))))
+$(foreach p,$(E2E_PROJECTS_LIST),$(eval $(call e2e-pg-parcel-paging-project-target,$(p))))
 
 # ==============================================================================
 # TARGETS DE PROJETOS POSTGRES (legado)
@@ -251,23 +368,43 @@ playwright-up:
 			echo "⚠️  API indisponível na porta $$p no momento da checagem"; \
 		fi; \
 	done
-	@echo "⏳  Aguardando healthcheck completo das APIs (3001-3026)..."
-	@for i in $$(seq 1 180); do \
-		pending=0; \
-		for p in $$(seq 3001 3026); do \
-			code=$$(curl -s -o /dev/null -w "%{http_code}" --connect-timeout 1 --max-time 2 "http://localhost:$$p/health" || echo "000"); \
-			if [ "$$code" != "200" ]; then pending=$$((pending + 1)); fi; \
+	@if [ -n "$(PLAYWRIGHT_PROJECT)" ]; then \
+		echo "⏳  Aguardando ao menos uma API com /health=200 para PLAYWRIGHT_PROJECT=$(PLAYWRIGHT_PROJECT)..."; \
+		for i in $$(seq 1 180); do \
+			healthy_port=""; \
+			for p in $$(seq 3001 3026); do \
+				code=$$(curl -s -o /dev/null -w "%{http_code}" --connect-timeout 1 --max-time 2 "http://localhost:$$p/health" || echo "000"); \
+				if [ "$$code" = "200" ]; then healthy_port="$$p"; break; fi; \
+			done; \
+			if [ -n "$$healthy_port" ]; then \
+				echo "✅  API disponível para escopo filtrado na porta $$healthy_port"; \
+				break; \
+			fi; \
+			if [ $$i -eq 180 ]; then \
+				echo "❌  Timeout aguardando API com /health=200 para PLAYWRIGHT_PROJECT=$(PLAYWRIGHT_PROJECT)"; \
+				exit 1; \
+			fi; \
+			sleep 1; \
 		done; \
-		if [ $$pending -eq 0 ]; then \
-			echo "✅  Todas as APIs responderam /health com 200"; \
-			break; \
-		fi; \
-		if [ $$i -eq 180 ]; then \
-			echo "❌  Timeout aguardando /health=200 em todas as APIs (faltando $$pending)"; \
-			exit 1; \
-		fi; \
-		sleep 1; \
-	done
+	else \
+		echo "⏳  Aguardando healthcheck completo das APIs (3001-3026)..."; \
+		for i in $$(seq 1 180); do \
+			pending=0; \
+			for p in $$(seq 3001 3026); do \
+				code=$$(curl -s -o /dev/null -w "%{http_code}" --connect-timeout 1 --max-time 2 "http://localhost:$$p/health" || echo "000"); \
+				if [ "$$code" != "200" ]; then pending=$$((pending + 1)); fi; \
+			done; \
+			if [ $$pending -eq 0 ]; then \
+				echo "✅  Todas as APIs responderam /health com 200"; \
+				break; \
+			fi; \
+			if [ $$i -eq 180 ]; then \
+				echo "❌  Timeout aguardando /health=200 em todas as APIs (faltando $$pending)"; \
+				exit 1; \
+			fi; \
+			sleep 1; \
+		done; \
+	fi
 
 playwright-down:
 	@echo "🛑  Parando container SSPA..."

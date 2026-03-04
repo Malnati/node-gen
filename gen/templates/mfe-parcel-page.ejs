@@ -1,0 +1,346 @@
+// gen/templates/mfe-parcel-page.ejs
+// Template for MFE Parcel Paging - Shadcn Admin Kit based
+import { useState, useEffect, useCallback } from 'react';
+import { <%- camelName %>PagingApi, type PagingRequest, type <%- pascalName %>Record } from './api/client';
+
+// Simple pagination component
+function Pagination({ 
+  page, 
+  totalPages, 
+  onPageChange 
+}: { 
+  page: number; 
+  totalPages: number; 
+  onPageChange: (page: number) => void;
+}) {
+  const pages = [];
+  const maxVisiblePages = 5;
+  
+  let startPage = Math.max(1, page - Math.floor(maxVisiblePages / 2));
+  let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+  
+  if (endPage - startPage + 1 < maxVisiblePages) {
+    startPage = Math.max(1, endPage - maxVisiblePages + 1);
+  }
+
+  for (let i = startPage; i <= endPage; i++) {
+    pages.push(i);
+  }
+
+  return (
+    <div className="flex items-center gap-2" data-testid="pagination">
+      <button
+        onClick={() => onPageChange(page - 1)}
+        disabled={page <= 1}
+        className="px-3 py-1 border rounded disabled:opacity-50"
+        data-testid="pagination-prev"
+      >
+        Anterior
+      </button>
+      {startPage > 1 && <span className="px-2">...</span>}
+      {pages.map(p => (
+        <button
+          key={p}
+          onClick={() => onPageChange(p)}
+          className={`px-3 py-1 border rounded ${p === page ? 'bg-primary text-white' : ''}`}
+          data-testid={`pagination-page-${p}`}
+        >
+          {p}
+        </button>
+      ))}
+      {endPage < totalPages && <span className="px-2">...</span>}
+      <button
+        onClick={() => onPageChange(page + 1)}
+        disabled={page >= totalPages}
+        className="px-3 py-1 border rounded disabled:opacity-50"
+        data-testid="pagination-next"
+      >
+        Proximo
+      </button>
+    </div>
+  );
+}
+
+// Simple filter form component
+function FilterForm<%- pascalName %>({ 
+  onFilterChange 
+}: { 
+  onFilterChange: (filters: Record<string, any>) => void;
+}) {
+  const [filters, setFilters] = useState<Record<string, any>>({});
+
+  const handleChange = (field: string, value: any) => {
+    const newFilters = { ...filters, [field]: value };
+    setFilters(newFilters);
+    onFilterChange(newFilters);
+  };
+
+  const handleReset = () => {
+    setFilters({});
+    onFilterChange({});
+  };
+
+  const filterFieldsList = [
+<% filterFields.forEach(function(field) { %>
+    { name: '<%- field.name %>', label: '<%- field.label %>', inputType: '<%- field.inputType %>' },
+<% }); %>
+  ];
+
+  return (
+    <div className="flex flex-wrap gap-4 p-4 border rounded mb-4" data-testid="filter-form">
+      {filterFieldsList.map((field) => (
+        <div key={field.name} className="flex flex-col" data-testid={`filter-field-${field.name}`}>
+          <label className="text-sm font-medium mb-1">{field.label}</label>
+          {field.inputType === 'boolean' ? (
+            <select
+              value={filters[field.name] ?? ''}
+              onChange={(e) => handleChange(field.name, e.target.value === 'true' ? true : e.target.value === 'false' ? false : null)}
+              className="border rounded px-2 py-1"
+            >
+              <option value="">Todos</option>
+              <option value="true">Sim</option>
+              <option value="false">Nao</option>
+            </select>
+          ) : (
+            <input
+              type={field.inputType === 'number' ? 'number' : 'text'}
+              value={filters[field.name] || ''}
+              onChange={(e) => handleChange(field.name, field.inputType === 'number' ? Number(e.target.value) : e.target.value)}
+              placeholder={field.label}
+              className="border rounded px-2 py-1"
+            />
+          )}
+        </div>
+      ))}
+      <div className="flex items-end">
+        <button
+          onClick={handleReset}
+          className="px-4 py-1 border rounded bg-gray-100 hover:bg-gray-200"
+          data-testid="filter-reset"
+        >
+          Limpar
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// Sortable header component
+function SortableHeader({ 
+  column, 
+  currentSort, 
+  onSortChange 
+}: { 
+  column: string; 
+  currentSort: string; 
+  onSortChange: (column: string) => void;
+}) {
+  const isActive = currentSort === column;
+  
+  return (
+    <th 
+      className="cursor-pointer hover:bg-gray-100 px-4 py-2 text-left border-b"
+      onClick={() => onSortChange(column)}
+      data-testid={`sort-header-${column}`}
+    >
+      {column.charAt(0).toUpperCase() + column.slice(1).replace(/_/g, ' ')}
+      {isActive && <span className="ml-1">▲</span>}
+    </th>
+  );
+}
+
+// Loading component
+function Loading() {
+  return (
+    <div className="flex items-center justify-center p-8" data-testid="loading">
+      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      <span className="ml-2">Carregando...</span>
+    </div>
+  );
+}
+
+// Error component
+function ErrorMessage({ message }: { message: string }) {
+  return (
+    <div className="p-4 bg-red-50 border border-red-200 rounded text-red-700" data-testid="error-message">
+      Erro: {message}
+    </div>
+  );
+}
+
+// Empty state component
+function EmptyState() {
+  return (
+    <div className="p-8 text-center text-gray-500" data-testid="empty-state">
+      Nenhum registro encontrado
+    </div>
+  );
+}
+
+export function <%- pascalName %>ListPage() {
+  const [data, setData] = useState<<%- pascalName %>Record[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  
+  // Pagination state
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+  const [total, setTotal] = useState(0);
+  
+  // Sorting state
+  const [sort, setSort] = useState('<%- defaultSort %>');
+  const [order, setOrder] = useState<'ASC' | 'DESC'>('ASC');
+  
+  // Filter state
+  const [filters, setFilters] = useState<Record<string, any>>({});
+
+  const totalPages = Math.ceil(total / pageSize);
+
+  const loadData = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      
+      const request: PagingRequest = {
+        page,
+        pageSize,
+        sort,
+        order,
+        filters: Object.keys(filters).length > 0 ? filters : undefined,
+      };
+
+      const response = await <%- camelName %>PagingApi.getPage(request);
+      
+      setData(response.data);
+      setTotal(response.total);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Erro ao carregar dados');
+      console.error('Error loading data:', err);
+    } finally {
+      setLoading(false);
+    }
+  }, [page, pageSize, sort, order, filters]);
+
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
+
+  const handlePageChange = (newPage: number) => {
+    setPage(newPage);
+  };
+
+  const handleSortChange = (column: string) => {
+    if (sort === column) {
+      setOrder(order === 'ASC' ? 'DESC' : 'ASC');
+    } else {
+      setSort(column);
+      setOrder('ASC');
+    }
+    setPage(1); // Reset to first page on sort change
+  };
+
+  const handleFilterChange = (newFilters: Record<string, any>) => {
+    setFilters(newFilters);
+    setPage(1); // Reset to first page on filter change
+  };
+
+  const handlePageSizeChange = (newPageSize: number) => {
+    setPageSize(newPageSize);
+    setPage(1);
+  };
+
+  const columnsList = [
+<% columns.forEach(function(col) { %>
+    { name: '<%- col.columnName %>', type: '<%- col.typescriptType %>' },
+<% }); %>
+  ];
+
+  return (
+    <div className="p-6" data-testid="<%- kebabName %>-paging-page">
+      <h1 className="text-2xl font-bold mb-6"><%- pascalName %> - Pesquisa Paginada</h1>
+      
+      {/* Filter Form */}
+      <FilterForm<%- pascalName %> onFilterChange={handleFilterChange} />
+      
+      {/* Error State */}
+      {error && <ErrorMessage message={error} />}
+      
+      {/* Loading State */}
+      {loading && <Loading />}
+      
+      {/* Data Table */}
+      {!loading && !error && (
+        <>
+          <div className="border rounded overflow-hidden" data-testid="data-table">
+            <table className="w-full">
+              <thead className="bg-gray-50">
+                <tr>
+                  {columnsList.map((col) => (
+                    <SortableHeader
+                      key={col.name}
+                      column={col.name}
+                      currentSort={sort}
+                      onSortChange={handleSortChange}
+                    />
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {data.length === 0 ? (
+                  <tr>
+                    <td colSpan={<%- columns.length %>}>
+                      <EmptyState />
+                    </td>
+                  </tr>
+                ) : (
+                  data.map((record, index) => (
+                    <tr 
+                      key={record.<%- idParam %> || index} 
+                      className="border-b hover:bg-gray-50"
+                      data-testid="data-row"
+                    >
+                      {columnsList.map((col) => (
+                        <td key={col.name} className="px-4 py-2" data-testid={`cell-${col.name}`}>
+                          {col.type === 'boolean' ? (record[col.name as keyof typeof record] ? 'Sim' : 'Nao') : String(record[col.name as keyof typeof record] ?? '')}
+                        </td>
+                      ))}
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+          
+          {/* Pagination and Info */}
+          <div className="flex items-center justify-between mt-4" data-testid="pagination-info">
+            <div className="text-sm text-gray-600">
+              Total: {total} registros | Pagina {page} de {totalPages || 1}
+            </div>
+            
+            <div className="flex items-center gap-4">
+              <select
+                value={pageSize}
+                onChange={(e) => handlePageSizeChange(Number(e.target.value))}
+                className="border rounded px-2 py-1"
+                data-testid="page-size-select"
+              >
+                <option value={10}>10 por pagina</option>
+                <option value={25}>25 por pagina</option>
+                <option value={50}>50 por pagina</option>
+                <option value={100}>100 por pagina</option>
+              </select>
+              
+              <Pagination
+                page={page}
+                totalPages={totalPages || 1}
+                onPageChange={handlePageChange}
+              />
+            </div>
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
+export default <%- pascalName %>ListPage;

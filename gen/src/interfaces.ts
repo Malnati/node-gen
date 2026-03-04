@@ -49,6 +49,7 @@ export interface DbReaderConfig {
     'datasource' |
     'diagram' |
     'mfes' |
+    'mfe-parcel-paging' |
     'app-shell' |
     'api-entities' |
     'api-services' |

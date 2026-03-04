@@ -260,6 +260,8 @@ Toda governança, planos, decisões e rastreabilidade devem ser registrados excl
 ## Política de scripts e automações
 - É proibido criar ou utilizar arquivos de shell script (`.sh`, `.bash` ou similares) para execução de tarefas no projeto.
 - Toda automação deve ser feita exclusivamente por meio do `Makefile`, que é o único ponto de orquestração permitido.
+- Toda e qualquer execução do gerador, de aplicativos gerados, de bancos de dados, de containers e de testes deve ser feita exclusivamente por alvos do `Makefile`.
+- É proibido executar diretamente no terminal comandos operacionais como `npm`, `sh`, `docker`, `docker-compose` e equivalentes para fluxos do projeto; use apenas entradas do `Makefile`.
 - Não adicione shebangs de shell (`#!/bin/bash`, `#!/usr/bin/env sh`, etc.) a arquivos que não sejam scripts de entrypoint para Docker. A lógica de script deve ser encapsulada nos alvos do `Makefile`.
 - Não adicione novos alvos ao `Makefile` sem solicitação explícita.
 - Scripts de teste E2E devem ser escritos em JavaScript ou TypeScript utilizando exclusivamente Puppeteer, e executados via `npm run test:e2e` ou por targets existentes do `Makefile`.

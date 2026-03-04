@@ -41,6 +41,7 @@ type UiEntityNavigationRow = {
 };
 
 const ORCHESTRATOR_BASE = 'http://localhost:9000';
+const PLAYWRIGHT_PROJECT = (process.env.PLAYWRIGHT_PROJECT ?? '').trim();
 
 const ACCEPTED_LIST_CODES = new Set([200, 204, 400, 401, 403, 405]);
 const ACCEPTED_CREATE_CODES = new Set([200, 201, 202, 204, 400, 401, 403, 405, 409, 415, 422, 429]);
@@ -84,7 +85,17 @@ async function tryStatusNoRetry(operation: () => Promise<{ status(): number }>):
 async function loadProjects(requestContext: { get: (url: string) => Promise<{ ok(): boolean; status(): number; json(): Promise<SspaProjects> }> }) {
   const response = await requestContext.get(`${ORCHESTRATOR_BASE}/data/projects.json`);
   expect(response.ok(), `projects.json não carregou (status=${response.status()})`).toBeTruthy();
-  return response.json();
+  const projects = await response.json();
+  if (!PLAYWRIGHT_PROJECT) {
+    return projects;
+  }
+
+  const filteredEntries = Object.entries(projects).filter(([projectKey]) => projectKey === PLAYWRIGHT_PROJECT);
+  expect(
+    filteredEntries.length,
+    `Projeto ${PLAYWRIGHT_PROJECT} não encontrado em projects.json. Disponíveis: ${Object.keys(projects).join(', ')}`
+  ).toBe(1);
+  return Object.fromEntries(filteredEntries);
 }
 
 function selectLikelyEntities(entities: Record<string, SspaEntity>): Array<[string, SspaEntity]> {
