@@ -252,18 +252,19 @@ endef
 define gen-pg-api-project-target
 gen-$(1)-pg-api:
 	@echo "📦  Gerando API PostgreSQL para projeto $(1)..."
-	$(MAKE) gen-pg-api GEN_PROJECT=test/e2e-generator/projects/$(1) GEN_OUTPUT=output/api/postgres/$(1)
+	$(MAKE) gen-pg-api GEN_PROJECT=projects/$(1) GEN_OUTPUT=output/api/postgres/$(1)
 endef
 
 define gen-pg-parcel-paging-project-target
 gen-$(1)-pg-parcel-paging:
 	@echo "📑  Gerando MFE Parcel Paging PostgreSQL para projeto $(1)..."
-	$(MAKE) gen-mfe-paging GEN_PROJECT=test/e2e-generator/projects/$(1) GEN_OUTPUT=output/parcel/postgres/$(1)/mfe-parcel-paging GEN_DB_TYPE=postgres
+	$(MAKE) gen-mfe-paging GEN_PROJECT=projects/$(1) GEN_OUTPUT=output/parcel/postgres/$(1)/mfe-parcel-paging GEN_DB_TYPE=postgres
 endef
 
 define e2e-pg-api-project-target
 e2e-$(1)-pg-api:
 	@echo "🧪  Executando E2E API PostgreSQL para projeto $(1)..."
+	$(MAKE) gen-$(1)-pg-api
 	E2E_DB_TYPES=postgres $(MAKE) e2e-dbs
 	E2E_DB_TYPES=postgres E2E_PROJECTS=$(1) $(MAKE) e2e-build
 	$(call compose_e2e,run --rm -e E2E_MODE=api -e E2E_PROJECTS=$(1) -e E2E_DB_TYPES=postgres e2e)
@@ -277,6 +278,7 @@ e2e-$(1)-pg-parcel-paging:
 	E2E_DB_TYPES=postgres E2E_PAGING_DB_TYPE=postgres $(MAKE) e2e-dbs
 	E2E_DB_TYPES=postgres E2E_PAGING_DB_TYPE=postgres E2E_PROJECTS=$(1) $(MAKE) e2e-build
 	$(call compose_e2e,run --rm -e E2E_MODE=paging -e E2E_PROJECTS=$(1) -e E2E_DB_TYPES=postgres -e E2E_PAGING_DB_TYPE=postgres e2e)
+	$(MAKE) projects-down
 	PLAYWRIGHT_PROJECT=$(1) $(MAKE) playwright-test
 endef
 
