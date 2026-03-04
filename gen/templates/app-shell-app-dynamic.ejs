@@ -1,0 +1,101 @@
+// gen/templates/app-shell-app-dynamic.ejs
+import React, { useEffect, useMemo, useState } from 'react';
+import { navigateToUrl } from 'single-spa';
+
+type DiscoveredApplication = {
+  name: string;
+  route: string;
+  title?: string;
+  description?: string;
+};
+
+const navStyle: React.CSSProperties = {
+  display: 'flex',
+  gap: '8px',
+  padding: '16px',
+  background: '#123A57',
+  color: '#FFFFFF',
+  alignItems: 'center',
+};
+
+const cardsStyle: React.CSSProperties = {
+  display: 'grid',
+  gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+  gap: '12px',
+  padding: '16px',
+};
+
+const cardStyle: React.CSSProperties = {
+  border: '1px solid #D0D7DE',
+  borderRadius: '8px',
+  padding: '12px',
+  background: '#FFFFFF',
+  cursor: 'pointer',
+};
+
+const containerStyle: React.CSSProperties = {
+  padding: '16px',
+};
+
+function AppShell() {
+  const [apps, setApps] = useState<DiscoveredApplication[]>([]);
+  const [error, setError] = useState<string | null>(null);
+  const currentPath = window.location.pathname;
+
+  const discoveryBaseUrl = (window as any).__SSPA_DISCOVERY_URL__ || 'http://localhost:3015';
+  const applicationsUrl = useMemo(() => `${discoveryBaseUrl}/api/discovery/applications`, [discoveryBaseUrl]);
+
+  useEffect(() => {
+    const run = async () => {
+      try {
+        const response = await fetch(applicationsUrl);
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}`);
+        }
+
+        const payload = (await response.json()) as DiscoveredApplication[];
+        setApps(payload);
+      } catch (err) {
+        const message = err instanceof Error ? err.message : String(err);
+        setError(message);
+      }
+    };
+
+    run().catch((err) => {
+      const message = err instanceof Error ? err.message : String(err);
+      setError(message);
+    });
+  }, [applicationsUrl]);
+
+  return (
+    <div>
+      <nav style={navStyle}>
+        <strong style={{ marginRight: '16px', fontSize: '16px' }}>Dynamic App Shell</strong>
+      </nav>
+
+      {error ? <div style={containerStyle}>Erro ao carregar discovery: {error}</div> : null}
+
+      <section style={cardsStyle}>
+        {apps.map((app) => (
+          <article
+            key={app.name}
+            style={cardStyle}
+            onClick={() => navigateToUrl(app.route)}
+            data-active={currentPath.startsWith(app.route)}
+          >
+            <strong>{app.title || app.name}</strong>
+            <p style={{ marginTop: '6px', color: '#566371' }}>{app.description || app.route}</p>
+          </article>
+        ))}
+      </section>
+
+      <main id="single-spa-container" style={containerStyle}>
+        {apps.map((app) => (
+          <div key={app.name} id={`single-spa-application:${app.name}`}></div>
+        ))}
+      </main>
+    </div>
+  );
+}
+
+export default AppShell;

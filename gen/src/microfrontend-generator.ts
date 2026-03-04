@@ -30,7 +30,7 @@ export class MicrofrontendGenerator {
     const schemaJson = fs.readFileSync(schemaPath, 'utf-8');
     this.schema = JSON.parse(schemaJson).schema;
     this.config = config;
-    this.staticMfePath = path.resolve(__dirname, '..', 'static-mfe');
+    this.staticMfePath = path.resolve(__dirname, '..', 'static-mfe-app');
   }
 
   async generate(): Promise<MFEConfig[]> {
@@ -90,7 +90,7 @@ export class MicrofrontendGenerator {
     this.generateAppTsx(mfeDir, mfeConfig);
     this.generateDockerfile(mfeDir, mfeConfig);
     this.updatePackageJson(mfeDir, mfeConfig);
-    this.updateIndexHtml(mfeDir, mfeConfig);
+    this.generateIndexHtml(mfeDir, mfeConfig);
 
     return mfeConfig;
   }
@@ -227,12 +227,11 @@ export class MicrofrontendGenerator {
     fs.writeFileSync(pkgPath, JSON.stringify(pkg, null, 2));
   }
 
-  private updateIndexHtml(dir: string, config: MFEConfig): void {
-    const htmlPath = path.join(dir, 'index.html');
-    let content = fs.readFileSync(htmlPath, 'utf-8');
-    content = content.replace(/<%= appName %>/g, config.pascalName);
-    content = content.replace(/<%- importMap %>/g, '{}');
-    fs.writeFileSync(htmlPath, content);
+  private generateIndexHtml(dir: string, config: MFEConfig): void {
+    const content = renderTemplate('mfe-index-html.ejs', {
+      appName: config.pascalName,
+    });
+    fs.writeFileSync(path.join(dir, 'index.html'), content);
   }
 
   private getIdInfo(table: Table): { idType: string; idParam: string } {

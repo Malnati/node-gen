@@ -1,0 +1,39 @@
+// gen/templates/app-shell-root-config-dynamic.ejs
+import { registerApplication, start } from 'single-spa';
+
+const discoveryBaseUrl = (window as any).__SSPA_DISCOVERY_URL__ || 'http://localhost:3015';
+const applicationsUrl = `${discoveryBaseUrl}/api/discovery/applications`;
+
+type DiscoveredApplication = {
+  name: string;
+  route: string;
+  module?: string;
+};
+
+declare const System: {
+  import: (moduleName: string) => Promise<unknown>;
+};
+
+async function bootstrapDynamicApplications() {
+  const response = await fetch(applicationsUrl);
+  if (!response.ok) {
+    throw new Error(`Failed to fetch applications: HTTP ${response.status}`);
+  }
+
+  const apps = (await response.json()) as DiscoveredApplication[];
+
+  apps.forEach((app) => {
+    registerApplication({
+      name: app.name,
+      app: () => System.import(app.module || app.name),
+      activeWhen: (location) => location.pathname.startsWith(app.route),
+    });
+  });
+
+  start();
+}
+
+bootstrapDynamicApplications().catch((error) => {
+  console.error('[app-shell] dynamic bootstrap failed:', error);
+  start();
+});

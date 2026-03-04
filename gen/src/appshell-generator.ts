@@ -12,8 +12,8 @@ export class AppShellGenerator {
 
   constructor(config: DbReaderConfig) {
     this.config = config;
-    this.staticMfePath = path.resolve(__dirname, '..', 'static-mfe');
-    this.staticAppShellPath = path.resolve(__dirname, '..', 'static-mfe', 'app-shell');
+    this.staticMfePath = path.resolve(__dirname, '..', 'static-mfe-app');
+    this.staticAppShellPath = path.resolve(__dirname, '..', 'static-mfe-app', 'app-shell');
   }
 
   generate(mfeList: MFEConfig[]): void {
@@ -26,10 +26,19 @@ export class AppShellGenerator {
 
     this.copyBoilerplate(outputDir);
     this.copyStaticAppShellFiles(outputDir);
-    this.generateRootConfig(outputDir, mfeList);
-    this.generateImportMap(outputDir, mfeList);
-    this.generateAppShellTsx(outputDir, mfeList);
-    this.generateIndexHtml(outputDir, mfeList);
+    const dynamicDiscovery = process.env.SSPA_DYNAMIC_DISCOVERY === 'true';
+
+    if (dynamicDiscovery) {
+      this.generateDynamicRootConfig(outputDir);
+      this.generateDynamicAppShellTsx(outputDir);
+      this.generateDynamicIndexHtml(outputDir);
+    } else {
+      this.generateRootConfig(outputDir, mfeList);
+      this.generateImportMap(outputDir, mfeList);
+      this.generateAppShellTsx(outputDir, mfeList);
+      this.generateIndexHtml(outputDir, mfeList);
+    }
+
     this.generateDockerCompose(frontendDir, mfeList);
     this.generateAppShellDockerfile(outputDir);
 
@@ -103,6 +112,26 @@ export class AppShellGenerator {
   private generateDockerCompose(frontendDir: string, mfeList: MFEConfig[]): void {
     const content = renderTemplate('mfe-docker-compose.ejs', { mfeList });
     fs.writeFileSync(path.join(frontendDir, 'docker-compose.mfe.yml'), content);
+  }
+
+  private generateDynamicRootConfig(destDir: string): void {
+    const content = renderTemplate('app-shell-root-config-dynamic.ejs', {});
+    fs.writeFileSync(path.join(destDir, 'root-config.js'), content);
+  }
+
+  private generateDynamicAppShellTsx(destDir: string): void {
+    const srcDir = path.join(destDir, 'src');
+    if (!fs.existsSync(srcDir)) {
+      fs.mkdirSync(srcDir, { recursive: true });
+    }
+
+    const content = renderTemplate('app-shell-app-dynamic.ejs', {});
+    fs.writeFileSync(path.join(srcDir, 'App.tsx'), content);
+  }
+
+  private generateDynamicIndexHtml(destDir: string): void {
+    const content = renderTemplate('app-shell-index-html-dynamic.ejs', {});
+    fs.writeFileSync(path.join(destDir, 'index.html'), content);
   }
 
   private generateAppShellDockerfile(destDir: string): void {
