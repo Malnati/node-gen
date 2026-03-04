@@ -1,5 +1,5 @@
 <!-- CHANGELOG/20260304201444-demo-compose-dynamic-apps-plan.md -->
-# Plano - demo service-discovery + demo sspa + inicializacao dinamica de apps
+# Plano - demo compose dynamic apps
 
 ## Data/Hora UTC
 2026-03-04T20:14:44Z
@@ -7,7 +7,7 @@
 ## 1. Arquivos existentes relevantes para o escopo
 - `.docker/Dockerfile.sspa`
 - `.docker/docker-compose.projects.postgres.yml`
-- `test/e2e-generator/projects/*`
+- `projects/*`
 - `demo/service-discovery/package.json`
 - `demo/service-discovery/tsconfig.json`
 - `demo/service-discovery/src/main.ts`
@@ -45,13 +45,12 @@
 - Adicionar entrada `demo-start-apps` no `Makefile` para executar a inicializacao dinamica.
 - Adicionar entradas de `Makefile` para subir/parar/logs da stack demo (`service-discovery` + `sspa`) via compose demo.
 - Adicionar entradas por projeto/banco no `Makefile`: `demo-pg-<project>`, `demo-sqlite-<project>`, `demo-sqlserver-<project>` e `demo-mysql-<project>`.
-- Cada entrada `demo-*` deve executar o fluxo:
-- subir somente o banco referente ao tipo informado;
-- carregar somente o projeto informado, validando antes se ja esta em execucao e se a carga ja foi aplicada;
-- gerar API em `demo/projects/<db>/<project>/api`;
-- gerar MFE application em `demo/projects/<db>/<project>/app`;
-- executar `demo/demo-start-apps.sh`;
-- executar `.docker/docker-compose.demo.yml` somente se ainda nao estiver em execucao.
+- Cada entrada `demo-*` deve subir somente o banco referente ao tipo informado.
+- Cada entrada `demo-*` deve carregar somente o projeto informado, com validacao idempotente de execucao/carga.
+- Cada entrada `demo-*` deve gerar API em `demo/projects/<db>/<project>/api`.
+- Cada entrada `demo-*` deve gerar MFE application em `demo/projects/<db>/<project>/app`.
+- Cada entrada `demo-*` deve executar `demo/demo-start-apps.sh`.
+- Cada entrada `demo-*` deve executar `.docker/docker-compose.demo.yml` somente se ainda nao estiver em execucao.
 - Manter escopo cirurgico: sem criar jobs/pipelines/servicos fora do pedido.
 - Preservar rastreabilidade completa em `CHANGELOG/` com plano e auditoria irmaos.
 
@@ -102,10 +101,9 @@
 
 ## 8. Selecao de checklists aplicaveis
 - `docs/checklists/` nao possui arquivos no estado atual.
-- Checklist obrigatorio transversal aplicado:
-- plano + auditoria em `CHANGELOG/` com mesmo prefixo de timestamp;
-- rastreabilidade por secoes 1..8;
-- escopo restrito aos artefatos solicitados no pedido.
+- Checklist obrigatorio transversal aplicado: plano + auditoria em `CHANGELOG/` com mesmo prefixo de timestamp.
+- Checklist obrigatorio transversal aplicado: rastreabilidade por secoes 1..8.
+- Checklist obrigatorio transversal aplicado: escopo restrito aos artefatos solicitados no pedido.
 
 ## Referencias cruzadas
 - Auditoria irma: `CHANGELOG/20260304201444-demo-compose-dynamic-apps-audit.md`

@@ -1,5 +1,5 @@
 <!-- CHANGELOG/20260304201444-demo-compose-dynamic-apps-audit.md -->
-# Auditoria - planejamento para compose demo e inicializacao dinamica de apps
+# Auditoria - demo compose dynamic apps
 
 ## Data/Hora UTC
 2026-03-04T20:14:44Z
@@ -43,31 +43,24 @@
 - `CHANGELOG/20260304201444-demo-compose-dynamic-apps-audit.md`
 
 ## Comandos executados
-1. `git status --short --branch`
+1. `rg --files .github CHANGELOG | sort`
 2. `ls -la`
-3. `rg --files .github | head -n 200`
-4. `rg --files CHANGELOG | tail -n 50`
-5. `rg --files | rg 'opencode|Makefile$|docker-compose|AGENTS.md'`
-6. `sed -n '1,240p' CHANGELOG/20260304180439-demo-sspa-discovery-dinamico-plan.md`
-7. `sed -n '1,240p' CHANGELOG/20260304190932-service-discovery-manifesto-dir-audit.md`
-8. `sed -n '1,260p' .github/copilot-instructions.md`
+3. `rg -n "plano|audit|auditoria|CHANGELOG" .github/copilot-instructions.md opencode.json AGENTS.md`
+4. `sed -n '1,260p' CHANGELOG/20260304201444-demo-compose-dynamic-apps-plan.md`
+5. `sed -n '1,260p' CHANGELOG/20260304201444-demo-compose-dynamic-apps-audit.md`
+6. `sed -n '1,260p' CHANGELOG/20260304185131-review-interpolacao-static-template-plan.md`
+7. `sed -n '1,260p' CHANGELOG/20260304185131-review-interpolacao-static-template-audit.md`
+8. `git status --short -- CHANGELOG/20260304201444-demo-compose-dynamic-apps-plan.md CHANGELOG/20260304201444-demo-compose-dynamic-apps-audit.md`
 9. `sed -n '1,260p' .github/instructions/governance.instructions.md`
-10. `sed -n '1,260p' opencode.json`
-11. `rg -n "Dockerfile\\.service-discovery|docker-compose\\.demo|demo-start-apps|deploy-dynamic-apps|service-discovery" CHANGELOG -S`
-12. `rg --files .docker demo | sort`
-13. `rg -n "demo|service-discovery|sspa|start-apps|docker-compose\\.demo|Dockerfile\\.demo|Dockerfile\\.service-discovery" Makefile -S`
-14. `sed -n '1,260p' Makefile`
-15. `sed -n '260,520p' Makefile`
-16. `ls -la .docker demo demo/service-discovery demo/sspa`
-17. `date -u +%Y%m%d%H%M%S`
+10. `sed -n '1,260p' .github/copilot-instructions.md`
 
 ## Resultado resumido dos comandos
 - Levantamento de contexto e conformidade de governanca: **PASSOU**.
-- Confirmacao de lacunas atuais para os artefatos solicitados: **PASSOU**.
-- Geracao do par documental `-plan` e `-audit`: **PASSOU**.
+- Validacao de estrutura obrigatoria de plano e auditoria: **PASSOU**.
+- Implementacao documental dos dois arquivos solicitados: **PASSOU**.
 
 ## Pendencias objetivas
-- Implementacao tecnica dos artefatos planejados ainda nao executada neste ciclo.
+- Implementacao tecnica dos artefatos planejados (Dockerfiles/compose/script/Makefile) permanece pendente para ciclo de execucao.
 
 ## Referencias cruzadas
 - Plano: `CHANGELOG/20260304201444-demo-compose-dynamic-apps-plan.md`
