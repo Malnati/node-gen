@@ -49,7 +49,9 @@ export interface DbReaderConfig {
     'datasource' |
     'diagram' |
     'mfes' |
+    'mfe-parcel-paging' |
     'app-shell' |
+    'sspa-static-assets' |
     'api-entities' |
     'api-services' |
     'api-interfaces' |
@@ -62,6 +64,40 @@ export interface DbReaderConfig {
     'api-readme'
   ];
   dbType: string;
+}
+
+export interface PagingColumn {
+  columnName: string;
+  displayName: string;
+  typescriptType: string;
+  sortable: boolean;
+  filterable: boolean;
+}
+
+export interface FilterField {
+  name: string;
+  label: string;
+  inputType: 'text' | 'number' | 'date' | 'datetime' | 'select' | 'boolean';
+  required: boolean;
+  options?: { label: string; value: string }[];
+}
+
+export interface MFEParcelPagingConfig {
+  name: string;
+  kebabName: string;
+  pascalName: string;
+  camelName: string;
+  port: number;
+  route: string;
+  apiEndpoint: string;
+  endpointPaging: string;
+  idType: string;
+  idParam: string;
+  columns: PagingColumn[];
+  filterFields: FilterField[];
+  sortableColumns: string[];
+  tableName: string;
+  defaultSort: string;
 }
 
 export type Format = "svg" | "dot" | "json" | "dot_json" | "xdot_json" | "png";

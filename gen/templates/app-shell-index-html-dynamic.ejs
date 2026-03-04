@@ -1,0 +1,24 @@
+<!-- gen/templates/app-shell-index-html-dynamic.ejs -->
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dynamic App Shell</title>
+    <script src="https://cdn.jsdelivr.net/npm/systemjs@6.14.2/dist/system.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/systemjs@6.14.2/dist/extras/amd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/systemjs@6.14.2/dist/extras/named-register.min.js"></script>
+    <script>
+      window.__SSPA_DISCOVERY_URL__ = window.__SSPA_DISCOVERY_URL__ || 'http://localhost:3015';
+    </script>
+    <script
+      type="systemjs-importmap"
+      src="http://localhost:3015/api/discovery/import-map"
+      crossorigin="anonymous"
+    ></script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

@@ -6,6 +6,7 @@ services:
     environment:
       POSTGRES_PASSWORD: postgres
       POSTGRES_USER: postgres
+      POSTGRES_HOST_AUTH_METHOD: trust
     ports:
       - "5432:5432"
     volumes:
@@ -19,8 +20,8 @@ services:
   apis:
     image: node-gen-apis:latest
     build:
-      context: /
-      dockerfile: root/w/node-gen/.docker/Dockerfile.projects.postgres
+      context: /root/w/node-gen
+      dockerfile: .docker/Dockerfile.projects.postgres
     container_name: nodegen-apis
     ports:
       - "3001-3099:3001-3099"
@@ -32,9 +33,42 @@ services:
       DATABASE_PORT: "5432"
       DATABASE_USER: postgres
       DATABASE_PASSWORD: postgres
+      E2E_SKIP_JWT: "true"
     volumes:
       - /root/w/node-gen/test/e2e-generator/projects:/projects-source
+      - /root/w/node-gen/output:/output
     entrypoint: ["/entrypoint.projects.postgres.sh"]
+
+  sspa:
+    image: node-gen-sspa:latest
+    build:
+      context: /root/w/node-gen
+      dockerfile: .docker/Dockerfile.sspa
+    container_name: nodegen-sspa
+    ports:
+      - "9000:9000"
+    depends_on:
+      apis:
+        condition: service_started
+    environment:
+      MFES_DIR: /mfe-output
+      SSPA_SKIP_AUTH: "${SSPA_SKIP_AUTH:-true}"
+    volumes:
+      - /root/w/node-gen/output:/mfe-output:ro
+
+  service-discovery:
+    image: node:22-alpine
+    container_name: nodegen-service-discovery
+    working_dir: /app
+    ports:
+      - "3015:3015"
+    environment:
+      PORT: "${SERVICE_DISCOVERY_PORT:-3015}"
+      DISCOVERY_TIMEOUT_MS: "${DISCOVERY_TIMEOUT_MS:-1200}"
+      DISCOVERY_APPS_JSON: "${DISCOVERY_APPS_JSON:-[{\"name\":\"@mfe/addresses\",\"module\":\"@mfe/addresses\",\"route\":\"/addresses\",\"title\":\"Addresses\",\"description\":\"MFE de consulta e manutencao de enderecos\",\"importUrl\":\"http://host.docker.internal:7100/main.js\"},{\"name\":\"@mfe/contacts\",\"module\":\"@mfe/contacts\",\"route\":\"/contacts\",\"title\":\"Contacts\",\"description\":\"MFE de gestao de contatos\",\"importUrl\":\"http://host.docker.internal:7101/main.js\"},{\"name\":\"@mfe/orders\",\"module\":\"@mfe/orders\",\"route\":\"/orders\",\"title\":\"Orders\",\"description\":\"MFE de pedidos e acompanhamento\",\"importUrl\":\"http://host.docker.internal:7102/main.js\"}]}"
+    volumes:
+      - /root/w/node-gen/demo/service-discovery:/app
+    command: sh -lc "npm install --no-audit --no-fund && npm run build && npm run start"
 
 volumes:
   postgres-data:

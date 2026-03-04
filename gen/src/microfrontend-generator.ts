@@ -30,7 +30,7 @@ export class MicrofrontendGenerator {
     const schemaJson = fs.readFileSync(schemaPath, 'utf-8');
     this.schema = JSON.parse(schemaJson).schema;
     this.config = config;
-    this.staticMfePath = path.resolve(__dirname, '..', 'static-mfe');
+    this.staticMfePath = path.resolve(__dirname, '..', 'static-mfe-app');
   }
 
   async generate(): Promise<MFEConfig[]> {
@@ -90,7 +90,7 @@ export class MicrofrontendGenerator {
     this.generateAppTsx(mfeDir, mfeConfig);
     this.generateDockerfile(mfeDir, mfeConfig);
     this.updatePackageJson(mfeDir, mfeConfig);
-    this.updateIndexHtml(mfeDir, mfeConfig);
+    this.generateIndexHtml(mfeDir, mfeConfig);
 
     return mfeConfig;
   }
@@ -101,6 +101,8 @@ export class MicrofrontendGenerator {
       filter: (src) => {
         const rel = path.relative(this.staticMfePath, src);
         if (rel === 'app-shell' || rel.startsWith('app-shell/')) return false;
+        if (rel === 'package.json') return false;
+        if (rel === 'vite.config.ts') return false;
         if (rel === 'root-config.js') return false;
         return true;
       },
@@ -217,22 +219,19 @@ export class MicrofrontendGenerator {
   }
 
   private updatePackageJson(dir: string, config: MFEConfig): void {
-    const pkgPath = path.join(dir, 'package.json');
-    const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf-8'));
-    pkg.name = `${config.kebabName}-mfe`;
-    pkg.scripts = {
-      ...pkg.scripts,
-      'serve:mfe': `npx serve dist -l ${config.port}`,
-    };
-    fs.writeFileSync(pkgPath, JSON.stringify(pkg, null, 2));
+    const content = renderTemplate('mfe-package-json.ejs', {
+      name: `${config.kebabName}-mfe`,
+      version: '1.0.0',
+      port: config.port,
+    });
+    fs.writeFileSync(path.join(dir, 'package.json'), content);
   }
 
-  private updateIndexHtml(dir: string, config: MFEConfig): void {
-    const htmlPath = path.join(dir, 'index.html');
-    let content = fs.readFileSync(htmlPath, 'utf-8');
-    content = content.replace(/<%= appName %>/g, config.pascalName);
-    content = content.replace(/<%- importMap %>/g, '{}');
-    fs.writeFileSync(htmlPath, content);
+  private generateIndexHtml(dir: string, config: MFEConfig): void {
+    const content = renderTemplate('mfe-index-html.ejs', {
+      appName: config.pascalName,
+    });
+    fs.writeFileSync(path.join(dir, 'index.html'), content);
   }
 
   private getIdInfo(table: Table): { idType: string; idParam: string } {

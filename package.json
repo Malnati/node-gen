@@ -4,6 +4,15 @@
   "description": "Repositório do gerador node-gen (gen/) e testes (test/)",
   "scripts": {
     "build": "cd gen && npm run build",
-    "test:e2e": "node test/e2e-generator/run.js e2e"
+    "test:e2e": "node test/e2e-generator/run.js e2e",
+    "test:playwright": "playwright test",
+    "test:playwright:ui": "playwright test --ui",
+    "test:playwright:headed": "playwright test --headed",
+    "test:playwright:report": "playwright show-report",
+    "playwright:install": "playwright install --with-deps chromium"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.40.0",
+    "shadcn": "^3.8.5"
   }
 }

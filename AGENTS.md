@@ -225,6 +225,11 @@ Toda governança, planos, decisões e rastreabilidade devem ser registrados excl
 - Health checks e métricas obrigatórias estão descritos em [`docs/05-entrega-e-implantacao/ambientes-e-configuracoes.md`](docs/05-entrega-e-implantacao/ambientes-e-configuracoes.md). Exponha no mínimo `/health` e `/metrics` para cada serviço containerizado.
 - Ajustes em portas, coletores ou dashboards devem ser documentados previamente nos artefatos de Entrega e Governança (`docs/05-entrega-e-implantacao/` e `docs/06-governanca-tecnica-e-controle-de-qualidade/`).
 
+## Regra obrigatória do SSPA
+- Ao expor MFEs pelo orquestrador `sspa` em `.docker/docker-compose.projects.postgres.yml`, mantenha `E2E_SKIP_JWT=true` no serviço `apis` e `SSPA_SKIP_AUTH=true` no serviço `sspa`.
+- O frontend do SSPA deve respeitar `SSPA_SKIP_AUTH` para não exigir `SSPA_AUTH_TOKEN` quando o bypass estiver ativo.
+- É proibido remover ou sobrescrever essa combinação sem atualização explícita de plano e changelog do ciclo correspondente.
+
 ## Documentação
 - Atualize os READMEs específicos dos serviços e `docs/README.md` sempre que adicionar variáveis de ambiente, endpoints ou alterações arquiteturais relevantes.
 - Mantenha as descrições alinhadas ao comportamento real do código e dos arquivos de configuração.
@@ -255,6 +260,8 @@ Toda governança, planos, decisões e rastreabilidade devem ser registrados excl
 ## Política de scripts e automações
 - É proibido criar ou utilizar arquivos de shell script (`.sh`, `.bash` ou similares) para execução de tarefas no projeto.
 - Toda automação deve ser feita exclusivamente por meio do `Makefile`, que é o único ponto de orquestração permitido.
+- Toda e qualquer execução do gerador, de aplicativos gerados, de bancos de dados, de containers e de testes deve ser feita exclusivamente por alvos do `Makefile`.
+- É proibido executar diretamente no terminal comandos operacionais como `npm`, `sh`, `docker`, `docker-compose` e equivalentes para fluxos do projeto; use apenas entradas do `Makefile`.
 - Não adicione shebangs de shell (`#!/bin/bash`, `#!/usr/bin/env sh`, etc.) a arquivos que não sejam scripts de entrypoint para Docker. A lógica de script deve ser encapsulada nos alvos do `Makefile`.
 - Não adicione novos alvos ao `Makefile` sem solicitação explícita.
 - Scripts de teste E2E devem ser escritos em JavaScript ou TypeScript utilizando exclusivamente Puppeteer, e executados via `npm run test:e2e` ou por targets existentes do `Makefile`.
@@ -297,6 +304,18 @@ Toda governança, planos, decisões e rastreabilidade devem ser registrados excl
 - Em aplicações React/TypeScript, priorize sempre as importações no padrão ES6.
 - Qualquer módulo externo referenciado deve estar listado no `package.json` e instalado previamente.
 - Organize os imports em três grupos principais, separados por uma linha em branco: bibliotecas externas, módulos internos da aplicação e, por último, importações de tipos (`import type`).
+
+## Regras obrigatórias para `gen/src/main.ts` e geradores
+- O arquivo `gen/src/main.ts` deve atuar apenas como orquestrador de geração: parser de argumentos/parâmetros, integrações com banco de dados, integrações com git, cópia de arquivos estáticos e execução de geradores baseados em templates.
+- `gen/src/main.ts` não deve implementar responsabilidades de empacotar, executar, testar ou contabilizar artefatos gerados.
+- Para qualquer artefato 100% estático (sem interpolação), o conteúdo deve existir em disco em `gen/static/<componente>/` e ser copiado para o destino por função auxiliar dedicada de cópia estática.
+- Para qualquer artefato que exija interpolação em tempo de geração, é obrigatório usar arquivo template EJS em `gen/templates/` e arquivo gerador TypeScript; é proibido gerar esses conteúdos com constantes string multiline/hardcode no gerador.
+- É proibido definir constantes ou variáveis de texto com mais de 150 caracteres, ou com múltiplas linhas, dentro de arquivos geradores (`gen/src/*generator*.ts`, `gen/src/main.ts`); nesses casos, mover para template EJS ou arquivo estático.
+
+## Regra obrigatória de escopo de correção por tipo de falha de teste
+- Ao identificar defeitos durante testes contra as APIs, a correção deve ocorrer apenas nos arquivos de geração, templates e estáticos da API; é proibido alterar banco de dados nesse cenário.
+- Ao identificar defeitos durante testes contra frontends, a correção deve ocorrer apenas nos arquivos de geração, templates e estáticos do frontend afetado; é proibido alterar banco de dados e API nesse cenário.
+- Ao identificar defeitos durante testes E2E contra UI (frontends) relacionados ao consumo das APIs, a correção deve ocorrer apenas nos arquivos de geração, templates e estáticos do frontend; é proibido alterar API e banco de dados nesse cenário.
 
 ## Padrão obrigatório para planos de mudança
 - Planos registrados em arquivos Markdown devem seguir uma estrutura comum.

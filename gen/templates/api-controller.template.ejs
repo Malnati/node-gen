@@ -1,5 +1,5 @@
 // gen/templates/api-controller.template.ejs
-import { Controller, Get, Post, Put, Delete, Body, Param, NotFoundException, BadRequestException, InternalServerErrorException, UseGuards, ParseUUIDPipe, ParseIntPipe, HttpCode, HttpStatus, Logger } from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Body, Param, NotFoundException, BadRequestException, ConflictException, InternalServerErrorException, UseGuards, ParseUUIDPipe, ParseIntPipe, HttpCode, HttpStatus, Logger } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { {{entityName}}Service } from './{{kebabCaseName}}.service';
 import { {{entityName}}QueryDTO, {{entityName}}PersistDTO } from './{{kebabCaseName}}.dto';
@@ -40,7 +40,11 @@ export class {{entityName}}Controller {
         const errNumber = error.number || error.driverError?.number;
         if (errCode === '23505' || errCode === 'ER_DUP_ENTRY' || errNumber === 2627 || errNumber === 2601) {
           this.logger.warn('Duplicate {{camelCaseName}}');
-          throw new BadRequestException('{{entityName}} já existe');
+          throw new ConflictException('{{entityName}} já existe');
+        }
+        if (errCode === '23502' || errCode === '22P02' || errCode === '23514' || errCode === '23503') {
+          this.logger.warn(`Invalid payload for {{camelCaseName}} creation: ${errCode}`);
+          throw new BadRequestException('Dados inválidos para criação de {{camelCaseName}}');
         }
         this.logger.error(`Error creating {{camelCaseName}}: ${error.message}`);
         throw new InternalServerErrorException('Erro ao criar {{camelCaseName}}');
