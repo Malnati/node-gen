@@ -1,43 +1,9 @@
 // gen/src/mfe-parcel-paging-generator.ts
 import * as fs from 'fs';
 import * as path from 'path';
-import { Table, DbReaderConfig, Column } from './interfaces';
+import { Table, DbReaderConfig, Column, MFEParcelPagingConfig, PagingColumn, FilterField } from './interfaces';
 import { toKebabCase, toPascalCase } from './utils/string';
 import { renderTemplate } from './utils/TemplateEngine';
-
-export interface MFEParcelPagingConfig {
-  name: string;
-  kebabName: string;
-  pascalName: string;
-  camelName: string;
-  port: number;
-  route: string;
-  apiEndpoint: string;
-  endpointPaging: string;
-  idType: string;
-  idParam: string;
-  columns: PagingColumn[];
-  filterFields: FilterField[];
-  sortableColumns: string[];
-  tableName: string;
-  defaultSort: string;
-}
-
-export interface PagingColumn {
-  columnName: string;
-  displayName: string;
-  typescriptType: string;
-  sortable: boolean;
-  filterable: boolean;
-}
-
-export interface FilterField {
-  name: string;
-  label: string;
-  inputType: 'text' | 'number' | 'date' | 'datetime' | 'select' | 'boolean';
-  required: boolean;
-  options?: { label: string; value: string }[];
-}
 
 interface ValidationResult {
   valid: boolean;
@@ -59,7 +25,6 @@ interface ValidationResult {
 export class MFEParcelPagingGenerator {
   private schema: Table[];
   private config: DbReaderConfig;
-  private staticMfePath: string;
   private mfeConfigs: MFEParcelPagingConfig[] = [];
   private basePort = 7200;
 
@@ -67,7 +32,6 @@ export class MFEParcelPagingGenerator {
     const schemaJson = fs.readFileSync(schemaPath, 'utf-8');
     this.schema = JSON.parse(schemaJson).schema;
     this.config = config;
-    this.staticMfePath = path.resolve(__dirname, '..', 'static', 'mfe-parcel-paging');
   }
 
   /**
@@ -280,193 +244,34 @@ export class MFEParcelPagingGenerator {
     if (!fs.existsSync(apiDir)) {
       fs.mkdirSync(apiDir, { recursive: true });
     }
-
-    const clientContent = `// api/client.ts
-// Auto-generated API client for ${config.pascalName} paging endpoint
-
-export interface PagingRequest {
-  page?: number;
-  pageSize?: number;
-  sort?: string;
-  order?: 'ASC' | 'DESC';
-  filters?: Record<string, any>;
-}
-
-export interface PagingResponse<T> {
-  data: T[];
-  total: number;
-  page: number;
-  pageSize: number;
-  totalPages: number;
-}
-
-${config.columns.map(col => `
-export interface ${toPascalCase(col.columnName)} {
-  ${col.columnName}: ${col.typescriptType};
-}`).join('')}
-
-export interface ${config.pascalName}Record {
-  id: ${config.idType};
-  ${config.columns.map(col => `${col.columnName}: ${col.typescriptType};`).join('\n  ')}
-}
-
-const API_BASE = '${config.endpointPaging}';
-
-export const ${config.camelName}PagingApi = {
-  async getPage(request: PagingRequest): Promise<PagingResponse<${config.pascalName}Record>> {
-    const params = new URLSearchParams();
-    
-    if (request.page) params.append('page', String(request.page));
-    if (request.pageSize) params.append('pageSize', String(request.pageSize));
-    if (request.sort) params.append('sort', request.sort);
-    if (request.order) params.append('order', request.order);
-    
-    if (request.filters) {
-      Object.entries(request.filters).forEach(([key, value]) => {
-        if (value !== undefined && value !== null && value !== '') {
-          params.append(\`filter[\${key}]\`, String(value));
-        }
-      });
-    }
-
-    const response = await fetch(\`\${API_BASE}?\${params.toString()}\`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
-
-    if (!response.ok) {
-      throw new Error(\`Failed to fetch ${config.pascalName} data: \${response.statusText}\`);
-    }
-
-    return response.json();
-  },
-};
-`;
-
-    fs.writeFileSync(path.join(apiDir, 'client.ts'), clientContent);
+    this.renderFileFromTemplate(path.join(apiDir, 'client.ts'), 'mfe-parcel-paging-client.ejs', config);
   }
 
   private generateDataProvider(dir: string, config: MFEParcelPagingConfig): void {
     const apiDir = path.join(dir, 'src', 'api');
-    
-    const dataProviderContent = `// api/dataProvider.ts
-// Auto-generated data provider for ${config.pascalName} using Shadcn Admin Kit patterns
-
-import { ${config.camelName}PagingApi, type PagingRequest, type PagingResponse, type ${config.pascalName}Record } from './client';
-
-export const ${config.camelName}DataProvider = {
-  async getList(params: {
-    pagination?: { page: number; perPage: number };
-    sort?: { field: string; order: 'ASC' | 'DESC' };
-    filter?: Record<string, any>;
-  }): Promise<PagingResponse<${config.pascalName}Record>> {
-    const request: PagingRequest = {
-      page: params.pagination?.page || 1,
-      pageSize: params.pagination?.perPage || 10,
-      sort: params.sort?.field || '${config.defaultSort}',
-      order: params.sort?.order || 'ASC',
-      filters: params.filter,
-    };
-
-    return ${config.camelName}PagingApi.getPage(request);
-  },
-};
-`;
-
-    fs.writeFileSync(path.join(apiDir, 'dataProvider.ts'), dataProviderContent);
+    this.renderFileFromTemplate(path.join(apiDir, 'dataProvider.ts'), 'mfe-parcel-paging-data-provider.ejs', config);
   }
 
   private generateViteConfig(dir: string, config: MFEParcelPagingConfig): void {
-    const content = `import path from "path"
-import react from "@vitejs/plugin-react"
-import { defineConfig } from "vite"
-
-// https://vite.dev/config/
-export default defineConfig({
-  plugins: [
-    react(),
-  ],
-  resolve: {
-    alias: {
-      "@": path.resolve(__dirname, "./src"),
-    },
-  },
-  server: {
-    port: ${config.port},
-    headers: {
-      "Access-Control-Allow-Origin": "*",
-    },
-  },
-  build: {
-    outDir: "dist",
-    rollupOptions: {
-      output: {
-        format: "system",
-      },
-    },
-  },
-})
-`;
-    fs.writeFileSync(path.join(dir, 'vite.config.ts'), content);
+    this.renderFileFromTemplate(path.join(dir, 'vite.config.ts'), 'mfe-parcel-paging-vite-config.ejs', config);
   }
 
   private generateDockerfile(dir: string, config: MFEParcelPagingConfig): void {
-    const content = `FROM node:18-alpine AS build
-WORKDIR /app
-
-# Copy package files
-COPY package.json package-lock.json* ./
-
-# Install dependencies
-RUN npm ci --ignore-scripts
-
-# Copy source
-COPY . .
-
-# Build the application
-RUN npm run build
-
-# Production stage with Nginx
-FROM nginx:alpine
-
-# Copy built assets
-COPY --from=build /app/dist /usr/share/nginx/html
-
-# Configure Nginx for SPA routing and MFE
-RUN printf 'server {
-  listen ${config.port};
-  
-  location / {
-    root /usr/share/nginx/html;
-    index index.html;
-    try_files $uri $uri/ /index.html;
-    
-    # CORS headers for MFE
-    add_header Access-Control-Allow-Origin * always;
-    add_header Access-Control-Allow-Methods "GET, POST, OPTIONS" always;
-    add_header Access-Control-Allow-Headers "Content-Type, Authorization" always;
-    
-    # Cache static assets
-    location ~* \\.(js|css|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot)$ {
-      expires 1y;
-      add_header Cache-Control "public, immutable";
-    }
+    this.renderFileFromTemplate(path.join(dir, 'Dockerfile'), 'mfe-parcel-paging-dockerfile.ejs', config);
   }
-  
-  # Health check endpoint
-  location /health {
-    return 200 "OK";
-    add_header Content-Type text/plain;
-  }
-}' > /etc/nginx/conf.d/default.conf
 
-EXPOSE ${config.port}
-
-CMD ["nginx", "-g", "daemon off;"]
-`;
-    fs.writeFileSync(path.join(dir, 'Dockerfile'), content);
+  private renderFileFromTemplate(filePath: string, templateName: string, config: MFEParcelPagingConfig): void {
+    const content = renderTemplate(templateName, {
+      ...config,
+      typedColumns: config.columns.map(col => ({
+        ...col,
+        interfaceName: toPascalCase(col.columnName),
+      })),
+      columnsWithIndent: config.columns
+        .map(col => `${col.columnName}: ${col.typescriptType};`)
+        .join('\n  '),
+    });
+    fs.writeFileSync(filePath, content);
   }
 
   private updatePackageJson(dir: string, config: MFEParcelPagingConfig): void {

@@ -305,6 +305,13 @@ Toda governança, planos, decisões e rastreabilidade devem ser registrados excl
 - Qualquer módulo externo referenciado deve estar listado no `package.json` e instalado previamente.
 - Organize os imports em três grupos principais, separados por uma linha em branco: bibliotecas externas, módulos internos da aplicação e, por último, importações de tipos (`import type`).
 
+## Regras obrigatórias para `gen/src/main.ts` e geradores
+- O arquivo `gen/src/main.ts` deve atuar apenas como orquestrador de geração: parser de argumentos/parâmetros, integrações com banco de dados, integrações com git, cópia de arquivos estáticos e execução de geradores baseados em templates.
+- `gen/src/main.ts` não deve implementar responsabilidades de empacotar, executar, testar ou contabilizar artefatos gerados.
+- Para qualquer artefato 100% estático (sem interpolação), o conteúdo deve existir em disco em `gen/static/<componente>/` e ser copiado para o destino por função auxiliar dedicada de cópia estática.
+- Para qualquer artefato que exija interpolação em tempo de geração, é obrigatório usar arquivo template EJS em `gen/templates/` e arquivo gerador TypeScript; é proibido gerar esses conteúdos com constantes string multiline/hardcode no gerador.
+- É proibido definir constantes ou variáveis de texto com mais de 150 caracteres, ou com múltiplas linhas, dentro de arquivos geradores (`gen/src/*generator*.ts`, `gen/src/main.ts`); nesses casos, mover para template EJS ou arquivo estático.
+
 ## Padrão obrigatório para planos de mudança
 - Planos registrados em arquivos Markdown devem seguir uma estrutura comum.
 - Cada plano precisa conter, na ordem apresentada, seções tituladas para:

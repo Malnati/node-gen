@@ -53,15 +53,68 @@ function askQuestion(query: string): Promise<string> {
 }
 
 async function copyStaticApiFiles(destDir: string, templateDir?: string) {
+    await copyStaticComponentFiles({
+        destDir,
+        outputSubDir: "api",
+        staticComponentDirName: "api",
+        templateDir,
+        fallbackStaticDirName: "static-api",
+        successMessage: "Arquivos estáticos API copiados com sucesso.",
+        errorMessage: "Erro ao copiar arquivos estáticos API:",
+    });
+}
+
+async function copyStaticParcelPagingFiles(destDir: string, templateDir?: string) {
+    await copyStaticComponentFiles({
+        destDir,
+        outputSubDir: path.join("frontend", "mfe-parcel-paging"),
+        staticComponentDirName: "mfe-parcel-paging",
+        templateDir,
+        successMessage: "Arquivos estáticos MFE Parcel Paging copiados com sucesso.",
+        errorMessage: "Erro ao copiar arquivos estáticos MFE Parcel Paging:",
+    });
+}
+
+async function copyStaticComponentFiles(params: {
+    destDir: string;
+    outputSubDir: string;
+    staticComponentDirName: string;
+    templateDir?: string;
+    fallbackStaticDirName?: string;
+    successMessage: string;
+    errorMessage: string;
+}) {
     try {
-        const staticApiPath = templateDir ? path.resolve(templateDir, '../static-api') : path.resolve(__dirname, '../static-api');
-        const outputApiDir = path.join(destDir, 'api');
-        await fs.copy(staticApiPath, outputApiDir, {
+        const {
+            destDir,
+            outputSubDir,
+            staticComponentDirName,
+            templateDir,
+            fallbackStaticDirName,
+            successMessage,
+            errorMessage,
+        } = params;
+        const staticPathCandidates = [
+            ...(templateDir ? [
+                path.resolve(templateDir, staticComponentDirName),
+                path.resolve(templateDir, "..", "static", staticComponentDirName),
+                ...(fallbackStaticDirName ? [path.resolve(templateDir, "..", fallbackStaticDirName)] : []),
+            ] : []),
+            path.resolve(__dirname, "..", "static", staticComponentDirName),
+            ...(fallbackStaticDirName ? [path.resolve(__dirname, "..", fallbackStaticDirName)] : []),
+        ];
+        const staticSourcePath = staticPathCandidates.find((candidate) => fs.existsSync(candidate));
+        if (!staticSourcePath) {
+            throw new Error(`Static source not found for '${staticComponentDirName}' in: ${staticPathCandidates.join(", ")}`);
+        }
+
+        const outputDir = path.join(destDir, outputSubDir);
+        await fs.copy(staticSourcePath, outputDir, {
             overwrite: true,
         });
-        console.log('Arquivos estáticos API copiados com sucesso.');
+        console.log(successMessage);
     } catch (err) {
-        console.error('Erro ao copiar arquivos estáticos API:', err);
+        console.error(params.errorMessage, err);
     }
 }
 
@@ -83,8 +136,8 @@ function ensureGitRepo(outputDir: string): void {
 }
 
 async function main() {
-    // Copiar arquivos estáticos API para o diretório de saída
     await copyStaticApiFiles(dbConfig.outputDir, dbConfig.templateDir);
+    await copyStaticParcelPagingFiles(dbConfig.outputDir, dbConfig.templateDir);
     let schemaPath;
 
     let dbReader;

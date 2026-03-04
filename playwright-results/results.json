@@ -94,12 +94,12 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 3934,
+                      "duration": 4733,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-03-04T03:51:55.194Z",
+                      "startTime": "2026-03-04T16:11:11.335Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -128,12 +128,12 @@
                       "workerIndex": 1,
                       "parallelIndex": 1,
                       "status": "passed",
-                      "duration": 320,
+                      "duration": 230,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-03-04T03:51:54.736Z",
+                      "startTime": "2026-03-04T16:11:11.963Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -162,7 +162,7 @@
                       "workerIndex": 2,
                       "parallelIndex": 2,
                       "status": "failed",
-                      "duration": 8342,
+                      "duration": 9241,
                       "error": {
                         "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveCount\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('.project-card')\nExpected: \u001b[32m1\u001b[39m\nReceived: \u001b[31m26\u001b[39m\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveCount\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('.project-card')\u001b[22m\n\u001b[2m    8 × locator resolved to 26 elements\u001b[22m\n\u001b[2m      - unexpected value \"26\"\u001b[22m\n",
                         "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveCount\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('.project-card')\nExpected: \u001b[32m1\u001b[39m\nReceived: \u001b[31m26\u001b[39m\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveCount\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('.project-card')\u001b[22m\n\u001b[2m    8 × locator resolved to 26 elements\u001b[22m\n\u001b[2m      - unexpected value \"26\"\u001b[22m\n\n    at /root/w/node-gen/test/sspa.spec.ts:145:49",
@@ -186,7 +186,7 @@
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-03-04T03:51:54.497Z",
+                      "startTime": "2026-03-04T16:11:11.750Z",
                       "annotations": [],
                       "attachments": [
                         {
@@ -236,7 +236,7 @@
                       "workerIndex": 3,
                       "parallelIndex": 3,
                       "status": "failed",
-                      "duration": 8268,
+                      "duration": 8865,
                       "error": {
                         "message": "Error: Falhas na navegação UI por entidade: addresses/country: Falha HTTP 404 ao consultar a API. | addresses/state: Falha HTTP 404 ao consultar a API. | addresses/city: Falha HTTP 404 ao consultar a API. | addresses/address: Falha HTTP 404 ao consultar a API.\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // deep equality\u001b[22m\n\n\u001b[32m- Expected  - 1\u001b[39m\n\u001b[31m+ Received  + 6\u001b[39m\n\n\u001b[32m- Array []\u001b[39m\n\u001b[31m+ Array [\u001b[39m\n\u001b[31m+   \"addresses/country: Falha HTTP 404 ao consultar a API.\",\u001b[39m\n\u001b[31m+   \"addresses/state: Falha HTTP 404 ao consultar a API.\",\u001b[39m\n\u001b[31m+   \"addresses/city: Falha HTTP 404 ao consultar a API.\",\u001b[39m\n\u001b[31m+   \"addresses/address: Falha HTTP 404 ao consultar a API.\",\u001b[39m\n\u001b[31m+ ]\u001b[39m",
                         "stack": "Error: Falhas na navegação UI por entidade: addresses/country: Falha HTTP 404 ao consultar a API. | addresses/state: Falha HTTP 404 ao consultar a API. | addresses/city: Falha HTTP 404 ao consultar a API. | addresses/address: Falha HTTP 404 ao consultar a API.\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // deep equality\u001b[22m\n\n\u001b[32m- Expected  - 1\u001b[39m\n\u001b[31m+ Received  + 6\u001b[39m\n\n\u001b[32m- Array []\u001b[39m\n\u001b[31m+ Array [\u001b[39m\n\u001b[31m+   \"addresses/country: Falha HTTP 404 ao consultar a API.\",\u001b[39m\n\u001b[31m+   \"addresses/state: Falha HTTP 404 ao consultar a API.\",\u001b[39m\n\u001b[31m+   \"addresses/city: Falha HTTP 404 ao consultar a API.\",\u001b[39m\n\u001b[31m+   \"addresses/address: Falha HTTP 404 ao consultar a API.\",\u001b[39m\n\u001b[31m+ ]\u001b[39m\n    at /root/w/node-gen/test/sspa.spec.ts:248:86",
@@ -260,7 +260,7 @@
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-03-04T03:51:54.939Z",
+                      "startTime": "2026-03-04T16:11:11.204Z",
                       "annotations": [],
                       "attachments": [
                         {
@@ -310,7 +310,7 @@
                       "workerIndex": 1,
                       "parallelIndex": 1,
                       "status": "failed",
-                      "duration": 1402,
+                      "duration": 1869,
                       "error": {
                         "message": "Error: GET sem auth inesperado em addresses/country: 404\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeTruthy\u001b[2m()\u001b[22m\n\nReceived: \u001b[31mfalse\u001b[39m",
                         "stack": "Error: GET sem auth inesperado em addresses/country: 404\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeTruthy\u001b[2m()\u001b[22m\n\nReceived: \u001b[31mfalse\u001b[39m\n    at /root/w/node-gen/test/sspa.spec.ts:367:142",
@@ -486,7 +486,7 @@
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-03-04T03:51:55.153Z",
+                      "startTime": "2026-03-04T16:11:12.261Z",
                       "annotations": [],
                       "attachments": [],
                       "errorLocation": {
@@ -520,12 +520,12 @@
                       "workerIndex": 4,
                       "parallelIndex": 1,
                       "status": "passed",
-                      "duration": 460,
+                      "duration": 255,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-03-04T03:52:03.662Z",
+                      "startTime": "2026-03-04T16:11:22.486Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -545,8 +545,8 @@
   ],
   "errors": [],
   "stats": {
-    "startTime": "2026-03-04T03:51:48.954Z",
-    "duration": 16521.056,
+    "startTime": "2026-03-04T16:11:05.354Z",
+    "duration": 18055.913,
     "expected": 3,
     "skipped": 0,
     "unexpected": 3,

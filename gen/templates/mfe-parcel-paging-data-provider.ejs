@@ -1,0 +1,23 @@
+<%# gen/templates/mfe-parcel-paging-data-provider.ejs %>
+// src/api/dataProvider.ts
+// Auto-generated data provider for <%= pascalName %> using Shadcn Admin Kit patterns
+
+import { <%= camelName %>PagingApi, type PagingRequest, type PagingResponse, type <%= pascalName %>Record } from './client';
+
+export const <%= camelName %>DataProvider = {
+  async getList(params: {
+    pagination?: { page: number; perPage: number };
+    sort?: { field: string; order: 'ASC' | 'DESC' };
+    filter?: Record<string, any>;
+  }): Promise<PagingResponse<<%= pascalName %>Record>> {
+    const request: PagingRequest = {
+      page: params.pagination?.page || 1,
+      pageSize: params.pagination?.perPage || 10,
+      sort: params.sort?.field || '<%= defaultSort %>',
+      order: params.sort?.order || 'ASC',
+      filters: params.filter,
+    };
+
+    return <%= camelName %>PagingApi.getPage(request);
+  },
+};
