@@ -13,6 +13,19 @@ OUTPUT_DIR="${OUTPUT_DIR:-/output}"
 
 export PGPASSWORD="$DATABASE_PASSWORD"
 
+resolve_app_dir() {
+    local postgres_dir="$1"
+    if [ -f "$postgres_dir/package.json" ]; then
+        echo "$postgres_dir"
+        return 0
+    fi
+    if [ -f "$postgres_dir/api/package.json" ]; then
+        echo "$postgres_dir/api"
+        return 0
+    fi
+    return 1
+}
+
 echo "[entrypoint] Aguardando PostgreSQL em $DATABASE_HOST:$DATABASE_PORT..."
 
 until pg_isready -h "$DATABASE_HOST" -p "$DATABASE_PORT" -U "$DATABASE_USER"; do
@@ -75,12 +88,12 @@ for project_dir in "$OUTPUT_DIR"/*/postgres; do
         continue
     fi
 
-    if [ ! -f "$project_dir/package.json" ]; then
+    app_dir="$(resolve_app_dir "$project_dir")" || {
         continue
-    fi
+    }
 
     project_name=$(basename "$(dirname "$project_dir")")
-    cd "$project_dir"
+    cd "$app_dir"
 
     # Instalar dependências (apenas se necessário)
     if [ ! -d "node_modules" ]; then
@@ -88,11 +101,11 @@ for project_dir in "$OUTPUT_DIR"/*/postgres; do
         npm install --legacy-peer-deps --no-audit --ignore-scripts 2>/dev/null
     fi
 
-    if [ -f "dist/main.js" ]; then
-        echo "[entrypoint] Build já existente para API: $project_name"
-    else
+    if [ ! -f "dist/main.js" ] || [ "$app_dir/src" -nt "dist/main.js" ] || [ "$app_dir/package.json" -nt "dist/main.js" ] || find "$app_dir/src" -type f -newer "dist/main.js" | head -n 1 | grep -q .; then
         echo "[entrypoint] Buildando API: $project_name"
         npm run build 2>/dev/null
+    else
+        echo "[entrypoint] Build já existente para API: $project_name"
     fi
 
     cd /app
@@ -113,13 +126,13 @@ for project_dir in "$OUTPUT_DIR"/*/postgres; do
         continue
     fi
 
-    if [ ! -f "$project_dir/package.json" ]; then
+    app_dir="$(resolve_app_dir "$project_dir")" || {
         continue
-    fi
+    }
 
     project_name=$(basename "$(dirname "$project_dir")")
     
-    cd "$project_dir"
+    cd "$app_dir"
 
     # Atualizar arquivo .env com variáveis corretas (usar .env.local para ter prioridade)
     echo "DATABASE_HOST=$DATABASE_HOST" > .env.local

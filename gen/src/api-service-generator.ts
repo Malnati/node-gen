@@ -75,7 +75,8 @@ export class ApiServiceGenerator {
       .filter((rel) => rel.foreignTableName !== table.tableName)
       .map((rel) => {
         const relatedEntityName = toPascalCase(rel.foreignTableName);
-        return `import { ${relatedEntityName}Entity } from "@app/entities/${toSnakeCase(relatedEntityName)}";`;
+        const relatedEntityFile = toKebabCase(rel.foreignTableName);
+        return `import { ${relatedEntityName}Entity } from "../${relatedEntityFile}/${relatedEntityFile}.entity";`;
       })
       .join('\n');
   }

@@ -2,11 +2,11 @@
   {
     "project": "addresses",
     "entity": "country",
-    "get_unauth": 404,
-    "get_invalid_token": 404,
-    "get_malformed_token": 404,
-    "post_unauth": 404,
-    "post_invalid_token": 404,
+    "get_unauth": 200,
+    "get_invalid_token": 200,
+    "get_malformed_token": 200,
+    "post_unauth": 400,
+    "post_invalid_token": 400,
     "patch_unauth": -1,
     "delete_unauth": -1,
     "has_external_id": 0
@@ -14,11 +14,11 @@
   {
     "project": "addresses",
     "entity": "state",
-    "get_unauth": 404,
-    "get_invalid_token": 404,
-    "get_malformed_token": 404,
-    "post_unauth": 404,
-    "post_invalid_token": 404,
+    "get_unauth": 200,
+    "get_invalid_token": 200,
+    "get_malformed_token": 200,
+    "post_unauth": 400,
+    "post_invalid_token": 400,
     "patch_unauth": -1,
     "delete_unauth": -1,
     "has_external_id": 0
@@ -26,11 +26,11 @@
   {
     "project": "addresses",
     "entity": "city",
-    "get_unauth": 404,
-    "get_invalid_token": 404,
-    "get_malformed_token": 404,
-    "post_unauth": 404,
-    "post_invalid_token": 404,
+    "get_unauth": 200,
+    "get_invalid_token": 200,
+    "get_malformed_token": 200,
+    "post_unauth": 201,
+    "post_invalid_token": 201,
     "patch_unauth": -1,
     "delete_unauth": -1,
     "has_external_id": 0
@@ -38,13 +38,13 @@
   {
     "project": "addresses",
     "entity": "address",
-    "get_unauth": 404,
-    "get_invalid_token": 404,
-    "get_malformed_token": 404,
-    "post_unauth": 404,
-    "post_invalid_token": 404,
+    "get_unauth": 200,
+    "get_invalid_token": 200,
+    "get_malformed_token": 200,
+    "post_unauth": 400,
+    "post_invalid_token": 400,
     "patch_unauth": 404,
-    "delete_unauth": 404,
+    "delete_unauth": 400,
     "has_external_id": 1
   }
 ]

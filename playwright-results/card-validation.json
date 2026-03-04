@@ -1,0 +1,38 @@
+[
+  {
+    "project": "addresses",
+    "api_port": 3002,
+    "card_visible": true,
+    "orchestrator_route_status": 200,
+    "api_health_status": 200,
+    "entity": "country",
+    "entity_status": 200
+  },
+  {
+    "project": "addresses",
+    "api_port": 3002,
+    "card_visible": true,
+    "orchestrator_route_status": 200,
+    "api_health_status": 200,
+    "entity": "state",
+    "entity_status": 200
+  },
+  {
+    "project": "addresses",
+    "api_port": 3002,
+    "card_visible": true,
+    "orchestrator_route_status": 200,
+    "api_health_status": 200,
+    "entity": "city",
+    "entity_status": 200
+  },
+  {
+    "project": "addresses",
+    "api_port": 3002,
+    "card_visible": true,
+    "orchestrator_route_status": 200,
+    "api_health_status": 200,
+    "entity": "address",
+    "entity_status": 200
+  }
+]

@@ -142,7 +142,11 @@ test.describe('SSPA Dashboard - Cobertura Abrangente', () => {
     const projectKeys = Object.keys(projects);
 
     await page.goto('/');
-    await expect(page.locator('.project-card')).toHaveCount(projectKeys.length);
+    if (PLAYWRIGHT_PROJECT) {
+      await expect(page.locator(`.project-card[data-project="${PLAYWRIGHT_PROJECT}"]`)).toBeVisible();
+    } else {
+      await expect(page.locator('.project-card')).toHaveCount(projectKeys.length);
+    }
 
     try {
       for (const [projectKey, project] of Object.entries(projects)) {

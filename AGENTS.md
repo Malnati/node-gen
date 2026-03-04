@@ -312,6 +312,11 @@ Toda governança, planos, decisões e rastreabilidade devem ser registrados excl
 - Para qualquer artefato que exija interpolação em tempo de geração, é obrigatório usar arquivo template EJS em `gen/templates/` e arquivo gerador TypeScript; é proibido gerar esses conteúdos com constantes string multiline/hardcode no gerador.
 - É proibido definir constantes ou variáveis de texto com mais de 150 caracteres, ou com múltiplas linhas, dentro de arquivos geradores (`gen/src/*generator*.ts`, `gen/src/main.ts`); nesses casos, mover para template EJS ou arquivo estático.
 
+## Regra obrigatória de escopo de correção por tipo de falha de teste
+- Ao identificar defeitos durante testes contra as APIs, a correção deve ocorrer apenas nos arquivos de geração, templates e estáticos da API; é proibido alterar banco de dados nesse cenário.
+- Ao identificar defeitos durante testes contra frontends, a correção deve ocorrer apenas nos arquivos de geração, templates e estáticos do frontend afetado; é proibido alterar banco de dados e API nesse cenário.
+- Ao identificar defeitos durante testes E2E contra UI (frontends) relacionados ao consumo das APIs, a correção deve ocorrer apenas nos arquivos de geração, templates e estáticos do frontend; é proibido alterar API e banco de dados nesse cenário.
+
 ## Padrão obrigatório para planos de mudança
 - Planos registrados em arquivos Markdown devem seguir uma estrutura comum.
 - Cada plano precisa conter, na ordem apresentada, seções tituladas para:

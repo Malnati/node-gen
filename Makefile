@@ -280,6 +280,33 @@ e2e-$(1)-pg-parcel-paging:
 	PLAYWRIGHT_PROJECT=$(1) $(MAKE) playwright-test
 endef
 
+define db-pg-project-target
+db-pg-$(1):
+	@echo "🗄️  Inicializando PostgreSQL para projeto $(1)..."
+	E2E_DB_TYPES=postgres $(MAKE) e2e-dbs
+	NODE_PATH=gen/node_modules E2E_DB_TYPES=postgres DB_POSTGRES_HOST=127.0.0.1 DB_POSTGRES_PORT=15432 DB_POSTGRES_USER=postgres DB_POSTGRES_PASSWORD=postgres node test/e2e-generator/run.js db $(1)
+endef
+
+define db-mysql-project-target
+db-mysql-$(1):
+	@echo "🗄️  Inicializando MySQL para projeto $(1)..."
+	E2E_DB_TYPES=mysql $(MAKE) e2e-dbs
+	NODE_PATH=gen/node_modules E2E_DB_TYPES=mysql DB_MYSQL_HOST=127.0.0.1 DB_MYSQL_PORT=13306 DB_MYSQL_USER=e2e DB_MYSQL_PASSWORD=e2e DB_MYSQL_INIT_USER=root DB_MYSQL_INIT_PASSWORD=root node test/e2e-generator/run.js db $(1)
+endef
+
+define db-sqlserver-project-target
+db-sqlserver-$(1):
+	@echo "🗄️  Inicializando SQL Server para projeto $(1)..."
+	E2E_DB_TYPES=sqlserver $(MAKE) e2e-dbs
+	NODE_PATH=gen/node_modules E2E_DB_TYPES=sqlserver DB_SQLSERVER_HOST=127.0.0.1 DB_SQLSERVER_PORT=11433 DB_SQLSERVER_USER=sa DB_SQLSERVER_PASSWORD=YourStrong@Passw0rd node test/e2e-generator/run.js db $(1)
+endef
+
+define db-sqlite-project-target
+db-sqlite-$(1):
+	@echo "🗄️  Inicializando SQLite para projeto $(1)..."
+	NODE_PATH=gen/node_modules E2E_DB_TYPES=sqlite node test/e2e-generator/run.js db $(1)
+endef
+
 $(foreach p,$(E2E_PROJECTS_LIST),$(eval $(call e2e-api-project-target,$(p))))
 $(foreach p,$(E2E_PROJECTS_LIST),$(eval $(call e2e-mfe-project-target,$(p))))
 $(foreach p,$(E2E_PROJECTS_LIST),$(eval $(call e2e-all-project-target,$(p))))
@@ -288,6 +315,10 @@ $(foreach p,$(E2E_PROJECTS_LIST),$(eval $(call gen-pg-api-project-target,$(p))))
 $(foreach p,$(E2E_PROJECTS_LIST),$(eval $(call gen-pg-parcel-paging-project-target,$(p))))
 $(foreach p,$(E2E_PROJECTS_LIST),$(eval $(call e2e-pg-api-project-target,$(p))))
 $(foreach p,$(E2E_PROJECTS_LIST),$(eval $(call e2e-pg-parcel-paging-project-target,$(p))))
+$(foreach p,$(E2E_PROJECTS_LIST),$(eval $(call db-pg-project-target,$(p))))
+$(foreach p,$(E2E_PROJECTS_LIST),$(eval $(call db-mysql-project-target,$(p))))
+$(foreach p,$(E2E_PROJECTS_LIST),$(eval $(call db-sqlserver-project-target,$(p))))
+$(foreach p,$(E2E_PROJECTS_LIST),$(eval $(call db-sqlite-project-target,$(p))))
 
 # ==============================================================================
 # TARGETS DE PROJETOS POSTGRES (legado)
@@ -369,23 +400,40 @@ playwright-up:
 		fi; \
 	done
 	@if [ -n "$(PLAYWRIGHT_PROJECT)" ]; then \
-		echo "⏳  Aguardando ao menos uma API com /health=200 para PLAYWRIGHT_PROJECT=$(PLAYWRIGHT_PROJECT)..."; \
-		for i in $$(seq 1 180); do \
-			healthy_port=""; \
-			for p in $$(seq 3001 3026); do \
-				code=$$(curl -s -o /dev/null -w "%{http_code}" --connect-timeout 1 --max-time 2 "http://localhost:$$p/health" || echo "000"); \
-				if [ "$$code" = "200" ]; then healthy_port="$$p"; break; fi; \
+		project_port=$$(curl -sS http://localhost:9000/data/projects.json 2>/dev/null | node -e 'const fs=require("fs"); const p=process.argv[1]; try { const d=JSON.parse(fs.readFileSync(0,"utf8")); process.stdout.write(String(d?.[p]?.apiPort ?? "")); } catch { process.stdout.write(""); }' "$(PLAYWRIGHT_PROJECT)"); \
+		if [ -n "$$project_port" ]; then \
+			echo "⏳  Aguardando API do projeto $(PLAYWRIGHT_PROJECT) na porta $$project_port..."; \
+			for i in $$(seq 1 180); do \
+				code=$$(curl -s -o /dev/null -w "%{http_code}" --connect-timeout 1 --max-time 2 "http://localhost:$$project_port/health" || echo "000"); \
+				if [ "$$code" = "200" ]; then \
+					echo "✅  API do projeto $(PLAYWRIGHT_PROJECT) disponível na porta $$project_port"; \
+					break; \
+				fi; \
+				if [ $$i -eq 180 ]; then \
+					echo "❌  Timeout aguardando API do projeto $(PLAYWRIGHT_PROJECT) na porta $$project_port"; \
+					exit 1; \
+				fi; \
+				sleep 1; \
 			done; \
-			if [ -n "$$healthy_port" ]; then \
-				echo "✅  API disponível para escopo filtrado na porta $$healthy_port"; \
-				break; \
-			fi; \
-			if [ $$i -eq 180 ]; then \
-				echo "❌  Timeout aguardando API com /health=200 para PLAYWRIGHT_PROJECT=$(PLAYWRIGHT_PROJECT)"; \
-				exit 1; \
-			fi; \
-			sleep 1; \
-		done; \
+		else \
+			echo "⚠️  apiPort não encontrado para PLAYWRIGHT_PROJECT=$(PLAYWRIGHT_PROJECT); usando fallback por qualquer API saudável."; \
+			for i in $$(seq 1 180); do \
+				healthy_port=""; \
+				for p in $$(seq 3001 3026); do \
+					code=$$(curl -s -o /dev/null -w "%{http_code}" --connect-timeout 1 --max-time 2 "http://localhost:$$p/health" || echo "000"); \
+					if [ "$$code" = "200" ]; then healthy_port="$$p"; break; fi; \
+				done; \
+				if [ -n "$$healthy_port" ]; then \
+					echo "✅  API disponível para escopo filtrado na porta $$healthy_port"; \
+					break; \
+				fi; \
+				if [ $$i -eq 180 ]; then \
+					echo "❌  Timeout aguardando API com /health=200 para PLAYWRIGHT_PROJECT=$(PLAYWRIGHT_PROJECT)"; \
+					exit 1; \
+				fi; \
+				sleep 1; \
+			done; \
+		fi; \
 	else \
 		echo "⏳  Aguardando healthcheck completo das APIs (3001-3026)..."; \
 		for i in $$(seq 1 180); do \

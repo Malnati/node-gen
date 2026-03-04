@@ -2,29 +2,29 @@
   {
     "project": "addresses",
     "entity": "country",
-    "has_error_message": true,
+    "has_error_message": false,
     "row_count": 1,
-    "status": "error"
+    "status": "ok"
   },
   {
     "project": "addresses",
     "entity": "state",
-    "has_error_message": true,
+    "has_error_message": false,
     "row_count": 1,
-    "status": "error"
+    "status": "ok"
   },
   {
     "project": "addresses",
     "entity": "city",
-    "has_error_message": true,
+    "has_error_message": false,
     "row_count": 1,
-    "status": "error"
+    "status": "ok"
   },
   {
     "project": "addresses",
     "entity": "address",
-    "has_error_message": true,
+    "has_error_message": false,
     "row_count": 1,
-    "status": "error"
+    "status": "ok"
   }
 ]

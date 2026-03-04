@@ -94,12 +94,12 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 4733,
+                      "duration": 2895,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-03-04T16:11:11.335Z",
+                      "startTime": "2026-03-04T16:57:04.644Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -128,12 +128,12 @@
                       "workerIndex": 1,
                       "parallelIndex": 1,
                       "status": "passed",
-                      "duration": 230,
+                      "duration": 217,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-03-04T16:11:11.963Z",
+                      "startTime": "2026-03-04T16:57:06.112Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -148,7 +148,7 @@
             },
             {
               "title": "validação card-a-card: ui, health e endpoint principal por projeto",
-              "ok": false,
+              "ok": true,
               "tags": [],
               "tests": [
                 {
@@ -161,58 +161,18 @@
                     {
                       "workerIndex": 2,
                       "parallelIndex": 2,
-                      "status": "failed",
-                      "duration": 9241,
-                      "error": {
-                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveCount\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('.project-card')\nExpected: \u001b[32m1\u001b[39m\nReceived: \u001b[31m26\u001b[39m\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveCount\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('.project-card')\u001b[22m\n\u001b[2m    8 × locator resolved to 26 elements\u001b[22m\n\u001b[2m      - unexpected value \"26\"\u001b[22m\n",
-                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveCount\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('.project-card')\nExpected: \u001b[32m1\u001b[39m\nReceived: \u001b[31m26\u001b[39m\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveCount\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('.project-card')\u001b[22m\n\u001b[2m    8 × locator resolved to 26 elements\u001b[22m\n\u001b[2m      - unexpected value \"26\"\u001b[22m\n\n    at /root/w/node-gen/test/sspa.spec.ts:145:49",
-                        "location": {
-                          "file": "/root/w/node-gen/test/sspa.spec.ts",
-                          "column": 49,
-                          "line": 145
-                        },
-                        "snippet": "  143 |\n  144 |     await page.goto('/');\n> 145 |     await expect(page.locator('.project-card')).toHaveCount(projectKeys.length);\n      |                                                 ^\n  146 |\n  147 |     try {\n  148 |       for (const [projectKey, project] of Object.entries(projects)) {"
-                      },
-                      "errors": [
-                        {
-                          "location": {
-                            "file": "/root/w/node-gen/test/sspa.spec.ts",
-                            "column": 49,
-                            "line": 145
-                          },
-                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveCount\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('.project-card')\nExpected: \u001b[32m1\u001b[39m\nReceived: \u001b[31m26\u001b[39m\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveCount\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('.project-card')\u001b[22m\n\u001b[2m    8 × locator resolved to 26 elements\u001b[22m\n\u001b[2m      - unexpected value \"26\"\u001b[22m\n\n\n  143 |\n  144 |     await page.goto('/');\n> 145 |     await expect(page.locator('.project-card')).toHaveCount(projectKeys.length);\n      |                                                 ^\n  146 |\n  147 |     try {\n  148 |       for (const [projectKey, project] of Object.entries(projects)) {\n    at /root/w/node-gen/test/sspa.spec.ts:145:49"
-                        }
-                      ],
+                      "status": "passed",
+                      "duration": 4331,
+                      "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-03-04T16:11:11.750Z",
+                      "startTime": "2026-03-04T16:57:06.074Z",
                       "annotations": [],
-                      "attachments": [
-                        {
-                          "name": "screenshot",
-                          "contentType": "image/png",
-                          "path": "/root/w/node-gen/test-results/sspa-SSPA-Dashboard---Cobe-39fe5-point-principal-por-projeto-chromium/test-failed-1.png"
-                        },
-                        {
-                          "name": "video",
-                          "contentType": "video/webm",
-                          "path": "/root/w/node-gen/test-results/sspa-SSPA-Dashboard---Cobe-39fe5-point-principal-por-projeto-chromium/video.webm"
-                        },
-                        {
-                          "name": "error-context",
-                          "contentType": "text/markdown",
-                          "path": "/root/w/node-gen/test-results/sspa-SSPA-Dashboard---Cobe-39fe5-point-principal-por-projeto-chromium/error-context.md"
-                        }
-                      ],
-                      "errorLocation": {
-                        "file": "/root/w/node-gen/test/sspa.spec.ts",
-                        "column": 49,
-                        "line": 145
-                      }
+                      "attachments": []
                     }
                   ],
-                  "status": "unexpected"
+                  "status": "expected"
                 }
               ],
               "id": "a42535faff86ef3f1343-b1321e8d304225afccfe",
@@ -222,7 +182,7 @@
             },
             {
               "title": "navegação UI por card e entidade não exibe erro de carregamento",
-              "ok": false,
+              "ok": true,
               "tags": [],
               "tests": [
                 {
@@ -235,68 +195,28 @@
                     {
                       "workerIndex": 3,
                       "parallelIndex": 3,
-                      "status": "failed",
-                      "duration": 8865,
-                      "error": {
-                        "message": "Error: Falhas na navegação UI por entidade: addresses/country: Falha HTTP 404 ao consultar a API. | addresses/state: Falha HTTP 404 ao consultar a API. | addresses/city: Falha HTTP 404 ao consultar a API. | addresses/address: Falha HTTP 404 ao consultar a API.\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // deep equality\u001b[22m\n\n\u001b[32m- Expected  - 1\u001b[39m\n\u001b[31m+ Received  + 6\u001b[39m\n\n\u001b[32m- Array []\u001b[39m\n\u001b[31m+ Array [\u001b[39m\n\u001b[31m+   \"addresses/country: Falha HTTP 404 ao consultar a API.\",\u001b[39m\n\u001b[31m+   \"addresses/state: Falha HTTP 404 ao consultar a API.\",\u001b[39m\n\u001b[31m+   \"addresses/city: Falha HTTP 404 ao consultar a API.\",\u001b[39m\n\u001b[31m+   \"addresses/address: Falha HTTP 404 ao consultar a API.\",\u001b[39m\n\u001b[31m+ ]\u001b[39m",
-                        "stack": "Error: Falhas na navegação UI por entidade: addresses/country: Falha HTTP 404 ao consultar a API. | addresses/state: Falha HTTP 404 ao consultar a API. | addresses/city: Falha HTTP 404 ao consultar a API. | addresses/address: Falha HTTP 404 ao consultar a API.\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // deep equality\u001b[22m\n\n\u001b[32m- Expected  - 1\u001b[39m\n\u001b[31m+ Received  + 6\u001b[39m\n\n\u001b[32m- Array []\u001b[39m\n\u001b[31m+ Array [\u001b[39m\n\u001b[31m+   \"addresses/country: Falha HTTP 404 ao consultar a API.\",\u001b[39m\n\u001b[31m+   \"addresses/state: Falha HTTP 404 ao consultar a API.\",\u001b[39m\n\u001b[31m+   \"addresses/city: Falha HTTP 404 ao consultar a API.\",\u001b[39m\n\u001b[31m+   \"addresses/address: Falha HTTP 404 ao consultar a API.\",\u001b[39m\n\u001b[31m+ ]\u001b[39m\n    at /root/w/node-gen/test/sspa.spec.ts:248:86",
-                        "location": {
-                          "file": "/root/w/node-gen/test/sspa.spec.ts",
-                          "column": 86,
-                          "line": 248
-                        },
-                        "snippet": "  246 |\n  247 |     expect(rows.length).toBeGreaterThan(0);\n> 248 |     expect(failures, `Falhas na navegação UI por entidade: ${failures.join(' | ')}`).toEqual([]);\n      |                                                                                      ^\n  249 |   });\n  250 |\n  251 |   test('matriz de autenticação, autorização e CRUD provável por projeto', async ({ request }) => {"
-                      },
-                      "errors": [
-                        {
-                          "location": {
-                            "file": "/root/w/node-gen/test/sspa.spec.ts",
-                            "column": 86,
-                            "line": 248
-                          },
-                          "message": "Error: Falhas na navegação UI por entidade: addresses/country: Falha HTTP 404 ao consultar a API. | addresses/state: Falha HTTP 404 ao consultar a API. | addresses/city: Falha HTTP 404 ao consultar a API. | addresses/address: Falha HTTP 404 ao consultar a API.\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // deep equality\u001b[22m\n\n\u001b[32m- Expected  - 1\u001b[39m\n\u001b[31m+ Received  + 6\u001b[39m\n\n\u001b[32m- Array []\u001b[39m\n\u001b[31m+ Array [\u001b[39m\n\u001b[31m+   \"addresses/country: Falha HTTP 404 ao consultar a API.\",\u001b[39m\n\u001b[31m+   \"addresses/state: Falha HTTP 404 ao consultar a API.\",\u001b[39m\n\u001b[31m+   \"addresses/city: Falha HTTP 404 ao consultar a API.\",\u001b[39m\n\u001b[31m+   \"addresses/address: Falha HTTP 404 ao consultar a API.\",\u001b[39m\n\u001b[31m+ ]\u001b[39m\n\n  246 |\n  247 |     expect(rows.length).toBeGreaterThan(0);\n> 248 |     expect(failures, `Falhas na navegação UI por entidade: ${failures.join(' | ')}`).toEqual([]);\n      |                                                                                      ^\n  249 |   });\n  250 |\n  251 |   test('matriz de autenticação, autorização e CRUD provável por projeto', async ({ request }) => {\n    at /root/w/node-gen/test/sspa.spec.ts:248:86"
-                        }
-                      ],
+                      "status": "passed",
+                      "duration": 5509,
+                      "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-03-04T16:11:11.204Z",
+                      "startTime": "2026-03-04T16:57:06.209Z",
                       "annotations": [],
-                      "attachments": [
-                        {
-                          "name": "screenshot",
-                          "contentType": "image/png",
-                          "path": "/root/w/node-gen/test-results/sspa-SSPA-Dashboard---Cobe-1d3d8--exibe-erro-de-carregamento-chromium/test-failed-1.png"
-                        },
-                        {
-                          "name": "video",
-                          "contentType": "video/webm",
-                          "path": "/root/w/node-gen/test-results/sspa-SSPA-Dashboard---Cobe-1d3d8--exibe-erro-de-carregamento-chromium/video.webm"
-                        },
-                        {
-                          "name": "error-context",
-                          "contentType": "text/markdown",
-                          "path": "/root/w/node-gen/test-results/sspa-SSPA-Dashboard---Cobe-1d3d8--exibe-erro-de-carregamento-chromium/error-context.md"
-                        }
-                      ],
-                      "errorLocation": {
-                        "file": "/root/w/node-gen/test/sspa.spec.ts",
-                        "column": 86,
-                        "line": 248
-                      }
+                      "attachments": []
                     }
                   ],
-                  "status": "unexpected"
+                  "status": "expected"
                 }
               ],
               "id": "a42535faff86ef3f1343-7e3751bdd0ce559d5fcc",
               "file": "sspa.spec.ts",
-              "line": 197,
+              "line": 201,
               "column": 7
             },
             {
               "title": "matriz de autenticação, autorização e CRUD provável por projeto",
-              "ok": false,
+              "ok": true,
               "tags": [],
               "tests": [
                 {
@@ -309,199 +229,23 @@
                     {
                       "workerIndex": 1,
                       "parallelIndex": 1,
-                      "status": "failed",
-                      "duration": 1869,
-                      "error": {
-                        "message": "Error: GET sem auth inesperado em addresses/country: 404\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeTruthy\u001b[2m()\u001b[22m\n\nReceived: \u001b[31mfalse\u001b[39m",
-                        "stack": "Error: GET sem auth inesperado em addresses/country: 404\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeTruthy\u001b[2m()\u001b[22m\n\nReceived: \u001b[31mfalse\u001b[39m\n    at /root/w/node-gen/test/sspa.spec.ts:367:142",
-                        "location": {
-                          "file": "/root/w/node-gen/test/sspa.spec.ts",
-                          "column": 142,
-                          "line": 367
-                        },
-                        "snippet": "  365 |           if (row.get_unauth !== 0) {\n  366 |             validatedRows += 1;\n> 367 |             expect.soft(ACCEPTED_LIST_CODES.has(row.get_unauth), `GET sem auth inesperado em ${projectKey}/${entityKey}: ${row.get_unauth}`).toBeTruthy();\n      |                                                                                                                                              ^\n  368 |             expect.soft(ACCEPTED_LIST_CODES.has(row.get_invalid_token), `GET com token inválido inesperado em ${projectKey}/${entityKey}: ${row.get_invalid_token}`).toBeTruthy();\n  369 |             expect.soft(ACCEPTED_LIST_CODES.has(row.get_malformed_token), `GET com header malformado inesperado em ${projectKey}/${entityKey}: ${row.get_malformed_token}`).toBeTruthy();\n  370 |             expect.soft(ACCEPTED_CREATE_CODES.has(row.post_unauth), `POST sem auth inesperado em ${projectKey}/${entityKey}: ${row.post_unauth}`).toBeTruthy();"
-                      },
-                      "errors": [
-                        {
-                          "location": {
-                            "file": "/root/w/node-gen/test/sspa.spec.ts",
-                            "column": 142,
-                            "line": 367
-                          },
-                          "message": "Error: GET sem auth inesperado em addresses/country: 404\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeTruthy\u001b[2m()\u001b[22m\n\nReceived: \u001b[31mfalse\u001b[39m\n\n  365 |           if (row.get_unauth !== 0) {\n  366 |             validatedRows += 1;\n> 367 |             expect.soft(ACCEPTED_LIST_CODES.has(row.get_unauth), `GET sem auth inesperado em ${projectKey}/${entityKey}: ${row.get_unauth}`).toBeTruthy();\n      |                                                                                                                                              ^\n  368 |             expect.soft(ACCEPTED_LIST_CODES.has(row.get_invalid_token), `GET com token inválido inesperado em ${projectKey}/${entityKey}: ${row.get_invalid_token}`).toBeTruthy();\n  369 |             expect.soft(ACCEPTED_LIST_CODES.has(row.get_malformed_token), `GET com header malformado inesperado em ${projectKey}/${entityKey}: ${row.get_malformed_token}`).toBeTruthy();\n  370 |             expect.soft(ACCEPTED_CREATE_CODES.has(row.post_unauth), `POST sem auth inesperado em ${projectKey}/${entityKey}: ${row.post_unauth}`).toBeTruthy();\n    at /root/w/node-gen/test/sspa.spec.ts:367:142"
-                        },
-                        {
-                          "location": {
-                            "file": "/root/w/node-gen/test/sspa.spec.ts",
-                            "column": 166,
-                            "line": 368
-                          },
-                          "message": "Error: GET com token inválido inesperado em addresses/country: 404\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeTruthy\u001b[2m()\u001b[22m\n\nReceived: \u001b[31mfalse\u001b[39m\n\n  366 |             validatedRows += 1;\n  367 |             expect.soft(ACCEPTED_LIST_CODES.has(row.get_unauth), `GET sem auth inesperado em ${projectKey}/${entityKey}: ${row.get_unauth}`).toBeTruthy();\n> 368 |             expect.soft(ACCEPTED_LIST_CODES.has(row.get_invalid_token), `GET com token inválido inesperado em ${projectKey}/${entityKey}: ${row.get_invalid_token}`).toBeTruthy();\n      |                                                                                                                                                                      ^\n  369 |             expect.soft(ACCEPTED_LIST_CODES.has(row.get_malformed_token), `GET com header malformado inesperado em ${projectKey}/${entityKey}: ${row.get_malformed_token}`).toBeTruthy();\n  370 |             expect.soft(ACCEPTED_CREATE_CODES.has(row.post_unauth), `POST sem auth inesperado em ${projectKey}/${entityKey}: ${row.post_unauth}`).toBeTruthy();\n  371 |             expect.soft(ACCEPTED_CREATE_CODES.has(row.post_invalid_token), `POST com token inválido inesperado em ${projectKey}/${entityKey}: ${row.post_invalid_token}`).toBeTruthy();\n    at /root/w/node-gen/test/sspa.spec.ts:368:166"
-                        },
-                        {
-                          "location": {
-                            "file": "/root/w/node-gen/test/sspa.spec.ts",
-                            "column": 173,
-                            "line": 369
-                          },
-                          "message": "Error: GET com header malformado inesperado em addresses/country: 404\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeTruthy\u001b[2m()\u001b[22m\n\nReceived: \u001b[31mfalse\u001b[39m\n\n  367 |             expect.soft(ACCEPTED_LIST_CODES.has(row.get_unauth), `GET sem auth inesperado em ${projectKey}/${entityKey}: ${row.get_unauth}`).toBeTruthy();\n  368 |             expect.soft(ACCEPTED_LIST_CODES.has(row.get_invalid_token), `GET com token inválido inesperado em ${projectKey}/${entityKey}: ${row.get_invalid_token}`).toBeTruthy();\n> 369 |             expect.soft(ACCEPTED_LIST_CODES.has(row.get_malformed_token), `GET com header malformado inesperado em ${projectKey}/${entityKey}: ${row.get_malformed_token}`).toBeTruthy();\n      |                                                                                                                                                                             ^\n  370 |             expect.soft(ACCEPTED_CREATE_CODES.has(row.post_unauth), `POST sem auth inesperado em ${projectKey}/${entityKey}: ${row.post_unauth}`).toBeTruthy();\n  371 |             expect.soft(ACCEPTED_CREATE_CODES.has(row.post_invalid_token), `POST com token inválido inesperado em ${projectKey}/${entityKey}: ${row.post_invalid_token}`).toBeTruthy();\n  372 |             if (Number(row.has_external_id) === 1) {\n    at /root/w/node-gen/test/sspa.spec.ts:369:173"
-                        },
-                        {
-                          "location": {
-                            "file": "/root/w/node-gen/test/sspa.spec.ts",
-                            "column": 147,
-                            "line": 370
-                          },
-                          "message": "Error: POST sem auth inesperado em addresses/country: 404\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeTruthy\u001b[2m()\u001b[22m\n\nReceived: \u001b[31mfalse\u001b[39m\n\n  368 |             expect.soft(ACCEPTED_LIST_CODES.has(row.get_invalid_token), `GET com token inválido inesperado em ${projectKey}/${entityKey}: ${row.get_invalid_token}`).toBeTruthy();\n  369 |             expect.soft(ACCEPTED_LIST_CODES.has(row.get_malformed_token), `GET com header malformado inesperado em ${projectKey}/${entityKey}: ${row.get_malformed_token}`).toBeTruthy();\n> 370 |             expect.soft(ACCEPTED_CREATE_CODES.has(row.post_unauth), `POST sem auth inesperado em ${projectKey}/${entityKey}: ${row.post_unauth}`).toBeTruthy();\n      |                                                                                                                                                   ^\n  371 |             expect.soft(ACCEPTED_CREATE_CODES.has(row.post_invalid_token), `POST com token inválido inesperado em ${projectKey}/${entityKey}: ${row.post_invalid_token}`).toBeTruthy();\n  372 |             if (Number(row.has_external_id) === 1) {\n  373 |               expect.soft(ACCEPTED_MUTATION_BY_ID_CODES.has(row.patch_unauth), `PATCH sem auth inesperado em ${projectKey}/${entityKey}: ${row.patch_unauth}`).toBeTruthy();\n    at /root/w/node-gen/test/sspa.spec.ts:370:147"
-                        },
-                        {
-                          "location": {
-                            "file": "/root/w/node-gen/test/sspa.spec.ts",
-                            "column": 171,
-                            "line": 371
-                          },
-                          "message": "Error: POST com token inválido inesperado em addresses/country: 404\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeTruthy\u001b[2m()\u001b[22m\n\nReceived: \u001b[31mfalse\u001b[39m\n\n  369 |             expect.soft(ACCEPTED_LIST_CODES.has(row.get_malformed_token), `GET com header malformado inesperado em ${projectKey}/${entityKey}: ${row.get_malformed_token}`).toBeTruthy();\n  370 |             expect.soft(ACCEPTED_CREATE_CODES.has(row.post_unauth), `POST sem auth inesperado em ${projectKey}/${entityKey}: ${row.post_unauth}`).toBeTruthy();\n> 371 |             expect.soft(ACCEPTED_CREATE_CODES.has(row.post_invalid_token), `POST com token inválido inesperado em ${projectKey}/${entityKey}: ${row.post_invalid_token}`).toBeTruthy();\n      |                                                                                                                                                                           ^\n  372 |             if (Number(row.has_external_id) === 1) {\n  373 |               expect.soft(ACCEPTED_MUTATION_BY_ID_CODES.has(row.patch_unauth), `PATCH sem auth inesperado em ${projectKey}/${entityKey}: ${row.patch_unauth}`).toBeTruthy();\n  374 |               expect.soft(ACCEPTED_MUTATION_BY_ID_CODES.has(row.delete_unauth), `DELETE sem auth inesperado em ${projectKey}/${entityKey}: ${row.delete_unauth}`).toBeTruthy();\n    at /root/w/node-gen/test/sspa.spec.ts:371:171"
-                        },
-                        {
-                          "location": {
-                            "file": "/root/w/node-gen/test/sspa.spec.ts",
-                            "column": 142,
-                            "line": 367
-                          },
-                          "message": "Error: GET sem auth inesperado em addresses/state: 404\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeTruthy\u001b[2m()\u001b[22m\n\nReceived: \u001b[31mfalse\u001b[39m\n\n  365 |           if (row.get_unauth !== 0) {\n  366 |             validatedRows += 1;\n> 367 |             expect.soft(ACCEPTED_LIST_CODES.has(row.get_unauth), `GET sem auth inesperado em ${projectKey}/${entityKey}: ${row.get_unauth}`).toBeTruthy();\n      |                                                                                                                                              ^\n  368 |             expect.soft(ACCEPTED_LIST_CODES.has(row.get_invalid_token), `GET com token inválido inesperado em ${projectKey}/${entityKey}: ${row.get_invalid_token}`).toBeTruthy();\n  369 |             expect.soft(ACCEPTED_LIST_CODES.has(row.get_malformed_token), `GET com header malformado inesperado em ${projectKey}/${entityKey}: ${row.get_malformed_token}`).toBeTruthy();\n  370 |             expect.soft(ACCEPTED_CREATE_CODES.has(row.post_unauth), `POST sem auth inesperado em ${projectKey}/${entityKey}: ${row.post_unauth}`).toBeTruthy();\n    at /root/w/node-gen/test/sspa.spec.ts:367:142"
-                        },
-                        {
-                          "location": {
-                            "file": "/root/w/node-gen/test/sspa.spec.ts",
-                            "column": 166,
-                            "line": 368
-                          },
-                          "message": "Error: GET com token inválido inesperado em addresses/state: 404\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeTruthy\u001b[2m()\u001b[22m\n\nReceived: \u001b[31mfalse\u001b[39m\n\n  366 |             validatedRows += 1;\n  367 |             expect.soft(ACCEPTED_LIST_CODES.has(row.get_unauth), `GET sem auth inesperado em ${projectKey}/${entityKey}: ${row.get_unauth}`).toBeTruthy();\n> 368 |             expect.soft(ACCEPTED_LIST_CODES.has(row.get_invalid_token), `GET com token inválido inesperado em ${projectKey}/${entityKey}: ${row.get_invalid_token}`).toBeTruthy();\n      |                                                                                                                                                                      ^\n  369 |             expect.soft(ACCEPTED_LIST_CODES.has(row.get_malformed_token), `GET com header malformado inesperado em ${projectKey}/${entityKey}: ${row.get_malformed_token}`).toBeTruthy();\n  370 |             expect.soft(ACCEPTED_CREATE_CODES.has(row.post_unauth), `POST sem auth inesperado em ${projectKey}/${entityKey}: ${row.post_unauth}`).toBeTruthy();\n  371 |             expect.soft(ACCEPTED_CREATE_CODES.has(row.post_invalid_token), `POST com token inválido inesperado em ${projectKey}/${entityKey}: ${row.post_invalid_token}`).toBeTruthy();\n    at /root/w/node-gen/test/sspa.spec.ts:368:166"
-                        },
-                        {
-                          "location": {
-                            "file": "/root/w/node-gen/test/sspa.spec.ts",
-                            "column": 173,
-                            "line": 369
-                          },
-                          "message": "Error: GET com header malformado inesperado em addresses/state: 404\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeTruthy\u001b[2m()\u001b[22m\n\nReceived: \u001b[31mfalse\u001b[39m\n\n  367 |             expect.soft(ACCEPTED_LIST_CODES.has(row.get_unauth), `GET sem auth inesperado em ${projectKey}/${entityKey}: ${row.get_unauth}`).toBeTruthy();\n  368 |             expect.soft(ACCEPTED_LIST_CODES.has(row.get_invalid_token), `GET com token inválido inesperado em ${projectKey}/${entityKey}: ${row.get_invalid_token}`).toBeTruthy();\n> 369 |             expect.soft(ACCEPTED_LIST_CODES.has(row.get_malformed_token), `GET com header malformado inesperado em ${projectKey}/${entityKey}: ${row.get_malformed_token}`).toBeTruthy();\n      |                                                                                                                                                                             ^\n  370 |             expect.soft(ACCEPTED_CREATE_CODES.has(row.post_unauth), `POST sem auth inesperado em ${projectKey}/${entityKey}: ${row.post_unauth}`).toBeTruthy();\n  371 |             expect.soft(ACCEPTED_CREATE_CODES.has(row.post_invalid_token), `POST com token inválido inesperado em ${projectKey}/${entityKey}: ${row.post_invalid_token}`).toBeTruthy();\n  372 |             if (Number(row.has_external_id) === 1) {\n    at /root/w/node-gen/test/sspa.spec.ts:369:173"
-                        },
-                        {
-                          "location": {
-                            "file": "/root/w/node-gen/test/sspa.spec.ts",
-                            "column": 147,
-                            "line": 370
-                          },
-                          "message": "Error: POST sem auth inesperado em addresses/state: 404\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeTruthy\u001b[2m()\u001b[22m\n\nReceived: \u001b[31mfalse\u001b[39m\n\n  368 |             expect.soft(ACCEPTED_LIST_CODES.has(row.get_invalid_token), `GET com token inválido inesperado em ${projectKey}/${entityKey}: ${row.get_invalid_token}`).toBeTruthy();\n  369 |             expect.soft(ACCEPTED_LIST_CODES.has(row.get_malformed_token), `GET com header malformado inesperado em ${projectKey}/${entityKey}: ${row.get_malformed_token}`).toBeTruthy();\n> 370 |             expect.soft(ACCEPTED_CREATE_CODES.has(row.post_unauth), `POST sem auth inesperado em ${projectKey}/${entityKey}: ${row.post_unauth}`).toBeTruthy();\n      |                                                                                                                                                   ^\n  371 |             expect.soft(ACCEPTED_CREATE_CODES.has(row.post_invalid_token), `POST com token inválido inesperado em ${projectKey}/${entityKey}: ${row.post_invalid_token}`).toBeTruthy();\n  372 |             if (Number(row.has_external_id) === 1) {\n  373 |               expect.soft(ACCEPTED_MUTATION_BY_ID_CODES.has(row.patch_unauth), `PATCH sem auth inesperado em ${projectKey}/${entityKey}: ${row.patch_unauth}`).toBeTruthy();\n    at /root/w/node-gen/test/sspa.spec.ts:370:147"
-                        },
-                        {
-                          "location": {
-                            "file": "/root/w/node-gen/test/sspa.spec.ts",
-                            "column": 171,
-                            "line": 371
-                          },
-                          "message": "Error: POST com token inválido inesperado em addresses/state: 404\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeTruthy\u001b[2m()\u001b[22m\n\nReceived: \u001b[31mfalse\u001b[39m\n\n  369 |             expect.soft(ACCEPTED_LIST_CODES.has(row.get_malformed_token), `GET com header malformado inesperado em ${projectKey}/${entityKey}: ${row.get_malformed_token}`).toBeTruthy();\n  370 |             expect.soft(ACCEPTED_CREATE_CODES.has(row.post_unauth), `POST sem auth inesperado em ${projectKey}/${entityKey}: ${row.post_unauth}`).toBeTruthy();\n> 371 |             expect.soft(ACCEPTED_CREATE_CODES.has(row.post_invalid_token), `POST com token inválido inesperado em ${projectKey}/${entityKey}: ${row.post_invalid_token}`).toBeTruthy();\n      |                                                                                                                                                                           ^\n  372 |             if (Number(row.has_external_id) === 1) {\n  373 |               expect.soft(ACCEPTED_MUTATION_BY_ID_CODES.has(row.patch_unauth), `PATCH sem auth inesperado em ${projectKey}/${entityKey}: ${row.patch_unauth}`).toBeTruthy();\n  374 |               expect.soft(ACCEPTED_MUTATION_BY_ID_CODES.has(row.delete_unauth), `DELETE sem auth inesperado em ${projectKey}/${entityKey}: ${row.delete_unauth}`).toBeTruthy();\n    at /root/w/node-gen/test/sspa.spec.ts:371:171"
-                        },
-                        {
-                          "location": {
-                            "file": "/root/w/node-gen/test/sspa.spec.ts",
-                            "column": 142,
-                            "line": 367
-                          },
-                          "message": "Error: GET sem auth inesperado em addresses/city: 404\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeTruthy\u001b[2m()\u001b[22m\n\nReceived: \u001b[31mfalse\u001b[39m\n\n  365 |           if (row.get_unauth !== 0) {\n  366 |             validatedRows += 1;\n> 367 |             expect.soft(ACCEPTED_LIST_CODES.has(row.get_unauth), `GET sem auth inesperado em ${projectKey}/${entityKey}: ${row.get_unauth}`).toBeTruthy();\n      |                                                                                                                                              ^\n  368 |             expect.soft(ACCEPTED_LIST_CODES.has(row.get_invalid_token), `GET com token inválido inesperado em ${projectKey}/${entityKey}: ${row.get_invalid_token}`).toBeTruthy();\n  369 |             expect.soft(ACCEPTED_LIST_CODES.has(row.get_malformed_token), `GET com header malformado inesperado em ${projectKey}/${entityKey}: ${row.get_malformed_token}`).toBeTruthy();\n  370 |             expect.soft(ACCEPTED_CREATE_CODES.has(row.post_unauth), `POST sem auth inesperado em ${projectKey}/${entityKey}: ${row.post_unauth}`).toBeTruthy();\n    at /root/w/node-gen/test/sspa.spec.ts:367:142"
-                        },
-                        {
-                          "location": {
-                            "file": "/root/w/node-gen/test/sspa.spec.ts",
-                            "column": 166,
-                            "line": 368
-                          },
-                          "message": "Error: GET com token inválido inesperado em addresses/city: 404\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeTruthy\u001b[2m()\u001b[22m\n\nReceived: \u001b[31mfalse\u001b[39m\n\n  366 |             validatedRows += 1;\n  367 |             expect.soft(ACCEPTED_LIST_CODES.has(row.get_unauth), `GET sem auth inesperado em ${projectKey}/${entityKey}: ${row.get_unauth}`).toBeTruthy();\n> 368 |             expect.soft(ACCEPTED_LIST_CODES.has(row.get_invalid_token), `GET com token inválido inesperado em ${projectKey}/${entityKey}: ${row.get_invalid_token}`).toBeTruthy();\n      |                                                                                                                                                                      ^\n  369 |             expect.soft(ACCEPTED_LIST_CODES.has(row.get_malformed_token), `GET com header malformado inesperado em ${projectKey}/${entityKey}: ${row.get_malformed_token}`).toBeTruthy();\n  370 |             expect.soft(ACCEPTED_CREATE_CODES.has(row.post_unauth), `POST sem auth inesperado em ${projectKey}/${entityKey}: ${row.post_unauth}`).toBeTruthy();\n  371 |             expect.soft(ACCEPTED_CREATE_CODES.has(row.post_invalid_token), `POST com token inválido inesperado em ${projectKey}/${entityKey}: ${row.post_invalid_token}`).toBeTruthy();\n    at /root/w/node-gen/test/sspa.spec.ts:368:166"
-                        },
-                        {
-                          "location": {
-                            "file": "/root/w/node-gen/test/sspa.spec.ts",
-                            "column": 173,
-                            "line": 369
-                          },
-                          "message": "Error: GET com header malformado inesperado em addresses/city: 404\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeTruthy\u001b[2m()\u001b[22m\n\nReceived: \u001b[31mfalse\u001b[39m\n\n  367 |             expect.soft(ACCEPTED_LIST_CODES.has(row.get_unauth), `GET sem auth inesperado em ${projectKey}/${entityKey}: ${row.get_unauth}`).toBeTruthy();\n  368 |             expect.soft(ACCEPTED_LIST_CODES.has(row.get_invalid_token), `GET com token inválido inesperado em ${projectKey}/${entityKey}: ${row.get_invalid_token}`).toBeTruthy();\n> 369 |             expect.soft(ACCEPTED_LIST_CODES.has(row.get_malformed_token), `GET com header malformado inesperado em ${projectKey}/${entityKey}: ${row.get_malformed_token}`).toBeTruthy();\n      |                                                                                                                                                                             ^\n  370 |             expect.soft(ACCEPTED_CREATE_CODES.has(row.post_unauth), `POST sem auth inesperado em ${projectKey}/${entityKey}: ${row.post_unauth}`).toBeTruthy();\n  371 |             expect.soft(ACCEPTED_CREATE_CODES.has(row.post_invalid_token), `POST com token inválido inesperado em ${projectKey}/${entityKey}: ${row.post_invalid_token}`).toBeTruthy();\n  372 |             if (Number(row.has_external_id) === 1) {\n    at /root/w/node-gen/test/sspa.spec.ts:369:173"
-                        },
-                        {
-                          "location": {
-                            "file": "/root/w/node-gen/test/sspa.spec.ts",
-                            "column": 147,
-                            "line": 370
-                          },
-                          "message": "Error: POST sem auth inesperado em addresses/city: 404\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeTruthy\u001b[2m()\u001b[22m\n\nReceived: \u001b[31mfalse\u001b[39m\n\n  368 |             expect.soft(ACCEPTED_LIST_CODES.has(row.get_invalid_token), `GET com token inválido inesperado em ${projectKey}/${entityKey}: ${row.get_invalid_token}`).toBeTruthy();\n  369 |             expect.soft(ACCEPTED_LIST_CODES.has(row.get_malformed_token), `GET com header malformado inesperado em ${projectKey}/${entityKey}: ${row.get_malformed_token}`).toBeTruthy();\n> 370 |             expect.soft(ACCEPTED_CREATE_CODES.has(row.post_unauth), `POST sem auth inesperado em ${projectKey}/${entityKey}: ${row.post_unauth}`).toBeTruthy();\n      |                                                                                                                                                   ^\n  371 |             expect.soft(ACCEPTED_CREATE_CODES.has(row.post_invalid_token), `POST com token inválido inesperado em ${projectKey}/${entityKey}: ${row.post_invalid_token}`).toBeTruthy();\n  372 |             if (Number(row.has_external_id) === 1) {\n  373 |               expect.soft(ACCEPTED_MUTATION_BY_ID_CODES.has(row.patch_unauth), `PATCH sem auth inesperado em ${projectKey}/${entityKey}: ${row.patch_unauth}`).toBeTruthy();\n    at /root/w/node-gen/test/sspa.spec.ts:370:147"
-                        },
-                        {
-                          "location": {
-                            "file": "/root/w/node-gen/test/sspa.spec.ts",
-                            "column": 171,
-                            "line": 371
-                          },
-                          "message": "Error: POST com token inválido inesperado em addresses/city: 404\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeTruthy\u001b[2m()\u001b[22m\n\nReceived: \u001b[31mfalse\u001b[39m\n\n  369 |             expect.soft(ACCEPTED_LIST_CODES.has(row.get_malformed_token), `GET com header malformado inesperado em ${projectKey}/${entityKey}: ${row.get_malformed_token}`).toBeTruthy();\n  370 |             expect.soft(ACCEPTED_CREATE_CODES.has(row.post_unauth), `POST sem auth inesperado em ${projectKey}/${entityKey}: ${row.post_unauth}`).toBeTruthy();\n> 371 |             expect.soft(ACCEPTED_CREATE_CODES.has(row.post_invalid_token), `POST com token inválido inesperado em ${projectKey}/${entityKey}: ${row.post_invalid_token}`).toBeTruthy();\n      |                                                                                                                                                                           ^\n  372 |             if (Number(row.has_external_id) === 1) {\n  373 |               expect.soft(ACCEPTED_MUTATION_BY_ID_CODES.has(row.patch_unauth), `PATCH sem auth inesperado em ${projectKey}/${entityKey}: ${row.patch_unauth}`).toBeTruthy();\n  374 |               expect.soft(ACCEPTED_MUTATION_BY_ID_CODES.has(row.delete_unauth), `DELETE sem auth inesperado em ${projectKey}/${entityKey}: ${row.delete_unauth}`).toBeTruthy();\n    at /root/w/node-gen/test/sspa.spec.ts:371:171"
-                        },
-                        {
-                          "location": {
-                            "file": "/root/w/node-gen/test/sspa.spec.ts",
-                            "column": 142,
-                            "line": 367
-                          },
-                          "message": "Error: GET sem auth inesperado em addresses/address: 404\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeTruthy\u001b[2m()\u001b[22m\n\nReceived: \u001b[31mfalse\u001b[39m\n\n  365 |           if (row.get_unauth !== 0) {\n  366 |             validatedRows += 1;\n> 367 |             expect.soft(ACCEPTED_LIST_CODES.has(row.get_unauth), `GET sem auth inesperado em ${projectKey}/${entityKey}: ${row.get_unauth}`).toBeTruthy();\n      |                                                                                                                                              ^\n  368 |             expect.soft(ACCEPTED_LIST_CODES.has(row.get_invalid_token), `GET com token inválido inesperado em ${projectKey}/${entityKey}: ${row.get_invalid_token}`).toBeTruthy();\n  369 |             expect.soft(ACCEPTED_LIST_CODES.has(row.get_malformed_token), `GET com header malformado inesperado em ${projectKey}/${entityKey}: ${row.get_malformed_token}`).toBeTruthy();\n  370 |             expect.soft(ACCEPTED_CREATE_CODES.has(row.post_unauth), `POST sem auth inesperado em ${projectKey}/${entityKey}: ${row.post_unauth}`).toBeTruthy();\n    at /root/w/node-gen/test/sspa.spec.ts:367:142"
-                        },
-                        {
-                          "location": {
-                            "file": "/root/w/node-gen/test/sspa.spec.ts",
-                            "column": 166,
-                            "line": 368
-                          },
-                          "message": "Error: GET com token inválido inesperado em addresses/address: 404\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeTruthy\u001b[2m()\u001b[22m\n\nReceived: \u001b[31mfalse\u001b[39m\n\n  366 |             validatedRows += 1;\n  367 |             expect.soft(ACCEPTED_LIST_CODES.has(row.get_unauth), `GET sem auth inesperado em ${projectKey}/${entityKey}: ${row.get_unauth}`).toBeTruthy();\n> 368 |             expect.soft(ACCEPTED_LIST_CODES.has(row.get_invalid_token), `GET com token inválido inesperado em ${projectKey}/${entityKey}: ${row.get_invalid_token}`).toBeTruthy();\n      |                                                                                                                                                                      ^\n  369 |             expect.soft(ACCEPTED_LIST_CODES.has(row.get_malformed_token), `GET com header malformado inesperado em ${projectKey}/${entityKey}: ${row.get_malformed_token}`).toBeTruthy();\n  370 |             expect.soft(ACCEPTED_CREATE_CODES.has(row.post_unauth), `POST sem auth inesperado em ${projectKey}/${entityKey}: ${row.post_unauth}`).toBeTruthy();\n  371 |             expect.soft(ACCEPTED_CREATE_CODES.has(row.post_invalid_token), `POST com token inválido inesperado em ${projectKey}/${entityKey}: ${row.post_invalid_token}`).toBeTruthy();\n    at /root/w/node-gen/test/sspa.spec.ts:368:166"
-                        },
-                        {
-                          "location": {
-                            "file": "/root/w/node-gen/test/sspa.spec.ts",
-                            "column": 173,
-                            "line": 369
-                          },
-                          "message": "Error: GET com header malformado inesperado em addresses/address: 404\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeTruthy\u001b[2m()\u001b[22m\n\nReceived: \u001b[31mfalse\u001b[39m\n\n  367 |             expect.soft(ACCEPTED_LIST_CODES.has(row.get_unauth), `GET sem auth inesperado em ${projectKey}/${entityKey}: ${row.get_unauth}`).toBeTruthy();\n  368 |             expect.soft(ACCEPTED_LIST_CODES.has(row.get_invalid_token), `GET com token inválido inesperado em ${projectKey}/${entityKey}: ${row.get_invalid_token}`).toBeTruthy();\n> 369 |             expect.soft(ACCEPTED_LIST_CODES.has(row.get_malformed_token), `GET com header malformado inesperado em ${projectKey}/${entityKey}: ${row.get_malformed_token}`).toBeTruthy();\n      |                                                                                                                                                                             ^\n  370 |             expect.soft(ACCEPTED_CREATE_CODES.has(row.post_unauth), `POST sem auth inesperado em ${projectKey}/${entityKey}: ${row.post_unauth}`).toBeTruthy();\n  371 |             expect.soft(ACCEPTED_CREATE_CODES.has(row.post_invalid_token), `POST com token inválido inesperado em ${projectKey}/${entityKey}: ${row.post_invalid_token}`).toBeTruthy();\n  372 |             if (Number(row.has_external_id) === 1) {\n    at /root/w/node-gen/test/sspa.spec.ts:369:173"
-                        },
-                        {
-                          "location": {
-                            "file": "/root/w/node-gen/test/sspa.spec.ts",
-                            "column": 147,
-                            "line": 370
-                          },
-                          "message": "Error: POST sem auth inesperado em addresses/address: 404\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeTruthy\u001b[2m()\u001b[22m\n\nReceived: \u001b[31mfalse\u001b[39m\n\n  368 |             expect.soft(ACCEPTED_LIST_CODES.has(row.get_invalid_token), `GET com token inválido inesperado em ${projectKey}/${entityKey}: ${row.get_invalid_token}`).toBeTruthy();\n  369 |             expect.soft(ACCEPTED_LIST_CODES.has(row.get_malformed_token), `GET com header malformado inesperado em ${projectKey}/${entityKey}: ${row.get_malformed_token}`).toBeTruthy();\n> 370 |             expect.soft(ACCEPTED_CREATE_CODES.has(row.post_unauth), `POST sem auth inesperado em ${projectKey}/${entityKey}: ${row.post_unauth}`).toBeTruthy();\n      |                                                                                                                                                   ^\n  371 |             expect.soft(ACCEPTED_CREATE_CODES.has(row.post_invalid_token), `POST com token inválido inesperado em ${projectKey}/${entityKey}: ${row.post_invalid_token}`).toBeTruthy();\n  372 |             if (Number(row.has_external_id) === 1) {\n  373 |               expect.soft(ACCEPTED_MUTATION_BY_ID_CODES.has(row.patch_unauth), `PATCH sem auth inesperado em ${projectKey}/${entityKey}: ${row.patch_unauth}`).toBeTruthy();\n    at /root/w/node-gen/test/sspa.spec.ts:370:147"
-                        },
-                        {
-                          "location": {
-                            "file": "/root/w/node-gen/test/sspa.spec.ts",
-                            "column": 171,
-                            "line": 371
-                          },
-                          "message": "Error: POST com token inválido inesperado em addresses/address: 404\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeTruthy\u001b[2m()\u001b[22m\n\nReceived: \u001b[31mfalse\u001b[39m\n\n  369 |             expect.soft(ACCEPTED_LIST_CODES.has(row.get_malformed_token), `GET com header malformado inesperado em ${projectKey}/${entityKey}: ${row.get_malformed_token}`).toBeTruthy();\n  370 |             expect.soft(ACCEPTED_CREATE_CODES.has(row.post_unauth), `POST sem auth inesperado em ${projectKey}/${entityKey}: ${row.post_unauth}`).toBeTruthy();\n> 371 |             expect.soft(ACCEPTED_CREATE_CODES.has(row.post_invalid_token), `POST com token inválido inesperado em ${projectKey}/${entityKey}: ${row.post_invalid_token}`).toBeTruthy();\n      |                                                                                                                                                                           ^\n  372 |             if (Number(row.has_external_id) === 1) {\n  373 |               expect.soft(ACCEPTED_MUTATION_BY_ID_CODES.has(row.patch_unauth), `PATCH sem auth inesperado em ${projectKey}/${entityKey}: ${row.patch_unauth}`).toBeTruthy();\n  374 |               expect.soft(ACCEPTED_MUTATION_BY_ID_CODES.has(row.delete_unauth), `DELETE sem auth inesperado em ${projectKey}/${entityKey}: ${row.delete_unauth}`).toBeTruthy();\n    at /root/w/node-gen/test/sspa.spec.ts:371:171"
-                        }
-                      ],
+                      "status": "passed",
+                      "duration": 5893,
+                      "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-03-04T16:11:12.261Z",
+                      "startTime": "2026-03-04T16:57:06.684Z",
                       "annotations": [],
-                      "attachments": [],
-                      "errorLocation": {
-                        "file": "/root/w/node-gen/test/sspa.spec.ts",
-                        "column": 142,
-                        "line": 367
-                      }
+                      "attachments": []
                     }
                   ],
-                  "status": "unexpected"
+                  "status": "expected"
                 }
               ],
               "id": "a42535faff86ef3f1343-d272942f860710b5c84e",
               "file": "sspa.spec.ts",
-              "line": 251,
+              "line": 255,
               "column": 7
             },
             {
@@ -517,15 +261,15 @@
                   "projectName": "chromium",
                   "results": [
                     {
-                      "workerIndex": 4,
-                      "parallelIndex": 1,
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 255,
+                      "duration": 485,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-03-04T16:11:22.486Z",
+                      "startTime": "2026-03-04T16:57:08.394Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -535,7 +279,7 @@
               ],
               "id": "a42535faff86ef3f1343-624bddb45cd8f452a85a",
               "file": "sspa.spec.ts",
-              "line": 390,
+              "line": 394,
               "column": 7
             }
           ]
@@ -545,11 +289,11 @@
   ],
   "errors": [],
   "stats": {
-    "startTime": "2026-03-04T16:11:05.354Z",
-    "duration": 18055.913,
-    "expected": 3,
+    "startTime": "2026-03-04T16:56:58.992Z",
+    "duration": 13859.772,
+    "expected": 6,
     "skipped": 0,
-    "unexpected": 3,
+    "unexpected": 0,
     "flaky": 0
   }
 }

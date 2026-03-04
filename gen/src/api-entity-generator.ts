@@ -226,7 +226,7 @@ export class ApiEntityGenerator {
       .filter((relation) => relation.foreignTableName !== table.tableName)
       .map(
         (relation) =>
-          `import { ${toPascalCase(relation.foreignTableName)}Entity } from './${removeTbPrefix(relation.foreignTableName)}';`,
+          `import { ${toPascalCase(relation.foreignTableName)}Entity } from '../${toKebabCase(relation.foreignTableName)}/${toKebabCase(relation.foreignTableName)}.entity';`,
       )
       .join("\n");
 
