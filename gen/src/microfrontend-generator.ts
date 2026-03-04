@@ -101,6 +101,8 @@ export class MicrofrontendGenerator {
       filter: (src) => {
         const rel = path.relative(this.staticMfePath, src);
         if (rel === 'app-shell' || rel.startsWith('app-shell/')) return false;
+        if (rel === 'package.json') return false;
+        if (rel === 'vite.config.ts') return false;
         if (rel === 'root-config.js') return false;
         return true;
       },
@@ -217,14 +219,12 @@ export class MicrofrontendGenerator {
   }
 
   private updatePackageJson(dir: string, config: MFEConfig): void {
-    const pkgPath = path.join(dir, 'package.json');
-    const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf-8'));
-    pkg.name = `${config.kebabName}-mfe`;
-    pkg.scripts = {
-      ...pkg.scripts,
-      'serve:mfe': `npx serve dist -l ${config.port}`,
-    };
-    fs.writeFileSync(pkgPath, JSON.stringify(pkg, null, 2));
+    const content = renderTemplate('mfe-package-json.ejs', {
+      name: `${config.kebabName}-mfe`,
+      version: '1.0.0',
+      port: config.port,
+    });
+    fs.writeFileSync(path.join(dir, 'package.json'), content);
   }
 
   private generateIndexHtml(dir: string, config: MFEConfig): void {

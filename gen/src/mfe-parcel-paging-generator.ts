@@ -184,6 +184,7 @@ export class MFEParcelPagingGenerator {
     this.generateDockerfile(mfeDir, mfeConfig);
     this.updatePackageJson(mfeDir, mfeConfig);
     this.updateIndexHtml(mfeDir, mfeConfig);
+    this.generateReadme(mfeDir, mfeConfig);
     this.generateDataProvider(mfeDir, mfeConfig);
 
     return mfeConfig;
@@ -211,6 +212,9 @@ export class MFEParcelPagingGenerator {
         const rel = path.relative(staticSource, src);
         // Exclui App.tsx que será gerado
         if (rel === 'src/App.tsx') return false;
+        if (rel === 'Dockerfile') return false;
+        if (rel === 'package.json') return false;
+        if (rel === 'README.md') return false;
         return true;
       },
     });
@@ -275,16 +279,7 @@ export class MFEParcelPagingGenerator {
   }
 
   private updatePackageJson(dir: string, config: MFEParcelPagingConfig): void {
-    const pkgPath = path.join(dir, 'package.json');
-    const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf-8'));
-    pkg.name = `${config.kebabName}-paging-mfe`;
-    pkg.scripts = {
-      ...pkg.scripts,
-      'serve:mfe': `npx serve dist -l ${config.port}`,
-      'docker:build': `docker build -t ${config.kebabName}-paging-mfe:latest .`,
-      'docker:run': `docker run -p ${config.port}:${config.port} ${config.kebabName}-paging-mfe:latest`,
-    };
-    fs.writeFileSync(pkgPath, JSON.stringify(pkg, null, 2));
+    this.renderFileFromTemplate(path.join(dir, 'package.json'), 'mfe-parcel-paging-package-json.ejs', config);
   }
 
   private updateIndexHtml(dir: string, config: MFEParcelPagingConfig): void {
@@ -293,6 +288,10 @@ export class MFEParcelPagingGenerator {
     content = content.replace(/<%= appName %>/g, config.pascalName);
     content = content.replace(/<%- importMap %>/g, '{}');
     fs.writeFileSync(htmlPath, content);
+  }
+
+  private generateReadme(dir: string, config: MFEParcelPagingConfig): void {
+    this.renderFileFromTemplate(path.join(dir, 'README.md'), 'mfe-parcel-paging-readme.ejs', config);
   }
 
   private getIdInfo(table: Table): { idType: string; idParam: string } {

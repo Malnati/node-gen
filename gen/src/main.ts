@@ -7,6 +7,7 @@ import { ConfigUtil } from "./utils/ConfigUtil";
 import { MicrofrontendGenerator } from "./microfrontend-generator";
 import { AppShellGenerator } from "./appshell-generator";
 import { MFEParcelPagingGenerator } from "./mfe-parcel-paging-generator";
+import { SspaStaticAssetsGenerator } from "./sspa-static-assets-generator";
 // API Generators
 import { ApiEntityGenerator } from "./api-entity-generator";
 import { ApiServiceGenerator } from "./api-service-generator";
@@ -166,7 +167,7 @@ async function main() {
     } else {
         const response = await askQuestion(
             "Especifique quais componentes gerar \n" +
-            "(api-entities, api-services, api-interfaces, api-controllers, api-dtos, api-modules, api-app-module, api-main, api-datasource, api-readme, mfes, mfe-parcel-paging, app-shell): "
+            "(api-entities, api-services, api-interfaces, api-controllers, api-dtos, api-modules, api-app-module, api-main, api-datasource, api-readme, mfes, mfe-parcel-paging, app-shell, sspa-static-assets): "
         );
         components = response.replace("\"", "")
         .split(",")
@@ -199,6 +200,12 @@ async function main() {
                 case "mfe-parcel-paging": {
                     const pagingGenerator = new MFEParcelPagingGenerator(schemaPath, dbConfig);
                     await pagingGenerator.generate();
+                    break;
+                }
+
+                case "sspa-static-assets": {
+                    const staticAssetsGenerator = new SspaStaticAssetsGenerator();
+                    staticAssetsGenerator.sync();
                     break;
                 }
 

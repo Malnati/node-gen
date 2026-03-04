@@ -1,5 +1,6 @@
+<%# gen/templates/mfe-parcel-paging-package-json.ejs %>
 {
-  "name": "mfe-parcel-paging",
+  "name": "<%= kebabName %>-paging-mfe",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -8,7 +9,9 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "serve:mfe": "npx serve dist -l 7200"
+    "serve:mfe": "npx serve dist -l <%= port %>",
+    "docker:build": "docker build -t <%= kebabName %>-paging-mfe:latest .",
+    "docker:run": "docker run -p <%= port %>:<%= port %> <%= kebabName %>-paging-mfe:latest"
   },
   "dependencies": {
     "@tanstack/react-table": "^8.21.3",

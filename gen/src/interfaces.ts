@@ -51,6 +51,7 @@ export interface DbReaderConfig {
     'mfes' |
     'mfe-parcel-paging' |
     'app-shell' |
+    'sspa-static-assets' |
     'api-entities' |
     'api-services' |
     'api-interfaces' |

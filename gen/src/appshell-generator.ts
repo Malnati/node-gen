@@ -69,13 +69,25 @@ export class AppShellGenerator {
   }
 
   private copyStaticAppShellFiles(destDir: string): void {
-    const staticFiles = ['package.json', 'vite.config.ts', 'tsconfig.json', 'tsconfig.node.json'];
+    const staticFiles = ['tsconfig.json', 'tsconfig.node.json'];
     staticFiles.forEach(file => {
       const srcPath = path.join(this.staticAppShellPath, file);
       if (fs.existsSync(srcPath)) {
         fs.copyFileSync(srcPath, path.join(destDir, file));
       }
     });
+
+    const packageJsonContent = renderTemplate('app-shell-package-json.ejs', {
+      name: 'app-shell',
+      version: '1.0.0',
+      port: 9000,
+    });
+    fs.writeFileSync(path.join(destDir, 'package.json'), packageJsonContent);
+
+    const viteConfigContent = renderTemplate('app-shell-vite-config.ejs', {
+      port: 9000,
+    });
+    fs.writeFileSync(path.join(destDir, 'vite.config.ts'), viteConfigContent);
   }
 
   private generateRootConfig(destDir: string, mfeList: MFEConfig[]): void {

@@ -1,7 +1,8 @@
+<%# gen/templates/sspa-static-package-json.ejs %>
 {
-  "name": "mfe-parcel-update",
+  "name": "<%= name %>",
   "private": true,
-  "version": "0.0.0",
+  "version": "<%= version %>",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -11,6 +12,9 @@
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.2.1",
+<% if (isPaging) { -%>
+    "@tanstack/react-table": "^8.21.3",
+<% } -%>
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "lucide-react": "^0.576.0",

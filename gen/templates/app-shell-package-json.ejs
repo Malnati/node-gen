@@ -1,12 +1,13 @@
+<%# gen/templates/app-shell-package-json.ejs %>
 {
-  "name": "app-shell",
-  "version": "1.0.0",
+  "name": "<%= name %>",
+  "version": "<%= version %>",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview",
-    "serve:mfe": "npx serve dist -l 9000"
+    "serve:mfe": "npx serve dist -l <%= port %>"
   },
   "dependencies": {
     "react": "^18.2.0",

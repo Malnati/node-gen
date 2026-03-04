@@ -1,12 +1,13 @@
+<%# gen/templates/mfe-package-json.ejs %>
 {
-  "name": "mfe-app-template",
-  "version": "1.0.0",
+  "name": "<%= name %>",
+  "version": "<%= version %>",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview",
-    "serve:mfe": "npx serve dist -l 7100"
+    "serve:mfe": "npx serve dist -l <%= port %>"
   },
   "dependencies": {
     "react": "^18.2.0",

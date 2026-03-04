@@ -5,6 +5,7 @@ export type DiscoveryApplication = {
   route: string;
   title: string;
   description: string;
+  importUrl: string;
 };
 
 export type DiscoveryImportMap = {
