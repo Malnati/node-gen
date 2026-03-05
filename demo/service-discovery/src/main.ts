@@ -9,6 +9,7 @@ const PORT = Number(process.env.PORT || 3015);
 const DISCOVERY_TIMEOUT_MS = Number(process.env.DISCOVERY_TIMEOUT_MS || 1200);
 const DISCOVERY_APPS_DIR = process.env.DISCOVERY_APPS_DIR;
 const DISCOVERY_APPS_JSON = process.env.DISCOVERY_APPS_JSON;
+const DISCOVERY_USE_LOCALHOST = (process.env.DISCOVERY_USE_LOCALHOST || 'false').toLowerCase() === 'true';
 const CORS_HEADERS = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Methods': 'GET,OPTIONS',
@@ -215,6 +216,10 @@ function rewriteImportUrlForRequest(
   importUrl: string,
   headers: import('node:http').IncomingHttpHeaders
 ): string {
+  if (DISCOVERY_USE_LOCALHOST) {
+    return importUrl;
+  }
+
   try {
     const url = new URL(importUrl);
     const localHosts = new Set(['localhost', '127.0.0.1', 'host.docker.internal']);
