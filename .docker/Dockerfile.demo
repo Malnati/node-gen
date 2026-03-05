@@ -7,7 +7,7 @@ ARG VITE_DISCOVERY_BASE_URL=http://localhost:3015
 ENV VITE_DISCOVERY_BASE_URL=${VITE_DISCOVERY_BASE_URL}
 
 COPY demo/sspa/package*.json ./
-RUN npm ci --no-audit --no-fund
+RUN if [ -f package-lock.json ]; then npm ci --no-audit --no-fund; else npm install --no-audit --no-fund; fi
 
 COPY demo/sspa/ ./
 RUN npm run build

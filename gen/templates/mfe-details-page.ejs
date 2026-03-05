@@ -6,7 +6,6 @@ import { ErrorBoundary } from '../components/ErrorBoundary';
 
 interface <%= pascalName %>Data {
   id: <%= idType %>;
-  external_id?: string;
   created_at?: string;
   updated_at?: string;
 <% formFields.forEach(function(f) { %>
@@ -31,9 +30,9 @@ export function <%= pascalName %>DetailsPage() {
     } else {
       setLoading(false);
       setData({
-        id: 0 as <%= idType %>,
+        id: <%- idType === 'number' ? '0' : "''" %>,
 <% formFields.forEach(function(f) { %>
-        <%= f.name %>: <%= f.defaultValue %>,
+        <%= f.name %>: <%- f.defaultValue %>,
 <% }); %>
       });
     }

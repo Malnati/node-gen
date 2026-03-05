@@ -71,6 +71,9 @@ async function isReachable(importUrl: string): Promise<boolean> {
 
 async function discoverApplications(): Promise<DiscoveryApplication[]> {
   const configuredApplications = parseConfiguredApplications(DISCOVERY_APPS_JSON);
+  if (configuredApplications.length === 0) {
+    return [];
+  }
   const checks = await Promise.all(
     configuredApplications.map(async (application) => ({
       application,
@@ -78,7 +81,15 @@ async function discoverApplications(): Promise<DiscoveryApplication[]> {
     }))
   );
 
-  return checks.filter((entry) => entry.available).map((entry) => entry.application);
+  const availableApplications = checks
+    .filter((entry) => entry.available)
+    .map((entry) => entry.application);
+
+  if (availableApplications.length > 0) {
+    return availableApplications;
+  }
+
+  return configuredApplications;
 }
 
 function buildImportMap(applications: DiscoveryApplication[]): DiscoveryImportMap {

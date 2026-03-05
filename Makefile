@@ -81,7 +81,7 @@ gen-internal:
 		echo "Alternativamente: make gen PROJECT=accounts OUTPUT=output/accounts"; \
 		exit 1; \
 	fi
-	@node gen/dist/main.js -a $$(basename $(or $(GEN_PROJECT),$(PROJECT))) -d $$(or $(GEN_PROJECT),$(PROJECT))/db -o $(or $(GEN_OUTPUT),$(OUTPUT)) -t sqlite
+	@node gen/dist/main.js -a $$(basename $(or $(GEN_PROJECT),$(PROJECT))) -d $(or $(GEN_PROJECT),$(PROJECT))/db -o $(or $(GEN_OUTPUT),$(OUTPUT)) -t sqlite
 
 # Gera MFE (Micro-frontend) para um projeto específico
 # Uso: make gen-mfe GEN_PROJECT=<path/project> GEN_OUTPUT=<path/output>
@@ -96,7 +96,7 @@ gen-mfe-internal:
 		echo "Exemplo: make gen-mfe GEN_PROJECT=test/e2e-generator/projects/accounts GEN_OUTPUT=output/accounts-mfe"; \
 		exit 1; \
 	fi
-	@node gen/dist/main.js -a $$(basename $(or $(GEN_PROJECT),$(PROJECT))) -f mfes -d $$(or $(GEN_PROJECT),$(PROJECT))/db -o $(or $(GEN_OUTPUT),$(OUTPUT))
+	@node gen/dist/main.js -a $$(basename $(or $(GEN_PROJECT),$(PROJECT))) -f mfes -d $(or $(GEN_PROJECT),$(PROJECT))/db -o $(or $(GEN_OUTPUT),$(OUTPUT))
 
 # Gera MFE Parcel Paging para um projeto específico
 # Uso: make gen-mfe-paging GEN_PROJECT=<path/project> GEN_OUTPUT=<path/output> GEN_DB_TYPE=<postgres|mysql|sqlite>
@@ -318,9 +318,7 @@ endef
 define demo-pg-project-target
 demo-pg-$(1):
 	@echo "🚀  Publicando projeto $(1) no fluxo demo PostgreSQL..."
-	$(MAKE) gen-$(1)-pg-api
-	$(MAKE) gen-$(1)-pg-mfe-app
-	$(MAKE) demo-up
+	$(MAKE) demo-pg-up DEMO_PROJECTS="$(1)"
 endef
 
 $(foreach p,$(E2E_PROJECTS_LIST),$(eval $(call e2e-api-project-target,$(p))))
@@ -350,6 +348,11 @@ define compose_demo
 	DOCKER_CONFIG=$(DOCKER_CONFIG) $(COMPOSE_CMD) -f .docker/docker-compose.demo.yml --project-directory . $(1)
 endef
 
+DEMO_PROJECTS ?= addresses contacts orders
+DEMO_MFE_BASE_PORT ?= 7100
+DEMO_DISCOVERY_APPS_FILE ?= /tmp/nodegen-demo-discovery-apps.json
+DEMO_MFE_CONTAINERS_FILE ?= /tmp/nodegen-demo-mfe-containers.txt
+
 demo-up:
 	@echo "🚀  Subindo stack demo (sspa + service-discovery)..."
 	$(call compose_demo,up -d --build sspa service-discovery)
@@ -361,6 +364,73 @@ demo-down:
 demo-logs:
 	@echo "📜  Exibindo logs da stack demo..."
 	$(call compose_demo,logs -f sspa service-discovery)
+
+demo-pg-prepare:
+	@echo "🧱  Gerando APIs e MFEs PostgreSQL para: $(DEMO_PROJECTS)"
+	@for project in $(DEMO_PROJECTS); do \
+		$(MAKE) gen-$$project-pg-api; \
+		$(MAKE) gen-$$project-pg-mfe-app; \
+	done
+
+demo-mfe-down:
+	@echo "🧹  Limpando containers MFE do demo..."
+	@containers="$$(DOCKER_CONFIG=$(DOCKER_CONFIG) docker ps -aq --filter label=nodegen.demo.mfe=true)"; \
+	if [ -n "$$containers" ]; then \
+		DOCKER_CONFIG=$(DOCKER_CONFIG) docker rm -f $$containers; \
+	fi
+	@rm -f $(DEMO_MFE_CONTAINERS_FILE) $(DEMO_DISCOVERY_APPS_FILE)
+
+demo-mfe-up: demo-mfe-down
+	@echo "🌐  Subindo MFEs do demo para: $(DEMO_PROJECTS)"
+	@set -e; \
+	base_port="$(DEMO_MFE_BASE_PORT)"; \
+	current_port="$$base_port"; \
+	first_item=1; \
+	echo "[" > "$(DEMO_DISCOVERY_APPS_FILE)"; \
+	for project in $(DEMO_PROJECTS); do \
+		frontend_dir="output/$$project/postgres/frontend"; \
+		mfe_dir="$$(find "$$frontend_dir" -mindepth 1 -maxdepth 1 -type d -name '*-mfe' ! -name 'app-shell' ! -name '*paging*' | sort | head -n 1)"; \
+		if [ -z "$$mfe_dir" ]; then \
+			echo "❌  Nenhum MFE encontrado para $$project em $$frontend_dir"; \
+			exit 1; \
+		fi; \
+		dockerfile="$$mfe_dir/Dockerfile"; \
+		if [ ! -f "$$dockerfile" ]; then \
+			echo "❌  Dockerfile não encontrado em $$mfe_dir"; \
+			exit 1; \
+		fi; \
+		container_port="$$(sed -n 's/^EXPOSE \([0-9][0-9]*\)$$/\1/p' "$$dockerfile" | head -n 1)"; \
+		if [ -z "$$container_port" ]; then \
+			container_port="$$(sed -n 's/.*listen \([0-9][0-9]*\).*/\1/p' "$$dockerfile" | head -n 1)"; \
+		fi; \
+		if [ -z "$$container_port" ]; then \
+			echo "❌  Porta EXPOSE não encontrada em $$dockerfile"; \
+			exit 1; \
+		fi; \
+		image_name="node-gen-demo-$${project}-mfe:latest"; \
+		container_name="nodegen-demo-mfe-$${project}"; \
+		if [ ! -f "$$mfe_dir/package-lock.json" ]; then \
+			DOCKER_CONFIG=$(DOCKER_CONFIG) docker run --rm -v "$(PWD)/$$mfe_dir:/app" -w /app node:18-alpine npm install --package-lock-only --ignore-scripts --no-audit --no-fund; \
+		fi; \
+		DOCKER_CONFIG=$(DOCKER_CONFIG) docker build -t "$$image_name" "$$mfe_dir"; \
+		DOCKER_CONFIG=$(DOCKER_CONFIG) docker run -d --name "$$container_name" --label nodegen.demo.mfe=true -p "$${current_port}:$${container_port}" "$$image_name" > /dev/null; \
+		echo "$$container_name" >> "$(DEMO_MFE_CONTAINERS_FILE)"; \
+		if [ "$$first_item" -eq 0 ]; then echo "," >> "$(DEMO_DISCOVERY_APPS_FILE)"; fi; \
+		printf '{"name":"@mfe/%s","module":"@mfe/%s","route":"/%s","title":"%s","description":"MFE %s","importUrl":"http://host.docker.internal:%s/spa.js"}' \
+			"$$project" "$$project" "$$project" "$$project" "$$project" "$$current_port" >> "$(DEMO_DISCOVERY_APPS_FILE)"; \
+		first_item=0; \
+		current_port=$$((current_port + 1)); \
+	done; \
+	echo "]" >> "$(DEMO_DISCOVERY_APPS_FILE)"
+
+demo-pg-up: demo-pg-prepare demo-mfe-up
+	@echo "🚀  Subindo demo com discovery dinâmico para: $(DEMO_PROJECTS)"
+	@DISCOVERY_APPS_JSON="$$(cat $(DEMO_DISCOVERY_APPS_FILE))" $(MAKE) demo-up
+
+demo-pg-down:
+	@echo "🛑  Parando demo PostgreSQL completo..."
+	@$(MAKE) demo-down
+	@$(MAKE) demo-mfe-down
 
 projects-build:
 	@echo "🛠️  Buildando imagem para projetos PostgreSQL..."
