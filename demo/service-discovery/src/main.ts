@@ -106,6 +106,73 @@ function buildImportMap(applications: DiscoveryApplication[]): DiscoveryImportMa
   };
 }
 
+function getHeaderValue(
+  headers: import('node:http').IncomingHttpHeaders,
+  name: string
+): string | undefined {
+  const value = headers[name];
+  if (Array.isArray(value)) {
+    return value[0];
+  }
+  return value;
+}
+
+function getPublicProtocol(headers: import('node:http').IncomingHttpHeaders): string {
+  const forwardedProto = getHeaderValue(headers, 'x-forwarded-proto');
+  if (forwardedProto) {
+    return forwardedProto.split(',')[0]?.trim() || 'http';
+  }
+  return 'http';
+}
+
+function getPublicHostname(headers: import('node:http').IncomingHttpHeaders): string | null {
+  const forwardedHost = getHeaderValue(headers, 'x-forwarded-host');
+  const hostHeader = forwardedHost || getHeaderValue(headers, 'host');
+  if (!hostHeader) {
+    return null;
+  }
+  const firstHost = hostHeader.split(',')[0]?.trim();
+  if (!firstHost) {
+    return null;
+  }
+  const normalizedHost = firstHost.replace(/:\d+$/, '');
+  return normalizedHost || null;
+}
+
+function rewriteImportUrlForRequest(
+  importUrl: string,
+  headers: import('node:http').IncomingHttpHeaders
+): string {
+  try {
+    const url = new URL(importUrl);
+    const localHosts = new Set(['localhost', '127.0.0.1', 'host.docker.internal']);
+    if (!localHosts.has(url.hostname)) {
+      return importUrl;
+    }
+
+    const publicHostname = getPublicHostname(headers);
+    if (!publicHostname) {
+      return importUrl;
+    }
+
+    url.hostname = publicHostname;
+    url.protocol = `${getPublicProtocol(headers)}:`;
+    return url.toString();
+  } catch {
+    return importUrl;
+  }
+}
+
+function normalizeApplicationsForRequest(
+  applications: DiscoveryApplication[],
+  headers: import('node:http').IncomingHttpHeaders
+): DiscoveryApplication[] {
+  return applications.map((application) => ({
+    ...application,
+    importUrl: rewriteImportUrlForRequest(application.importUrl, headers),
+  }));
+}
+
 function decodeApplicationName(urlPath: string): string {
   return decodeURIComponent(urlPath.slice('/api/discovery/applications/'.length));
 }
@@ -140,20 +207,20 @@ async function handleRequest(
   }
 
   if (req.method === 'GET' && urlPath === '/api/discovery/import-map') {
-    const applications = await discoverApplications();
+    const applications = normalizeApplicationsForRequest(await discoverApplications(), req.headers);
     sendJson(res, 200, buildImportMap(applications));
     return;
   }
 
   if (req.method === 'GET' && urlPath === '/api/discovery/applications') {
-    const applications = await discoverApplications();
+    const applications = normalizeApplicationsForRequest(await discoverApplications(), req.headers);
     sendJson(res, 200, applications);
     return;
   }
 
   if (req.method === 'GET' && urlPath.startsWith('/api/discovery/applications/')) {
     const applicationName = decodeApplicationName(urlPath);
-    const applications = await discoverApplications();
+    const applications = normalizeApplicationsForRequest(await discoverApplications(), req.headers);
     const application = applications.find(
       (entry) => entry.name === applicationName || entry.module === applicationName
     );
