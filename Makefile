@@ -252,7 +252,7 @@ endef
 define gen-pg-api-project-target
 gen-$(1)-pg-api:
 	@echo "📦  Gerando API PostgreSQL para projeto $(1)..."
-	$(MAKE) gen-pg-api GEN_PROJECT=projects/$(1) GEN_OUTPUT=output/api/postgres/$(1)
+	$(MAKE) gen-pg-api GEN_PROJECT=projects/$(1) GEN_OUTPUT=output/$(1)/postgres
 endef
 
 define gen-pg-parcel-paging-project-target

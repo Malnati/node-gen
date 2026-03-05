@@ -24,7 +24,8 @@ services:
       dockerfile: .docker/Dockerfile.projects.postgres
     container_name: nodegen-apis
     ports:
-      - "3001-3099:3001-3099"
+      - "3001-3014:3001-3014"
+      - "3016-3099:3016-3099"
     depends_on:
       postgres-shared:
         condition: service_healthy
