@@ -54,6 +54,9 @@ services:
     environment:
       MFES_DIR: /mfe-output
       SSPA_SKIP_AUTH: "${SSPA_SKIP_AUTH:-true}"
+      VITE_PUBLIC_URL: "${VITE_PUBLIC_URL:-http://localhost:9000}"
+      VITE_SERVICE_DISCOVERY_URL: "${VITE_SERVICE_DISCOVERY_URL:-http://localhost:3015}"
+      VITE_MFE_BASE_URL: "${VITE_MFE_BASE_URL:-http://localhost:9000}"
     volumes:
       - /root/w/node-gen/output:/mfe-output:ro
 
@@ -66,9 +69,14 @@ services:
     environment:
       PORT: "${SERVICE_DISCOVERY_PORT:-3015}"
       DISCOVERY_TIMEOUT_MS: "${DISCOVERY_TIMEOUT_MS:-1200}"
+      DISCOVERY_APPS_DIR: "${DISCOVERY_APPS_DIR:-/mfe-output/manifests}"
       DISCOVERY_APPS_JSON: "${DISCOVERY_APPS_JSON:-[{\"name\":\"@mfe/addresses\",\"module\":\"@mfe/addresses\",\"route\":\"/addresses\",\"title\":\"Addresses\",\"description\":\"MFE de consulta e manutencao de enderecos\",\"importUrl\":\"http://host.docker.internal:7100/main.js\"},{\"name\":\"@mfe/contacts\",\"module\":\"@mfe/contacts\",\"route\":\"/contacts\",\"title\":\"Contacts\",\"description\":\"MFE de gestao de contatos\",\"importUrl\":\"http://host.docker.internal:7101/main.js\"},{\"name\":\"@mfe/orders\",\"module\":\"@mfe/orders\",\"route\":\"/orders\",\"title\":\"Orders\",\"description\":\"MFE de pedidos e acompanhamento\",\"importUrl\":\"http://host.docker.internal:7102/main.js\"}]}"
+      VITE_PUBLIC_URL: "${VITE_PUBLIC_URL:-http://localhost:9000}"
+      VITE_SERVICE_DISCOVERY_URL: "${VITE_SERVICE_DISCOVERY_URL:-http://localhost:3015}"
+      VITE_MFE_BASE_URL: "${VITE_MFE_BASE_URL:-http://localhost:9000}"
     volumes:
       - /root/w/node-gen/demo/service-discovery:/app
+      - /root/w/node-gen/output:/mfe-output:ro
     command: sh -lc "npm install --no-audit --no-fund && npm run build && npm run start"
 
 volumes:

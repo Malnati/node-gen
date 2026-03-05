@@ -351,7 +351,7 @@ endef
 DEMO_PROJECTS ?= addresses contacts orders
 DEMO_MFE_BASE_PORT ?= 7100
 DEMO_MFE_IMPORT_HOST ?= host.docker.internal
-DEMO_DISCOVERY_APPS_FILE ?= /tmp/nodegen-demo-discovery-apps.json
+DEMO_MANIFESTS_DIR ?= output/manifests
 DEMO_MFE_CONTAINERS_FILE ?= /tmp/nodegen-demo-mfe-containers.txt
 
 demo-up:
@@ -379,15 +379,15 @@ demo-mfe-down:
 	if [ -n "$$containers" ]; then \
 		DOCKER_CONFIG=$(DOCKER_CONFIG) docker rm -f $$containers; \
 	fi
-	@rm -f $(DEMO_MFE_CONTAINERS_FILE) $(DEMO_DISCOVERY_APPS_FILE)
+	@rm -f $(DEMO_MFE_CONTAINERS_FILE)
+	@rm -rf $(DEMO_MANIFESTS_DIR)
 
 demo-mfe-up: demo-mfe-down
 	@echo "🌐  Subindo MFEs do demo para: $(DEMO_PROJECTS)"
 	@set -e; \
 	base_port="$(DEMO_MFE_BASE_PORT)"; \
 	current_port="$$base_port"; \
-	first_item=1; \
-	echo "[" > "$(DEMO_DISCOVERY_APPS_FILE)"; \
+	mkdir -p "$(DEMO_MANIFESTS_DIR)"; \
 	for project in $(DEMO_PROJECTS); do \
 		frontend_dir="output/$$project/postgres/frontend"; \
 		mfe_dir="$$(find "$$frontend_dir" -mindepth 1 -maxdepth 1 -type d -name '*-mfe' ! -name 'app-shell' ! -name '*paging*' | sort | head -n 1)"; \
@@ -410,23 +410,38 @@ demo-mfe-up: demo-mfe-down
 		fi; \
 		image_name="node-gen-demo-$${project}-mfe:latest"; \
 		container_name="nodegen-demo-mfe-$${project}"; \
+		manifest_file="$(DEMO_MANIFESTS_DIR)/$${project}.json"; \
 		if [ ! -f "$$mfe_dir/package-lock.json" ]; then \
 			DOCKER_CONFIG=$(DOCKER_CONFIG) docker run --rm -v "$(PWD)/$$mfe_dir:/app" -w /app node:18-alpine npm install --package-lock-only --ignore-scripts --no-audit --no-fund; \
 		fi; \
 		DOCKER_CONFIG=$(DOCKER_CONFIG) docker build -t "$$image_name" "$$mfe_dir"; \
 		DOCKER_CONFIG=$(DOCKER_CONFIG) docker run -d --name "$$container_name" --label nodegen.demo.mfe=true -p "$${current_port}:$${container_port}" "$$image_name" > /dev/null; \
 		echo "$$container_name" >> "$(DEMO_MFE_CONTAINERS_FILE)"; \
-		if [ "$$first_item" -eq 0 ]; then echo "," >> "$(DEMO_DISCOVERY_APPS_FILE)"; fi; \
-		printf '{"name":"@mfe/%s","module":"@mfe/%s","route":"/%s","title":"%s","description":"MFE %s","importUrl":"http://host.docker.internal:%s/spa.js"}' \
-			"$$project" "$$project" "$$project" "$$project" "$$project" "$$current_port" | sed "s|host.docker.internal|$(DEMO_MFE_IMPORT_HOST)|g" >> "$(DEMO_DISCOVERY_APPS_FILE)"; \
-		first_item=0; \
+		node -e 'const fs = require("fs"); const manifestPath = process.argv[1]; const targetPath = process.argv[2]; const project = process.argv[3]; const host = process.argv[4]; const port = process.argv[5]; let payload = {}; if (fs.existsSync(manifestPath)) { payload = JSON.parse(fs.readFileSync(manifestPath, "utf8")); } const app = { name: payload.name || ("@mfe/" + project), module: payload.module || ("@mfe/" + project), route: payload.route || ("/" + project), title: payload.title || project, description: payload.description || ("MFE " + project), importUrl: "http://" + host + ":" + port + "/spa.js" }; fs.writeFileSync(targetPath, JSON.stringify(app, null, 2) + "\n");' "$$mfe_dir/manifest.json" "$$manifest_file" "$$project" "$(DEMO_MFE_IMPORT_HOST)" "$$current_port"; \
 		current_port=$$((current_port + 1)); \
-	done; \
-	echo "]" >> "$(DEMO_DISCOVERY_APPS_FILE)"
+	done
 
 demo-pg-up: demo-pg-prepare demo-mfe-up
 	@echo "🚀  Subindo demo com discovery dinâmico para: $(DEMO_PROJECTS)"
-	@DISCOVERY_APPS_JSON="$$(cat $(DEMO_DISCOVERY_APPS_FILE))" $(MAKE) demo-up
+	@set -e; \
+	resolved_public_url="$(VITE_PUBLIC_URL)"; \
+	if [ -z "$$resolved_public_url" ]; then \
+		detected_ip="$$(curl -fsS https://api.ipify.org 2>/dev/null || wget -qO- https://api.ipify.org 2>/dev/null || true)"; \
+		if [ -n "$$detected_ip" ]; then \
+			resolved_public_url="http://$$detected_ip:9000"; \
+		else \
+			resolved_public_url="http://localhost:9000"; \
+		fi; \
+	fi; \
+	resolved_discovery_url="$(VITE_SERVICE_DISCOVERY_URL)"; \
+	if [ -z "$$resolved_discovery_url" ]; then \
+		resolved_discovery_url="$$(node -e 'const source = process.argv[1]; const parsed = new URL(source); console.log(parsed.protocol + "//" + parsed.hostname + ":3015");' "$$resolved_public_url")"; \
+	fi; \
+	resolved_mfe_base_url="$(VITE_MFE_BASE_URL)"; \
+	if [ -z "$$resolved_mfe_base_url" ]; then \
+		resolved_mfe_base_url="$$resolved_public_url"; \
+	fi; \
+	VITE_PUBLIC_URL="$$resolved_public_url" VITE_SERVICE_DISCOVERY_URL="$$resolved_discovery_url" VITE_MFE_BASE_URL="$$resolved_mfe_base_url" DISCOVERY_APPS_DIR="/mfe-output/manifests" $(MAKE) demo-up
 
 demo-pg-down:
 	@echo "🛑  Parando demo PostgreSQL completo..."

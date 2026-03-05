@@ -31,6 +31,6 @@ services:
     ports:
       - "<%= mfe.port %>:<%= mfe.port %>"
     environment:
-      - VITE_API_URL=http://api:${API_PORT:-3000}
+      - VITE_API_URL=${VITE_API_URL:-http://api:3000}
 
 <% }); %>

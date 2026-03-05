@@ -2,7 +2,10 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import singleSpa from 'vite-plugin-single-spa';
 
+const MFE_BASE_URL = process.env.VITE_MFE_BASE_URL || 'http://localhost:9000';
+
 export default defineConfig({
+  base: `${MFE_BASE_URL.replace(/\/$/, '')}/mfes/<%= name.replace('@mfe/', '') %>-mfe/`,
   plugins: [
     react(),
     singleSpa({

@@ -1,10 +1,13 @@
 // demo/service-discovery/src/main.ts
 import { createServer } from 'node:http';
+import { readdirSync, readFileSync } from 'node:fs';
+import { join } from 'node:path';
 
 import type { DiscoveryApplication, DiscoveryImportMap } from './contracts.js';
 
 const PORT = Number(process.env.PORT || 3015);
 const DISCOVERY_TIMEOUT_MS = Number(process.env.DISCOVERY_TIMEOUT_MS || 1200);
+const DISCOVERY_APPS_DIR = process.env.DISCOVERY_APPS_DIR;
 const DISCOVERY_APPS_JSON = process.env.DISCOVERY_APPS_JSON;
 const CORS_HEADERS = {
   'Access-Control-Allow-Origin': '*',
@@ -35,16 +38,83 @@ function parseConfiguredApplications(raw: string | undefined): DiscoveryApplicat
 
   try {
     const parsed = JSON.parse(raw) as DiscoveryApplication[];
-    return parsed.filter((application) => {
-      return Boolean(
-        application?.name &&
-          application?.module &&
-          application?.route &&
-          application?.title &&
-          application?.description &&
-          application?.importUrl
-      );
+    return parsed
+      .filter((application) => {
+        return Boolean(
+          application?.name &&
+            application?.module &&
+            application?.route &&
+            application?.title &&
+            application?.description &&
+            application?.importUrl
+        );
+      })
+      .map(normalizeApplication);
+  } catch {
+    return [];
+  }
+}
+
+function resolveEnvTemplate(value: string): string {
+  const templateRegex = /\$\{([A-Z0-9_]+)(:-([^}]*))?\}/g;
+  return value.replace(templateRegex, (_match, variableName: string, _defaultGroup, defaultValue: string | undefined) => {
+    const resolvedValue = process.env[variableName];
+    if (resolvedValue !== undefined && resolvedValue !== '') {
+      return resolvedValue;
+    }
+    return defaultValue ?? '';
+  });
+}
+
+function normalizeApplication(application: DiscoveryApplication): DiscoveryApplication {
+  return {
+    ...application,
+    name: resolveEnvTemplate(application.name),
+    module: resolveEnvTemplate(application.module),
+    route: resolveEnvTemplate(application.route),
+    title: resolveEnvTemplate(application.title),
+    description: resolveEnvTemplate(application.description),
+    importUrl: resolveEnvTemplate(application.importUrl),
+  };
+}
+
+function parseManifestApplications(raw: string): DiscoveryApplication[] {
+  try {
+    const parsed = JSON.parse(raw) as DiscoveryApplication | DiscoveryApplication[];
+    const applications = Array.isArray(parsed) ? parsed : [parsed];
+    return applications
+      .filter((application) => {
+        return Boolean(
+          application?.name &&
+            application?.module &&
+            application?.route &&
+            application?.title &&
+            application?.description &&
+            application?.importUrl
+        );
+      })
+      .map(normalizeApplication);
+  } catch {
+    return [];
+  }
+}
+
+function readApplicationsFromDirectory(directory: string | undefined): DiscoveryApplication[] {
+  if (!directory) {
+    return [];
+  }
+
+  try {
+    const files = readdirSync(directory).filter((fileName) => fileName.endsWith('.json')).sort();
+    const applications: DiscoveryApplication[] = [];
+
+    files.forEach((fileName) => {
+      const fullPath = join(directory, fileName);
+      const content = readFileSync(fullPath, 'utf-8');
+      applications.push(...parseManifestApplications(content));
     });
+
+    return applications;
   } catch {
     return [];
   }
@@ -70,7 +140,9 @@ async function isReachable(importUrl: string): Promise<boolean> {
 }
 
 async function discoverApplications(): Promise<DiscoveryApplication[]> {
-  const configuredApplications = parseConfiguredApplications(DISCOVERY_APPS_JSON);
+  const configuredApplications = DISCOVERY_APPS_DIR
+    ? readApplicationsFromDirectory(DISCOVERY_APPS_DIR)
+    : parseConfiguredApplications(DISCOVERY_APPS_JSON);
   if (configuredApplications.length === 0) {
     return [];
   }

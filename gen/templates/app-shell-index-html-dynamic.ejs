@@ -1,4 +1,5 @@
 <!-- gen/templates/app-shell-index-html-dynamic.ejs -->
+<% const serviceDiscoveryUrl = (process.env.VITE_SERVICE_DISCOVERY_URL || 'http://localhost:3015').replace(/\/$/, ''); %>
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -9,11 +10,11 @@
     <script src="https://cdn.jsdelivr.net/npm/systemjs@6.14.2/dist/extras/amd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/systemjs@6.14.2/dist/extras/named-register.min.js"></script>
     <script>
-      window.__SSPA_DISCOVERY_URL__ = window.__SSPA_DISCOVERY_URL__ || 'http://localhost:3015';
+      window.__SSPA_DISCOVERY_URL__ = window.__SSPA_DISCOVERY_URL__ || '<%= serviceDiscoveryUrl %>';
     </script>
     <script
       type="systemjs-importmap"
-      src="http://localhost:3015/api/discovery/import-map"
+      src="<%= serviceDiscoveryUrl %>/api/discovery/import-map"
       crossorigin="anonymous"
     ></script>
   </head>

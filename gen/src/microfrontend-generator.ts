@@ -86,6 +86,7 @@ export class MicrofrontendGenerator {
     this.generateListPage(mfeDir, mfeConfig);
     this.generateDetailsPage(mfeDir, mfeConfig);
     this.generateViteConfig(mfeDir, mfeConfig);
+    this.generateManifest(mfeDir, mfeConfig);
     this.generateTest(mfeDir, mfeConfig);
     this.generateAppTsx(mfeDir, mfeConfig);
     this.generateDockerfile(mfeDir, mfeConfig);
@@ -191,6 +192,18 @@ export class MicrofrontendGenerator {
       port: config.port,
     });
     fs.writeFileSync(path.join(dir, 'vite.config.ts'), content);
+  }
+
+  private generateManifest(dir: string, config: MFEConfig): void {
+    const manifest = {
+      name: config.name,
+      module: config.name,
+      route: config.route,
+      title: config.pascalName,
+      description: `MFE ${config.pascalName}`,
+      importUrl: '${VITE_MFE_BASE_URL:-http://localhost:9000}/mfes/' + `${config.kebabName}-mfe/spa.js`,
+    };
+    fs.writeFileSync(path.join(dir, 'manifest.json'), `${JSON.stringify(manifest, null, 2)}\n`);
   }
 
   private generateTest(dir: string, config: MFEConfig): void {

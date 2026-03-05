@@ -7,7 +7,7 @@
     "react-router-dom": "https://esm.sh/react-router-dom@6.20.0",
     "axios": "https://esm.sh/axios@1.6.2"<% if (mfeList.length > 0) { %>,
 <% mfeList.forEach(function(mfe, index) { %>
-    "<%= mfe.name %>": "http://localhost:9000/mfes/<%= mfe.kebabName %>-mfe/main.js"<%= index < mfeList.length - 1 ? ',' : '' %>
+    "<%= mfe.name %>": "<%= (process.env.VITE_MFE_BASE_URL || 'http://localhost:9000').replace(/\/$/, '') %>/mfes/<%= mfe.kebabName %>-mfe/spa.js"<%= index < mfeList.length - 1 ? ',' : '' %>
 <% }); %>
 <% } %>
 
