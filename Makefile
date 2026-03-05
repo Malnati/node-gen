@@ -255,6 +255,12 @@ gen-$(1)-pg-api:
 	$(MAKE) gen-pg-api GEN_PROJECT=projects/$(1) GEN_OUTPUT=output/$(1)/postgres
 endef
 
+define gen-pg-mfe-app-project-target
+gen-$(1)-pg-mfe-app:
+	@echo "🎨  Gerando MFE application PostgreSQL para projeto $(1)..."
+	$(MAKE) gen-mfe GEN_PROJECT=projects/$(1) GEN_OUTPUT=output/$(1)/postgres
+endef
+
 define gen-pg-parcel-paging-project-target
 gen-$(1)-pg-parcel-paging:
 	@echo "📑  Gerando MFE Parcel Paging PostgreSQL para projeto $(1)..."
@@ -309,11 +315,20 @@ db-sqlite-$(1):
 	NODE_PATH=gen/node_modules E2E_DB_TYPES=sqlite node test/e2e-generator/run.js db $(1)
 endef
 
+define demo-pg-project-target
+demo-pg-$(1):
+	@echo "🚀  Publicando projeto $(1) no fluxo demo PostgreSQL..."
+	$(MAKE) gen-$(1)-pg-api
+	$(MAKE) gen-$(1)-pg-mfe-app
+	$(MAKE) demo-up
+endef
+
 $(foreach p,$(E2E_PROJECTS_LIST),$(eval $(call e2e-api-project-target,$(p))))
 $(foreach p,$(E2E_PROJECTS_LIST),$(eval $(call e2e-mfe-project-target,$(p))))
 $(foreach p,$(E2E_PROJECTS_LIST),$(eval $(call e2e-all-project-target,$(p))))
 $(foreach p,$(E2E_PROJECTS_LIST),$(eval $(call e2e-paging-project-target,$(p))))
 $(foreach p,$(E2E_PROJECTS_LIST),$(eval $(call gen-pg-api-project-target,$(p))))
+$(foreach p,$(E2E_PROJECTS_LIST),$(eval $(call gen-pg-mfe-app-project-target,$(p))))
 $(foreach p,$(E2E_PROJECTS_LIST),$(eval $(call gen-pg-parcel-paging-project-target,$(p))))
 $(foreach p,$(E2E_PROJECTS_LIST),$(eval $(call e2e-pg-api-project-target,$(p))))
 $(foreach p,$(E2E_PROJECTS_LIST),$(eval $(call e2e-pg-parcel-paging-project-target,$(p))))
@@ -321,6 +336,7 @@ $(foreach p,$(E2E_PROJECTS_LIST),$(eval $(call db-pg-project-target,$(p))))
 $(foreach p,$(E2E_PROJECTS_LIST),$(eval $(call db-mysql-project-target,$(p))))
 $(foreach p,$(E2E_PROJECTS_LIST),$(eval $(call db-sqlserver-project-target,$(p))))
 $(foreach p,$(E2E_PROJECTS_LIST),$(eval $(call db-sqlite-project-target,$(p))))
+$(foreach p,$(E2E_PROJECTS_LIST),$(eval $(call demo-pg-project-target,$(p))))
 
 # ==============================================================================
 # TARGETS DE PROJETOS POSTGRES (legado)
@@ -329,6 +345,22 @@ $(foreach p,$(E2E_PROJECTS_LIST),$(eval $(call db-sqlite-project-target,$(p))))
 define compose_projects
 	DOCKER_CONFIG=$(DOCKER_CONFIG) $(COMPOSE_CMD) -f .docker/docker-compose.projects.postgres.yml --project-directory . $(1)
 endef
+
+define compose_demo
+	DOCKER_CONFIG=$(DOCKER_CONFIG) $(COMPOSE_CMD) -f .docker/docker-compose.demo.yml --project-directory . $(1)
+endef
+
+demo-up:
+	@echo "🚀  Subindo stack demo (sspa + service-discovery)..."
+	$(call compose_demo,up -d --build sspa service-discovery)
+
+demo-down:
+	@echo "🛑  Parando stack demo..."
+	$(call compose_demo,down)
+
+demo-logs:
+	@echo "📜  Exibindo logs da stack demo..."
+	$(call compose_demo,logs -f sspa service-discovery)
 
 projects-build:
 	@echo "🛠️  Buildando imagem para projetos PostgreSQL..."
