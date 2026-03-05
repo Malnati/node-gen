@@ -136,6 +136,42 @@
         "CONTEXT7_API_KEY": "ctx7sk-f6d0be94-c918-4922-bc9c-f3c48137fddd"
       },
       "enabled": true
+    },
+    "microsoft-learn": {
+      "type": "remote",
+      "url": "https://learn.microsoft.com/api/mcp",
+      "enabled": true
+    },
+    "microsoft-sentinel-data-exploration": {
+      "type": "remote",
+      "url": "https://sentinel.microsoft.com/mcp/data-exploration",
+      "enabled": true
+    },
+    "figma": {
+      "type": "remote",
+      "url": "https://mcp.figma.com/mcp",
+      "enabled": true
+    },
+    "sonarqube": {
+      "type": "local",
+      "command": [
+        "docker",
+        "run",
+        "--init",
+        "--pull=always",
+        "-i",
+        "--rm",
+        "-e",
+        "SONARQUBE_TOKEN",
+        "-e",
+        "SONARQUBE_URL",
+        "mcp/sonarqube"
+      ],
+      "env": {
+        "SONARQUBE_TOKEN": "__SET_SONARQUBE_TOKEN__",
+        "SONARQUBE_URL": "__SET_SONARQUBE_URL__"
+      },
+      "enabled": true
     }
   }
 }
