@@ -6,7 +6,7 @@
     "orchestrator_route_status": 200,
     "api_health_status": 200,
     "entity": "country",
-    "entity_status": 200
+    "entity_status": 500
   },
   {
     "project": "addresses",
@@ -15,7 +15,7 @@
     "orchestrator_route_status": 200,
     "api_health_status": 200,
     "entity": "state",
-    "entity_status": 200
+    "entity_status": 500
   },
   {
     "project": "addresses",
@@ -24,7 +24,7 @@
     "orchestrator_route_status": 200,
     "api_health_status": 200,
     "entity": "city",
-    "entity_status": 200
+    "entity_status": 500
   },
   {
     "project": "addresses",
@@ -33,6 +33,33 @@
     "orchestrator_route_status": 200,
     "api_health_status": 200,
     "entity": "address",
-    "entity_status": 200
+    "entity_status": 500
+  },
+  {
+    "project": "contacts",
+    "api_port": 3008,
+    "card_visible": true,
+    "orchestrator_route_status": 200,
+    "api_health_status": 200,
+    "entity": "contact",
+    "entity_status": 404
+  },
+  {
+    "project": "orders",
+    "api_port": 3016,
+    "card_visible": true,
+    "orchestrator_route_status": 200,
+    "api_health_status": 200,
+    "entity": "order",
+    "entity_status": 404
+  },
+  {
+    "project": "orders",
+    "api_port": 3016,
+    "card_visible": true,
+    "orchestrator_route_status": 200,
+    "api_health_status": 200,
+    "entity": "order_item",
+    "entity_status": 404
   }
 ]

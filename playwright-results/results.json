@@ -75,7 +75,7 @@
         {
           "title": "SSPA Dashboard - Cobertura Abrangente",
           "file": "sspa.spec.ts",
-          "line": 108,
+          "line": 300,
           "column": 6,
           "specs": [
             {
@@ -94,12 +94,12 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 2895,
+                      "duration": 3369,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-03-04T16:57:04.644Z",
+                      "startTime": "2026-03-05T14:13:04.084Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -109,7 +109,7 @@
               ],
               "id": "a42535faff86ef3f1343-023b2f29609dd954070b",
               "file": "sspa.spec.ts",
-              "line": 109,
+              "line": 301,
               "column": 7
             },
             {
@@ -128,12 +128,12 @@
                       "workerIndex": 1,
                       "parallelIndex": 1,
                       "status": "passed",
-                      "duration": 217,
+                      "duration": 497,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-03-04T16:57:06.112Z",
+                      "startTime": "2026-03-05T14:13:03.774Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -143,7 +143,7 @@
               ],
               "id": "a42535faff86ef3f1343-753bb3df9ef578d81a70",
               "file": "sspa.spec.ts",
-              "line": 126,
+              "line": 317,
               "column": 7
             },
             {
@@ -162,12 +162,12 @@
                       "workerIndex": 2,
                       "parallelIndex": 2,
                       "status": "passed",
-                      "duration": 4331,
+                      "duration": 5372,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-03-04T16:57:06.074Z",
+                      "startTime": "2026-03-05T14:13:05.125Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -177,7 +177,7 @@
               ],
               "id": "a42535faff86ef3f1343-b1321e8d304225afccfe",
               "file": "sspa.spec.ts",
-              "line": 137,
+              "line": 328,
               "column": 7
             },
             {
@@ -196,12 +196,12 @@
                       "workerIndex": 3,
                       "parallelIndex": 3,
                       "status": "passed",
-                      "duration": 5509,
+                      "duration": 6845,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-03-04T16:57:06.209Z",
+                      "startTime": "2026-03-05T14:13:04.013Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -211,7 +211,7 @@
               ],
               "id": "a42535faff86ef3f1343-7e3751bdd0ce559d5fcc",
               "file": "sspa.spec.ts",
-              "line": 201,
+              "line": 392,
               "column": 7
             },
             {
@@ -230,12 +230,12 @@
                       "workerIndex": 1,
                       "parallelIndex": 1,
                       "status": "passed",
-                      "duration": 5893,
+                      "duration": 5849,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-03-04T16:57:06.684Z",
+                      "startTime": "2026-03-05T14:13:04.558Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -245,7 +245,41 @@
               ],
               "id": "a42535faff86ef3f1343-d272942f860710b5c84e",
               "file": "sspa.spec.ts",
-              "line": 255,
+              "line": 431,
+              "column": 7
+            },
+            {
+              "title": "paridade UI x Postgres: valores visíveis devem bater com o banco (top 20)",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 600000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 3055,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-03-05T14:13:08.204Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "a42535faff86ef3f1343-fd7f90b754fb6f8d650b",
+              "file": "sspa.spec.ts",
+              "line": 570,
               "column": 7
             },
             {
@@ -261,15 +295,15 @@
                   "projectName": "chromium",
                   "results": [
                     {
-                      "workerIndex": 0,
-                      "parallelIndex": 0,
+                      "workerIndex": 1,
+                      "parallelIndex": 1,
                       "status": "passed",
-                      "duration": 485,
+                      "duration": 180,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-03-04T16:57:08.394Z",
+                      "startTime": "2026-03-05T14:13:10.501Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -279,7 +313,7 @@
               ],
               "id": "a42535faff86ef3f1343-624bddb45cd8f452a85a",
               "file": "sspa.spec.ts",
-              "line": 394,
+              "line": 680,
               "column": 7
             }
           ]
@@ -289,9 +323,9 @@
   ],
   "errors": [],
   "stats": {
-    "startTime": "2026-03-04T16:56:58.992Z",
-    "duration": 13859.772,
-    "expected": 6,
+    "startTime": "2026-03-05T14:12:56.408Z",
+    "duration": 15734.106,
+    "expected": 7,
     "skipped": 0,
     "unexpected": 0,
     "flaky": 0

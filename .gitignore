@@ -16,6 +16,7 @@ lerna-debug.log*
 .env.production.local
 .env.local
 *.env
+!.repo.env
 
 # Build output (raiz e gen)
 build/

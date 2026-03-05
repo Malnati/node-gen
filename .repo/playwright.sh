@@ -3,6 +3,10 @@
 
 set -euo pipefail
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck disable=SC1091
+. "${SCRIPT_DIR}/env.sh"
+
 NODE_MIN_MAJOR=18
 PLAYWRIGHT_PACKAGE='@playwright/cli@latest'
 LOCAL_NPM_PREFIX="${HOME}/.local"
@@ -58,6 +62,9 @@ install_skills_for_agent() {
   local agent="$1"
   local session_id
   session_id="${agent}-$(basename "$(pwd)")"
+  if [ -n "${PLAYWRIGHT_CLI_SESSION_PREFIX:-}" ]; then
+    session_id="${PLAYWRIGHT_CLI_SESSION_PREFIX}-${session_id}"
+  fi
 
   log "Instalando skills para ${agent} (sessao: ${session_id})..."
   PLAYWRIGHT_CLI_SESSION="${session_id}" playwright-cli install --skills
