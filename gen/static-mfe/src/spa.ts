@@ -7,6 +7,7 @@ import App from './App';
 const lifecycles = singleSpaReact({
   React,
   ReactDOM,
+  renderType: 'createRoot',
   rootComponent: App,
   errorBoundary(err: { message?: string }) {
     return React.createElement(

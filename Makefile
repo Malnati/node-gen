@@ -350,6 +350,7 @@ endef
 
 DEMO_PROJECTS ?= addresses contacts orders
 DEMO_MFE_BASE_PORT ?= 7100
+DEMO_MFE_IMPORT_HOST ?= host.docker.internal
 DEMO_DISCOVERY_APPS_FILE ?= /tmp/nodegen-demo-discovery-apps.json
 DEMO_MFE_CONTAINERS_FILE ?= /tmp/nodegen-demo-mfe-containers.txt
 
@@ -417,7 +418,7 @@ demo-mfe-up: demo-mfe-down
 		echo "$$container_name" >> "$(DEMO_MFE_CONTAINERS_FILE)"; \
 		if [ "$$first_item" -eq 0 ]; then echo "," >> "$(DEMO_DISCOVERY_APPS_FILE)"; fi; \
 		printf '{"name":"@mfe/%s","module":"@mfe/%s","route":"/%s","title":"%s","description":"MFE %s","importUrl":"http://host.docker.internal:%s/spa.js"}' \
-			"$$project" "$$project" "$$project" "$$project" "$$project" "$$current_port" >> "$(DEMO_DISCOVERY_APPS_FILE)"; \
+			"$$project" "$$project" "$$project" "$$project" "$$project" "$$current_port" | sed "s|host.docker.internal|$(DEMO_MFE_IMPORT_HOST)|g" >> "$(DEMO_DISCOVERY_APPS_FILE)"; \
 		first_item=0; \
 		current_port=$$((current_port + 1)); \
 	done; \
