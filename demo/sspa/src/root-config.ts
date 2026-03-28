@@ -1,5 +1,6 @@
 // demo/sspa/src/root-config.ts
 import { registerApplication, start } from 'single-spa';
+import type { LifeCycles } from 'single-spa';
 
 type DiscoveryApplication = {
   name: string;
@@ -8,11 +9,10 @@ type DiscoveryApplication = {
 };
 
 declare const System: {
-  import: (moduleName: string) => Promise<unknown>;
+  import: (moduleName: string) => Promise<LifeCycles<{}>>;
 };
 
-const DISCOVERY_BASE_URL = import.meta.env.VITE_DISCOVERY_BASE_URL || 'http://localhost:3015';
-const APPLICATIONS_URL = `${DISCOVERY_BASE_URL}/api/discovery/applications`;
+const APPLICATIONS_URL = '/api/discovery/applications';
 
 let started = false;
 

@@ -19,8 +19,8 @@ apiClient.interceptors.response.use(
 
 export const <%= camelName %>Api = {
   getAll: () => apiClient.get('/'),
-  getById: (id: string) => apiClient.get(`/${id}`),
+  getById: (id: string | number) => apiClient.get(`/${id}`),
   create: (data: unknown) => apiClient.post('/', data),
-  update: (id: string, data: unknown) => apiClient.put(`/${id}`, data),
-  delete: (id: string) => apiClient.delete(`/${id}`),
+  update: (id: string | number, data: unknown) => apiClient.put(`/${id}`, data),
+  delete: (id: string | number) => apiClient.delete(`/${id}`),
 };

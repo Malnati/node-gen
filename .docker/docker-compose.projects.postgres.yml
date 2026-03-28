@@ -7,8 +7,7 @@ services:
       POSTGRES_PASSWORD: postgres
       POSTGRES_USER: postgres
       POSTGRES_HOST_AUTH_METHOD: trust
-    ports:
-      - "5432:5432"
+    # Ports removed for isolation
     volumes:
       - postgres-data:/var/lib/postgresql/data
     healthcheck:
@@ -16,6 +15,8 @@ services:
       interval: 2s
       timeout: 5s
       retries: 10
+    networks:
+      - nodegen-network
 
   apis:
     image: node-gen-apis:latest
@@ -23,8 +24,7 @@ services:
       context: /root/w/node-gen
       dockerfile: .docker/Dockerfile.projects.postgres
     container_name: nodegen-apis
-    ports:
-      - "3001-3099:3001-3099"
+    # Ports removed for isolation
     depends_on:
       postgres-shared:
         condition: service_healthy
@@ -35,9 +35,11 @@ services:
       DATABASE_PASSWORD: postgres
       E2E_SKIP_JWT: "true"
     volumes:
-      - /root/w/node-gen/test/e2e-generator/projects:/projects-source
+      - /root/w/node-gen/projects:/projects-source
       - /root/w/node-gen/output:/output
     entrypoint: ["/entrypoint.projects.postgres.sh"]
+    networks:
+      - nodegen-network
 
   sspa:
     image: node-gen-sspa:latest
@@ -45,30 +47,66 @@ services:
       context: /root/w/node-gen
       dockerfile: .docker/Dockerfile.sspa
     container_name: nodegen-sspa
-    ports:
-      - "9000:9000"
+    # Ports removed for isolation
     depends_on:
       apis:
         condition: service_started
     environment:
       MFES_DIR: /mfe-output
       SSPA_SKIP_AUTH: "${SSPA_SKIP_AUTH:-true}"
+      VITE_PUBLIC_URL: "${VITE_PUBLIC_URL:-http://localhost:9000}"
+      VITE_SERVICE_DISCOVERY_URL: "${VITE_SERVICE_DISCOVERY_URL:-http://localhost:3015}"
+      VITE_MFE_BASE_URL: "${VITE_MFE_BASE_URL:-http://localhost:9000}"
     volumes:
       - /root/w/node-gen/output:/mfe-output:ro
+    networks:
+      - nodegen-network
 
   service-discovery:
     image: node:22-alpine
     container_name: nodegen-service-discovery
     working_dir: /app
-    ports:
-      - "3015:3015"
+    # Ports removed for isolation
     environment:
       PORT: "${SERVICE_DISCOVERY_PORT:-3015}"
       DISCOVERY_TIMEOUT_MS: "${DISCOVERY_TIMEOUT_MS:-1200}"
-      DISCOVERY_APPS_JSON: "${DISCOVERY_APPS_JSON:-[{\"name\":\"@mfe/addresses\",\"module\":\"@mfe/addresses\",\"route\":\"/addresses\",\"title\":\"Addresses\",\"description\":\"MFE de consulta e manutencao de enderecos\",\"importUrl\":\"http://host.docker.internal:7100/main.js\"},{\"name\":\"@mfe/contacts\",\"module\":\"@mfe/contacts\",\"route\":\"/contacts\",\"title\":\"Contacts\",\"description\":\"MFE de gestao de contatos\",\"importUrl\":\"http://host.docker.internal:7101/main.js\"},{\"name\":\"@mfe/orders\",\"module\":\"@mfe/orders\",\"route\":\"/orders\",\"title\":\"Orders\",\"description\":\"MFE de pedidos e acompanhamento\",\"importUrl\":\"http://host.docker.internal:7102/main.js\"}]}"
+      DISCOVERY_USE_LOCALHOST: "${DISCOVERY_USE_LOCALHOST:-true}"
+      DISCOVERY_APPS_DIR: "${DISCOVERY_APPS_DIR:-/mfe-output/manifests}"
+      DISCOVERY_APPS_JSON: "${DISCOVERY_APPS_JSON:-[]}"
+      VITE_PUBLIC_URL: "${VITE_PUBLIC_URL:-http://localhost:9000}"
+      VITE_SERVICE_DISCOVERY_URL: "${VITE_SERVICE_DISCOVERY_URL:-http://localhost:3015}"
+      VITE_MFE_BASE_URL: "${VITE_MFE_BASE_URL:-http://localhost:9000}"
     volumes:
       - /root/w/node-gen/demo/service-discovery:/app
+      - /root/w/node-gen/output:/mfe-output:ro
     command: sh -lc "npm install --no-audit --no-fund && npm run build && npm run start"
+    networks:
+      - nodegen-network
+
+  proxy:
+    image: caddy:2-alpine
+    container_name: nodegen-proxy
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      PUBLIC_DOMAIN: "${PUBLIC_DOMAIN:-localhost}"
+    volumes:
+      - /root/w/node-gen/.docker/Caddyfile:/etc/caddy/Caddyfile
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - sspa
+      - service-discovery
+      - apis
+    networks:
+      - nodegen-network
 
 volumes:
   postgres-data:
+  caddy_data:
+  caddy_config:
+
+networks:
+  nodegen-network:
+    driver: bridge

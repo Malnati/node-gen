@@ -2,15 +2,43 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 
-export default defineConfig({
-  plugins: [react()],
-  server: {
-    port: <%= port %>,
-    headers: {
-      'Access-Control-Allow-Origin': '*',
+async function detectPublicUrl(): Promise<string | null> {
+  try {
+    const response = await fetch('https://api.ipify.org?format=json');
+    if (!response.ok) {
+      return null;
+    }
+    const payload = (await response.json()) as { ip?: string };
+    if (!payload.ip) {
+      return null;
+    }
+    return `http://${payload.ip}:9000`;
+  } catch {
+    return null;
+  }
+}
+
+export default defineConfig(async () => {
+  const publicUrl = (process.env.VITE_PUBLIC_URL || (await detectPublicUrl()) || 'http://localhost:9000').replace(/\/$/, '');
+  const publicHost = new URL(publicUrl);
+  const serviceDiscoveryUrl = (process.env.VITE_SERVICE_DISCOVERY_URL || `${publicHost.protocol}//${publicHost.hostname}:3015`).replace(/\/$/, '');
+  const mfeBaseUrl = (process.env.VITE_MFE_BASE_URL || publicUrl).replace(/\/$/, '');
+
+  return {
+    plugins: [react()],
+    define: {
+      'import.meta.env.VITE_PUBLIC_URL': JSON.stringify(publicUrl),
+      'import.meta.env.VITE_SERVICE_DISCOVERY_URL': JSON.stringify(serviceDiscoveryUrl),
+      'import.meta.env.VITE_MFE_BASE_URL': JSON.stringify(mfeBaseUrl),
     },
-  },
-  build: {
-    outDir: 'dist',
-  },
+    server: {
+      port: <%= port %>,
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+      },
+    },
+    build: {
+      outDir: 'dist',
+    },
+  };
 });

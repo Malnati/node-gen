@@ -1,0 +1,26 @@
+[
+  {
+    "name": "@mfe/address",
+    "module": "@mfe/address",
+    "route": "/addresses",
+    "title": "Address",
+    "description": "MFE Address",
+    "importUrl": "http://localhost:7100/spa.js"
+  },
+  {
+    "name": "@mfe/contact",
+    "module": "@mfe/contact",
+    "route": "/contacts",
+    "title": "Contact",
+    "description": "MFE Contact",
+    "importUrl": "http://localhost:7101/spa.js"
+  },
+  {
+    "name": "@mfe/order-item",
+    "module": "@mfe/order-item",
+    "route": "/orders",
+    "title": "OrderItem",
+    "description": "MFE OrderItem",
+    "importUrl": "http://localhost:7102/spa.js"
+  }
+]

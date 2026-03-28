@@ -16,8 +16,8 @@ export class ApiDataSourceGenerator {
   }
 
   generateDataSourceFile() {
-    // Nova estrutura: <output>/api/src/modules/config/
-    const outputDir = path.join(this.config.outputDir, 'api', 'src', 'modules', 'config');
+    // Nova estrutura: <output>/src/app/modules/config/
+    const outputDir = path.join(this.config.outputDir, 'src', 'modules', 'config');
 
     if (!fs.existsSync(outputDir)) {
       fs.mkdirSync(outputDir, { recursive: true });

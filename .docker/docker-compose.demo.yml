@@ -1,0 +1,41 @@
+# .docker/docker-compose.demo.yml
+services:
+  service-discovery:
+    image: node-gen-demo-service-discovery:latest
+    build:
+      context: /root/w/node-gen
+      dockerfile: .docker/Dockerfile.service-discovery
+    container_name: nodegen-demo-service-discovery
+    environment:
+      PORT: "${SERVICE_DISCOVERY_PORT:-3015}"
+      DISCOVERY_TIMEOUT_MS: "${DISCOVERY_TIMEOUT_MS:-1200}"
+      DISCOVERY_APPS_DIR: "${DISCOVERY_APPS_DIR:-/mfe-output/manifests}"
+      DISCOVERY_APPS_JSON: "${DISCOVERY_APPS_JSON:-[]}"
+      VITE_PUBLIC_URL: "${VITE_PUBLIC_URL:-http://localhost:9000}"
+      VITE_SERVICE_DISCOVERY_URL: "${VITE_SERVICE_DISCOVERY_URL:-http://localhost:3015}"
+      VITE_MFE_BASE_URL: "${VITE_MFE_BASE_URL:-http://localhost:9000}"
+    ports:
+      - "${SERVICE_DISCOVERY_PORT:-3015}:3015"
+    volumes:
+      - /root/w/node-gen/output:/mfe-output:ro
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "-", "http://localhost:3015/health"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  sspa:
+    image: node-gen-demo-sspa:latest
+    build:
+      context: /root/w/node-gen
+      dockerfile: .docker/Dockerfile.demo
+      args:
+        VITE_DISCOVERY_BASE_URL: "${VITE_SERVICE_DISCOVERY_URL:-http://localhost:3015}"
+    container_name: nodegen-demo-sspa
+    depends_on:
+      service-discovery:
+        condition: service_healthy
+    environment:
+      SSPA_SKIP_AUTH: "${SSPA_SKIP_AUTH:-true}"
+    ports:
+      - "${DEMO_SSPA_PORT:-9000}:80"

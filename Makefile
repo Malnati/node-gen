@@ -81,7 +81,7 @@ gen-internal:
 		echo "Alternativamente: make gen PROJECT=accounts OUTPUT=output/accounts"; \
 		exit 1; \
 	fi
-	@node gen/dist/main.js -a $$(basename $(or $(GEN_PROJECT),$(PROJECT))) -d $$(or $(GEN_PROJECT),$(PROJECT))/db -o $(or $(GEN_OUTPUT),$(OUTPUT)) -t sqlite
+	@node gen/dist/main.js -a $$(basename $(or $(GEN_PROJECT),$(PROJECT))) -d $(or $(GEN_PROJECT),$(PROJECT))/db -o $(or $(GEN_OUTPUT),$(OUTPUT)) -t sqlite
 
 # Gera MFE (Micro-frontend) para um projeto específico
 # Uso: make gen-mfe GEN_PROJECT=<path/project> GEN_OUTPUT=<path/output>
@@ -96,7 +96,7 @@ gen-mfe-internal:
 		echo "Exemplo: make gen-mfe GEN_PROJECT=test/e2e-generator/projects/accounts GEN_OUTPUT=output/accounts-mfe"; \
 		exit 1; \
 	fi
-	@node gen/dist/main.js -a $$(basename $(or $(GEN_PROJECT),$(PROJECT))) -f mfes -d $$(or $(GEN_PROJECT),$(PROJECT))/db -o $(or $(GEN_OUTPUT),$(OUTPUT))
+	@node gen/dist/main.js -a $$(basename $(or $(GEN_PROJECT),$(PROJECT))) -f mfes -d $(or $(GEN_PROJECT),$(PROJECT))/db -o $(or $(GEN_OUTPUT),$(OUTPUT))
 
 # Gera MFE Parcel Paging para um projeto específico
 # Uso: make gen-mfe-paging GEN_PROJECT=<path/project> GEN_OUTPUT=<path/output> GEN_DB_TYPE=<postgres|mysql|sqlite>
@@ -252,18 +252,25 @@ endef
 define gen-pg-api-project-target
 gen-$(1)-pg-api:
 	@echo "📦  Gerando API PostgreSQL para projeto $(1)..."
-	$(MAKE) gen-pg-api GEN_PROJECT=test/e2e-generator/projects/$(1) GEN_OUTPUT=output/api/postgres/$(1)
+	$(MAKE) gen-pg-api GEN_PROJECT=projects/$(1) GEN_OUTPUT=output/$(1)/postgres
+endef
+
+define gen-pg-mfe-app-project-target
+gen-$(1)-pg-mfe-app:
+	@echo "🎨  Gerando MFE application PostgreSQL para projeto $(1)..."
+	$(MAKE) gen-mfe GEN_PROJECT=projects/$(1) GEN_OUTPUT=output/$(1)/postgres
 endef
 
 define gen-pg-parcel-paging-project-target
 gen-$(1)-pg-parcel-paging:
 	@echo "📑  Gerando MFE Parcel Paging PostgreSQL para projeto $(1)..."
-	$(MAKE) gen-mfe-paging GEN_PROJECT=test/e2e-generator/projects/$(1) GEN_OUTPUT=output/parcel/postgres/$(1)/mfe-parcel-paging GEN_DB_TYPE=postgres
+	$(MAKE) gen-mfe-paging GEN_PROJECT=projects/$(1) GEN_OUTPUT=output/parcel/postgres/$(1)/mfe-parcel-paging GEN_DB_TYPE=postgres
 endef
 
 define e2e-pg-api-project-target
 e2e-$(1)-pg-api:
 	@echo "🧪  Executando E2E API PostgreSQL para projeto $(1)..."
+	$(MAKE) gen-$(1)-pg-api
 	E2E_DB_TYPES=postgres $(MAKE) e2e-dbs
 	E2E_DB_TYPES=postgres E2E_PROJECTS=$(1) $(MAKE) e2e-build
 	$(call compose_e2e,run --rm -e E2E_MODE=api -e E2E_PROJECTS=$(1) -e E2E_DB_TYPES=postgres e2e)
@@ -277,6 +284,7 @@ e2e-$(1)-pg-parcel-paging:
 	E2E_DB_TYPES=postgres E2E_PAGING_DB_TYPE=postgres $(MAKE) e2e-dbs
 	E2E_DB_TYPES=postgres E2E_PAGING_DB_TYPE=postgres E2E_PROJECTS=$(1) $(MAKE) e2e-build
 	$(call compose_e2e,run --rm -e E2E_MODE=paging -e E2E_PROJECTS=$(1) -e E2E_DB_TYPES=postgres -e E2E_PAGING_DB_TYPE=postgres e2e)
+	$(MAKE) projects-down
 	PLAYWRIGHT_PROJECT=$(1) $(MAKE) playwright-test
 endef
 
@@ -307,11 +315,18 @@ db-sqlite-$(1):
 	NODE_PATH=gen/node_modules E2E_DB_TYPES=sqlite node test/e2e-generator/run.js db $(1)
 endef
 
+define demo-pg-project-target
+demo-pg-$(1):
+	@echo "🚀  Publicando projeto $(1) no fluxo demo PostgreSQL..."
+	$(MAKE) demo-pg-up DEMO_PROJECTS="$(1)"
+endef
+
 $(foreach p,$(E2E_PROJECTS_LIST),$(eval $(call e2e-api-project-target,$(p))))
 $(foreach p,$(E2E_PROJECTS_LIST),$(eval $(call e2e-mfe-project-target,$(p))))
 $(foreach p,$(E2E_PROJECTS_LIST),$(eval $(call e2e-all-project-target,$(p))))
 $(foreach p,$(E2E_PROJECTS_LIST),$(eval $(call e2e-paging-project-target,$(p))))
 $(foreach p,$(E2E_PROJECTS_LIST),$(eval $(call gen-pg-api-project-target,$(p))))
+$(foreach p,$(E2E_PROJECTS_LIST),$(eval $(call gen-pg-mfe-app-project-target,$(p))))
 $(foreach p,$(E2E_PROJECTS_LIST),$(eval $(call gen-pg-parcel-paging-project-target,$(p))))
 $(foreach p,$(E2E_PROJECTS_LIST),$(eval $(call e2e-pg-api-project-target,$(p))))
 $(foreach p,$(E2E_PROJECTS_LIST),$(eval $(call e2e-pg-parcel-paging-project-target,$(p))))
@@ -319,34 +334,212 @@ $(foreach p,$(E2E_PROJECTS_LIST),$(eval $(call db-pg-project-target,$(p))))
 $(foreach p,$(E2E_PROJECTS_LIST),$(eval $(call db-mysql-project-target,$(p))))
 $(foreach p,$(E2E_PROJECTS_LIST),$(eval $(call db-sqlserver-project-target,$(p))))
 $(foreach p,$(E2E_PROJECTS_LIST),$(eval $(call db-sqlite-project-target,$(p))))
+$(foreach p,$(E2E_PROJECTS_LIST),$(eval $(call demo-pg-project-target,$(p))))
 
 # ==============================================================================
 # TARGETS DE PROJETOS POSTGRES (legado)
 # ==============================================================================
 
+# Detecção de IP público e Domínio
+PUBLIC_IP      ?= $(shell curl -fsS https://api.ipify.org 2>/dev/null || echo "127.0.0.1")
+PUBLIC_DOMAIN  ?= $(PUBLIC_IP).nip.io
+PUBLIC_BASE_URL ?= https://sspa.$(PUBLIC_DOMAIN)
+
 define compose_projects
-	DOCKER_CONFIG=$(DOCKER_CONFIG) $(COMPOSE_CMD) -f .docker/docker-compose.projects.postgres.yml --project-directory . $(1)
+	PUBLIC_DOMAIN=$(PUBLIC_DOMAIN) VITE_PUBLIC_URL=https://sspa.$(PUBLIC_DOMAIN) VITE_SERVICE_DISCOVERY_URL=https://discovery.$(PUBLIC_DOMAIN) VITE_MFE_BASE_URL=https://sspa.$(PUBLIC_DOMAIN) DOCKER_CONFIG=$(DOCKER_CONFIG) $(COMPOSE_CMD) -f .docker/docker-compose.projects.postgres.yml --project-directory . $(1)
 endef
+
+define compose_demo
+	PUBLIC_DOMAIN=$(PUBLIC_DOMAIN) DOCKER_CONFIG=$(DOCKER_CONFIG) $(COMPOSE_CMD) -f .docker/docker-compose.demo.yml --project-directory . $(1)
+endef
+
+DEMO_PROJECTS ?= addresses contacts orders
+DEMO_MFE_BASE_PORT ?= 7100
+DEMO_MFE_IMPORT_HOST ?= host.docker.internal
+DEMO_MANIFESTS_DIR ?= output/manifests
+DEMO_MFE_CONTAINERS_FILE ?= /tmp/nodegen-demo-mfe-containers.txt
+
+demo-up:
+	@echo "🚀  Subindo stack demo (sspa + service-discovery)..."
+	$(call compose_demo,up -d --build sspa service-discovery)
+
+demo-down:
+	@echo "🛑  Parando stack demo..."
+	$(call compose_demo,down)
+
+demo-logs:
+	@echo "📜  Exibindo logs da stack demo..."
+	$(call compose_demo,logs -f sspa service-discovery)
+
+demo-pg-prepare:
+	@echo "🧱  Gerando APIs e MFEs PostgreSQL para: $(DEMO_PROJECTS)"
+	@for project in $(DEMO_PROJECTS); do \
+		$(MAKE) gen-$$project-pg-api; \
+		$(MAKE) gen-$$project-pg-mfe-app; \
+	done
+
+demo-mfe-down:
+	@echo "🧹  Limpando containers MFE do demo..."
+	@containers="$$(DOCKER_CONFIG=$(DOCKER_CONFIG) docker ps -aq --filter label=nodegen.demo.mfe=true)"; \
+	if [ -n "$$containers" ]; then \
+		DOCKER_CONFIG=$(DOCKER_CONFIG) docker rm -f $$containers; \
+	fi
+	@rm -f $(DEMO_MFE_CONTAINERS_FILE)
+	@rm -rf $(DEMO_MANIFESTS_DIR)
+
+demo-mfe-up: demo-mfe-down
+	@echo "🌐  Subindo MFEs do demo para: $(DEMO_PROJECTS)"
+	@set -e; \
+	base_port="$(DEMO_MFE_BASE_PORT)"; \
+	current_port="$$base_port"; \
+	mkdir -p "$(DEMO_MANIFESTS_DIR)"; \
+	for project in $(DEMO_PROJECTS); do \
+		frontend_dir="output/$$project/postgres/frontend"; \
+		mfe_dir="$$(find "$$frontend_dir" -mindepth 1 -maxdepth 1 -type d -name '*-mfe' ! -name 'app-shell' ! -name '*paging*' | sort | head -n 1)"; \
+		if [ -z "$$mfe_dir" ]; then \
+			echo "❌  Nenhum MFE encontrado para $$project em $$frontend_dir"; \
+			exit 1; \
+		fi; \
+		dockerfile="$$mfe_dir/Dockerfile"; \
+		if [ ! -f "$$dockerfile" ]; then \
+			echo "❌  Dockerfile não encontrado em $$mfe_dir"; \
+			exit 1; \
+		fi; \
+		container_port="$$(sed -n 's/^EXPOSE \([0-9][0-9]*\)$$/\1/p' "$$dockerfile" | head -n 1)"; \
+		if [ -z "$$container_port" ]; then \
+			container_port="$$(sed -n 's/.*listen \([0-9][0-9]*\).*/\1/p' "$$dockerfile" | head -n 1)"; \
+		fi; \
+		if [ -z "$$container_port" ]; then \
+			echo "❌  Porta EXPOSE não encontrada em $$dockerfile"; \
+			exit 1; \
+		fi; \
+		image_name="node-gen-demo-$${project}-mfe:latest"; \
+		container_name="nodegen-demo-mfe-$${project}"; \
+		manifest_file="$(DEMO_MANIFESTS_DIR)/$${project}.json"; \
+		if [ ! -f "$$mfe_dir/package-lock.json" ]; then \
+			DOCKER_CONFIG=$(DOCKER_CONFIG) docker run --rm -v "$(PWD)/$$mfe_dir:/app" -w /app node:18-alpine npm install --package-lock-only --ignore-scripts --no-audit --no-fund; \
+		fi; \
+		DOCKER_CONFIG=$(DOCKER_CONFIG) docker build -t "$$image_name" "$$mfe_dir"; \
+		DOCKER_CONFIG=$(DOCKER_CONFIG) docker run -d --name "$$container_name" --label nodegen.demo.mfe=true -p "$${current_port}:$${container_port}" "$$image_name" > /dev/null; \
+		echo "$$container_name" >> "$(DEMO_MFE_CONTAINERS_FILE)"; \
+		node -e 'const fs = require("fs"); const manifestPath = process.argv[1]; const targetPath = process.argv[2]; const project = process.argv[3]; const host = process.argv[4]; const port = process.argv[5]; let payload = {}; if (fs.existsSync(manifestPath)) { payload = JSON.parse(fs.readFileSync(manifestPath, "utf8")); } const app = { name: payload.name || ("@mfe/" + project), module: payload.module || ("@mfe/" + project), route: "/" + project, title: payload.title || project, description: payload.description || ("MFE " + project), importUrl: "http://" + host + ":" + port + "/spa.js" }; fs.writeFileSync(targetPath, JSON.stringify(app, null, 2) + "\n");' "$$mfe_dir/manifest.json" "$$manifest_file" "$$project" "$(DEMO_MFE_IMPORT_HOST)" "$$current_port"; \
+		current_port=$$((current_port + 1)); \
+	done
+
+demo-pg-up: demo-pg-prepare demo-mfe-up
+	@echo "🚀  Subindo demo com discovery dinâmico para: $(DEMO_PROJECTS)"
+	@set -e; \
+	resolved_public_url="$(VITE_PUBLIC_URL)"; \
+	if [ -z "$$resolved_public_url" ]; then \
+		detected_ip="$$(curl -fsS https://api.ipify.org 2>/dev/null || wget -qO- https://api.ipify.org 2>/dev/null || true)"; \
+		if [ -n "$$detected_ip" ]; then \
+			resolved_public_url="http://$$detected_ip:9000"; \
+		else \
+			resolved_public_url="http://localhost:9000"; \
+		fi; \
+	fi; \
+	resolved_discovery_url="$(VITE_SERVICE_DISCOVERY_URL)"; \
+	if [ -z "$$resolved_discovery_url" ]; then \
+		resolved_discovery_url="$$(node -e 'const source = process.argv[1]; const parsed = new URL(source); console.log(parsed.protocol + "//" + parsed.hostname + ":3015");' "$$resolved_public_url")"; \
+	fi; \
+	resolved_mfe_base_url="$(VITE_MFE_BASE_URL)"; \
+	if [ -z "$$resolved_mfe_base_url" ]; then \
+		resolved_mfe_base_url="$$resolved_public_url"; \
+	fi; \
+	VITE_PUBLIC_URL="$$resolved_public_url" VITE_SERVICE_DISCOVERY_URL="$$resolved_discovery_url" VITE_MFE_BASE_URL="$$resolved_mfe_base_url" DISCOVERY_APPS_DIR="/mfe-output/manifests" $(MAKE) demo-up
+
+demo-pg-down:
+	@echo "🛑  Parando demo PostgreSQL completo..."
+	@$(MAKE) demo-down
+	@echo "🛑  Parando stack de APIs/Postgres usada no demo..."
+	$(call compose_projects,down)
+	@$(MAKE) demo-mfe-down
+
+demo-pg-apis-up:
+	@echo "🚀  Subindo Postgres + APIs para consumo dos MFEs do demo..."
+	$(call compose_projects,up -d --build postgres-shared apis)
+	@echo "⏳  Aguardando healthcheck das APIs dos projetos de DEMO_PROJECTS..."
+	@pairs="$$(node -e 'const fs=require("fs"); const path=require("path"); const root="output"; const wanted=(process.argv[1]||"").split(/\s+/).filter(Boolean); const dirs=(fs.existsSync(root)?fs.readdirSync(root):[]).sort(); let port=3001; const mapped=[]; for (const p of dirs){ const pgDir=path.join(root,p,"postgres"); if(!fs.existsSync(pgDir)){ continue; } const hasAppPkg=fs.existsSync(path.join(pgDir,"package.json"))||fs.existsSync(path.join(pgDir,"api","package.json")); if(!hasAppPkg){ continue; } if (wanted.includes(p)){ mapped.push(p+":"+port); } port += 1; } process.stdout.write(mapped.join(" "));' "$(DEMO_PROJECTS)")"; \
+	if [ -z "$$pairs" ]; then \
+		echo "❌  Não foi possível mapear portas das APIs para DEMO_PROJECTS=$(DEMO_PROJECTS)"; \
+		exit 1; \
+	fi; \
+	for pair in $$pairs; do \
+		project="$${pair%%:*}"; \
+		port="$${pair##*:}"; \
+		echo "⏳  Aguardando API $$project na porta $$port..."; \
+		for i in $$(seq 1 180); do \
+			code=$$(curl -s -o /dev/null -w "%{http_code}" --connect-timeout 1 --max-time 2 "http://localhost:$$port/health" || echo "000"); \
+			if [ "$$code" = "200" ]; then \
+				echo "✅  API $$project pronta na porta $$port"; \
+				break; \
+			fi; \
+			if [ $$i -eq 180 ]; then \
+				echo "❌  Timeout aguardando API $$project na porta $$port"; \
+				exit 1; \
+			fi; \
+			sleep 1; \
+		done; \
+	done
+
+demo-pg-verify-discovery:
+	@echo "🔎  Validando service-discovery e manifests dinâmicos..."
+	@curl -fsS http://localhost:3015/health > /dev/null
+	@payload="$$(curl -fsS http://localhost:3015/api/discovery/applications)"; \
+	printf '%s' "$$payload" | node -e 'const fs=require("fs"); const raw=fs.readFileSync(0,"utf8"); const expected=(process.argv[1]||"").split(/\s+/).filter(Boolean); const data=JSON.parse(raw); if(!Array.isArray(data)||data.length===0){console.error("Nenhuma aplicacao descoberta"); process.exit(1);} const names=new Set(data.map((a)=>String(a.route||"").replace(/^\//,""))); for(const p of expected){ if(!names.has(p)){ console.error("Aplicacao ausente no discovery:", p); process.exit(1);} } console.log("Discovery OK:", data.length, "aplicacao(oes)");' "$(DEMO_PROJECTS)"
+
+demo-pg-e2e:
+	@echo "🧪  Executando ciclo completo demo-pg (generate + publish + playwright)..."
+	@$(MAKE) demo-pg-down
+	@$(MAKE) demo-pg-up DEMO_PROJECTS="$(DEMO_PROJECTS)"
+	@$(MAKE) demo-pg-apis-up
+	@$(MAKE) demo-pg-verify-discovery DEMO_PROJECTS="$(DEMO_PROJECTS)"
+	@PLAYWRIGHT_DB_ASSERT="$${PLAYWRIGHT_DB_ASSERT:-true}" PLAYWRIGHT_DB_LIMIT="$${PLAYWRIGHT_DB_LIMIT:-20}" $(MAKE) playwright-demo-test
 
 projects-build:
 	@echo "🛠️  Buildando imagem para projetos PostgreSQL..."
 	$(call compose_projects,build)
 
-projects-up:
-	@echo "🚀  Subindo todas as APIs PostgreSQL..."
+projects-up: caddy-config
+	@echo "🚀  Subindo todas as APIs PostgreSQL + Proxy Centralizado ($(PUBLIC_DOMAIN))..."
 	$(call compose_projects,up -d --build)
-	@echo "⏳  Aguardando SSPA ficar acessível..."
-	@for i in $$(seq 1 60); do \
-		if curl -s http://localhost:9000 > /dev/null 2>&1; then \
-			echo "✅  SSPA pronto (porta 9000)"; \
+	@echo "⏳  Aguardando Proxy ficar acessível..."
+	@for i in $(shell seq 1 60); do \
+		if curl -sk https://sspa.$(PUBLIC_DOMAIN) > /dev/null 2>&1 || curl -sk http://$(PUBLIC_DOMAIN) > /dev/null 2>&1; then \
+			echo "✅  Proxy pronto em https://sspa.$(PUBLIC_DOMAIN)"; \
 			break; \
 		fi; \
 		if [ $$i -eq 60 ]; then \
-			echo "❌  Timeout aguardando SSPA ficar pronto"; \
+			echo "❌  Timeout aguardando Proxy ficar pronto"; \
 			exit 1; \
 		fi; \
 		sleep 2; \
 	done
+
+caddy-config:
+	@echo "🛠️  Gerando configuração do Caddy..."
+	@if [ -f output/apis_ports.txt ]; then \
+		API_ROUTES=""; \
+		MFE_SUBDOMAINS=""; \
+		while IFS=: read -r project port; do \
+			API_ROUTES="$$API_ROUTES\n    handle_path /$$project/* { reverse_proxy nodegen-apis:$$port }"; \
+			MFE_SUBDOMAINS="$$MFE_SUBDOMAINS\n$$project.{\$$PUBLIC_DOMAIN} {\n    import cors\n    reverse_proxy nodegen-apis:$$port\n}"; \
+			if [ "$$project" = "auth" ]; then \
+				MFE_SUBDOMAINS="$$MFE_SUBDOMAINS\nlogin.{\$$PUBLIC_DOMAIN} {\n    import cors\n    reverse_proxy nodegen-apis:$$port\n}"; \
+			fi; \
+		done < output/apis_ports.txt; \
+		cp .docker/Caddyfile.template .docker/Caddyfile; \
+		printf "$$API_ROUTES" > /tmp/api_routes.txt; \
+		printf "$$MFE_SUBDOMAINS" > /tmp/mfe_subdomains.txt; \
+		sed -i "/{{API_ROUTES}}/r /tmp/api_routes.txt" .docker/Caddyfile; \
+		sed -i "/{{API_ROUTES}}/d" .docker/Caddyfile; \
+		sed -i "/{{MFE_SUBDOMAINS}}/r /tmp/mfe_subdomains.txt" .docker/Caddyfile; \
+		sed -i "/{{MFE_SUBDOMAINS}}/d" .docker/Caddyfile; \
+	else \
+		cp .docker/Caddyfile.template .docker/Caddyfile; \
+		sed -i "s|{{API_ROUTES}}||g" .docker/Caddyfile; \
+		sed -i "s|{{MFE_SUBDOMAINS}}||g" .docker/Caddyfile; \
+	fi
 
 projects-down:
 	@echo "🛑  Parando todas as APIs PostgreSQL..."
@@ -458,10 +651,37 @@ playwright-down:
 	@echo "🛑  Parando container SSPA..."
 	$(call compose_projects,stop sspa)
 
-playwright-test: playwright-install playwright-up
-	@echo "🧪  Executando testes Playwright..."
+playwright-demo-up:
+	@echo "🚀  Validando disponibilidade da stack demo para Playwright..."
+	@for i in $$(seq 1 60); do \
+		if curl -s http://localhost:9000 > /dev/null 2>&1; then \
+			echo "✅  SSPA demo disponível na porta 9000"; \
+			break; \
+		fi; \
+		if [ $$i -eq 60 ]; then \
+			echo "❌  Timeout aguardando SSPA demo na porta 9000"; \
+			exit 1; \
+		fi; \
+		sleep 1; \
+	done
+	@curl -fsS http://localhost:3015/health > /dev/null
+
+playwright-demo-test: playwright-install playwright-demo-up
+	@echo "🧪  Executando Playwright contra a stack demo..."
 	@mkdir -p playwright-report playwright-results test-results
-	bash -lc 'set -o pipefail; npx playwright test 2>&1 | tee playwright-results/playwright-run.log; status=$$?; curl -sS http://localhost:9000/data/projects.json > playwright-results/sspa-projects.json 2>/dev/null || true; : > playwright-results/apis-health.log; for p in $$(seq 3001 3026); do code=$$(curl -s -o /dev/null -w "%{http_code}" --connect-timeout 1 --max-time 2 "http://localhost:$$p/health" || echo "000"); echo "port=$$p health=$$code" >> playwright-results/apis-health.log; done; DOCKER_CONFIG=$(DOCKER_CONFIG) $(COMPOSE_CMD) -f .docker/docker-compose.projects.postgres.yml --project-directory . logs --timestamps --tail=400 sspa > playwright-results/containers-sspa.log 2>&1 || true; DOCKER_CONFIG=$(DOCKER_CONFIG) $(COMPOSE_CMD) -f .docker/docker-compose.projects.postgres.yml --project-directory . logs --timestamps --tail=400 apis > playwright-results/containers-apis.log 2>&1 || true; DOCKER_CONFIG=$(DOCKER_CONFIG) $(COMPOSE_CMD) -f .docker/docker-compose.projects.postgres.yml --project-directory . logs --timestamps --tail=400 postgres-shared > playwright-results/containers-postgres.log 2>&1 || true; DOCKER_CONFIG=$(DOCKER_CONFIG) $(COMPOSE_CMD) -f .docker/docker-compose.projects.postgres.yml --project-directory . ps > playwright-results/containers-ps.log 2>&1 || true; exit $$status'
+	bash -lc 'set -o pipefail; npx playwright test 2>&1 | tee playwright-results/playwright-run.log; status=$$?; curl -sS http://localhost:9000/data/projects.json > playwright-results/sspa-projects.json 2>/dev/null || true; curl -sS http://localhost:3015/api/discovery/applications > playwright-results/discovery-applications.json 2>/dev/null || true; : > playwright-results/apis-health.log; for p in $$(seq 3001 3026); do code=$$(curl -s -o /dev/null -w "%{http_code}" --connect-timeout 1 --max-time 2 "http://localhost:$$p/health" || echo "000"); echo "port=$$p health=$$code" >> playwright-results/apis-health.log; done; DOCKER_CONFIG=$(DOCKER_CONFIG) $(COMPOSE_CMD) -f .docker/docker-compose.demo.yml --project-directory . logs --timestamps --tail=400 sspa > playwright-results/containers-demo-sspa.log 2>&1 || true; DOCKER_CONFIG=$(DOCKER_CONFIG) $(COMPOSE_CMD) -f .docker/docker-compose.demo.yml --project-directory . logs --timestamps --tail=400 service-discovery > playwright-results/containers-demo-discovery.log 2>&1 || true; DOCKER_CONFIG=$(DOCKER_CONFIG) $(COMPOSE_CMD) -f .docker/docker-compose.projects.postgres.yml --project-directory . logs --timestamps --tail=400 apis > playwright-results/containers-apis.log 2>&1 || true; DOCKER_CONFIG=$(DOCKER_CONFIG) $(COMPOSE_CMD) -f .docker/docker-compose.projects.postgres.yml --project-directory . logs --timestamps --tail=400 postgres-shared > playwright-results/containers-postgres.log 2>&1 || true; exit $$status'
+	@echo "📊  Relatórios demo disponíveis em:"
+	@echo "   - HTML: playwright-report/index.html"
+	@echo "   - JSON: playwright-results/results.json"
+	@echo "   - LOG: playwright-results/playwright-run.log"
+	@echo "   - Discovery Apps: playwright-results/discovery-applications.json"
+	@echo "   - UI x DB Validation: playwright-results/ui-db-validation.json"
+	@echo "   - UI x DB Anomalies: playwright-results/ui-db-validation-anomalies.json"
+
+playwright-test: playwright-install playwright-up
+	@echo "🧪  Executando testes Playwright contra $(PUBLIC_BASE_URL)..."
+	@mkdir -p playwright-report playwright-results test-results
+	bash -lc 'set -o pipefail; PUBLIC_BASE_URL=$(PUBLIC_BASE_URL) npx playwright test 2>&1 | tee playwright-results/playwright-run.log; status=$$?; curl -sS http://localhost:9000/data/projects.json > playwright-results/sspa-projects.json 2>/dev/null || true; : > playwright-results/apis-health.log; for p in $$(seq 3001 3026); do code=$$(curl -s -o /dev/null -w "%{http_code}" --connect-timeout 1 --max-time 2 "http://localhost:$$p/health" || echo "000"); echo "port=$$p health=$$code" >> playwright-results/apis-health.log; done; DOCKER_CONFIG=$(DOCKER_CONFIG) $(COMPOSE_CMD) -f .docker/docker-compose.projects.postgres.yml --project-directory . logs --timestamps --tail=400 sspa > playwright-results/containers-sspa.log 2>&1 || true; DOCKER_CONFIG=$(DOCKER_CONFIG) $(COMPOSE_CMD) -f .docker/docker-compose.projects.postgres.yml --project-directory . logs --timestamps --tail=400 apis > playwright-results/containers-apis.log 2>&1 || true; DOCKER_CONFIG=$(DOCKER_CONFIG) $(COMPOSE_CMD) -f .docker/docker-compose.projects.postgres.yml --project-directory . logs --timestamps --tail=400 postgres-shared > playwright-results/containers-postgres.log 2>&1 || true; DOCKER_CONFIG=$(DOCKER_CONFIG) $(COMPOSE_CMD) -f .docker/docker-compose.projects.postgres.yml --project-directory . ps > playwright-results/containers-ps.log 2>&1 || true; exit $$status'
 	@echo "📊  Relatórios disponíveis em:"
 	@echo "   - HTML: playwright-report/index.html"
 	@echo "   - JSON: playwright-results/results.json"
@@ -469,6 +689,8 @@ playwright-test: playwright-install playwright-up
 	@echo "   - HTTP Matrix: playwright-results/http-matrix.json"
 	@echo "   - HTTP Matrix Anomalies: playwright-results/http-matrix-anomalies.json"
 	@echo "   - Card Validation: playwright-results/card-validation.json"
+	@echo "   - UI x DB Validation: playwright-results/ui-db-validation.json"
+	@echo "   - UI x DB Anomalies: playwright-results/ui-db-validation-anomalies.json"
 	@echo "   - SSPA Projects Snapshot: playwright-results/sspa-projects.json"
 	@echo "   - APIs Health Snapshot: playwright-results/apis-health.log"
 	@echo "   - Containers: playwright-results/containers-*.log"

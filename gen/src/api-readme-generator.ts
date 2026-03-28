@@ -17,7 +17,7 @@ export class ApiReadmeGenerator {
 
   generateReadme() {
     // Nova estrutura: <output>/api/
-    const outputDir = path.join(this.config.outputDir, 'api');
+    const outputDir = path.join(this.config.outputDir, '.');
 
     if (!fs.existsSync(outputDir)) {
       fs.mkdirSync(outputDir, { recursive: true });

@@ -1,1 +1,122 @@
-[]
+[
+  {
+    "project": "addresses",
+    "entity": "country",
+    "field": "get_unauth",
+    "status": 500
+  },
+  {
+    "project": "addresses",
+    "entity": "country",
+    "field": "get_invalid_token",
+    "status": 500
+  },
+  {
+    "project": "addresses",
+    "entity": "country",
+    "field": "get_malformed_token",
+    "status": 500
+  },
+  {
+    "project": "addresses",
+    "entity": "country",
+    "field": "post_unauth",
+    "status": 500
+  },
+  {
+    "project": "addresses",
+    "entity": "country",
+    "field": "post_invalid_token",
+    "status": 500
+  },
+  {
+    "project": "addresses",
+    "entity": "state",
+    "field": "get_unauth",
+    "status": 500
+  },
+  {
+    "project": "addresses",
+    "entity": "state",
+    "field": "get_invalid_token",
+    "status": 500
+  },
+  {
+    "project": "addresses",
+    "entity": "state",
+    "field": "get_malformed_token",
+    "status": 500
+  },
+  {
+    "project": "addresses",
+    "entity": "state",
+    "field": "post_unauth",
+    "status": 500
+  },
+  {
+    "project": "addresses",
+    "entity": "state",
+    "field": "post_invalid_token",
+    "status": 500
+  },
+  {
+    "project": "addresses",
+    "entity": "city",
+    "field": "get_unauth",
+    "status": 500
+  },
+  {
+    "project": "addresses",
+    "entity": "city",
+    "field": "get_invalid_token",
+    "status": 500
+  },
+  {
+    "project": "addresses",
+    "entity": "city",
+    "field": "get_malformed_token",
+    "status": 500
+  },
+  {
+    "project": "addresses",
+    "entity": "city",
+    "field": "post_unauth",
+    "status": 500
+  },
+  {
+    "project": "addresses",
+    "entity": "city",
+    "field": "post_invalid_token",
+    "status": 500
+  },
+  {
+    "project": "addresses",
+    "entity": "address",
+    "field": "get_unauth",
+    "status": 500
+  },
+  {
+    "project": "addresses",
+    "entity": "address",
+    "field": "get_invalid_token",
+    "status": 500
+  },
+  {
+    "project": "addresses",
+    "entity": "address",
+    "field": "get_malformed_token",
+    "status": 500
+  },
+  {
+    "project": "addresses",
+    "entity": "address",
+    "field": "post_unauth",
+    "status": 500
+  },
+  {
+    "project": "addresses",
+    "entity": "address",
+    "field": "post_invalid_token",
+    "status": 500
+  }
+]

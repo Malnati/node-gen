@@ -8,6 +8,7 @@ import { ServeStaticModule } from "@nestjs/serve-static";
 import { HealthModule } from "./modules/health/health.module";
 import { VersionModule } from "./modules/version/version.module";
 import { JwtAuthGuardModule } from "./middleware/jwt-auth.guard.module";
+import { ProxyModule } from "./modules/proxy/proxy.module";
 
 @Module({
   imports: [
@@ -16,11 +17,13 @@ import { JwtAuthGuardModule } from "./middleware/jwt-auth.guard.module";
       envFilePath: process.env.NODE_ENV === 'test' ? '.env.test' : ['.env.local', '.env'],
     }),
     ServeStaticModule.forRoot({
-      rootPath: join(__dirname, "..", "..", "public"),
+      rootPath: join(__dirname, "..", "public"),
+      exclude: ['/api/(.*)', '/bff/(.*)', '/health', '/version'],
     }),
     VersionModule,
     JwtAuthGuardModule,
     HealthModule,
+    ProxyModule,
     {{moduleList}}
   ],
 })

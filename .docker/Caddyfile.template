@@ -1,0 +1,35 @@
+# .docker/Caddyfile.template
+{
+    email admin@{$PUBLIC_DOMAIN}
+}
+
+(cors) {
+    header {
+        Access-Control-Allow-Origin *
+        Access-Control-Allow-Methods "GET, POST, OPTIONS, PUT, DELETE"
+        Access-Control-Allow-Headers "*"
+    }
+}
+
+# SSPA Orchestrator
+sspa.{$PUBLIC_DOMAIN} {
+    import cors
+    reverse_proxy nodegen-sspa:80
+}
+
+# Service Discovery
+discovery.{$PUBLIC_DOMAIN} {
+    import cors
+    reverse_proxy nodegen-service-discovery:3015
+}
+
+# API Entry Point (Global)
+api.{$PUBLIC_DOMAIN} {
+    import cors
+{{API_ROUTES}}
+    # Fallback to first API
+    reverse_proxy nodegen-apis:3001
+}
+
+# Standalone MFEs (Dynamic Subdomains)
+{{MFE_SUBDOMAINS}}

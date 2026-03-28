@@ -17,8 +17,8 @@ export class ApiEntityGenerator {
   }
 
   generateEntities() {
-    // Nova estrutura: <output>/api/src/modules/<entity>/
-    const modulesDir = path.join(this.config.outputDir, "api", "src", "modules");
+    // Estrutura padrão: <output>/src/app/modules/<entity>/
+    const modulesDir = path.join(this.config.outputDir, "src", "modules");
 
     if (!fs.existsSync(modulesDir)) {
       fs.mkdirSync(modulesDir, { recursive: true });

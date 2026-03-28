@@ -1,0 +1,58 @@
+[
+  {
+    "project": "addresses",
+    "entity": "country",
+    "table": "country",
+    "checked_rows": 0,
+    "checked_columns": 5,
+    "status": "api_500"
+  },
+  {
+    "project": "addresses",
+    "entity": "state",
+    "table": "state",
+    "checked_rows": 0,
+    "checked_columns": 5,
+    "status": "api_500"
+  },
+  {
+    "project": "addresses",
+    "entity": "city",
+    "table": "city",
+    "checked_rows": 0,
+    "checked_columns": 5,
+    "status": "api_500"
+  },
+  {
+    "project": "addresses",
+    "entity": "address",
+    "table": "address",
+    "checked_rows": 0,
+    "checked_columns": 5,
+    "status": "api_500"
+  },
+  {
+    "project": "contacts",
+    "entity": "contact",
+    "table": "contact",
+    "checked_rows": 0,
+    "checked_columns": 5,
+    "status": "api_404"
+  },
+  {
+    "project": "orders",
+    "entity": "order",
+    "table": "order",
+    "checked_rows": 0,
+    "checked_columns": 5,
+    "status": "api_404"
+  },
+  {
+    "project": "orders",
+    "entity": "order_item",
+    "table": "order_item",
+    "checked_rows": 0,
+    "checked_columns": 5,
+    "status": "api_404"
+  }
+]

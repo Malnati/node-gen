@@ -1,7 +1,7 @@
 // gen/templates/app-shell-root-config-dynamic.ejs
 import { registerApplication, start } from 'single-spa';
 
-const discoveryBaseUrl = (window as any).__SSPA_DISCOVERY_URL__ || 'http://localhost:3015';
+const discoveryBaseUrl = (window as any).__SSPA_DISCOVERY_URL__ || import.meta.env.VITE_SERVICE_DISCOVERY_URL;
 const applicationsUrl = `${discoveryBaseUrl}/api/discovery/applications`;
 
 type DiscoveredApplication = {

@@ -6,7 +6,7 @@ import { toKebabCase, toPascalCase } from './utils/string';
 import { loadTemplate } from './utils/template-loader';
 
 const RESERVED_MODULE_NAMES = new Set([
-  'ConfigModule', 'Module', 'ServeStaticModule',
+  'ConfigModule', 'Module', 'ServeStaticModule', 'ProxyModule',
   'HealthModule', 'VersionModule', 'JwtAuthGuardModule', 'AppModule',
 ]);
 
@@ -21,8 +21,8 @@ export class ApiAppModuleGenerator {
   }
 
   generateAppModule() {
-    // Nova estrutura: <output>/api/src/
-    const outputDir = path.join(this.config.outputDir, 'api', 'src');
+    // Estrutura padrão: <output>/src/
+    const outputDir = path.join(this.config.outputDir, 'src');
 
     if (!fs.existsSync(outputDir)) {
       fs.mkdirSync(outputDir, { recursive: true });

@@ -7,6 +7,7 @@ import App from './App';
 const lifecycles = singleSpaReact({
   React,
   ReactDOMClient,
+  renderType: 'createRoot',
   rootComponent: App,
   errorBoundary() {
     return <div>Erro ao carregar a aplicacao.</div>;

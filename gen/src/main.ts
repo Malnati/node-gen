@@ -56,7 +56,7 @@ function askQuestion(query: string): Promise<string> {
 async function copyStaticApiFiles(destDir: string, templateDir?: string) {
     await copyStaticComponentFiles({
         destDir,
-        outputSubDir: "api",
+        outputSubDir: ".",
         staticComponentDirName: "api",
         templateDir,
         fallbackStaticDirName: "static-api",

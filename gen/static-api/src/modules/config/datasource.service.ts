@@ -32,9 +32,6 @@ export class DataSourceService implements OnModuleInit {
         entities: [],
         synchronize: false,
         logging: true,
-        ssl: {
-          rejectUnauthorized: false,
-        },
         cache: {
           type: "database",
           duration: cacheDuration,
@@ -70,9 +67,6 @@ export class DataSourceService implements OnModuleInit {
         entities: [],
         synchronize: false,
         logging: true,
-        ssl: {
-          rejectUnauthorized: false,
-        },
         cache: {
           type: "database",
           duration: cacheDuration,

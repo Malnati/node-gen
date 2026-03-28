@@ -42,11 +42,7 @@ export function Dashboard(): JSX.Element {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const discoveryBaseUrl = import.meta.env.VITE_DISCOVERY_BASE_URL || 'http://localhost:3015';
-  const applicationsUrl = useMemo(
-    () => `${discoveryBaseUrl}/api/discovery/applications`,
-    [discoveryBaseUrl]
-  );
+  const applicationsUrl = useMemo(() => '/api/discovery/applications', []);
 
   useEffect(() => {
     const run = async () => {
