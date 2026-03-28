@@ -16,8 +16,8 @@ export class ApiServiceGenerator {
   }
 
   async generateServices() {
-    // Nova estrutura: <output>/api/src/modules/<entity>/
-    const outputDir = path.join(this.config.outputDir, 'api', 'src', 'modules');
+    // Nova estrutura: <output>/src/app/modules/<entity>/
+    const outputDir = path.join(this.config.outputDir, 'src', 'modules');
 
     if (!fs.existsSync(outputDir)) {
       fs.mkdirSync(outputDir, { recursive: true });

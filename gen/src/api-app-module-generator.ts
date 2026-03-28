@@ -21,8 +21,8 @@ export class ApiAppModuleGenerator {
   }
 
   generateAppModule() {
-    // Nova estrutura: <output>/api/src/
-    const outputDir = path.join(this.config.outputDir, 'api', 'src');
+    // Estrutura padrão: <output>/src/
+    const outputDir = path.join(this.config.outputDir, 'src');
 
     if (!fs.existsSync(outputDir)) {
       fs.mkdirSync(outputDir, { recursive: true });

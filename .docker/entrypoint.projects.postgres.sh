@@ -15,12 +15,12 @@ export PGPASSWORD="$DATABASE_PASSWORD"
 
 resolve_app_dir() {
     local postgres_dir="$1"
-    if [ -f "$postgres_dir/package.json" ]; then
-        echo "$postgres_dir"
-        return 0
-    fi
     if [ -f "$postgres_dir/api/package.json" ]; then
         echo "$postgres_dir/api"
+        return 0
+    fi
+    if [ -f "$postgres_dir/package.json" ]; then
+        echo "$postgres_dir"
         return 0
     fi
     return 1
@@ -103,7 +103,7 @@ for project_dir in "$OUTPUT_DIR"/*/postgres; do
 
     if [ ! -f "dist/main.js" ] || [ "$app_dir/src" -nt "dist/main.js" ] || [ "$app_dir/package.json" -nt "dist/main.js" ] || find "$app_dir/src" -type f -newer "dist/main.js" | head -n 1 | grep -q .; then
         echo "[entrypoint] Buildando API: $project_name"
-        npm run build 2>/dev/null
+        npm run build || echo "[entrypoint] Build da API $project_name falhou (ignorando)"
     else
         echo "[entrypoint] Build já existente para API: $project_name"
     fi
@@ -149,6 +149,7 @@ echo "[entrypoint] Iniciando todas as APIs..."
 
 port=3001
 tcp_port=13001
+rm -f /output/apis_ports.txt
 
 for project_dir in "$OUTPUT_DIR"/*/postgres; do
     if [ ! -d "$project_dir" ]; then
@@ -160,6 +161,9 @@ for project_dir in "$OUTPUT_DIR"/*/postgres; do
     }
 
     project_name=$(basename "$(dirname "$project_dir")")
+    
+    # Registrar mapeamento de porta
+    echo "$project_name:$port" >> /output/apis_ports.txt
     
     cd "$app_dir"
 

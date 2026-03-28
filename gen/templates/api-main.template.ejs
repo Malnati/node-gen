@@ -82,7 +82,7 @@ async function bootstrap() {
 
   app.startAllMicroservices();
   const PORT = process.env.PORT || microservicePort;
-  await app.listen(PORT);
+  await app.listen(PORT, "0.0.0.0");
   try {
     const appUrl = await app.getUrl();
     Logger.log(`Application ${microserviceName} is running on: ${appUrl}`);

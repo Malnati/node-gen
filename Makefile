@@ -500,7 +500,7 @@ projects-build:
 	@echo "🛠️  Buildando imagem para projetos PostgreSQL..."
 	$(call compose_projects,build)
 
-projects-up:
+projects-up: caddy-config
 	@echo "🚀  Subindo todas as APIs PostgreSQL + Proxy Centralizado ($(PUBLIC_DOMAIN))..."
 	$(call compose_projects,up -d --build)
 	@echo "⏳  Aguardando Proxy ficar acessível..."
@@ -515,6 +515,31 @@ projects-up:
 		fi; \
 		sleep 2; \
 	done
+
+caddy-config:
+	@echo "🛠️  Gerando configuração do Caddy..."
+	@if [ -f output/apis_ports.txt ]; then \
+		API_ROUTES=""; \
+		MFE_SUBDOMAINS=""; \
+		while IFS=: read -r project port; do \
+			API_ROUTES="$$API_ROUTES\n    handle_path /$$project/* { reverse_proxy nodegen-apis:$$port }"; \
+			MFE_SUBDOMAINS="$$MFE_SUBDOMAINS\n$$project.{\$$PUBLIC_DOMAIN} {\n    import cors\n    reverse_proxy nodegen-apis:$$port\n}"; \
+			if [ "$$project" = "auth" ]; then \
+				MFE_SUBDOMAINS="$$MFE_SUBDOMAINS\nlogin.{\$$PUBLIC_DOMAIN} {\n    import cors\n    reverse_proxy nodegen-apis:$$port\n}"; \
+			fi; \
+		done < output/apis_ports.txt; \
+		cp .docker/Caddyfile.template .docker/Caddyfile; \
+		printf "$$API_ROUTES" > /tmp/api_routes.txt; \
+		printf "$$MFE_SUBDOMAINS" > /tmp/mfe_subdomains.txt; \
+		sed -i "/{{API_ROUTES}}/r /tmp/api_routes.txt" .docker/Caddyfile; \
+		sed -i "/{{API_ROUTES}}/d" .docker/Caddyfile; \
+		sed -i "/{{MFE_SUBDOMAINS}}/r /tmp/mfe_subdomains.txt" .docker/Caddyfile; \
+		sed -i "/{{MFE_SUBDOMAINS}}/d" .docker/Caddyfile; \
+	else \
+		cp .docker/Caddyfile.template .docker/Caddyfile; \
+		sed -i "s|{{API_ROUTES}}||g" .docker/Caddyfile; \
+		sed -i "s|{{MFE_SUBDOMAINS}}||g" .docker/Caddyfile; \
+	fi
 
 projects-down:
 	@echo "🛑  Parando todas as APIs PostgreSQL..."

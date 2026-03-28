@@ -1,4 +1,4 @@
-# .docker/Caddyfile
+# .docker/Caddyfile.template
 {
     email admin@{$PUBLIC_DOMAIN}
 }
@@ -14,33 +14,155 @@
 # SSPA Orchestrator
 sspa.{$PUBLIC_DOMAIN} {
     import cors
-    reverse_proxy sspa:80
+    reverse_proxy nodegen-sspa:80
 }
 
 # Service Discovery
 discovery.{$PUBLIC_DOMAIN} {
     import cors
-    reverse_proxy service-discovery:3015
+    reverse_proxy nodegen-service-discovery:3015
 }
 
 # API Entry Point (Global)
 api.{$PUBLIC_DOMAIN} {
     import cors
-    handle_path /accounts/* { reverse_proxy apis:3001 }
-    handle_path /addresses/* { reverse_proxy apis:3002 }
-    handle_path /auth/* { reverse_proxy apis:3004 }
-    # Fallback to first API
-    reverse_proxy apis:3001
+
+    handle_path /accounts/* { reverse_proxy nodegen-apis:3001 }
+    handle_path /addresses/* { reverse_proxy nodegen-apis:3002 }
+    handle_path /auth/* { reverse_proxy nodegen-apis:3003 }
+    handle_path /communications/* { reverse_proxy nodegen-apis:3004 }
+    handle_path /config/* { reverse_proxy nodegen-apis:3005 }
+    handle_path /consents/* { reverse_proxy nodegen-apis:3006 }
+    handle_path /contacts/* { reverse_proxy nodegen-apis:3007 }
+    handle_path /gmail/* { reverse_proxy nodegen-apis:3008 }
+    handle_path /google-calendar/* { reverse_proxy nodegen-apis:3009 }
+    handle_path /google-drive/* { reverse_proxy nodegen-apis:3010 }
+    handle_path /llm/* { reverse_proxy nodegen-apis:3011 }
+    handle_path /logistics/* { reverse_proxy nodegen-apis:3012 }
+    handle_path /maps/* { reverse_proxy nodegen-apis:3013 }
+    handle_path /notifications/* { reverse_proxy nodegen-apis:3014 }
+    handle_path /orders/* { reverse_proxy nodegen-apis:3015 }
+    handle_path /payments/* { reverse_proxy nodegen-apis:3016 }
+    handle_path /products/* { reverse_proxy nodegen-apis:3017 }
+    handle_path /reports/* { reverse_proxy nodegen-apis:3018 }
+    handle_path /roles/* { reverse_proxy nodegen-apis:3019 }
+    handle_path /schedule/* { reverse_proxy nodegen-apis:3020 }
+    handle_path /selling/* { reverse_proxy nodegen-apis:3021 }
+    handle_path /tenant/* { reverse_proxy nodegen-apis:3022 }
+    handle_path /todo/* { reverse_proxy nodegen-apis:3023 }
+    handle_path /transactions/* { reverse_proxy nodegen-apis:3024 }
+    handle_path /users/* { reverse_proxy nodegen-apis:3025 }
+    handle_path /warehouse/* { reverse_proxy nodegen-apis:3026 }    # Fallback to first API
+    reverse_proxy nodegen-apis:3001
 }
 
-# Login / Auth (Standalone Plugin)
-# Routes to apis container on port 3004 (auth project)
+# Standalone MFEs (Dynamic Subdomains)
+
+accounts.{$PUBLIC_DOMAIN} {
+    import cors
+    reverse_proxy nodegen-apis:3001
+}
+addresses.{$PUBLIC_DOMAIN} {
+    import cors
+    reverse_proxy nodegen-apis:3002
+}
+auth.{$PUBLIC_DOMAIN} {
+    import cors
+    reverse_proxy nodegen-apis:3003
+}
 login.{$PUBLIC_DOMAIN} {
     import cors
-    reverse_proxy apis:3004
+    reverse_proxy nodegen-apis:3003
 }
-
-# Generic Project Routing (Subdomains)
-# project.{$PUBLIC_DOMAIN} -> apis:<port>
-# This part is harder to make dynamic without a map file or external service discovery
-# For now, we will handle common ones explicitly or use paths on api subdomain
+communications.{$PUBLIC_DOMAIN} {
+    import cors
+    reverse_proxy nodegen-apis:3004
+}
+config.{$PUBLIC_DOMAIN} {
+    import cors
+    reverse_proxy nodegen-apis:3005
+}
+consents.{$PUBLIC_DOMAIN} {
+    import cors
+    reverse_proxy nodegen-apis:3006
+}
+contacts.{$PUBLIC_DOMAIN} {
+    import cors
+    reverse_proxy nodegen-apis:3007
+}
+gmail.{$PUBLIC_DOMAIN} {
+    import cors
+    reverse_proxy nodegen-apis:3008
+}
+google-calendar.{$PUBLIC_DOMAIN} {
+    import cors
+    reverse_proxy nodegen-apis:3009
+}
+google-drive.{$PUBLIC_DOMAIN} {
+    import cors
+    reverse_proxy nodegen-apis:3010
+}
+llm.{$PUBLIC_DOMAIN} {
+    import cors
+    reverse_proxy nodegen-apis:3011
+}
+logistics.{$PUBLIC_DOMAIN} {
+    import cors
+    reverse_proxy nodegen-apis:3012
+}
+maps.{$PUBLIC_DOMAIN} {
+    import cors
+    reverse_proxy nodegen-apis:3013
+}
+notifications.{$PUBLIC_DOMAIN} {
+    import cors
+    reverse_proxy nodegen-apis:3014
+}
+orders.{$PUBLIC_DOMAIN} {
+    import cors
+    reverse_proxy nodegen-apis:3015
+}
+payments.{$PUBLIC_DOMAIN} {
+    import cors
+    reverse_proxy nodegen-apis:3016
+}
+products.{$PUBLIC_DOMAIN} {
+    import cors
+    reverse_proxy nodegen-apis:3017
+}
+reports.{$PUBLIC_DOMAIN} {
+    import cors
+    reverse_proxy nodegen-apis:3018
+}
+roles.{$PUBLIC_DOMAIN} {
+    import cors
+    reverse_proxy nodegen-apis:3019
+}
+schedule.{$PUBLIC_DOMAIN} {
+    import cors
+    reverse_proxy nodegen-apis:3020
+}
+selling.{$PUBLIC_DOMAIN} {
+    import cors
+    reverse_proxy nodegen-apis:3021
+}
+tenant.{$PUBLIC_DOMAIN} {
+    import cors
+    reverse_proxy nodegen-apis:3022
+}
+todo.{$PUBLIC_DOMAIN} {
+    import cors
+    reverse_proxy nodegen-apis:3023
+}
+transactions.{$PUBLIC_DOMAIN} {
+    import cors
+    reverse_proxy nodegen-apis:3024
+}
+users.{$PUBLIC_DOMAIN} {
+    import cors
+    reverse_proxy nodegen-apis:3025
+}
+warehouse.{$PUBLIC_DOMAIN} {
+    import cors
+    reverse_proxy nodegen-apis:3026
+}

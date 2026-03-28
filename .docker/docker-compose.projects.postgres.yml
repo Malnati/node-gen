@@ -35,7 +35,7 @@ services:
       DATABASE_PASSWORD: postgres
       E2E_SKIP_JWT: "true"
     volumes:
-      - /root/w/node-gen/test/e2e-generator/projects:/projects-source
+      - /root/w/node-gen/projects:/projects-source
       - /root/w/node-gen/output:/output
     entrypoint: ["/entrypoint.projects.postgres.sh"]
     networks:
