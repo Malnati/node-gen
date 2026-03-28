@@ -6,7 +6,7 @@ import { toKebabCase, toPascalCase } from './utils/string';
 import { loadTemplate } from './utils/template-loader';
 
 const RESERVED_MODULE_NAMES = new Set([
-  'ConfigModule', 'Module', 'ServeStaticModule',
+  'ConfigModule', 'Module', 'ServeStaticModule', 'ProxyModule',
   'HealthModule', 'VersionModule', 'JwtAuthGuardModule', 'AppModule',
 ]);
 

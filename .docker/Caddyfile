@@ -1,0 +1,46 @@
+# .docker/Caddyfile
+{
+    email admin@{$PUBLIC_DOMAIN}
+}
+
+(cors) {
+    header {
+        Access-Control-Allow-Origin *
+        Access-Control-Allow-Methods "GET, POST, OPTIONS, PUT, DELETE"
+        Access-Control-Allow-Headers "*"
+    }
+}
+
+# SSPA Orchestrator
+sspa.{$PUBLIC_DOMAIN} {
+    import cors
+    reverse_proxy sspa:80
+}
+
+# Service Discovery
+discovery.{$PUBLIC_DOMAIN} {
+    import cors
+    reverse_proxy service-discovery:3015
+}
+
+# API Entry Point (Global)
+api.{$PUBLIC_DOMAIN} {
+    import cors
+    handle_path /accounts/* { reverse_proxy apis:3001 }
+    handle_path /addresses/* { reverse_proxy apis:3002 }
+    handle_path /auth/* { reverse_proxy apis:3004 }
+    # Fallback to first API
+    reverse_proxy apis:3001
+}
+
+# Login / Auth (Standalone Plugin)
+# Routes to apis container on port 3004 (auth project)
+login.{$PUBLIC_DOMAIN} {
+    import cors
+    reverse_proxy apis:3004
+}
+
+# Generic Project Routing (Subdomains)
+# project.{$PUBLIC_DOMAIN} -> apis:<port>
+# This part is harder to make dynamic without a map file or external service discovery
+# For now, we will handle common ones explicitly or use paths on api subdomain

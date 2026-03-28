@@ -86,6 +86,7 @@ export class MicrofrontendGenerator {
     this.generateListPage(mfeDir, mfeConfig);
     this.generateDetailsPage(mfeDir, mfeConfig);
     this.generateViteConfig(mfeDir, mfeConfig);
+    this.generateViteStandaloneConfig(mfeDir, mfeConfig);
     this.generateManifest(mfeDir, mfeConfig);
     this.generateTest(mfeDir, mfeConfig);
     this.generateAppTsx(mfeDir, mfeConfig);
@@ -192,6 +193,14 @@ export class MicrofrontendGenerator {
       port: config.port,
     });
     fs.writeFileSync(path.join(dir, 'vite.config.ts'), content);
+  }
+
+  private generateViteStandaloneConfig(dir: string, config: MFEConfig): void {
+    const content = renderTemplate('mfe-vite-standalone-config.ejs', {
+      name: config.name,
+      port: config.port,
+    });
+    fs.writeFileSync(path.join(dir, 'vite.standalone.config.ts'), content);
   }
 
   private generateManifest(dir: string, config: MFEConfig): void {

@@ -1,6 +1,6 @@
 #!/bin/bash
 # .docker/entrypoint.projects.postgres.sh
-
+set -x
 set -e
 
 DATABASE_HOST="${DATABASE_HOST:-postgres-shared}"
@@ -107,6 +107,35 @@ for project_dir in "$OUTPUT_DIR"/*/postgres; do
     else
         echo "[entrypoint] Build já existente para API: $project_name"
     fi
+
+    # ============================================
+    # Build e integração do MFE standalone
+    # ============================================
+    # Tentar encontrar frontend em subdiretórios comuns
+    for frontend_dir in "$project_dir/frontend" "$(dirname "$project_dir")/frontend"; do
+        if [ -d "$frontend_dir" ]; then
+            echo "[entrypoint] Verificando MFEs em $frontend_dir"
+            for mfe_dir in "$frontend_dir"/*-mfe; do
+                if [ -d "$mfe_dir" ] && [ -f "$mfe_dir/package.json" ]; then
+                    echo "[entrypoint] Processando MFE standalone: $(basename "$mfe_dir")"
+                    (
+                        cd "$mfe_dir"
+                        if [ ! -d "node_modules" ]; then
+                            npm install --no-audit --ignore-scripts 2>/dev/null || true
+                        fi
+                        npm run build 2>/dev/null || true
+                        if grep -q "build:standalone" package.json; then
+                            npm run build:standalone 2>/dev/null || true
+                        fi
+                        
+                        mkdir -p "$app_dir/public/mfe"
+                        [ -d "dist" ] && cp -r dist/* "$app_dir/public/mfe/" || true
+                        [ -d "dist-standalone" ] && cp -r dist-standalone/* "$app_dir/public/" || true
+                    )
+                fi
+            done
+        fi
+    done
 
     cd /app
 done

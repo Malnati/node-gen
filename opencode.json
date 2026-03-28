@@ -146,32 +146,6 @@
       "type": "remote",
       "url": "https://sentinel.microsoft.com/mcp/data-exploration",
       "enabled": true
-    },
-    "figma": {
-      "type": "remote",
-      "url": "https://mcp.figma.com/mcp",
-      "enabled": true
-    },
-    "sonarqube": {
-      "type": "local",
-      "command": [
-        "docker",
-        "run",
-        "--init",
-        "--pull=always",
-        "-i",
-        "--rm",
-        "-e",
-        "SONARQUBE_TOKEN",
-        "-e",
-        "SONARQUBE_URL",
-        "mcp/sonarqube"
-      ],
-      "env": {
-        "SONARQUBE_TOKEN": "__SET_SONARQUBE_TOKEN__",
-        "SONARQUBE_URL": "__SET_SONARQUBE_URL__"
-      },
-      "enabled": true
     }
   }
 }

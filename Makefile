@@ -340,12 +340,17 @@ $(foreach p,$(E2E_PROJECTS_LIST),$(eval $(call demo-pg-project-target,$(p))))
 # TARGETS DE PROJETOS POSTGRES (legado)
 # ==============================================================================
 
+# Detecção de IP público e Domínio
+PUBLIC_IP      ?= $(shell curl -fsS https://api.ipify.org 2>/dev/null || echo "127.0.0.1")
+PUBLIC_DOMAIN  ?= $(PUBLIC_IP).nip.io
+PUBLIC_BASE_URL ?= https://sspa.$(PUBLIC_DOMAIN)
+
 define compose_projects
-	DOCKER_CONFIG=$(DOCKER_CONFIG) $(COMPOSE_CMD) -f .docker/docker-compose.projects.postgres.yml --project-directory . $(1)
+	PUBLIC_DOMAIN=$(PUBLIC_DOMAIN) VITE_PUBLIC_URL=https://sspa.$(PUBLIC_DOMAIN) VITE_SERVICE_DISCOVERY_URL=https://discovery.$(PUBLIC_DOMAIN) VITE_MFE_BASE_URL=https://sspa.$(PUBLIC_DOMAIN) DOCKER_CONFIG=$(DOCKER_CONFIG) $(COMPOSE_CMD) -f .docker/docker-compose.projects.postgres.yml --project-directory . $(1)
 endef
 
 define compose_demo
-	DOCKER_CONFIG=$(DOCKER_CONFIG) $(COMPOSE_CMD) -f .docker/docker-compose.demo.yml --project-directory . $(1)
+	PUBLIC_DOMAIN=$(PUBLIC_DOMAIN) DOCKER_CONFIG=$(DOCKER_CONFIG) $(COMPOSE_CMD) -f .docker/docker-compose.demo.yml --project-directory . $(1)
 endef
 
 DEMO_PROJECTS ?= addresses contacts orders
@@ -496,16 +501,16 @@ projects-build:
 	$(call compose_projects,build)
 
 projects-up:
-	@echo "🚀  Subindo todas as APIs PostgreSQL..."
+	@echo "🚀  Subindo todas as APIs PostgreSQL + Proxy Centralizado ($(PUBLIC_DOMAIN))..."
 	$(call compose_projects,up -d --build)
-	@echo "⏳  Aguardando SSPA ficar acessível..."
-	@for i in $$(seq 1 60); do \
-		if curl -s http://localhost:9000 > /dev/null 2>&1; then \
-			echo "✅  SSPA pronto (porta 9000)"; \
+	@echo "⏳  Aguardando Proxy ficar acessível..."
+	@for i in $(shell seq 1 60); do \
+		if curl -sk https://sspa.$(PUBLIC_DOMAIN) > /dev/null 2>&1 || curl -sk http://$(PUBLIC_DOMAIN) > /dev/null 2>&1; then \
+			echo "✅  Proxy pronto em https://sspa.$(PUBLIC_DOMAIN)"; \
 			break; \
 		fi; \
 		if [ $$i -eq 60 ]; then \
-			echo "❌  Timeout aguardando SSPA ficar pronto"; \
+			echo "❌  Timeout aguardando Proxy ficar pronto"; \
 			exit 1; \
 		fi; \
 		sleep 2; \
@@ -649,9 +654,9 @@ playwright-demo-test: playwright-install playwright-demo-up
 	@echo "   - UI x DB Anomalies: playwright-results/ui-db-validation-anomalies.json"
 
 playwright-test: playwright-install playwright-up
-	@echo "🧪  Executando testes Playwright..."
+	@echo "🧪  Executando testes Playwright contra $(PUBLIC_BASE_URL)..."
 	@mkdir -p playwright-report playwright-results test-results
-	bash -lc 'set -o pipefail; npx playwright test 2>&1 | tee playwright-results/playwright-run.log; status=$$?; curl -sS http://localhost:9000/data/projects.json > playwright-results/sspa-projects.json 2>/dev/null || true; : > playwright-results/apis-health.log; for p in $$(seq 3001 3026); do code=$$(curl -s -o /dev/null -w "%{http_code}" --connect-timeout 1 --max-time 2 "http://localhost:$$p/health" || echo "000"); echo "port=$$p health=$$code" >> playwright-results/apis-health.log; done; DOCKER_CONFIG=$(DOCKER_CONFIG) $(COMPOSE_CMD) -f .docker/docker-compose.projects.postgres.yml --project-directory . logs --timestamps --tail=400 sspa > playwright-results/containers-sspa.log 2>&1 || true; DOCKER_CONFIG=$(DOCKER_CONFIG) $(COMPOSE_CMD) -f .docker/docker-compose.projects.postgres.yml --project-directory . logs --timestamps --tail=400 apis > playwright-results/containers-apis.log 2>&1 || true; DOCKER_CONFIG=$(DOCKER_CONFIG) $(COMPOSE_CMD) -f .docker/docker-compose.projects.postgres.yml --project-directory . logs --timestamps --tail=400 postgres-shared > playwright-results/containers-postgres.log 2>&1 || true; DOCKER_CONFIG=$(DOCKER_CONFIG) $(COMPOSE_CMD) -f .docker/docker-compose.projects.postgres.yml --project-directory . ps > playwright-results/containers-ps.log 2>&1 || true; exit $$status'
+	bash -lc 'set -o pipefail; PUBLIC_BASE_URL=$(PUBLIC_BASE_URL) npx playwright test 2>&1 | tee playwright-results/playwright-run.log; status=$$?; curl -sS http://localhost:9000/data/projects.json > playwright-results/sspa-projects.json 2>/dev/null || true; : > playwright-results/apis-health.log; for p in $$(seq 3001 3026); do code=$$(curl -s -o /dev/null -w "%{http_code}" --connect-timeout 1 --max-time 2 "http://localhost:$$p/health" || echo "000"); echo "port=$$p health=$$code" >> playwright-results/apis-health.log; done; DOCKER_CONFIG=$(DOCKER_CONFIG) $(COMPOSE_CMD) -f .docker/docker-compose.projects.postgres.yml --project-directory . logs --timestamps --tail=400 sspa > playwright-results/containers-sspa.log 2>&1 || true; DOCKER_CONFIG=$(DOCKER_CONFIG) $(COMPOSE_CMD) -f .docker/docker-compose.projects.postgres.yml --project-directory . logs --timestamps --tail=400 apis > playwright-results/containers-apis.log 2>&1 || true; DOCKER_CONFIG=$(DOCKER_CONFIG) $(COMPOSE_CMD) -f .docker/docker-compose.projects.postgres.yml --project-directory . logs --timestamps --tail=400 postgres-shared > playwright-results/containers-postgres.log 2>&1 || true; DOCKER_CONFIG=$(DOCKER_CONFIG) $(COMPOSE_CMD) -f .docker/docker-compose.projects.postgres.yml --project-directory . ps > playwright-results/containers-ps.log 2>&1 || true; exit $$status'
 	@echo "📊  Relatórios disponíveis em:"
 	@echo "   - HTML: playwright-report/index.html"
 	@echo "   - JSON: playwright-results/results.json"
