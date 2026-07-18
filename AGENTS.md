@@ -1795,3 +1795,19 @@ opencode.json
 ---
 
 **Remember**: This repository's primary purpose is **workflow solutions testing**, not ensuring specific projects work perfectly. The fixtures are **mocks for testing workflow genericity**.
+
+---
+
+## Cursor Cloud specific instructions
+
+Contexto durável e não óbvio para agentes na VM do Cursor Cloud (dependências já instaladas pelo update script). Comandos padrão continuam documentados no `README.md` e no `Makefile`; aqui ficam apenas caveats.
+
+- **Produto central:** o gerador `node-gen` em `gen/` (CLI). O update script instala as dependências da raiz e de `gen/`; `gen/` precisa de `--legacy-peer-deps` porque não herda o `.npmrc` da raiz (npm não sobe diretórios). Antes de usar o CLI, compile com `npm run build` na raiz (gera `gen/dist/`). Build NÃO faz parte do update script.
+- **Docker ausente:** a VM não possui Docker. Os fluxos que dependem de Docker não rodam aqui: stack completa SSPA/APIs (`make projects-up`), testes Playwright (`make playwright-test`, `npm run test:playwright`) e E2E multi-banco (`make e2e*`, que sobem Postgres/MySQL/SQL Server). Use o caminho SQLite para validação local.
+- **`npm run test:e2e` não é sinal confiável aqui:** o harness `test/e2e-generator/e2e.js` verifica estrutura antiga (`src/app/...`) enquanto o gerador atual emite `output/<app>/api/src/modules/...`, e ainda exige containers de banco acessíveis. Para SQLite ele pula o start da API (`e2eSkipApiStartForDbTypes: ["sqlite"]`), fazendo apenas geração + build.
+- **Componentes do CLI usam prefixo `api-*`** (`api-entities,api-services,api-interfaces,api-controllers,api-dtos,api-modules,api-app-module,api-main,api-datasource,api-readme`). Os nomes antigos do `README.md` (`entities`, `services`, ...) são impressos como "não reconhecido". Componentes válidos estão no `switch` de `gen/src/main.ts`.
+- **Criar mock SQLite:** `NODE_PATH=gen/node_modules E2E_DB_TYPES=sqlite node test/e2e-generator/run.js db <projeto>` gera `test/e2e-generator/mock.sqlite` (projeto `todo`) ou `mock-<projeto>.sqlite`. Esses `.sqlite` não são versionados.
+- **Rodar uma API gerada contra SQLite (sem Docker):** dentro de `output/<app>/api/` rode `npm install --legacy-peer-deps` e adicione o driver `sqlite3` (`npm install sqlite3 --legacy-peer-deps`) — o `package.json` gerado só traz `pg`. Suba com `NODE_ENV=production E2E_SKIP_JWT=true DATABASE_TYPE=sqlite DATABASE_PATH=<abs .sqlite> PORT=<p> MICROSERVICE_TCP_PORT=<único> node dist/main.js` (após `npm run build`). `NODE_ENV=production` desativa Swagger e o health-check de sessão JWT; `E2E_SKIP_JWT=true` libera as rotas.
+- **Porta do microserviço TCP:** o `main.ts` gerado sobe um microserviço TCP em `MICROSERVICE_TCP_PORT` (default 3000). Ao rodar várias APIs, defina uma porta única por instância para evitar `EADDRINUSE`.
+- **Defeitos conhecidos do código gerado no path SQLite** (não são problemas de ambiente; não "corrigir" fora de escopo): colunas anuláveis viram `NOT NULL`; defaults de string ficam super-escapados (`DEFAULT (''active'')`, quebra o `synchronize`); relações geram `*_eid` no service divergindo de `*_id` no DTO (quebra o build). Para demonstração de runtime, prefira fixtures de tabela única sem default de string (`contacts`, `tenant`, `users`) e envie todos os campos no POST.
+- **Sem lint no gerador:** não há script de lint nem `eslint.config` para `gen/`/raiz (ESLint só existe em `sspa-static/*` e nos apps gerados). "Lint" do produto central não se aplica.
